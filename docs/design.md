@@ -202,6 +202,14 @@ flowchart LR
 
 顶栏在「原文」和「中文」之间切换，记在 `localStorage` 键 `miku-concert-stats-song-lang`。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，先显示译文，原文用灰色括号跟在后面；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
 
+## 演出角色
+
+`data/characters.json` 把固定的角色本名映射到匹配规则，用来合并声库变体。键是显示名，例如 `初音ミク`。值含 `patterns`（锚定在名称开头的正则）和可选 `aliases`（整段或作为前缀的别名，如英语名）。`初音ミク Append (Unknown)`、`初音ミク V4X (Original)`、`初音ミク V4X (Dark)` 都落到 `初音ミク`。对不上任何规则的名字保持未匹配，不猜测。
+
+一首歌的演唱者优先取缓存里该歌曲对象的 `artists`：`categories` 或 `roles` 含 `Vocalist` 的条目，名字用条目的 `name`，否则用嵌套 `artist.name`。当前已缓存的歌曲响应是用 `fields=Names,PVs,WebLinks` 拉的，没有 `artists` 数组。没有可用的结构化演唱者时，退回 `songs.artist_string` 里第一次出现的 `feat.` 之后的名单，按逗号拆开。`feat.` 前面的制作人不算角色。
+
+结果在读取目录时推导，不另写 SQL 列。排行、单场、年版和播放量页的歌曲行显示「演出角色」。排行可按一个角色筛选。
+
 ## 实现步骤
 
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/bands.ts`，`shared/stats.ts`，`shared/correlation.ts` 及对应 `tests/*`。
