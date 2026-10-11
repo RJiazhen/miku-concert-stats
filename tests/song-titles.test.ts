@@ -1,0 +1,38 @@
+import { readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import Database from 'better-sqlite3'
+import { applyCatalogSql } from '../scripts/build-catalog.ts'
+import { loadCatalog } from '../shared/catalog.ts'
+import { parseSongTitles, songTitleFor } from '../shared/song-titles.ts'
+import type { SqlRow } from '../shared/types.ts'
+
+describe('Chinese song titles', () => {
+  it('rejects a blank title, a missing source, and a non-numeric id', () => {
+    expect(() => parseSongTitles({ '10': { title: '  ', source: 'vocadb-alias' } })).toThrow(/empty/)
+    expect(() => parseSongTitles({ '10': { title: '融化', source: '' } })).toThrow(/source/)
+    expect(() => parseSongTitles({ melt: { title: '融化', source: 'vocadb-alias' } })).toThrow(/not an id/)
+    expect(songTitleFor(parseSongTitles({ '10': { title: '融化', source: 'vocadb-alias' } }), 10)?.title).toBe('融化')
+    expect(songTitleFor(parseSongTitles({}), 10)).toBeNull()
+  })
+
+  it('only keeps catalog songs with a non-empty title and a source', () => {
+    const raw = JSON.parse(readFileSync(new URL('../data/song-titles.zh-CN.json', import.meta.url), 'utf8')) as unknown
+    const titles = parseSongTitles(raw)
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      const ids = new Set(catalog.songs.map((song) => song.id))
+      for (const [id, entry] of Object.entries(titles)) {
+        expect(ids.has(Number(id))).toBe(true)
+        expect(entry.title.trim().length).toBeGreaterThan(0)
+        expect(entry.source.trim().length).toBeGreaterThan(0)
+      }
+    } finally {
+      db.close()
+    }
+  })
+})
