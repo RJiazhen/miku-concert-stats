@@ -114,6 +114,10 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
             · 该年版首演 {{ premiere.premiere_date }}
             <template v-if="premiere.premiere_performance_id === selected.id">（本场）</template>
           </template>
+          · <NuxtLink :to="`/shows/${selected.id}`">这场歌单</NuxtLink>
+          <template v-if="selected.series_number !== null">
+            · <NuxtLink :to="`/editions/${selected.series_id}/${selected.series_number}`">这个年版</NuxtLink>
+          </template>
           · <a :href="selected.source_url">VocaDB 演出</a>
         </p>
         <p v-if="selected?.time_evidence" class="note">开演摘录：{{ selected.time_evidence }}</p>

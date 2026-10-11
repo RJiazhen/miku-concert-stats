@@ -27,6 +27,26 @@ const sortDesc = ref(true)
 
 const seriesOptions = computed(() => catalog.value?.series ?? [])
 
+const editionLinks = computed(() => {
+  const seen = new Set<string>()
+  const links: { path: string; label: string }[] = []
+  for (const performance of catalog.value?.performances ?? []) {
+    if (performance.series_number === null) continue
+    const path = `/editions/${performance.series_id}/${performance.series_number}`
+    if (seen.has(path)) continue
+    seen.add(path)
+    const series = catalog.value?.series.find((row) => row.id === performance.series_id)
+    links.push({ path, label: `${series?.name ?? performance.series_id} ${performance.series_number}` })
+  }
+  return links.sort((left, right) => left.label.localeCompare(right.label, 'zh-Hans'))
+})
+
+/** Opens the edition setlist chosen from the ranking page. */
+const openEdition = (event: Event): void => {
+  const value = (event.target as HTMLSelectElement).value
+  if (value) void navigateTo(value)
+}
+
 /** Checks every series once, the first time the catalog is available. */
 const selectAllSeries = (): void => {
   if (seriesTouched.value || !catalog.value) return
@@ -111,6 +131,13 @@ const lineSongName = (songIds: readonly number[]): string => {
 const performanceName = (performanceId: number): string => {
   return catalog.value?.performances.find((row) => row.id === performanceId)?.name ?? String(performanceId)
 }
+
+/** Edition page for the first performance that uses a song list. */
+const editionPath = (songListId: number): string | null => {
+  const performance = catalog.value?.performances.find((row) => row.song_list_id === songListId && row.series_number !== null)
+  if (!performance || performance.series_number === null) return null
+  return `/editions/${performance.series_id}/${performance.series_number}`
+}
 </script>
 
 <template>
@@ -137,6 +164,13 @@ const performanceName = (performanceId: number): string => {
           <label>
             结束年
             <input v-model="yearToText" inputmode="numeric" placeholder="不限" autocomplete="off">
+          </label>
+          <label>
+            打开年版歌单
+            <select @change="openEdition">
+              <option value="">选择年版</option>
+              <option v-for="edition in editionLinks" :key="edition.path" :value="edition.path">{{ edition.label }}</option>
+            </select>
           </label>
         </div>
         <div class="checks">
@@ -211,7 +245,7 @@ const performanceName = (performanceId: number): string => {
             </thead>
             <tbody>
               <tr v-for="show in mismatchedShows" :key="show.performanceId">
-                <td>{{ performanceName(show.performanceId) }}</td>
+                <td><NuxtLink :to="`/shows/${show.performanceId}`">{{ performanceName(show.performanceId) }}</NuxtLink></td>
                 <td>{{ show.songListId }}</td>
                 <td>{{ show.reasons.join('；') }}</td>
               </tr>
@@ -230,7 +264,10 @@ const performanceName = (performanceId: number): string => {
             </thead>
             <tbody>
               <tr v-for="line in uncertainLines" :key="`${line.songListId}:${line.position}`">
-                <td>{{ line.songListId }}</td>
+                <td>
+                  <NuxtLink v-if="editionPath(line.songListId)" :to="editionPath(line.songListId) ?? ''">{{ line.songListId }}</NuxtLink>
+                  <template v-else>{{ line.songListId }}</template>
+                </td>
                 <td>{{ lineSongName(line.songIds) }}</td>
                 <td>{{ cell(line.notes) }}</td>
                 <td>{{ line.reasons.join('；') }}</td>
