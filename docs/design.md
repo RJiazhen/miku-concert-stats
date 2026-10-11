@@ -184,6 +184,24 @@ flowchart LR
 
 外观以深色为默认。`:root` 使用深色变量；`prefers-color-scheme: light` 且用户尚未选择时使用浅色变量。顶栏开关把 `light` 或 `dark` 写入 `localStorage` 键 `miku-concert-stats-theme`，并用 `documentElement.dataset.theme` 覆盖系统偏好。`nuxt.config` 的 `app.head` 放一段同步内联脚本，在首屏绘制前应用已保存的选择，避免先闪深色再跳到浅色。未保存时不写 `data-theme`，交给媒体查询。
 
+## 歌名中文
+
+`data/song-titles.zh-CN.json` 是按 VocaDB 歌曲 id 索引的对象。键是十进制 id 字符串。没有把握的歌不写进行去。
+
+```json
+{
+  "1326": {
+    "title": "世界第一公主殿下",
+    "source": "vocadb-alias",
+    "comment": "可选"
+  }
+}
+```
+
+`title` 非空。`source` 为字面量 `vocadb-alias`（来自缓存的 VocaDB `names[]` 中文别名），或一条能核对的 URL / 简短出处说明。`comment` 可省略。`shared/song-titles.ts` 校验并按 id 取出。测试要求每个 id 都在已提交目录里。
+
+顶栏在「原文」和「中文」之间切换，记在 `localStorage` 键 `miku-concert-stats-song-lang`。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，先显示译文，原文用灰色括号跟在后面；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
+
 ## 实现步骤
 
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/bands.ts`，`shared/stats.ts`，`shared/correlation.ts` 及对应 `tests/*`。
