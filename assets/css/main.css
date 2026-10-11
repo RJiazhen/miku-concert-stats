@@ -1,4 +1,19 @@
 :root {
+  color-scheme: dark;
+  --ink: #e7e1d6;
+  --muted: #b7b0a4;
+  --paper: #14181d;
+  --card: #1c232b;
+  --line: #343c46;
+  --teal: #7dcec6;
+  --teal-soft: #1d3a38;
+  --coral: #e07a68;
+  --shadow: 0 12px 30px rgb(0 0 0 / 28%);
+  --control: #12161b;
+  --on-accent: #10211f;
+}
+
+:root[data-theme='light'] {
   color-scheme: light;
   --ink: #1b2430;
   --muted: #5c6570;
@@ -9,6 +24,25 @@
   --teal-soft: #d7ebe8;
   --coral: #b6402c;
   --shadow: 0 12px 30px rgb(27 36 48 / 6%);
+  --control: #fff;
+  --on-accent: #fff;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --ink: #1b2430;
+    --muted: #5c6570;
+    --paper: #f4efe6;
+    --card: #fffdf8;
+    --line: #ddd4c6;
+    --teal: #0e6b66;
+    --teal-soft: #d7ebe8;
+    --coral: #b6402c;
+    --shadow: 0 12px 30px rgb(27 36 48 / 6%);
+    --control: #fff;
+    --on-accent: #fff;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -56,7 +90,7 @@ nav a {
   padding: 0.35rem 0.75rem;
 }
 
-nav a.router-link-active { background: var(--ink); color: white; border-color: var(--ink); }
+nav a.router-link-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 .lede { max-width: 68ch; color: var(--muted); }
 
@@ -77,12 +111,14 @@ select, input, button {
   font: inherit;
   color: var(--ink);
   border: 1px solid var(--line);
-  background: white;
+  background: var(--control);
   border-radius: 10px;
   padding: 0.45rem 0.6rem;
 }
 
-button { background: var(--teal); color: white; border-color: var(--teal); cursor: pointer; }
+button { background: var(--teal); color: var(--on-accent); border-color: var(--teal); cursor: pointer; }
+
+.theme-toggle { background: var(--card); color: var(--ink); border-color: var(--line); }
 
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
