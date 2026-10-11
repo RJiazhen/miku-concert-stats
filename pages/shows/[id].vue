@@ -2,6 +2,7 @@
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '../../composables/useCatalog.ts'
+import { formatCharacters } from '../../composables/useCharacters.ts'
 import { reviewRotations, type ResolvedRotationLine } from '../../shared/rotation.ts'
 
 const route = useRoute()
@@ -26,6 +27,13 @@ const lines = computed(() => {
 })
 
 const mismatch = computed(() => review.value?.shows.find((show) => show.performanceId === performanceId.value) ?? null)
+
+/** 演出角色 for the song this setlist line counts. */
+const lineCharacters = (line: ResolvedRotationLine): string => {
+  const songId = line.songIds[0] ?? line.listedSongId
+  const song = catalog.value?.songs.find((row) => row.id === songId)
+  return formatCharacters(song?.artist_string ?? null)
+}
 
 /** Display name for the first counted song on a line. */
 const songName = (line: ResolvedRotationLine): string => {
@@ -70,6 +78,7 @@ const onThisShow = (line: ResolvedRotationLine): string => {
           <thead>
             <tr>
               <th>歌曲</th>
+              <th>演出角色</th>
               <th>本场</th>
               <th>VocaDB 备注</th>
               <th>解析到的场次</th>
@@ -79,6 +88,7 @@ const onThisShow = (line: ResolvedRotationLine): string => {
           <tbody>
             <tr v-for="line in lines" :key="line.position">
               <td><a :href="`https://vocadb.net/S/${line.songIds[0] ?? line.listedSongId}`"><SongTitle :song-id="line.songIds[0] ?? line.listedSongId" :original="songName(line)" /></a></td>
+              <td>{{ lineCharacters(line) }}</td>
               <td>{{ onThisShow(line) }}</td>
               <td>{{ line.notes?.trim() ? line.notes : '（空，每一场）' }}</td>
               <td>{{ assignedNames(line) }}</td>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useCatalog } from '../composables/useCatalog.ts'
+import { characterNames, songCharacters } from '../composables/useCharacters.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import { rankSongAppearances, type RankingMode, type SongRanking } from '../shared/stats.ts'
 
@@ -19,8 +20,9 @@ const yearFromText = ref('')
 const yearToText = ref('')
 const includeBroadcast = ref(false)
 const includeMedleyComponents = ref(false)
+const characterFilter = ref('')
 
-type SortKey = 'rank' | 'name' | 'artists' | 'count' | 'seriesCount' | 'firstYear' | 'lastYear'
+type SortKey = 'rank' | 'name' | 'artists' | 'characters' | 'count' | 'seriesCount' | 'firstYear' | 'lastYear'
 
 const sortKey = ref<SortKey>('count')
 const sortDesc = ref(true)
@@ -61,7 +63,7 @@ const yearOrNull = (value: string): number | null => {
   return Number(value.trim())
 }
 
-type RankedSong = SongRanking & { rank: number }
+type RankedSong = SongRanking & { rank: number; characters: string }
 
 const ranked = computed((): RankedSong[] => {
   if (!catalog.value || selectedSeries.value.length === 0) return []
@@ -72,7 +74,13 @@ const ranked = computed((): RankedSong[] => {
     yearTo: yearOrNull(yearToText.value),
     includeBroadcast: includeBroadcast.value,
     includeMedleyComponents: includeMedleyComponents.value,
-  }).map((row, index) => ({ ...row, rank: index + 1 }))
+  })
+    .filter((row) => characterFilter.value === '' || songCharacters(row.artists).includes(characterFilter.value))
+    .map((row, index) => ({
+      ...row,
+      rank: index + 1,
+      characters: songCharacters(row.artists).join('、'),
+    }))
 })
 
 /** Reorders rows for the clicked column. Rank numbers stay tied to the default count order. */
@@ -97,7 +105,7 @@ const toggleSort = (key: SortKey): void => {
     return
   }
   sortKey.value = key
-  sortDesc.value = key === 'count' || key === 'seriesCount' || key === 'lastYear' || key === 'rank'
+  sortDesc.value = key === 'count' || key === 'seriesCount' || key === 'lastYear' || key === 'rank' || key === 'characters'
 }
 
 /** Sets whether each song is counted once per setlist or once per performance. */
@@ -166,6 +174,13 @@ const editionPath = (songListId: number): string | null => {
             <input v-model="yearToText" inputmode="numeric" placeholder="不限" autocomplete="off">
           </label>
           <label>
+            演出角色
+            <select v-model="characterFilter">
+              <option value="">全部</option>
+              <option v-for="name in characterNames" :key="name" :value="name">{{ name }}</option>
+            </select>
+          </label>
+          <label>
             打开年版歌单
             <select @change="openEdition">
               <option value="">选择年版</option>
@@ -202,6 +217,9 @@ const editionPath = (songListId: number): string | null => {
                   <button type="button" :aria-pressed="sortKey === 'artists'" @click="toggleSort('artists')">艺人{{ sortMark('artists') }}</button>
                 </th>
                 <th>
+                  <button type="button" :aria-pressed="sortKey === 'characters'" @click="toggleSort('characters')">演出角色{{ sortMark('characters') }}</button>
+                </th>
+                <th>
                   <button type="button" :aria-pressed="sortKey === 'count'" @click="toggleSort('count')">次数{{ sortMark('count') }}</button>
                 </th>
                 <th>
@@ -222,6 +240,7 @@ const editionPath = (songListId: number): string | null => {
                   <a :href="`https://vocadb.net/S/${row.songId}`"><SongTitle :song-id="row.songId" :original="row.name" /></a>
                 </td>
                 <td>{{ cell(row.artists) }}</td>
+                <td>{{ cell(row.characters) }}</td>
                 <td :title="row.reasons.join('\n')">{{ row.approximate ? `≈ ${row.count}` : row.count }}</td>
                 <td>{{ row.seriesCount }}</td>
                 <td>{{ cell(row.firstYear) }}</td>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useCatalog } from '../composables/useCatalog.ts'
+import { formatCharacters } from '../composables/useCharacters.ts'
 import { playbackForSongs, songById, songIdsForPerformance, summarizeBands } from '../shared/stats.ts'
 import type { Platform } from '../shared/types.ts'
 
@@ -68,6 +69,12 @@ const songName = (songId: number): string => {
   return song?.name_ja || song?.name || String(songId)
 }
 
+/** 演出角色 for a catalog song, or an em dash when none matched. */
+const songCharactersText = (songId: number): string => {
+  const song = catalog.value ? songById(catalog.value, songId) : undefined
+  return formatCharacters(song?.artist_string ?? null)
+}
+
 /** View count text. Missing snapshots stay blank rather than zero. */
 const viewText = (count: number | null): string => (count === null ? '无快照' : count.toLocaleString('zh-Hans'))
 </script>
@@ -128,6 +135,7 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
             <thead>
               <tr>
                 <th>歌曲</th>
+                <th>演出角色</th>
                 <th>区间</th>
                 <th>播放量</th>
                 <th>投稿</th>
@@ -138,6 +146,7 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
                 <td>
                   <a :href="`https://vocadb.net/S/${row.songId}`"><SongTitle :song-id="row.songId" :original="songName(row.songId)" /></a>
                 </td>
+                <td>{{ songCharactersText(row.songId) }}</td>
                 <td>{{ bands.find((band) => band.id === row.band)?.label }}</td>
                 <td>{{ viewText(row.viewCount) }}</td>
                 <td>
