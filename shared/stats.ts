@@ -3,6 +3,7 @@ import type {
   BandId,
   Catalog,
   CompareGrouping,
+  PerformanceRow,
   Platform,
   SongRow,
   VideoRow,
@@ -239,4 +240,135 @@ export const dayInstant = (day: string | null): string | null => {
 /** Looks up a song row. */
 export const songById = (catalog: Catalog, songId: number): SongRow | undefined => {
   return catalog.songs.find((song) => song.id === songId)
+}
+
+/** How many times a song is counted: once per setlist, or once per performance. */
+export type RankingMode = 'setlist' | 'show'
+
+/**
+ * Filters for song appearance ranking.
+ * Omitted series and year bounds include everything. Broadcasts and medley components stay out unless enabled.
+ */
+export type RankingOptions = {
+  mode?: RankingMode
+  seriesIds?: readonly number[]
+  yearFrom?: number | null
+  yearTo?: number | null
+  includeBroadcast?: boolean
+  includeMedleyComponents?: boolean
+}
+
+/** One song's appearance count under the active filters. */
+export type SongRanking = {
+  songId: number
+  name: string
+  artists: string | null
+  count: number
+  seriesCount: number
+  firstYear: number | null
+  lastYear: number | null
+}
+
+/** Livestream, online, and VR wording on a performance name or series suffix. */
+const BROADCAST_NAME = /livestream|online|オンライン|\bVR\b|ＶＲ|配信/i
+
+/**
+ * Whether a performance is a broadcast, livestream, online show, or VR show.
+ * Event descriptions are not stored on the performance row, so the text check uses name, name_ja, and series_suffix.
+ */
+export const isBroadcastAppearance = (performance: PerformanceRow): boolean => {
+  if (performance.role === 'broadcast') return true
+  const haystack = `${performance.name}\n${performance.name_ja ?? ''}\n${performance.series_suffix ?? ''}`
+  return BROADCAST_NAME.test(haystack)
+}
+
+/** Calendar year of a performance start date. Missing or non-day values contribute no year. */
+const performanceYear = (startDate: string | null): number | null => {
+  if (startDate === null || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) return null
+  return Number(startDate.slice(0, 4))
+}
+
+/**
+ * Whether a performance can contribute to the ranking.
+ * An empty series id list means every known series. A year bound drops performances with no start date.
+ */
+const performanceIncluded = (
+  performance: PerformanceRow,
+  options: RankingOptions,
+  knownSeries: ReadonlySet<number>,
+): boolean => {
+  if (!knownSeries.has(performance.series_id) || performance.song_list_id === null) return false
+  const seriesIds = options.seriesIds
+  if (seriesIds && seriesIds.length > 0 && !seriesIds.includes(performance.series_id)) return false
+  const yearFrom = options.yearFrom ?? null
+  const yearTo = options.yearTo ?? null
+  const year = performanceYear(performance.start_date)
+  if (yearFrom !== null || yearTo !== null) {
+    if (year === null) return false
+    if (yearFrom !== null && year < yearFrom) return false
+    if (yearTo !== null && year > yearTo) return false
+  }
+  if (options.includeBroadcast !== true && isBroadcastAppearance(performance)) return false
+  return true
+}
+
+/** Running distinct setlists or shows, series, and years for one song. */
+type RankingBucket = {
+  keys: Set<number>
+  seriesIds: Set<number>
+  years: Set<number>
+}
+
+/**
+ * Ranks songs by setlist or show appearances.
+ * Setlist mode counts each song_list_id at most once. Show mode counts each performance whose list contains the song.
+ * Direct lines use role `listed`. Role `component` is included only when `includeMedleyComponents` is true.
+ */
+export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = {}): SongRanking[] => {
+  const mode: RankingMode = options.mode === 'show' ? 'show' : 'setlist'
+  const knownSeries = new Set(catalog.series.map((row) => row.id))
+  const itemKeys = new Set(catalog.setlistItems.map((row) => `${row.song_list_id}:${row.position}`))
+  const songsByList = new Map<number, Set<number>>()
+  for (const link of catalog.setlistItemSongs) {
+    if (!itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
+    if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue
+    const songs = songsByList.get(link.song_list_id) ?? new Set<number>()
+    songs.add(link.song_id)
+    songsByList.set(link.song_list_id, songs)
+  }
+
+  const buckets = new Map<number, RankingBucket>()
+  for (const performance of catalog.performances) {
+    if (!performanceIncluded(performance, options, knownSeries)) continue
+    const listId = performance.song_list_id
+    if (listId === null) continue
+    const songs = songsByList.get(listId)
+    if (!songs) continue
+    const year = performanceYear(performance.start_date)
+    for (const songId of songs) {
+      const bucket = buckets.get(songId) ?? { keys: new Set<number>(), seriesIds: new Set<number>(), years: new Set<number>() }
+      bucket.keys.add(mode === 'show' ? performance.id : listId)
+      bucket.seriesIds.add(performance.series_id)
+      if (year !== null) bucket.years.add(year)
+      buckets.set(songId, bucket)
+    }
+  }
+
+  const songsById = new Map(catalog.songs.map((song) => [song.id, song]))
+  const rows: SongRanking[] = []
+  for (const [songId, bucket] of buckets) {
+    const song = songsById.get(songId)
+    const years = [...bucket.years]
+    rows.push({
+      songId,
+      name: song?.name ?? String(songId),
+      artists: song?.artist_string ?? null,
+      count: bucket.keys.size,
+      seriesCount: bucket.seriesIds.size,
+      firstYear: years.length === 0 ? null : Math.min(...years),
+      lastYear: years.length === 0 ? null : Math.max(...years),
+    })
+  }
+  rows.sort((left, right) => right.count - left.count || left.songId - right.songId)
+  return rows
 }
