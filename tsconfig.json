@@ -11,5 +11,5 @@
     "types": ["node"],
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["shared/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "server/**/*.ts", "composables/**/*.ts", "vitest.config.ts"]
+  "include": ["shared/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "vitest.config.ts"]
 }

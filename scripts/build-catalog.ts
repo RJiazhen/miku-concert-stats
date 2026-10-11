@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, copyFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, copyFileSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import Database from 'better-sqlite3'
@@ -40,6 +40,7 @@ export const copySqlWasm = (root = repoRoot()): void => {
 export const buildCatalogFile = (root = repoRoot()): string => {
   const target = path.join(root, 'public', 'data', 'catalog.sqlite')
   mkdirSync(path.dirname(target), { recursive: true })
+  rmSync(target, { force: true })
   const db = new Database(target)
   try {
     applyCatalogSql(db, root)
