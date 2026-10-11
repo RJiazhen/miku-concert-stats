@@ -1,0 +1,72 @@
+{
+  "初音ミク": {
+    "patterns": ["^初音ミク(?:\\s|$)"],
+    "aliases": ["Hatsune Miku"]
+  },
+  "鏡音リン": {
+    "patterns": ["^鏡音リン(?:\\s|$)"],
+    "aliases": ["Kagamine Rin"]
+  },
+  "鏡音レン": {
+    "patterns": ["^鏡音レン(?:\\s|$)"],
+    "aliases": ["Kagamine Len"]
+  },
+  "巡音ルカ": {
+    "patterns": ["^巡音ルカ(?:\\s|$)"],
+    "aliases": ["Megurine Luka"]
+  },
+  "MEIKO": {
+    "patterns": ["^MEIKO(?:\\s|$)"]
+  },
+  "KAITO": {
+    "patterns": ["^KAITO(?:\\s|$)"]
+  },
+  "GUMI": {
+    "patterns": ["^GUMI(?:\\s|$)"],
+    "aliases": ["Megpoid"]
+  },
+  "IA": {
+    "patterns": ["^IA(?:\\s|$)"]
+  },
+  "flower": {
+    "patterns": ["^flower(?:\\s|$)", "^v flower(?:\\s|$)"]
+  },
+  "MAYU": {
+    "patterns": ["^MAYU(?:\\s|$)"]
+  },
+  "重音テト": {
+    "patterns": ["^重音テト(?:\\s|$)"],
+    "aliases": ["Kasane Teto"]
+  },
+  "神威がくぽ": {
+    "patterns": ["^神威がくぽ(?:\\s|$)"],
+    "aliases": ["Camui Gackpo", "Gackpo"]
+  },
+  "結月ゆかり": {
+    "patterns": ["^結月ゆかり(?:\\s|$)"]
+  },
+  "東北ずん子": {
+    "patterns": ["^東北ずん子(?:\\s|$)"]
+  },
+  "音街ウナ": {
+    "patterns": ["^音街ウナ(?:\\s|$)"]
+  },
+  "猫村いろは": {
+    "patterns": ["^猫村いろは(?:\\s|$)"]
+  },
+  "歌愛ユキ": {
+    "patterns": ["^歌愛ユキ(?:\\s|$)"]
+  },
+  "SeeU": {
+    "patterns": ["^SeeU(?:\\s|$)"]
+  },
+  "galaco": {
+    "patterns": ["^galaco(?:\\s|$)"]
+  },
+  "可不": {
+    "patterns": ["^可不(?:\\s|$)"]
+  },
+  "星界": {
+    "patterns": ["^星界(?:\\s|$)"]
+  }
+}
