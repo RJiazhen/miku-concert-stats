@@ -106,6 +106,30 @@ th, td { text-align: left; padding: 0.45rem 0.4rem; border-bottom: 1px solid var
 
 .site-footer { margin-top: 2rem; color: var(--muted); font-size: 0.88rem; }
 
+.segmented { display: flex; gap: 0.35rem; align-items: end; }
+
+.segmented button[aria-pressed='false'] {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.checks { display: flex; flex-wrap: wrap; gap: 0.45rem 0.9rem; margin-top: 0.8rem; }
+
+.checks label { display: flex; align-items: center; gap: 0.35rem; }
+
+th button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+th button[aria-pressed='true'] { color: var(--teal); }
+
 .status { padding: 0.8rem 0; }
 
 @media (max-width: 720px) {
