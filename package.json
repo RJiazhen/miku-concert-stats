@@ -1,0 +1,25 @@
+{
+  "name": "miku-concert-stats",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build:catalog": "tsx scripts/build-catalog.ts",
+    "collect": "tsx scripts/vocadb/collect.ts",
+    "snapshot:youtube": "tsx scripts/snapshot-youtube.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.7.2",
+    "better-sqlite3": "^12.4.1",
+    "eslint": "^9.37.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "pnpm@12.11.2"
+}

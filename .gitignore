@@ -1,0 +1,13 @@
+node_modules
+.nuxt
+.output
+.wrangler
+.data
+dist
+data/cache
+public/data/catalog.sqlite
+public/sql-wasm.wasm
+*.log
+.env
+.env.*
+!.env.example

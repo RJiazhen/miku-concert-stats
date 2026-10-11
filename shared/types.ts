@@ -1,0 +1,196 @@
+/** A read-only row source used by both better-sqlite3 and sql.js. */
+export type Queryable = {
+  /** Returns every row of a read-only SELECT as column maps. */
+  all: (sql: string) => SqlRow[]
+}
+
+/** Column map returned by a SQLite driver before narrowing. */
+export type SqlRow = Record<string, SqlValue>
+
+/** Values SQLite may return for the columns this catalog stores. */
+export type SqlValue = string | number | null | Uint8Array
+
+/** Platform keys stored in videos and snapshots. */
+export type Platform = 'niconico' | 'youtube' | 'bilibili'
+
+/** Whether a dated performance can count as a premiere. */
+export type PerformanceRole = 'show' | 'broadcast'
+
+/** Fixed playback bands, plus songs that have no snapshot. */
+export type BandId = 'none' | 'under_100k' | '100k_1m' | '1m_10m' | '10m_plus'
+
+/** How compare mode groups performances before counting songs. */
+export type CompareGrouping = 'series' | 'edition' | 'year'
+
+/** VocaDB attribution row. */
+export type SourceRow = {
+  id: string
+  name: string
+  url: string
+  license: string
+  notes: string
+}
+
+/** One concert series, keyed by the VocaDB series id. */
+export type SeriesRow = {
+  id: number
+  name: string
+  name_ja: string | null
+  description: string | null
+  source_url: string
+  retrieved_at: string
+}
+
+/** One performance date inside a series. */
+export type PerformanceRow = {
+  id: number
+  series_id: number
+  name: string
+  name_ja: string | null
+  venue_name: string | null
+  country_code: string | null
+  start_date: string | null
+  end_date: string | null
+  showtime_local: string | null
+  timezone: string | null
+  time_precision: 'day'
+  time_evidence: string | null
+  role: PerformanceRole
+  series_number: number | null
+  series_suffix: string | null
+  song_list_id: number | null
+  vocadb_status: string | null
+  source_url: string
+  retrieved_at: string
+}
+
+/** Web link copied from a VocaDB event, including official sites. */
+export type PerformanceLinkRow = {
+  performance_id: number
+  url: string
+  description: string | null
+}
+
+/** Earliest non-broadcast date for a series edition. */
+export type EditionPremiereRow = {
+  series_id: number
+  series_number: number
+  premiere_performance_id: number
+  premiere_date: string
+  premiere_showtime_local: string | null
+  rule: string
+}
+
+/** Song list attached to one or more performances. */
+export type SongListRow = {
+  id: number
+  name: string
+  featured_category: string | null
+  source_url: string
+  retrieved_at: string
+  announced_at: string | null
+}
+
+/** Song entry used for counting and lookup. */
+export type SongRow = {
+  id: number
+  name: string
+  name_ja: string | null
+  name_en: string | null
+  artist_string: string | null
+  song_type: string
+  publish_date: string | null
+  length_seconds: number | null
+  source_url: string
+  retrieved_at: string
+}
+
+/** One printed setlist line before medley splitting. */
+export type SetlistItemRow = {
+  song_list_id: number
+  position: number
+  listed_song_id: number
+  notes: string | null
+}
+
+/** Song ids that a setlist line contributes to the counts. */
+export type SetlistItemSongRow = {
+  song_list_id: number
+  position: number
+  song_id: number
+  role: 'listed' | 'component'
+}
+
+/** Mashup line that could not be split into verifiable components. */
+export type MedleyQuarantineRow = {
+  song_list_id: number
+  position: number
+  listed_song_id: number
+  reason: string
+}
+
+/** One VocaDB PV kept for niconico, YouTube, or bilibili. */
+export type VideoRow = {
+  vocadb_pv_id: number
+  song_id: number
+  platform: Platform
+  platform_video_id: string
+  url: string
+  title: string | null
+  author: string | null
+  pv_type: string | null
+  publish_date: string | null
+  disabled: number
+}
+
+/** One observed view count. */
+export type ViewSnapshotRow = {
+  platform: Platform
+  platform_video_id: string
+  collected_at: string
+  view_count: number
+  source: string
+  source_url: string
+}
+
+/** Immutable milestone. Empty unless a sourced achievement time exists. */
+export type MilestoneRow = {
+  platform: Platform
+  platform_video_id: string
+  kind: string
+  threshold: number
+  achieved_at: string
+  source: string
+  source_url: string
+}
+
+/** Versioned niconico-to-YouTube formula, published only after gates pass. */
+export type ConversionFormulaRow = {
+  id: string
+  status: 'published' | 'unpublished'
+  version: string | null
+  scope: string | null
+  sample_period: string | null
+  train_metrics_json: string | null
+  holdout_metrics_json: string | null
+  formula_json: string | null
+  reason: string
+}
+
+/** Tables the browser loads before aggregating in TypeScript. */
+export type Catalog = {
+  sources: SourceRow[]
+  series: SeriesRow[]
+  performances: PerformanceRow[]
+  performanceLinks: PerformanceLinkRow[]
+  premieres: EditionPremiereRow[]
+  songLists: SongListRow[]
+  songs: SongRow[]
+  setlistItems: SetlistItemRow[]
+  setlistItemSongs: SetlistItemSongRow[]
+  medleyQuarantine: MedleyQuarantineRow[]
+  videos: VideoRow[]
+  snapshots: ViewSnapshotRow[]
+  milestones: MilestoneRow[]
+  formulas: ConversionFormulaRow[]
+}
