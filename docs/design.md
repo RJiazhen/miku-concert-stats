@@ -150,6 +150,28 @@ flowchart LR
 - `pnpm lint`、`pnpm typecheck`
 - 浏览器走通首页筛选、比较、观察窗、换算页和缺歌检索
 
+## 歌曲出现次数排行
+
+在播放量区间之外，首页按歌曲统计「出现过多少次」。聚合仍是 `shared/stats.ts` 里的纯函数，读已加载的目录行（`setlist_item_songs`、`setlist_items`、`songs`、`performances`、`series`），不另写 SQL。
+
+两种计数：
+
+- `setlist`（默认）：同一 `song_list_id` 里同一首歌最多计 1。多场共用一份歌单时不重复加。
+- `show`：每场演出的 `song_list_id` 含有该歌则计 1。多数 VocaDB 歌单按巡演一份，因此「按场次」会把同一巡演的各场当成同一份歌单，不能当成逐场曲目差异。
+
+筛选：
+
+- 系列 id 列表。省略或空列表表示全部系列。
+- 年份闭区间，取演出 `start_date` 的公历年。没有日期的场次在设置了任一年份边界时不计入。
+- `includeBroadcast` 为 false 时排除 `role = broadcast`，以及名称、日文名或 `series_suffix` 命中 livestream、online、オンライン、VR、ＶＲ、配信的场次。演出简介没有单独落在 `performances` 上；`performance_links.description` 多是外链标题（例如现场场次的 “Online Live Information”），不参与排除。
+- `includeMedleyComponents` 为 false 时只计 `setlist_item_songs.role = listed`（直接列出的曲目）。`component` 仅在为 true 时计入。未能拆分的串烧不写入 `setlist_item_songs`，两种模式都不计。
+
+每行输出歌曲 id、名称（`songs.name`）、艺人字符串、次数、出现过的系列数、最早年份、最晚年份。次数为 0 的歌曲不输出。默认按次数降序、歌曲 id 升序。
+
+首页改为这张可排序的表，并提供模式、系列多选、年份、配信/VR、串烧组成的控件。覆盖说明写明：初音ミクシンフォニー在 VocaDB 没有歌单；按场次的前提如上。原来的单场播放量页移到 `/catalog`。顶栏增加两个入口。
+
+外观以深色为默认。`:root` 使用深色变量；`prefers-color-scheme: light` 且用户尚未选择时使用浅色变量。顶栏开关把 `light` 或 `dark` 写入 `localStorage` 键 `miku-concert-stats-theme`，并用 `documentElement.dataset.theme` 覆盖系统偏好。`nuxt.config` 的 `app.head` 放一段同步内联脚本，在首屏绘制前应用已保存的选择，避免先闪深色再跳到浅色。未保存时不写 `data-theme`，交给媒体查询。
+
 ## 实现步骤
 
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/bands.ts`，`shared/stats.ts`，`shared/correlation.ts` 及对应 `tests/*`。
