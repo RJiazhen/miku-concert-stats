@@ -1,4 +1,4 @@
-import type { PerformanceRow } from './types.ts'
+import type { Catalog, PerformanceRow } from './types.ts'
 
 /** Fields the rotation parser reads from a performance that shares a song list. */
 export type RotationPerformance = Pick<
@@ -214,6 +214,134 @@ const distinctDates = (performances: readonly RotationPerformance[]): string[] =
     for (const date of datesOf(performance)) dates.add(date)
   }
   return [...dates].sort()
+}
+
+/** One setlist line after note parsing and the length check. */
+export type ResolvedRotationLine = {
+  songListId: number
+  position: number
+  listedSongId: number
+  songIds: number[]
+  notes: string | null
+  performanceIds: number[]
+  uncertain: boolean
+  reasons: string[]
+}
+
+/** A show whose parsed setlist length is not the usual length for that song list. */
+export type MismatchedShow = {
+  performanceId: number
+  songListId: number
+  count: number
+  expected: number
+  reasons: string[]
+}
+
+/** Parsed lines plus shows that failed the per-list length check. */
+export type RotationReview = {
+  lines: ResolvedRotationLine[]
+  shows: MismatchedShow[]
+}
+
+/**
+ * Parses every setlist line and flags shows whose song count is not the mode for that list.
+ * Selective or already uncertain lines on a mismatched list inherit `setlist length mismatch: X vs expected Y`.
+ */
+export const reviewRotations = (catalog: Catalog): RotationReview => {
+  const performancesByList = new Map<number, PerformanceRow[]>()
+  for (const performance of catalog.performances) {
+    if (performance.song_list_id === null) continue
+    const rows = performancesByList.get(performance.song_list_id) ?? []
+    rows.push(performance)
+    performancesByList.set(performance.song_list_id, rows)
+  }
+  const songsByPosition = new Map<string, number[]>()
+  for (const link of catalog.setlistItemSongs) {
+    const key = `${link.song_list_id}:${link.position}`
+    const songs = songsByPosition.get(key) ?? []
+    songs.push(link.song_id)
+    songsByPosition.set(key, songs)
+  }
+
+  const lines: ResolvedRotationLine[] = []
+  const shows: MismatchedShow[] = []
+  const lists = new Set<number>([...performancesByList.keys(), ...catalog.setlistItems.map((item) => item.song_list_id)])
+  for (const songListId of lists) {
+    const performances = performancesByList.get(songListId) ?? []
+    const items = catalog.setlistItems.filter((item) => item.song_list_id === songListId)
+    const parsed: ResolvedRotationLine[] = items.map((item) => {
+      const rotation = parseRotationNotes(item.notes, performances)
+      return {
+        songListId,
+        position: item.position,
+        listedSongId: item.listed_song_id,
+        songIds: songsByPosition.get(`${songListId}:${item.position}`) ?? [],
+        notes: item.notes,
+        performanceIds: rotation.performanceIds,
+        uncertain: rotation.uncertain,
+        reasons: [...rotation.reasons],
+      }
+    })
+    const mismatched = lengthMismatches(songListId, performances, parsed)
+    if (mismatched.length > 0) {
+      const everyId = new Set(performances.map((row) => row.id))
+      for (const line of parsed) {
+        const selective = line.uncertain || line.performanceIds.length !== everyId.size
+        if (!selective) continue
+        for (const show of mismatched) addReason(line, show.reasons[0] ?? '')
+      }
+    }
+    lines.push(...parsed)
+    shows.push(...mismatched)
+  }
+  return { lines, shows }
+}
+
+/** Shows whose parsed line count is not the most common length on that song list. */
+const lengthMismatches = (
+  songListId: number,
+  performances: readonly PerformanceRow[],
+  lines: readonly ResolvedRotationLine[],
+): MismatchedShow[] => {
+  if (performances.length === 0) return []
+  const counts = performances.map((performance) => lines.filter((line) => line.performanceIds.includes(performance.id)).length)
+  const expected = modeCount(counts)
+  const mismatches: MismatchedShow[] = []
+  performances.forEach((performance, index) => {
+    const count = counts[index] ?? 0
+    if (count === expected) return
+    mismatches.push({
+      performanceId: performance.id,
+      songListId,
+      count,
+      expected,
+      reasons: [`setlist length mismatch: ${count} vs expected ${expected}`],
+    })
+  })
+  return mismatches
+}
+
+/** Most common count. Ties keep the larger count. */
+const modeCount = (counts: readonly number[]): number => {
+  const frequency = new Map<number, number>()
+  for (const count of counts) frequency.set(count, (frequency.get(count) ?? 0) + 1)
+  let expected = counts[0] ?? 0
+  let best = -1
+  for (const [count, times] of frequency) {
+    if (times > best || (times === best && count > expected)) {
+      best = times
+      expected = count
+    }
+  }
+  return expected
+}
+
+/** Adds a reason once and marks the line uncertain. */
+const addReason = (line: ResolvedRotationLine, reason: string): void => {
+  if (!reason || line.reasons.includes(reason)) return
+  line.reasons.push(reason)
+  line.reasons.sort()
+  line.uncertain = true
 }
 
 /** Inclusive day list from start_date through end_date, capped at two weeks. */

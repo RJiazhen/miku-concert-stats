@@ -1,4 +1,5 @@
 import { BANDS, bandForCount } from './bands.ts'
+import { reviewRotations } from './rotation.ts'
 import type {
   BandId,
   Catalog,
@@ -267,6 +268,8 @@ export type SongRanking = {
   seriesCount: number
   firstYear: number | null
   lastYear: number | null
+  approximate: boolean
+  reasons: string[]
 }
 
 /** Livestream, online, and VR wording on a performance name or series suffix. */
@@ -312,22 +315,25 @@ const performanceIncluded = (
   return true
 }
 
-/** Running distinct setlists or shows, series, and years for one song. */
+/** Running distinct setlists or shows, series, years, and uncertainty for one song. */
 type RankingBucket = {
   keys: Set<number>
   seriesIds: Set<number>
   years: Set<number>
+  reasons: Set<string>
 }
 
 /**
  * Ranks songs by setlist or show appearances.
- * Setlist mode counts each song_list_id at most once. Show mode counts each performance whose list contains the song.
+ * Setlist mode counts each song_list_id at most once. Show mode counts performances the rotation parser assigns.
  * Direct lines use role `listed`. Role `component` is included only when `includeMedleyComponents` is true.
  */
 export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = {}): SongRanking[] => {
   const mode: RankingMode = options.mode === 'show' ? 'show' : 'setlist'
   const knownSeries = new Set(catalog.series.map((row) => row.id))
   const itemKeys = new Set(catalog.setlistItems.map((row) => `${row.song_list_id}:${row.position}`))
+  const rotation = reviewRotations(catalog)
+  const lineByKey = new Map(rotation.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
   const songsByList = new Map<number, Set<number>>()
   for (const link of catalog.setlistItemSongs) {
     if (!itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
@@ -338,19 +344,41 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
   }
 
   const buckets = new Map<number, RankingBucket>()
+  /** Records one setlist or show toward a song, keeping uncertainty from show mode. */
+  const addAppearance = (
+    songId: number,
+    key: number,
+    seriesId: number,
+    year: number | null,
+    reasons: readonly string[],
+  ): void => {
+    const bucket = buckets.get(songId) ?? { keys: new Set<number>(), seriesIds: new Set<number>(), years: new Set<number>(), reasons: new Set<string>() }
+    bucket.keys.add(key)
+    bucket.seriesIds.add(seriesId)
+    if (year !== null) bucket.years.add(year)
+    if (mode === 'show') {
+      for (const reason of reasons) bucket.reasons.add(reason)
+    }
+    buckets.set(songId, bucket)
+  }
+
   for (const performance of catalog.performances) {
     if (!performanceIncluded(performance, options, knownSeries)) continue
     const listId = performance.song_list_id
     if (listId === null) continue
-    const songs = songsByList.get(listId)
-    if (!songs) continue
     const year = performanceYear(performance.start_date)
-    for (const songId of songs) {
-      const bucket = buckets.get(songId) ?? { keys: new Set<number>(), seriesIds: new Set<number>(), years: new Set<number>() }
-      bucket.keys.add(mode === 'show' ? performance.id : listId)
-      bucket.seriesIds.add(performance.series_id)
-      if (year !== null) bucket.years.add(year)
-      buckets.set(songId, bucket)
+    if (mode === 'setlist') {
+      const songs = songsByList.get(listId)
+      if (!songs) continue
+      for (const songId of songs) addAppearance(songId, listId, performance.series_id, year, [])
+      continue
+    }
+    for (const link of catalog.setlistItemSongs) {
+      if (link.song_list_id !== listId || !itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
+      if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue
+      const line = lineByKey.get(`${link.song_list_id}:${link.position}`)
+      if (!line || !line.performanceIds.includes(performance.id)) continue
+      addAppearance(link.song_id, performance.id, performance.series_id, year, line.uncertain ? line.reasons : [])
     }
   }
 
@@ -367,6 +395,8 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       seriesCount: bucket.seriesIds.size,
       firstYear: years.length === 0 ? null : Math.min(...years),
       lastYear: years.length === 0 ? null : Math.max(...years),
+      approximate: bucket.reasons.size > 0,
+      reasons: [...bucket.reasons].sort(),
     })
   }
   rows.sort((left, right) => right.count - left.count || left.songId - right.songId)

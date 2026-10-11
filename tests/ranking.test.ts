@@ -131,4 +131,29 @@ describe('song appearance ranking', () => {
     expect(withMedley.find((row) => row.songId === 2)).toMatchObject({ count: 1, artists: 'b' })
     expect(rankSongAppearances(rows, { mode: 'show', includeBroadcast: true }).find((row) => row.songId === 1)?.count).toBe(5)
   })
+
+  it('counts show mode from parsed notes and keeps setlist mode exact', () => {
+    const rows = catalog()
+    rows.songs = [song(1, 'Shared', 'a'), song(2, 'Tokyo only', 'b'), song(3, 'Saihate', 'Onyx')]
+    rows.setlistItems = [item(10, 1, 1), item(10, 2, 2), item(10, 3, 3)]
+    const tokyoOnly = rows.setlistItems[1]
+    const osakaOnly = rows.setlistItems[2]
+    if (tokyoOnly) tokyoOnly.notes = 'Tokyo'
+    if (osakaOnly) osakaOnly.notes = 'Osaka'
+    rows.setlistItemSongs = [link(10, 1, 1, 'listed'), link(10, 2, 2, 'listed'), link(10, 3, 3, 'listed')]
+    rows.performances = [
+      performance({ id: 1, series_id: 81, song_list_id: 10, name: 'in TOKYO', start_date: '2024-08-30' }),
+      performance({ id: 2, series_id: 81, song_list_id: 10, name: 'in OSAKA', start_date: '2024-10-12' }),
+    ]
+    const tokyo = rows.performances[0]
+    const osaka = rows.performances[1]
+    if (tokyo) tokyo.end_date = '2024-08-30'
+    if (osaka) osaka.end_date = '2024-10-12'
+    expect(rankSongAppearances(rows).find((row) => row.songId === 3)).toMatchObject({ count: 1, approximate: false })
+    expect(rankSongAppearances(rows, { mode: 'show' }).find((row) => row.songId === 3)).toMatchObject({
+      count: 1,
+      approximate: false,
+    })
+    expect(rankSongAppearances(rows, { mode: 'show' }).find((row) => row.songId === 1)?.count).toBe(2)
+  })
 })

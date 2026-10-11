@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useCatalog } from '../composables/useCatalog.ts'
+import { reviewRotations } from '../shared/rotation.ts'
 import { rankSongAppearances, type RankingMode, type SongRanking } from '../shared/stats.ts'
 
 const { catalog, error, pending, load } = useCatalog()
@@ -92,6 +93,24 @@ const sortMark = (key: SortKey): string => {
   if (sortKey.value !== key) return ''
   return sortDesc.value ? ' ↓' : ' ↑'
 }
+
+const rotation = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
+
+const uncertainLines = computed(() => rotation.value?.lines.filter((line) => line.uncertain) ?? [])
+
+const mismatchedShows = computed(() => rotation.value?.shows ?? [])
+
+/** Song title for an unresolved setlist line. */
+const lineSongName = (songIds: readonly number[]): string => {
+  const songId = songIds[0]
+  if (!catalog.value || songId === undefined) return '—'
+  return catalog.value.songs.find((song) => song.id === songId)?.name ?? String(songId)
+}
+
+/** Performance title for a mismatched show. */
+const performanceName = (performanceId: number): string => {
+  return catalog.value?.performances.find((row) => row.id === performanceId)?.name ?? String(performanceId)
+}
 </script>
 
 <template>
@@ -169,10 +188,52 @@ const sortMark = (key: SortKey): string => {
                   <a :href="`https://vocadb.net/S/${row.songId}`">{{ row.name }}</a>
                 </td>
                 <td>{{ cell(row.artists) }}</td>
-                <td>{{ row.count }}</td>
+                <td :title="row.reasons.join('\n')">{{ row.approximate ? `≈ ${row.count}` : row.count }}</td>
                 <td>{{ row.seriesCount }}</td>
                 <td>{{ cell(row.firstYear) }}</td>
                 <td>{{ cell(row.lastYear) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h2>未解析的备注</h2>
+        <p class="note">
+          {{ uncertainLines.length }} 行备注无法确定到具体场次，{{ mismatchedShows.length }} 场的歌单长度和该歌单的常见长度不一致。
+        </p>
+        <div v-if="mismatchedShows.length" class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>场次</th>
+                <th>歌单</th>
+                <th>原因</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="show in mismatchedShows" :key="show.performanceId">
+                <td>{{ performanceName(show.performanceId) }}</td>
+                <td>{{ show.songListId }}</td>
+                <td>{{ show.reasons.join('；') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-if="uncertainLines.length" class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>歌单</th>
+                <th>歌曲</th>
+                <th>备注</th>
+                <th>原因</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="line in uncertainLines" :key="`${line.songListId}:${line.position}`">
+                <td>{{ line.songListId }}</td>
+                <td>{{ lineSongName(line.songIds) }}</td>
+                <td>{{ cell(line.notes) }}</td>
+                <td>{{ line.reasons.join('；') }}</td>
               </tr>
             </tbody>
           </table>
