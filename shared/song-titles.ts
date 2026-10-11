@@ -48,3 +48,23 @@ const parseEntry = (id: string, entry: unknown): SongTitleEntry => {
 export const songTitleFor = (file: SongTitleFile, songId: number): SongTitleEntry | null => {
   return file[String(songId)] ?? null
 }
+
+/** Which title script the visitor asked for. */
+export type SongLanguage = 'original' | 'zh'
+
+/** Primary title plus the original in parentheses when a Chinese title is showing. */
+export type SongTitleView = {
+  primary: string
+  originalNote: string | null
+}
+
+/**
+ * Formats a song title for the active language.
+ * Chinese mode keeps the original beside the translation unless they are the same string.
+ */
+export const formatSongTitle = (original: string, translation: string | null, language: SongLanguage): SongTitleView => {
+  if (language !== 'zh' || translation === null || translation.trim() === '' || translation === original) {
+    return { primary: original, originalNote: null }
+  }
+  return { primary: translation, originalNote: original }
+}

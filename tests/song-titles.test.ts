@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import Database from 'better-sqlite3'
 import { applyCatalogSql } from '../scripts/build-catalog.ts'
 import { loadCatalog } from '../shared/catalog.ts'
-import { parseSongTitles, songTitleFor } from '../shared/song-titles.ts'
+import { formatSongTitle, parseSongTitles, songTitleFor } from '../shared/song-titles.ts'
 import type { SqlRow } from '../shared/types.ts'
 
 describe('Chinese song titles', () => {
@@ -13,6 +13,10 @@ describe('Chinese song titles', () => {
     expect(() => parseSongTitles({ melt: { title: '融化', source: 'vocadb-alias' } })).toThrow(/not an id/)
     expect(songTitleFor(parseSongTitles({ '10': { title: '融化', source: 'vocadb-alias' } }), 10)?.title).toBe('融化')
     expect(songTitleFor(parseSongTitles({}), 10)).toBeNull()
+    expect(formatSongTitle('メルト', '融化', 'zh')).toEqual({ primary: '融化', originalNote: 'メルト' })
+    expect(formatSongTitle('メルト', '融化', 'original')).toEqual({ primary: 'メルト', originalNote: null })
+    expect(formatSongTitle('融化', '融化', 'zh')).toEqual({ primary: '融化', originalNote: null })
+    expect(formatSongTitle('Tell Your World', null, 'zh')).toEqual({ primary: 'Tell Your World', originalNote: null })
   })
 
   it('only keeps catalog songs with a non-empty title and a source', () => {

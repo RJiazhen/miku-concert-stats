@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import { useSongLanguage } from '../composables/useSongLanguage.ts'
 
 const STORAGE_KEY = 'miku-concert-stats-theme'
 
 const theme = ref<'light' | 'dark'>('dark')
+const { language, setLanguage } = useSongLanguage()
 
 /** Theme currently applied, or the system preference when the visitor has not chosen. */
 const currentTheme = (): 'light' | 'dark' => {
@@ -60,6 +62,10 @@ const toggleTheme = (): void => {
       <NuxtLink to="/windows">观察窗</NuxtLink>
       <NuxtLink to="/correlation">换算</NuxtLink>
       <NuxtLink to="/lookup">检索</NuxtLink>
+      <div class="segmented" role="group" aria-label="歌名语言">
+        <button type="button" :aria-pressed="language === 'original'" @click="setLanguage('original')">原文</button>
+        <button type="button" :aria-pressed="language === 'zh'" @click="setLanguage('zh')">中文</button>
+      </div>
       <button type="button" class="theme-toggle" @click="toggleTheme">
         {{ theme === 'dark' ? '浅色' : '深色' }}
       </button>

@@ -78,7 +78,7 @@ const onThisShow = (line: ResolvedRotationLine): string => {
           </thead>
           <tbody>
             <tr v-for="line in lines" :key="line.position">
-              <td><a :href="`https://vocadb.net/S/${line.songIds[0] ?? line.listedSongId}`">{{ songName(line) }}</a></td>
+              <td><a :href="`https://vocadb.net/S/${line.songIds[0] ?? line.listedSongId}`"><SongTitle :song-id="line.songIds[0] ?? line.listedSongId" :original="songName(line)" /></a></td>
               <td>{{ onThisShow(line) }}</td>
               <td>{{ line.notes?.trim() ? line.notes : '（空，每一场）' }}</td>
               <td>{{ assignedNames(line) }}</td>

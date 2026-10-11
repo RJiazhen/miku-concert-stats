@@ -116,7 +116,7 @@ const sufficient = computed(() => premiereObservations.value.filter((row) => row
             </thead>
             <tbody>
               <tr v-for="row in premiereObservations" :key="row.songId">
-                <td>{{ songName(row.songId) }}</td>
+                <td><SongTitle :song-id="row.songId" :original="songName(row.songId)" /></td>
                 <td>{{ row.status === 'ok' ? row.before : '样本不足' }}</td>
                 <td>{{ row.status === 'ok' ? row.after : '样本不足' }}</td>
                 <td>{{ row.status === 'ok' ? row.delta : '样本不足' }}</td>

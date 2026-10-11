@@ -219,7 +219,7 @@ const editionPath = (songListId: number): string | null => {
               <tr v-for="row in sorted" :key="row.songId">
                 <td>{{ row.rank }}</td>
                 <td>
-                  <a :href="`https://vocadb.net/S/${row.songId}`">{{ row.name }}</a>
+                  <a :href="`https://vocadb.net/S/${row.songId}`"><SongTitle :song-id="row.songId" :original="row.name" /></a>
                 </td>
                 <td>{{ cell(row.artists) }}</td>
                 <td :title="row.reasons.join('\n')">{{ row.approximate ? `≈ ${row.count}` : row.count }}</td>
@@ -268,7 +268,7 @@ const editionPath = (songListId: number): string | null => {
                   <NuxtLink v-if="editionPath(line.songListId)" :to="editionPath(line.songListId) ?? ''">{{ line.songListId }}</NuxtLink>
                   <template v-else>{{ line.songListId }}</template>
                 </td>
-                <td>{{ lineSongName(line.songIds) }}</td>
+                <td><SongTitle :song-id="line.songIds[0] ?? line.listedSongId" :original="lineSongName(line.songIds)" /></td>
                 <td>{{ cell(line.notes) }}</td>
                 <td>{{ line.reasons.join('；') }}</td>
               </tr>

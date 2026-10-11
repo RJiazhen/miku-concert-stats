@@ -60,14 +60,14 @@ const submit = async (): Promise<void> => {
         <p v-if="localHits.length" class="note">已在本地目录中，未请求 VocaDB。</p>
         <ul v-if="localHits.length">
           <li v-for="song in localHits" :key="song.id">
-            <a :href="song.source_url">{{ song.name }}</a>
+            <a :href="song.source_url"><SongTitle :song-id="song.id" :original="song.name" /></a>
             <span v-if="song.artist_string"> · {{ song.artist_string }}</span>
           </li>
         </ul>
         <p v-if="lookedUp" class="note">以下来自 VocaDB 实时检索，尚未写入仓库。</p>
         <ul v-if="remoteHits.length">
           <li v-for="hit in remoteHits" :key="hit.id">
-            <a :href="hit.url">{{ hit.name }}</a>
+            <a :href="hit.url"><SongTitle :song-id="hit.id" :original="hit.name" /></a>
             <span v-if="hit.artistString"> · {{ hit.artistString }}</span>
             <span v-for="pv in hit.pvs" :key="pv.url">
               · <a :href="pv.url">{{ pv.platform }}</a>

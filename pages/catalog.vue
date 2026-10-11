@@ -136,7 +136,7 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
             <tbody>
               <tr v-for="row in playbacks" :key="row.songId">
                 <td>
-                  <a :href="`https://vocadb.net/S/${row.songId}`">{{ songName(row.songId) }}</a>
+                  <a :href="`https://vocadb.net/S/${row.songId}`"><SongTitle :song-id="row.songId" :original="songName(row.songId)" /></a>
                 </td>
                 <td>{{ bands.find((band) => band.id === row.band)?.label }}</td>
                 <td>{{ viewText(row.viewCount) }}</td>
