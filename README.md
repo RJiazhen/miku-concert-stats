@@ -4,6 +4,8 @@
 
 收录系列：マジカルミライ、MIKU EXPO、MIKU WITH YOU、初音ミクシンフォニー、初音ミクライブパーティー、SNOW MIKU LIVE!。
 
+模块划分、数据流，以及怎么跑、构建和部署，见 [docs/architecture.md](docs/architecture.md)。
+
 ## 数据从哪来
 
 演出、歌单、曲名和投稿链接来自 [VocaDB 公共 API](https://vocadb.net/api/)。转载这些数据库内容时请链回 [VocaDB](https://vocadb.net/)，许可说明见 [VocaDB License](https://wiki.vocadb.net/docs/license)。本站不下载封面、歌词或官方标识。
