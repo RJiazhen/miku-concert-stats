@@ -140,6 +140,8 @@ th, td { text-align: left; padding: 0.45rem 0.4rem; border-bottom: 1px solid var
 
 .note { color: var(--muted); font-size: 0.92rem; }
 
+.panel ul { margin: 0.4rem 0 1rem; padding-left: 1.2rem; }
+
 .site-footer { margin-top: 2rem; color: var(--muted); font-size: 0.88rem; }
 
 .segmented { display: flex; gap: 0.35rem; align-items: end; }
