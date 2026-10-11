@@ -135,7 +135,9 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
     console.log(`Series ${seriesId}: ${client.requestCount()} network requests so far`)
   }
 
-  const premieres = premieresFor(performances)
+  const uniquePerformances = [...new Map(performances.map((row) => [row.id, row])).values()]
+  const uniqueLinks = [...new Map(links.map((row) => [`${row.performance_id}\0${row.url}`, row])).values()]
+  const premieres = premieresFor(uniquePerformances)
   const body = [
     chunkInserts('sources', ['id', 'name', 'url', 'license', 'notes'], [[
       'vocadb',
@@ -156,12 +158,12 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
       'id', 'series_id', 'name', 'name_ja', 'venue_name', 'country_code', 'start_date', 'end_date',
       'showtime_local', 'timezone', 'time_precision', 'time_evidence', 'role', 'series_number',
       'series_suffix', 'song_list_id', 'vocadb_status', 'source_url', 'retrieved_at',
-    ], performances.map((row) => [
+    ], uniquePerformances.map((row) => [
       row.id, row.series_id, row.name, row.name_ja, row.venue_name, row.country_code, row.start_date, row.end_date,
       row.showtime_local, row.timezone, row.time_precision, row.time_evidence, row.role, row.series_number,
       row.series_suffix, row.song_list_id, row.vocadb_status, row.source_url, row.retrieved_at,
     ])),
-    chunkInserts('performance_links', ['performance_id', 'url', 'description'], links.map((row) => [
+    chunkInserts('performance_links', ['performance_id', 'url', 'description'], uniqueLinks.map((row) => [
       row.performance_id, row.url, row.description,
     ])),
     chunkInserts('edition_premieres', [
@@ -198,7 +200,7 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
   await writeFile(target, catalogTransaction(body, retrievedAt))
   writeConversionSql(root)
   console.log(
-    `Wrote ${target}: ${performances.length} performances, ${songs.size} songs, ${quarantine.length} quarantined lines, ${client.requestCount()} requests`,
+    `Wrote ${target}: ${uniquePerformances.length} performances, ${songs.size} songs, ${quarantine.length} quarantined lines, ${client.requestCount()} requests`,
   )
 }
 
