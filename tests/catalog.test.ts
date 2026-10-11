@@ -27,6 +27,10 @@ describe('committed catalog', () => {
       expect(catalog.formulas[0]?.formula_json).toBeNull()
       expect(catalog.sources[0]?.url).toBe('https://vocadb.net/')
       expect(catalog.songLists.every((list) => list.announced_at === null)).toBe(true)
+      const rotation = catalog.setlistItems.find((row) => row.song_list_id === 17933 && row.listed_song_id === 42733)
+      const saihate = catalog.setlistItems.find((row) => row.song_list_id === 17933 && row.listed_song_id === 459)
+      expect(rotation?.notes).toBe('Fukuoka Day 1 / Tokyo Day 1 / Tokyo Day 3 / Osaka Day 2')
+      expect(saihate?.notes).toBe('Osaka')
     } finally {
       db.close()
     }
