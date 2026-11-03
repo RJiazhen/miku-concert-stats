@@ -5,7 +5,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['node_modules/**', '.nuxt/**', '.output/**', 'public/**', 'data/cache/**', '**/*.vue'],
+    ignores: ['node_modules/**', '.nuxt/**', '.output/**', '.wrangler/**', 'public/**', 'data/cache/**', '**/*.vue'],
   },
   {
     rules: {

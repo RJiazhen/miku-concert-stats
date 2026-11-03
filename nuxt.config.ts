@@ -1,10 +1,30 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-06',
+  modules: ['@nuxt/ui'],
+  css: ['~/assets/css/main.css'],
   nitro: {
     preset: 'cloudflare_module',
     cloudflare: {
       deployConfig: true,
       nodeCompat: true,
+    },
+  },
+  // Follow the operating system until the visitor picks a theme.
+  colorMode: {
+    preference: 'system',
+    fallback: 'dark',
+  },
+  ui: {
+    // System font stack keeps the build offline and the render instant.
+    fonts: false,
+    theme: {
+      colors: ['primary', 'secondary', 'success', 'info', 'warning', 'error'],
+    },
+  },
+  icon: {
+    // Bundle every icon used in .vue files so SSR never calls the Iconify API.
+    clientBundle: {
+      scan: true,
     },
   },
   app: {
@@ -14,16 +34,9 @@ export default defineNuxtConfig({
       meta: [
         {
           name: 'description',
-          content: '按演出、系列和年份比较初音未来演唱会歌单的播放量区间。统计在浏览器本地完成。',
+          content: '按演出、系列和年份比较初音未来演唱会歌单。统计在浏览器本地完成。',
         },
-      ],
-      script: [
-        {
-          key: 'theme-init',
-          tagPriority: 'critical',
-          innerHTML:
-            "(() => { try { const stored = localStorage.getItem('miku-concert-stats-theme'); if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored; } catch { /* storage unavailable */ } })();",
-        },
+        { name: 'theme-color', content: '#05070d' },
       ],
     },
   },

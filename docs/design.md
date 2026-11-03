@@ -182,7 +182,7 @@ flowchart LR
 
 按场次的排行使用解析结果。次数不可靠时显示「≈」，悬停列出原因。页上另列未解决的行和场次。单场页 `/shows/:id` 与年版页 `/editions/:seriesId/:seriesNumber` 展示原始备注和解析结果，并从排行、单场页链入。
 
-外观以深色为默认。`:root` 使用深色变量；`prefers-color-scheme: light` 且用户尚未选择时使用浅色变量。顶栏开关把 `light` 或 `dark` 写入 `localStorage` 键 `miku-concert-stats-theme`，并用 `documentElement.dataset.theme` 覆盖系统偏好。`nuxt.config` 的 `app.head` 放一段同步内联脚本，在首屏绘制前应用已保存的选择，避免先闪深色再跳到浅色。未保存时不写 `data-theme`，交给媒体查询。
+外观由 Nuxt UI 的 color mode 控制，默认跟随系统，系统无偏好时回落到深色。`html.dark` 由 `@nuxtjs/color-mode` 写入，页眉的 `UColorModeButton` 切换并记忆。深色是艺术方向基准：近黑背景配青绿 `#39C5BB` 与洋红 `#E12885` 的径向光晕；浅色同样必须可用。光晕画在固定的 `-z-10` 层，不进入正文层，避免影响对比度。
 
 ## 歌名中文
 
@@ -200,7 +200,7 @@ flowchart LR
 
 `title` 非空。`source` 为字面量 `vocadb-alias`（来自缓存的 VocaDB `names[]` 中文别名），或一条能核对的 URL / 简短出处说明。`comment` 可省略。`shared/song-titles.ts` 校验并按 id 取出。测试要求每个 id 都在已提交目录里。
 
-顶栏在「原文」和「中文」之间切换，记在 `localStorage` 键 `miku-concert-stats-song-lang`。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，先显示译文，原文用灰色括号跟在后面；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
+顶栏用「中文歌名」开关（`USwitch`）控制是否显示中文，记在 `localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`）。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，先显示译文，原文用灰色括号跟在后面；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
 
 ## 演出角色
 
@@ -216,3 +216,21 @@ flowchart LR
 2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`，`scripts/snapshot-youtube.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
 3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、`server/api/lookup.get.ts`、署名与空态。
 4. **发布自动化** — `wrangler.toml`、CI、每周工作流；README。
+
+## 版本合并
+
+`data/song-variants.json` 是人工核对的清单，只收录确认属于同一首歌的 remix、remaster、声库、翻唱与语言版本。`shared/song-variants.ts` 拒绝链式映射与自指。统计函数接受 `SongVariantIndex`：计数时先归一到 canonical id 再按歌单或场次去重，代表投稿在合并组内选，排行行带上 `variantSongIds` 供页面标注「含 N 个版本」。清单之外的重复条目不会被自动合并，`/raw` 的「疑似重复但未合并」会持续列出候选。
+
+## 歌单槽位与跨地区合并
+
+同一槽位的替换曲目在 VocaDB 里是相邻但序号不同的多行。`shared/setlist-slots.ts` 判定两行是否可以共用一个序号：演出集合不同时要求日期与场次对齐；同一场记录跨多天时按备注的日期/日夜/场次判定；任一侧没有备注就不合并。只有连续且与槽位内每一行都互斥的行才会合并。
+
+同一年版不同地区的歌单（例如 2019 マジカルミライ 东京与大阪）用 `data/setlist-merges.json` 人工分组后合并展示。`shared/edition-setlists.ts` 以场次最多的歌单为骨架，其余用 LCS 对齐，重复曲目折叠成一行并合并演出集合。渲染时槽位用 `rowspan` 共享序号，末尾「场次」列说明该行属于哪一场；每一场都演出的行留空，不写说明。
+
+## 差异核验报告
+
+`shared/setlist-diff.ts` 计算同一年版歌单对（以及相邻年版）的结构差异：行数、正片与安可行数、共有与独有曲目、LCS 覆盖率、是否已合并。分级为 `identical`、`order-only`、`count-differs`、`segment-differs`、`probably-different-program`。`pnpm report:setlist` 写出 `docs/reports/setlist-differences.{md,csv}`，`--check` 供 CI 校验；`/report` 在浏览器里用同一份纯函数渲染，可复制 Markdown。相邻年版只作参考，不参与分级统计。
+
+## 界面
+
+Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目录，页面用 `~~/shared/*` 引用纯逻辑。页眉是毛玻璃吸顶条，导航只保留「排行 / 原始数据 / 核验 / 检索」；播放量相关页面在拿到快照前由 `middleware/retired.ts` 重定向到首页。排行用 `UTable` 与 TanStack 排序，筛选条件写入 URL query，刷新与分享都能复原。

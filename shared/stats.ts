@@ -1,5 +1,6 @@
 import { BANDS, bandForCount } from './bands.ts'
 import { reviewRotations } from './rotation.ts'
+import { emptySongVariantIndex, type SongVariantIndex } from './song-variants.ts'
 import type {
   BandId,
   Catalog,
@@ -55,8 +56,19 @@ export const representativeVideo = (
   videos: readonly VideoRow[],
   songId: number,
   platform: Platform,
+): VideoRow | null => representativeVideoForSongs(videos, [songId], platform)
+
+/**
+ * Picks one representative PV across a merged song group on one platform.
+ * Enabled Original PVs win; otherwise the lowest VocaDB PV id.
+ */
+export const representativeVideoForSongs = (
+  videos: readonly VideoRow[],
+  songIds: readonly number[],
+  platform: Platform,
 ): VideoRow | null => {
-  const enabled = videos.filter((video) => video.song_id === songId && video.platform === platform && video.disabled === 0)
+  const ids = new Set(songIds)
+  const enabled = videos.filter((video) => ids.has(video.song_id) && video.platform === platform && video.disabled === 0)
   if (enabled.length === 0) return null
   const originals = enabled.filter((video) => video.pv_type === 'Original')
   const pool = originals.length > 0 ? originals : enabled
@@ -102,26 +114,35 @@ export const earliestSnapshotAfter = (
 }
 
 /**
- * Song ids counted for a set of song-list ids.
+ * Canonical song ids counted for a set of song-list ids.
  * Quarantined mashup lines are omitted. Component songs replace the mashup entry.
+ * Variants are folded into their canonical song before de-duplication.
  */
-export const countedSongIds = (catalog: Catalog, songListIds: readonly number[]): number[] => {
+export const countedSongIds = (
+  catalog: Catalog,
+  songListIds: readonly number[],
+  variants: SongVariantIndex = emptySongVariantIndex(),
+): number[] => {
   const lists = new Set(songListIds)
   const quarantined = new Set(catalog.medleyQuarantine.filter((row) => lists.has(row.song_list_id)).map((row) => `${row.song_list_id}:${row.position}`))
   const ids = new Set<number>()
   for (const link of catalog.setlistItemSongs) {
     if (!lists.has(link.song_list_id)) continue
     if (quarantined.has(`${link.song_list_id}:${link.position}`)) continue
-    ids.add(link.song_id)
+    ids.add(variants.canonicalSongId(link.song_id))
   }
   return [...ids].sort((left, right) => left - right)
 }
 
-/** Song ids on one performance's setlist. Performances without a list contribute nothing. */
-export const songIdsForPerformance = (catalog: Catalog, performanceId: number): number[] => {
+/** Canonical song ids on one performance's setlist. Performances without a list contribute nothing. */
+export const songIdsForPerformance = (
+  catalog: Catalog,
+  performanceId: number,
+  variants: SongVariantIndex = emptySongVariantIndex(),
+): number[] => {
   const performance = catalog.performances.find((row) => row.id === performanceId)
   if (!performance || performance.song_list_id === null) return []
-  return countedSongIds(catalog, [performance.song_list_id])
+  return countedSongIds(catalog, [performance.song_list_id], variants)
 }
 
 /** Current playback band for each song on the selected platform. */
@@ -129,9 +150,10 @@ export const playbackForSongs = (
   catalog: Catalog,
   songIds: readonly number[],
   platform: Platform,
+  variants: SongVariantIndex = emptySongVariantIndex(),
 ): SongPlayback[] => {
   return songIds.map((songId) => {
-    const video = representativeVideo(catalog.videos, songId, platform)
+    const video = representativeVideoForSongs(catalog.videos, variants.groupSongIds(songId), platform)
     const snapshot = video ? latestSnapshot(catalog.snapshots, platform, video.platform_video_id) : null
     const viewCount = snapshot ? snapshot.view_count : null
     return { songId, video, viewCount, band: bandForCount(viewCount) }
@@ -171,7 +193,12 @@ const groupLabel = (catalog: Catalog, grouping: CompareGrouping, key: string): s
  * Unique counted songs per series, edition, or performance calendar year.
  * Edition groups use series_number. Year groups use the performance start_date year.
  */
-export const compareBy = (catalog: Catalog, platform: Platform, grouping: CompareGrouping): CompareRow[] => {
+export const compareBy = (
+  catalog: Catalog,
+  platform: Platform,
+  grouping: CompareGrouping,
+  variants: SongVariantIndex = emptySongVariantIndex(),
+): CompareRow[] => {
   const buckets = new Map<string, Set<number>>()
   for (const performance of catalog.performances) {
     let key: string | null = null
@@ -182,12 +209,12 @@ export const compareBy = (catalog: Catalog, platform: Platform, grouping: Compar
     } else if (performance.start_date) key = performance.start_date.slice(0, 4)
     if (key === null || performance.song_list_id === null) continue
     const songs = buckets.get(key) ?? new Set<number>()
-    for (const songId of countedSongIds(catalog, [performance.song_list_id])) songs.add(songId)
+    for (const songId of countedSongIds(catalog, [performance.song_list_id], variants)) songs.add(songId)
     buckets.set(key, songs)
   }
   const rows: CompareRow[] = []
   for (const [key, songIds] of buckets) {
-    const playbacks = playbackForSongs(catalog, [...songIds], platform)
+    const playbacks = playbackForSongs(catalog, [...songIds], platform, variants)
     rows.push({
       key,
       label: groupLabel(catalog, grouping, key),
@@ -208,12 +235,13 @@ export const observeWindow = (
   songIds: readonly number[],
   platform: Platform,
   instant: string | null,
+  variants: SongVariantIndex = emptySongVariantIndex(),
 ): WindowObservation[] => {
   return songIds.map((songId) => {
     if (instant === null) {
       return { songId, status: 'insufficient', before: null, after: null, delta: null }
     }
-    const video = representativeVideo(catalog.videos, songId, platform)
+    const video = representativeVideoForSongs(catalog.videos, variants.groupSongIds(songId), platform)
     if (!video) return { songId, status: 'insufficient', before: null, after: null, delta: null }
     const before = latestSnapshot(
       catalog.snapshots.filter((snapshot) => snapshot.collected_at < instant),
@@ -257,6 +285,8 @@ export type RankingOptions = {
   yearTo?: number | null
   includeBroadcast?: boolean
   includeMedleyComponents?: boolean
+  /** Variant mapping used to fold remixes, voicebank versions, and covers into one song. */
+  variants?: SongVariantIndex
 }
 
 /** One song's appearance count under the active filters. */
@@ -270,6 +300,8 @@ export type SongRanking = {
   lastYear: number | null
   approximate: boolean
   reasons: string[]
+  /** Variant song ids merged into this row, sorted. Empty when the song stands alone. */
+  variantSongIds: number[]
 }
 
 /** Livestream, online, and VR wording on a performance name or series suffix. */
@@ -330,6 +362,7 @@ type RankingBucket = {
  */
 export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = {}): SongRanking[] => {
   const mode: RankingMode = options.mode === 'show' ? 'show' : 'setlist'
+  const variants = options.variants ?? emptySongVariantIndex()
   const knownSeries = new Set(catalog.series.map((row) => row.id))
   const itemKeys = new Set(catalog.setlistItems.map((row) => `${row.song_list_id}:${row.position}`))
   const rotation = reviewRotations(catalog)
@@ -339,7 +372,7 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
     if (!itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
     if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue
     const songs = songsByList.get(link.song_list_id) ?? new Set<number>()
-    songs.add(link.song_id)
+    songs.add(variants.canonicalSongId(link.song_id))
     songsByList.set(link.song_list_id, songs)
   }
 
@@ -378,7 +411,7 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue
       const line = lineByKey.get(`${link.song_list_id}:${link.position}`)
       if (!line || !line.performanceIds.includes(performance.id)) continue
-      addAppearance(link.song_id, performance.id, performance.series_id, year, line.uncertain ? line.reasons : [])
+      addAppearance(variants.canonicalSongId(link.song_id), performance.id, performance.series_id, year, line.uncertain ? line.reasons : [])
     }
   }
 
@@ -397,6 +430,7 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       lastYear: years.length === 0 ? null : Math.max(...years),
       approximate: bucket.reasons.size > 0,
       reasons: [...bucket.reasons].sort(),
+      variantSongIds: variants.variantSongIdsOf(songId),
     })
   }
   rows.sort((left, right) => right.count - left.count || left.songId - right.songId)

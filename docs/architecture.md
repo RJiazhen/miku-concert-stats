@@ -15,9 +15,16 @@
 | 219 | 初音ミクライブパーティー |
 | 204 | SNOW MIKU LIVE! |
 
-## 目录与模块
+## 技术栈
 
-这是单个 Nuxt 应用，不是 pnpm workspace 多包。`pnpm-workspace.yaml` 只放 `allowBuilds`。
+- **Nuxt 4.6**，`srcDir` 为 `app/`。`shared/`、`scripts/`、`tests/`、`server/`、`data/` 留在根目录，`app/**` 通过 `~~/shared/*` 引用纯逻辑。
+- **Nuxt UI 4 + Tailwind CSS 4**。`nuxt.config.ts` 注册 `@nuxt/ui`，颜色 token 在 `app/app.config.ts` 绑定为 `primary: miku`、`secondary: magenta`，色阶定义在 `app/assets/css/main.css` 的 `@theme`。
+- **深色优先，默认跟随系统**。`@nuxtjs/color-mode`（由 Nuxt UI 注册）在 `html` 上加 `.dark`；页眉的 `UColorModeButton` 切换并记住选择。
+- **字体不联网**：`ui.fonts: false`，使用系统字体栈，避免构建期请求字体服务。
+- **图标本地打包**：`@iconify-json/lucide` + `icon.clientBundle.scan`，SSR 首屏不依赖 Iconify API。
+- **Nitro `cloudflare_module`**：`deployConfig: true`、`nodeCompat: true`，产物写到 `.output`。
+
+## 目录与模块
 
 ### 采集与 SQL
 
@@ -31,16 +38,14 @@
 - 首演是同一 `series_id` + `series_number` 里 `role = show` 且有开始日的最早日期；同日取较小的 performance id。规则原文存在 `edition_premieres.rule`。
 - `shared/showtime.ts` 只在场馆国家为 `JP`、且简介里恰好一条合法的 `Showtime` 或「開演」`HH:MM` 时写入 `showtime_local`、`timezone = Asia/Tokyo` 和摘录。多条钟点不写入。VocaDB 日期保持 `time_precision = day`。
 - 歌单对象没有公布时间，`song_lists.announced_at` 写 `NULL`。
-- `shared/medley.ts`：`songType !== Mashup` 整行计为列出的那首歌。Mashup 只有备注或网页链接里能核到至少两条其他 VocaDB 歌曲 URL（`vocadb.net/S/{id}` 或 `Song/Details/{id}`）才拆开，角色为 `component`；否则进入 `medley_quarantine`，不进入区间分母。组件歌曲 404 时该行隔离。
-- 视频只保留 niconico、YouTube、bilibili 的 PV 链接。不调用 niconico 非官方观看页接口，不抓哔哩哔哩播放量。
+- `shared/medley.ts`：`songType !== Mashup` 整行计为列出的那首歌。Mashup 只有备注或网页链接里能核到至少两条其他 VocaDB 歌曲 URL（`vocadb.net/S/{id}` 或 `Song/Details/{id}`）才拆开，角色为 `component`；否则进入 `medley_quarantine`，不进入区间分母。
+- 视频只保留 niconico、YouTube、bilibili 的 PV 链接。
 
 `scripts/sql/emit.ts` 把行变成 SQL 字面量，每条 `INSERT` 最多 80 行。`catalogTransaction` 包在事务里，先删目录表再插入。它不删除 `view_snapshots`、`milestones`、`conversion_formulas`。产物是 `data/increments/0001-vocadb-catalog.sql`。采集结束还会调用 `scripts/evaluate-conversion.ts` 重写 `0003-conversion.sql`。
 
-`scripts/snapshot-youtube.ts`（`pnpm snapshot:youtube`）在 `YOUTUBE_API_KEY` 存在时，对目录里未禁用的 YouTube `platform_video_id` 调用 Data API v3 `videos.list`（`part=statistics`，每批 50 个 id）。没有数字 `viewCount` 的条目跳过，不写成 0。结果以 `INSERT OR IGNORE` 追加到 `data/increments/0002-youtube-snapshots.sql`（文件首次出现时写表头）。没有密钥时打印跳过并返回 0，不估计播放量。快照写完后同样重写换算增量。当前仓库可以没有 `0002`：没有采集时 `view_snapshots` 与 `milestones` 都是空表。里程碑表保留，没有可引用的达成时间时不插入行。
+`scripts/snapshot-youtube.ts`（`pnpm snapshot:youtube`）在 `YOUTUBE_API_KEY` 存在时，对目录里未禁用的 YouTube `platform_video_id` 调用 Data API v3 `videos.list`（`part=statistics`，每批 50 个 id）。没有数字 `viewCount` 的条目跳过，不写成 0。结果以 `INSERT OR IGNORE` 追加到 `data/increments/0002-youtube-snapshots.sql`。没有密钥时打印跳过并返回 0。
 
-`scripts/evaluate-conversion.ts` 在内存里用 better-sqlite3 套用全部 SQL，再经 `shared/correlation.ts` 评估。公式 id 为 `nico-to-youtube-log10`，形式是 `log10(youtube views) = a + b * log10(niconico views)`。配对要求同一首歌在 niconico 与 YouTube 上都有未禁用代表 PV，且两侧最新快照播放量都大于 0。留出集是 `song id % 5 === 0`。发布门槛：训练至少 40 对、留出至少 15 对、两侧 `|r| ≥ 0.8`、中位绝对百分比误差 ≤ 25%；留出层（发布年代十年、niconico 区间、YouTube `pvType`）样本不少于 8 时，该层误差 ≤ 40%。任一门槛失败则 `status = unpublished`，`formula_json` 保持 `NULL`。
-
-`scripts/build-catalog.ts`（`pnpm build:catalog`，也是 `predev` / `prebuild`）用 better-sqlite3 执行 `data/schema.sql`，再按文件名字典序执行 `data/increments/*.sql`，写出 `public/data/catalog.sqlite`。同时把 `sql.js` 的 `sql-wasm.wasm` 复制到 `public/sql-wasm.wasm`。这两个产物都在 `.gitignore` 里。
+`scripts/build-catalog.ts`（`pnpm build:catalog`，也是 `predev` / `prebuild`）用 better-sqlite3 执行 `data/schema.sql`，再按文件名字典序执行 `data/increments/*.sql`，写出 `public/data/catalog.sqlite`，并把 `sql.js` 的 `sql-wasm.wasm` 复制到 `public/sql-wasm.wasm`。这两个产物都在 `.gitignore` 里。
 
 ### 共享逻辑 `shared/`
 
@@ -48,41 +53,58 @@
 
 `shared/stats.ts`：
 
-- `representativeVideo`：某平台上未禁用的 PV 里，优先 `pvType = Original`，否则取最小的 VocaDB PV id。
-- `playbackForSongs` / `summarizeBands`：用最新快照落入 `shared/bands.ts` 的固定区间（尚无快照、不足 10 万、10 万–100 万、100 万–1000 万、1000 万及以上）。没有快照保持 `none`。
-- `compareBy`：按系列、年版（`series_number`）或场次开始日期的公历年分组，组内按歌曲去重后算区间占比。比较的是当前快照。
-- `observeWindow`：观察点之前最近的快照与之后最早的快照。缺任一侧则 `insufficient`，不算差值。
-- `rankSongAppearances`：排行。`setlist` 模式每个 `song_list_id` 至多计一次；`show` 模式只计轮换解析分配到该场的行。默认排除 `role = broadcast` 以及名称、日文名、`series_suffix` 命中 livestream / online / オンライン / VR / 配信 的场次，除非 `includeBroadcast`。`role = component` 默认不计，除非 `includeMedleyComponents`。空的系列列表表示全部已知系列。设了年份上下界时，没有 `YYYY-MM-DD` 开始日的场次不计入。
+- `representativeVideo` / `representativeVideoForSongs`：某平台上未禁用的 PV 里，优先 `pvType = Original`，否则取最小的 VocaDB PV id。合并组会跨版本选一条代表投稿。
+- `playbackForSongs` / `summarizeBands`：用最新快照落入 `shared/bands.ts` 的固定区间。
+- `compareBy`：按系列、年版（`series_number`）或场次开始日期的公历年分组，组内按歌曲去重后算区间占比。
+- `observeWindow`：观察点之前最近的快照与之后最早的快照。缺任一侧则 `insufficient`。
+- `rankSongAppearances`：排行。`setlist` 模式每个 `song_list_id` 至多计一次；`show` 模式只计轮换解析分配到该场的行。默认排除 `role = broadcast` 以及名称、日文名、`series_suffix` 命中 livestream / online / オンライン / VR / 配信 的场次。`role = component` 默认不计。每行带 `variantSongIds`，供页面标注「含 N 个版本」。
+- 所有计数函数接受可选的 `SongVariantIndex`，默认不合并版本。
 
-`shared/rotation.ts` 解析歌单备注，把一行分到共享该歌单的场次：
+`shared/song-variants.ts` 校验 `data/song-variants.json`：键是变体歌曲 id，值含 `canonical`、`kind`（`remix` / `remaster` / `voicebank` / `cover` / `language`）与可选 `note`。链式映射（canonical 本身也是变体）与自指会抛错。导出 `canonicalSongId`、`variantSongIdsOf`、`groupSongIds`。
 
-- 空备注表示该歌单的全部场次，且不算不确定。
-- 备注按 `/`、`／`、逗号、顿号切开。段内识别城市别名、`day N`、昼夜 / 1st·2nd show。
-- 一段都解析不出来时，退回全部场次并标为不确定。
-- `reviewRotations` 再做长度一致性检查：每场按解析结果数行，期望长度是该歌单上场次行数的众数（并列取较大值）。与众数不同的场次记入 `shows`，原因是 `setlist length mismatch: X vs expected Y`。该歌单上已经不确定、或没有覆盖全部场次的行，会继承这条原因。
+`shared/setlist-slots.ts` 负责歌单槽位：
 
-`shared/song-titles.ts` 校验并格式化中文歌名。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配，并把 VocaDB 搜索结果收成最多 5 条、只含 niconico / YouTube / bilibili 的投稿链接。
+- `parseNoteSelectors` 把备注拆成 `{ city, day, show, half }`。`Fukuoka Day 1`、`DAY 2`、`Nighttime Shows`、`DAY 1 1st and 2nd Show` 都能识别；`Encore` 没有可用维度，返回空。
+- `itemsMergeable` 判定两行是否同一槽位：演出集合不同时要求两边在日期与场次上对齐；同一场记录跨多天时，退回按备注的日期/日夜判定；任一侧没有备注时不合并。
+- `groupRowsIntoSlots` 只合并**连续**且与槽位内每一行都互斥的行。
+
+`shared/edition-setlists.ts` 负责跨歌单合并：
+
+- `parseSetlistMerges` 校验 `data/setlist-merges.json`（键是 `song_list_id`，值为 `group` 与可选 `note`）。
+- `partitionSongLists` 把一个年版的歌单分成合并组与独立歌单。
+- `buildSetlistDisplay` 选场次最多的歌单作骨架，其余歌单用 LCS 对齐；重复曲目折叠进已有行；最后按槽位分组并给出行号、`场次` 标签与完整场次名。每一场都演出的行不写场次标签。
+
+`shared/setlist-diff.ts` 生成差异报告：单份歌单的结构指标（行数、去重曲目、正片/安可行数、分天替换行数）、两份歌单的 LCS 与差异曲目、五级分类（`identical` / `order-only` / `count-differs` / `segment-differs` / `probably-different-program`）。`scripts/setlist-diff-report.ts` 把它写成 `docs/reports/setlist-differences.{md,csv}`，`--check` 只比对不写入，CI 使用。
+
+`shared/rotation.ts` 解析歌单备注，把一行分到共享该歌单的场次。空备注表示该歌单的全部场次且不算不确定。备注按 `/`、`／`、逗号、顿号切开。识别城市别名、`day N`、昼夜 / 1st·2nd show。`reviewRotations` 再做长度一致性检查，与众数不同的场次记入 `shows`。
+
+`shared/song-titles.ts` 校验并格式化中文歌名。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配，并把 VocaDB 搜索结果收成最多 5 条投稿链接。
 
 ### 页面、组件、服务端
 
-页面在挂载后调用 `composables/useCatalog.ts` 的 `load`。服务端渲染不打开 wasm。客户端只下载一次 `/data/catalog.sqlite`，用 `/sql-wasm.wasm` 初始化 sql.js，再 `loadCatalog`。结果放在 Nuxt `useState` 里，各页共用。
+页面在挂载后调用 `app/composables/useCatalog.ts` 的 `load`。服务端渲染不打开 wasm。客户端只下载一次 `/data/catalog.sqlite`，用 `/sql-wasm.wasm` 初始化 sql.js，再 `loadCatalog`。结果放在 Nuxt `useState` 里，各页共用。
 
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
-| `/` | `pages/index.vue` | 曲目排行。模式、系列、年份、是否计入配信、是否计入串烧组件、角色筛选、排序。不确定行和长度不一致的场次列在表下。年版链接到 `/editions/{seriesId}/{number}`。 |
-| `/catalog` | `pages/catalog.vue` | 单场歌单与当前平台的播放量区间。 |
-| `/shows/{id}` | `pages/shows/[id].vue` | 一场的轮换解析结果，以及该场是否长度不一致。 |
-| `/editions/{seriesId}/{number}` | `pages/editions/[seriesId]/[number].vue` | 一个年版下各场与歌单行的角色、分配场次。 |
-| `/compare` | `pages/compare.vue` | `compareBy`，分组为系列 / 年版 / 年份。 |
-| `/windows` | `pages/windows.vue` | 以年版首演日和 `announced_at`（现为 null，故公布侧样本不足）为观察点。 |
-| `/correlation` | `pages/correlation.vue` | 展示公式状态。未 `published` 时继续分平台。 |
-| `/lookup` | `pages/lookup.vue` | 先 `localSongMatches`。本地有命中或查询为空时不请求服务器。 |
+| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，模式、系列、年份、配信、串烧、角色、关键词筛选；筛选写入 URL query；合并版本行显示「含 N 个版本」 |
+| `/raw` | `app/pages/raw.vue` | 原始数据。按年版合并歌单（`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单场次、未解析备注、串烧隔离、疑似重复） |
+| `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown |
+| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录、投稿与（有快照时的）播放量 |
+| `/shows/{id}` | `app/pages/shows/[id].vue` | 一场的轮换解析结果与长度一致性 |
+| `/editions/{seriesId}/{number}` | `app/pages/editions/[seriesId]/[number].vue` | 一个年版的合并歌单，可切到逐份歌单 |
+| `/lookup` | `app/pages/lookup.vue` | 先 `localSongMatches`，本地没有命中才请求 `/api/lookup` |
+
+`app/pages/catalog.vue`、`compare.vue`、`windows.vue`、`correlation.vue` 保留实现，但都带 `definePageMeta({ middleware: 'retired' })`，直接访问会重定向到首页。`app/middleware/retired.ts` 是唯一的重定向实现；拿到播放量快照后删掉页面上的这一行并恢复导航项即可。
+
+`app/components/SetlistTable.vue` 是 `/raw` 与 `/editions`、`/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，父行带「替换 N」徽标，末尾「场次」列说明该行属于哪一场，每一场都演出的行留空。
+
+`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌、四个入口、中文歌名开关（`USwitch`，只在客户端生效）、`UColorModeButton`。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
+
+`app/composables/useSongLanguage.ts` 保存歌名语言，`localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`），并暴露 `showChinese` 布尔绑定给开关。服务端和首屏先显示原文，挂载后再读选择，避免注水不一致。
+
+`app/composables/useSongLookup.ts` 提供 `songById` / `songName`；`useSongVariants.ts` 与 `useSetlistMerges.ts` 在模块加载时解析各自的 JSON 清单。
 
 `server/api/lookup.get.ts` 只在浏览器请求 `GET /api/lookup?q=` 时搜索 VocaDB `/api/songs`（`maxResults=5`，`fields=PVs`）。查询长度须为 1–80。失败返回 400 或 502。
-
-`components/SongTitle.vue` 用 `composables/useSongLanguage.ts`。语言存在 `localStorage` 键 `miku-concert-stats-song-lang`。服务端先用原文，以免 hydration 不一致；挂载后已存的选择优先，否则 `navigator.language` 以 `zh` 开头则用中文。中文模式在译文旁用括号保留原文，两者相同时只显示一条。`composables/useCharacters.ts` 在启动时编译 `data/characters.json`，供排行筛选和「演出角色」列。
-
-`components/SiteHeader.vue` 提供导航、歌名语言切换和主题切换。默认深色。`nuxt.config.ts` 在首屏脚本里读 `localStorage` 键 `miku-concert-stats-theme`（`light` 或 `dark`）。未选择时跟随 `prefers-color-scheme`。`components/BandChart.vue` 画区间占比。`layouts/default.vue` 放页眉页脚和 VocaDB 署名。`assets/css/main.css` 由 `app.vue` 引入。
 
 ## 数据流
 
@@ -102,10 +124,11 @@ flowchart TD
   sqlite["public/data/catalog.sqlite"]
   wasm["public/sql-wasm.wasm"]
   browser["sql.js in the browser"]
-  shared["shared/stats rotation titles characters"]
-  pages["Nuxt pages"]
+  shared["shared/stats rotation variants slots diff"]
+  pages["app/pages + Nuxt UI"]
   worker["Nitro Worker SSR"]
   lookup["GET /api/lookup"]
+  report["docs/reports"]
 
   vocadb --> collect
   collect --> cache
@@ -129,44 +152,27 @@ flowchart TD
   worker --> pages
   pages -->|"local miss only"| lookup
   lookup --> vocadb
+  sqlite --> report
+  report --> pages
 ```
 
-`0002` 仅在跑过带密钥的快照后存在。`build-catalog` 对缺失的增量目录或其中不存在的文件不会失败：目录不存在则跳过，存在则只执行 `*.sql`。
+## 配置与清单文件
 
-## 技术选择
+### `data/song-variants.json`
 
-- **Nuxt 3 + Nitro `cloudflare_module`。** `nuxt.config.ts` 把 Nitro preset 设为 `cloudflare_module`，`deployConfig: true`，`nodeCompat: true`。`wrangler.toml` 的 `compatibility_date` 为 `2026-10-06`，并打开 `nodejs_compat`。部署时 Nitro 会改写 `.output` 里的 Worker 入口，根目录的 `wrangler.toml` 不单独作为部署配置。
-- **浏览器里的 sql.js。** 统计在客户端完成。Worker 不打开目录数据库。
-- **SQL 增量是源。** 提交的是 `data/schema.sql` 和 `data/increments/*.sql`。`public/data/catalog.sqlite` 是构建产物。
-- **VocaDB 数据库内容为 CC 署名转载。** 增量文件头和 `sources` 行指向 [VocaDB License](https://wiki.vocadb.net/docs/license)。本站不下载封面、歌词或官方标识。
-- **YouTube Data API 可选。** 只有配置了 `YOUTUBE_API_KEY` 才写入快照。
+对象。键是变体歌曲 id 的十进制字符串，值是 `canonical`（并入的歌曲 id）、`kind`、可选 `note`。只能一级映射，不允许 A → B → C。
 
-Node 22 用于 CI。运行时依赖是 `sql.js`。采集、构建目录和测试用开发依赖里的 `better-sqlite3`、`tsx`、`vitest`。
+### `data/setlist-merges.json`
 
-## 配置文件
+对象。键是 `song_list_id`，值是 `group`（同一组合共用）与可选 `note`。用 LCS 覆盖率人工确认过才写入；`docs/reports/setlist-differences.md` 会列出未合并的候选。
 
 ### `data/song-titles.zh-CN.json`
 
-对象。键是 VocaDB 歌曲 id 的十进制字符串。值是：
-
-| 字段 | 要求 |
-| --- | --- |
-| `title` | 非空字符串 |
-| `source` | 非空字符串，例如 `vocadb-alias`、`萌娘百科` |
-| `comment` | 可选字符串 |
-
-`parseSongTitles` 在键不是纯数字、标题或来源为空、或 `comment` 不是字符串时抛错。没有条目的歌保持原文。
+对象。键是 VocaDB 歌曲 id，值含非空 `title`、非空 `source` 与可选 `comment`。
 
 ### `data/characters.json`
 
-对象。键是展示用的角色名，顺序即筛选和单元格的顺序。值是：
-
-| 字段 | 要求 |
-| --- | --- |
-| `patterns` | 可选字符串数组，按正则编译，无额外 flag |
-| `aliases` | 可选字符串数组。每个别名编译为 `^{alias}(?:\s|$)`，flag 为 `i` |
-
-至少要有一条 pattern 或 alias。匹配时优先使用带 Vocalist 类别或角色的结构化署名；没有则取 `artist_string` 里第一个 `feat.` 之后、按逗号或顿号分开的名字。未匹配的 token 不显示在「演出角色」里。
+对象。键是展示用的角色名，顺序即筛选项顺序。值含 `patterns`（锚定名称开头的正则）与可选 `aliases`（整段或前缀别名）。
 
 ## 运行、构建、测试、部署
 
@@ -184,16 +190,7 @@ NUXT_IGNORE_LOCK=1 pnpm test
 NUXT_IGNORE_LOCK=1 pnpm build
 ```
 
-没有开发服务器时可以不设 `NUXT_IGNORE_LOCK`。`pnpm typecheck` 是 `tsc --noEmit` 再加 `nuxt typecheck`。`pnpm test` 是 `vitest run`（`tests/**/*.test.ts`）。`pnpm build` 同样先重建目录，再 `nuxt build`。
-
-采集与快照：
-
-```bash
-pnpm collect
-cp .env.example .env
-# 填入 YOUTUBE_API_KEY 后
-pnpm snapshot:youtube
-```
+`pnpm typecheck` 是 `tsc --noEmit` 再加 `nuxt typecheck`。`pnpm test` 是 `vitest run`。`pnpm build` 同样先重建目录，再 `nuxt build`。
 
 部署到 Cloudflare Workers：
 
@@ -204,8 +201,17 @@ pnpm exec wrangler --cwd .output deploy
 
 线上地址：<https://miku-concert-stats.zc791.workers.dev>
 
+Workers Builds（Git 集成）的配置要求：
+
+- 生产分支 `main`（`origin/main` 必须包含完整代码，不能只有 README）。
+- Build command `pnpm install --frozen-lockfile && pnpm build`。
+- Deploy command `npx wrangler deploy --cwd .output`。Nitro 生成的部署配置在 `.output/wrangler.json`，根目录 `wrangler.toml` 没有 `main` 字段。
+- 环境变量 `NODE_VERSION=22`。
+
+`catalog.sqlite` 是构建产物，所以数据提交后需要再触发一次部署才会更新线上。
+
 ### GitHub Actions
 
-`.github/workflows/ci.yml`（`ci`）在指向 `main` 或 `feat/initial-build` 的 push，以及所有 pull request 上运行。Node 22，`pnpm install --frozen-lockfile`，然后 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:catalog`。
+`.github/workflows/ci.yml`（`ci`）在指向 `main` 或 `feat/initial-build` 的 push，以及所有 pull request 上运行。Node 22，`pnpm install --frozen-lockfile`，然后 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:catalog`、`pnpm report:setlist --check`。
 
-`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC（`cron: 0 16 * * 1`）和手动 `workflow_dispatch` 时运行。它执行 `pnpm collect` 和 `pnpm snapshot:youtube`（密钥 `secrets.YOUTUBE_API_KEY`）。`data/increments` 有差异时，由 `github-actions[bot]` 提交并推送，信息为 `Update VocaDB catalog and playback snapshots.`。没有差异则直接结束。
+`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC 和手动触发时运行。它执行 `pnpm collect`、`pnpm snapshot:youtube` 与 `pnpm report:setlist`，`data/increments` 或 `docs/reports` 有差异时由 `github-actions[bot]` 提交并推送。

@@ -21,7 +21,7 @@ type SegmentParse = {
 }
 
 /** Canonical city key and the spellings that appear in notes or event names. */
-const CITY_ALIASES: readonly (readonly [string, readonly string[]])[] = [
+export const CITY_ALIASES: readonly (readonly [string, readonly string[]])[] = [
   ['tokyo', ['tokyo', '東京']],
   ['osaka', ['osaka', '大阪']],
   ['fukuoka', ['fukuoka', '福岡']],
@@ -101,7 +101,7 @@ export const parseRotationNotes = (
 }
 
 /** Splits a note on slashes and commas, keeping parenthetical day markers intact. */
-const splitNote = (notes: string): string[] => {
+export const splitNote = (notes: string): string[] => {
   return notes
     .split(/\s*[/／]\s*|\s*[,、]\s*/)
     .map((segment) => segment.trim())

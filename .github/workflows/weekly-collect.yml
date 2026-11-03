@@ -23,11 +23,13 @@ jobs:
       - run: pnpm snapshot:youtube
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-      - name: Commit SQL increments
+      - name: Regenerate the setlist difference report
+        run: pnpm report:setlist
+      - name: Commit SQL increments and report
         run: |
-          git diff --quiet -- data/increments && exit 0
+          git diff --quiet -- data/increments docs/reports && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/increments
-          git commit -m "Update VocaDB catalog and playback snapshots."
+          git add data/increments docs/reports
+          git commit -m "Update VocaDB catalog, playback snapshots, and setlist report."
           git push
