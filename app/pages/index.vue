@@ -4,6 +4,7 @@ import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { songCharacters, characterColor } from '~/composables/useCharacters.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
+import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { splitCharacterChips } from '~~/shared/character-chips.ts'
@@ -11,7 +12,6 @@ import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import { producerCredit } from '~~/shared/credit.ts'
-import { formatRotationReason } from '~~/shared/rotation.ts'
 import {
   availablePerformanceYears,
   canEndRangeAt,
@@ -24,7 +24,8 @@ const UButton = resolveComponent('UButton')
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
-const { localizeSeries } = useSeriesTitles()
+const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
+const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
 
 /** Width the character column may occupy; three chips plus the `+N` button fit inside the `p-4` padding. */
@@ -77,8 +78,8 @@ type RankedSong = {
   firstYear: number | null
   lastYear: number | null
   approximate: boolean
-  /** Rotation notes for the ≈ badge tooltip, already localized. */
-  reasons: string[]
+  /** 演出 whose 场次 could not be pinned down, in the site language; the ≈ badge names them. */
+  approximatePerformanceNames: string[]
   variantSongIds: number[]
   /** Canonical song plus every merged variant, so the badge counts all versions. */
   versionCount: number
@@ -96,6 +97,18 @@ const ranked = computed<RankedSong[]>(() => {
   if (!catalog.value || selectedSeries.value.length === 0) return []
   const songs = catalog.value.songs
   const byId = new Map(songs.map((song) => [song.id, song]))
+  const performancesById = new Map(catalog.value.performances.map((performance) => [performance.id, performance]))
+  const seriesById = new Map(catalog.value.series.map((series) => [series.id, series]))
+
+  /** Full 演出 names of the uncertain performances, oldest first, in the site language. */
+  const approximateNamesOf = (ids: readonly number[]): string[] =>
+    ids
+      .flatMap((id) => performancesById.get(id) ?? [])
+      .sort((left, right) => (left.start_date ?? '').localeCompare(right.start_date ?? '') || left.id - right.id)
+      .map((performance) => {
+        const series = seriesById.get(performance.series_id)
+        return localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number))
+      })
   return rankSongAppearances(catalog.value, {
     mode: mode.value,
     seriesIds: selectedSeries.value,
@@ -126,7 +139,7 @@ const ranked = computed<RankedSong[]>(() => {
       firstYear: row.firstYear,
       lastYear: row.lastYear,
       approximate: row.approximate,
-      reasons: row.reasons.map(formatRotationReason),
+      approximatePerformanceNames: approximateNamesOf(row.approximatePerformanceIds),
       variantSongIds: row.variantSongIds,
       versionCount: row.variantSongIds.length + 1,
       variantNames,
@@ -502,13 +515,26 @@ const yearToItems = computed(() =>
           <span v-else class="text-muted">—</span>
         </template>
         <template #count-cell="{ row }">
-          <UBadge
-            :color="row.original.approximate ? 'warning' : 'primary'"
-            variant="subtle"
-            :title="row.original.reasons.join('\n')"
-          >
-            {{ row.original.approximate ? `≈ ${row.original.count}` : row.original.count }}
+          <UBadge v-if="!row.original.approximate" color="primary" variant="subtle">
+            {{ row.original.count }}
           </UBadge>
+          <UTooltip
+            v-else
+            :content="{ side: 'top', align: 'center' }"
+            :ui="{ content: 'h-auto max-w-64 items-start whitespace-normal py-2' }"
+          >
+            <UBadge color="warning" variant="subtle" class="cursor-help" tabindex="0">
+              ≈ {{ row.original.count }}
+            </UBadge>
+            <template #content>
+              <div class="w-60 space-y-1">
+                <p class="text-xs">以下演出尚未确认具体表演场次数：</p>
+                <ul class="list-disc space-y-0.5 pl-4 text-xs">
+                  <li v-for="name in row.original.approximatePerformanceNames" :key="name">{{ name }}</li>
+                </ul>
+              </div>
+            </template>
+          </UTooltip>
         </template>
         <template #performanceCount-cell="{ row }">
           <span class="tabular-nums text-muted">{{ row.original.performanceCount }}</span>

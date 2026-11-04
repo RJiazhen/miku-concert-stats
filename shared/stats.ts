@@ -308,6 +308,8 @@ export type SongRanking = {
   lastYear: number | null
   approximate: boolean
   reasons: string[]
+  /** 演出 whose 场次 could not be pinned down, so the count is a lower-confidence estimate. */
+  approximatePerformanceIds: number[]
   /** Variant song ids merged into this row, sorted. Empty when the song stands alone. */
   variantSongIds: number[]
 }
@@ -366,6 +368,8 @@ type RankingBucket = {
   performanceIds: Set<number>
   years: Set<number>
   reasons: Set<string>
+  /** 演出 behind an uncertain line, so the tooltip can name them. */
+  approximatePerformanceIds: Set<number>
 }
 
 /**
@@ -406,11 +410,13 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       performanceIds: new Set<number>(),
       years: new Set<number>(),
       reasons: new Set<string>(),
+      approximatePerformanceIds: new Set<number>(),
     }
     bucket.keys.add(key)
     bucket.seriesIds.add(seriesId)
     bucket.performanceIds.add(performanceId)
     if (year !== null) bucket.years.add(year)
+    if (reasons.length > 0) bucket.approximatePerformanceIds.add(performanceId)
     for (const reason of reasons) bucket.reasons.add(reason)
     buckets.set(songId, bucket)
   }
@@ -454,6 +460,7 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       lastYear: years.length === 0 ? null : Math.max(...years),
       approximate: bucket.reasons.size > 0,
       reasons: [...bucket.reasons].sort(),
+      approximatePerformanceIds: [...bucket.approximatePerformanceIds].sort((left, right) => left - right),
       variantSongIds: variants.variantSongIdsOf(songId),
     })
   }
