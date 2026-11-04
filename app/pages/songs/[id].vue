@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import { formatCharacters } from '~/composables/useCharacters.ts'
+import { formatCharacters, songCharacters } from '~/composables/useCharacters.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 import { variantVersionNote } from '~~/shared/song-variants.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
@@ -86,9 +86,12 @@ const appearances = computed(() => {
       const series = catalog.value.series.find((row) => row.id === performance.series_id)
       const seriesName = series?.name ?? String(performance.series_id)
       const entry = variants.entries.get(link.song_id)
-      const versionName = songById(link.song_id)?.name ?? String(link.song_id)
+      const variantSong = songById(link.song_id)
+      const versionName = variantSong?.name ?? String(link.song_id)
+      // A cover is sung by the variant's own cast, not the canonical song's.
+      const performers = entry?.kind === 'cover' ? songCharacters(variantSong?.artist_string ?? null) : []
       // The canonical version is the page's default, so only variants need a note.
-      const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind) : ''
+      const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind, performers) : ''
       const reasons = line?.reasons ?? []
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
