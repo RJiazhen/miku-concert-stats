@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { premieresFor } from '../../shared/premiere.ts'
+import { isPlaceholderSong } from '../../shared/placeholder-song.ts'
 import type {
   MedleyQuarantineRow,
   PerformanceLinkRow,
@@ -28,8 +29,11 @@ import {
   songListUrl,
 } from './normalize.ts'
 
-/** Concert series this site records. Ids are the VocaDB release-event series ids. */
-export const SERIES_IDS = [81, 82, 173, 256, 219, 204] as const
+/**
+ * Concert series this site records. Ids are the VocaDB release-event series ids.
+ * 255 is 初音ミク×鼓童 (Hatsune Miku × Kodō), the NHK Hall collaboration with the Kodo taiko troupe.
+ */
+export const SERIES_IDS = [81, 82, 173, 256, 219, 204, 255] as const
 
 /**
  * Standalone VocaDB events filed under a recorded series.
@@ -43,7 +47,7 @@ export const STANDALONE_EVENTS = [
 
 const API = 'https://vocadb.net/api'
 
-/** Pulls the six concert series plus curated standalone events and writes the catalog increment. */
+/** Pulls the recorded concert series plus curated standalone events and writes the catalog increment. */
 export const collectCatalog = async (root = repoRoot()): Promise<void> => {
   const retrievedAt = new Date().toISOString()
   const client = createVocadbClient({ cacheDir: path.join(root, 'data', 'cache') })
@@ -101,6 +105,8 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
       for (const line of lines) {
         if (orders.has(line.order)) throw new Error(`Duplicate setlist order ${line.order} on list ${list.id}`)
         orders.add(line.order)
+        // VocaDB files non-song segments (Kodō's taiko interludes) under the shared placeholder song.
+        if (isPlaceholderSong(line.song)) continue
         rememberSong(line.song)
         const notes = line.notes ?? null
         const decision = lineDecision(line.song, notes)
