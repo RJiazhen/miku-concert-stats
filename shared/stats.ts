@@ -307,18 +307,21 @@ export type SongRanking = {
 /** Livestream, online, and VR wording on a performance name or series suffix. */
 const BROADCAST_NAME = /livestream|online|オンライン|\bVR\b|ＶＲ|配信/i
 
+/** Fields needed to tell whether a performance is a livestream, online show, or VR show. */
+export type BroadcastLabel = Pick<PerformanceRow, 'role' | 'name' | 'name_ja' | 'series_suffix'>
+
 /**
  * Whether a performance is a broadcast, livestream, online show, or VR show.
  * Event descriptions are not stored on the performance row, so the text check uses name, name_ja, and series_suffix.
  */
-export const isBroadcastAppearance = (performance: PerformanceRow): boolean => {
+export const isBroadcastAppearance = (performance: BroadcastLabel): boolean => {
   if (performance.role === 'broadcast') return true
   const haystack = `${performance.name}\n${performance.name_ja ?? ''}\n${performance.series_suffix ?? ''}`
   return BROADCAST_NAME.test(haystack)
 }
 
 /** Calendar year of a performance start date. Missing or non-day values contribute no year. */
-const performanceYear = (startDate: string | null): number | null => {
+export const performanceYear = (startDate: string | null): number | null => {
   if (startDate === null || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) return null
   return Number(startDate.slice(0, 4))
 }

@@ -86,6 +86,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/place-names.ts` 校验 `data/place-names.zh-CN.json`，并按站点语言把场次名里的地点换成中文名。拉丁字母的键按整词、不区分大小写匹配，长键优先（`東京都` 先于 `東京`）；语言为 `original` 时原样返回。
 
+`shared/cities.ts` 把 `performances` 聚合成城市排行。城市由 `place-names.zh-CN.json` 的中文名与 `shared/rotation.ts` 的 `CITY_ALIASES` 共同识别：按 `series_suffix` → `name` → `name_ja` → `venue_name` 依次匹配，长拼写优先，所以 `Washington D.C.` 不会被 `Washington` 抢走。中文名去掉末尾「都 / 市」后作为分组键，`東京都`、`東京`、`TOKYO` 因此同组（`京都` 这类会短于两个字的名字保留后缀）。演唱会数是不同演出行数；场数是每行覆盖的演出日数（`start_date`–`end_date` 闭区间，无日期或倒序的区间计 1 场，最长 14 天）。配信、线上与 VR 行默认剔除；识别不出城市的行只汇总到 `unknown`，不编造城市。
+
 ### 页面、组件、服务端
 
 页面在挂载后调用 `app/composables/useCatalog.ts` 的 `load`。服务端渲染不打开 wasm。客户端只下载一次 `/data/catalog.sqlite.gz?v=<hash>`，在浏览器里解压成 sqlite 字节，用 `/sql-wasm.wasm` 初始化 sql.js，再 `loadCatalog`。结果放在 Nuxt `useState` 里，各页共用。
@@ -94,6 +96,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，模式、系列、年份、配信、串烧、角色、关键词筛选；筛选写入 URL query；合并版本行显示「含 N 个版本」；艺人列只显示制作人，宽度受限并带完整署名气泡 |
 | `/raw` | `app/pages/raw.vue` | 原始数据。按年版合并歌单（`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单场次、未解析备注、串烧隔离、疑似重复） |
+| `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演唱会数与场数（演出日）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上场次单独提示 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown |
 | `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录、投稿与（有快照时的）播放量 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一场的轮换解析结果与长度一致性 |

@@ -291,6 +291,7 @@ const reviewHint = SEVERITY_LABELS['segment-differs']
       </p>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
         <UBadge color="primary" variant="subtle" icon="i-lucide-music">按歌单是默认口径</UBadge>
+        <UButton to="/cities" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">按城市统计场次</UButton>
         <UButton to="/raw" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">查看原始数据</UButton>
         <UButton to="/report" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">
           歌单差异核验（{{ reviewHint }}）
