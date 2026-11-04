@@ -280,7 +280,7 @@ flowchart TD
 对象。`name`、`compatibility_date`、`compatibility_flags` 之外，还有反馈功能需要的三组配置：
 
 - `[[kv_namespaces]]`：`binding = "FEEDBACK"`，`id` 由 `pnpm exec wrangler kv namespace create FEEDBACK` 生成（当前是 `777b49ffd2744f12a54fc3611ff791e9`）。`nuxt build` 会把它抄进 `.output/server/wrangler.json`，部署时生效。换账号或删掉命名空间后必须重新创建并替换 id。
-- `[vars] ACCESS_TEAM_DOMAIN` / `ACCESS_AUD`：Cloudflare Access 应用的团队域名（如 `example.cloudflareaccess.com`，不带 `https://`，写 `https://` 也能被规范化）与 Audience（AUD）标签。仓库里两项都是空字符串；**任意一项为空时所有管理接口都返回 401 且没有 payload**，所以忘记填只会锁死后台，不会泄露反馈。
+- `[vars] ACCESS_TEAM_DOMAIN` / `ACCESS_AUD`：Cloudflare Access 应用的团队域名（如 `example.cloudflareaccess.com`，不带 `https://`，写 `https://` 也能被规范化）与 Audience（AUD）标签。仓库里已填好 2026-11-04 创建的应用；**任意一项为空时所有管理接口都返回 401 且没有 payload**，所以忘记填只会锁死后台，不会泄露反馈。
 - 手工步骤：在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/ops/*` 与 `/api/feedback/*`，策略只允许维护者邮箱；再把这个应用的 AUD 标签与团队域名填进 `[vars]` 并重新部署。注意不要写成 `/api/feedback*`：那会把公开的 `POST /api/feedback` 一起拦在 Access 后面，访客就无法提交反馈了；`/api/feedback/*` 只覆盖 `list` / `status` / `<id>` 这些管理路径。
 - 旧的 `FEEDBACK_TOKEN` secret 已不再被读取，管理接口也不接受 query / body 里的 `token`；如需清理线上的历史 secret，可执行 `pnpm exec wrangler secret delete FEEDBACK_TOKEN`。
 
@@ -339,16 +339,16 @@ pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-反馈收件箱不再使用 secret，改由 Cloudflare Access 登录。一次性手工步骤：
+反馈收件箱不再使用 secret，改由 Cloudflare Access 登录。2026-11-04 已创建应用 `miku-concert-stats feedback admin`（destinations：`/ops`、`/ops/*`、`/api/feedback/list`、`/api/feedback/status`、`/api/feedback/*`，策略 `my-cloudflare-account`），两项 `[vars]` 已填好。重建或换账号时的步骤：
 
-1. 在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/ops/*` 与 `/api/feedback/*`（不要用 `/api/feedback*`，否则会拦住公开的 `POST /api/feedback`）。
+1. 在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/ops`、`/ops/*` 与 `/api/feedback/*`（不要用 `/api/feedback*`，否则会拦住公开的 `POST /api/feedback`）。
 2. 加一条 Allow 策略，只放行维护者邮箱（需要的话再加 MFA）。
 3. 复制应用的 Audience（AUD）标签与团队域名，填进 `wrangler.toml` 的 `[vars]`，再重新部署。
 
 ```toml
 [vars]
-ACCESS_TEAM_DOMAIN = "example.cloudflareaccess.com"
-ACCESS_AUD = "<application-aud-tag>"
+ACCESS_TEAM_DOMAIN = "summer-thunder-62e1.cloudflareaccess.com"
+ACCESS_AUD = "87de2159d583fb4b7536e98227178ba3150fc953ef3a3f817e2f8334cdd00e4b"
 ```
 
 任意一项为空时后台整体 401，不会返回任何反馈数据。之后在浏览器打开 <https://miku-concert-stats.zc791.workers.dev/ops/feedback-inbox>，先完成 Cloudflare 账号登录；页面本身没有密码框。命令行要拿 JSON 时可以交给 `cloudflared` 带上 Access 头：
