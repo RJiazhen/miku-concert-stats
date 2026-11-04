@@ -276,7 +276,7 @@ const cell = (value: string | null): string => (value === null || value === '' ?
             <NuxtLink :to="`/shows/${row.original.id}`" class="text-highlighted no-underline hover:text-primary">
               {{ row.original.label }}
             </NuxtLink>
-            <UBadge v-if="!row.original.hasSetlist" color="neutral" variant="subtle" size="sm" class="ml-2">无歌单</UBadge>
+            <UBadge v-if="!row.original.hasSetlist" color="neutral" variant="subtle" size="sm" class="ml-2">暂无歌单</UBadge>
           </template>
           <template #seriesLabel-cell="{ row }">
             <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-muted no-underline hover:text-primary">
