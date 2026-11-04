@@ -7,6 +7,7 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import { producerCredit } from '~~/shared/credit.ts'
+import { formatRotationReason } from '~~/shared/rotation.ts'
 import { SEVERITY_LABELS } from '~~/shared/setlist-diff.ts'
 import {
   availablePerformanceYears,
@@ -64,6 +65,7 @@ type RankedSong = {
   firstYear: number | null
   lastYear: number | null
   approximate: boolean
+  /** Rotation notes for the ≈ badge tooltip, already localized. */
   reasons: string[]
   variantSongIds: number[]
   variantNames: string
@@ -113,7 +115,7 @@ const ranked = computed<RankedSong[]>(() => {
       firstYear: row.firstYear,
       lastYear: row.lastYear,
       approximate: row.approximate,
-      reasons: row.reasons,
+      reasons: row.reasons.map(formatRotationReason),
       variantSongIds: row.variantSongIds,
       variantNames,
       search: haystack,

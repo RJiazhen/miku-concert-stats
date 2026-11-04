@@ -5,7 +5,7 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { buildSetlistDisplay, displaySides } from '~~/shared/edition-setlists.ts'
-import { reviewRotations } from '~~/shared/rotation.ts'
+import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
 
 const { catalog, error, pending, load } = useCatalog()
@@ -527,7 +527,7 @@ const editionSongCount = computed(() => {
         <div v-if="mismatchedShows.length > 0" class="mt-3 space-y-1 text-sm">
           <p v-for="show in mismatchedShows.slice(0, 10)" :key="show.performanceId" class="text-muted">
             <NuxtLink :to="`/shows/${show.performanceId}`" class="text-primary">场次 {{ show.performanceId }}</NuxtLink>
-            · 歌单 {{ show.songListId }} · {{ show.reasons.join('；') }}
+            · 歌单 {{ show.songListId }} · {{ show.reasons.map(formatRotationReason).join('；') }}
           </p>
         </div>
       </UCard>

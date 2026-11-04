@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseRotationNotes, reviewRotations, type RotationPerformance } from '../shared/rotation.ts'
+import { formatRotationReason, parseRotationNotes, reviewRotations, type RotationPerformance } from '../shared/rotation.ts'
 import type { Catalog, PerformanceRow } from '../shared/types.ts'
 
 /** One city stop on a shared song list. */
@@ -88,6 +88,23 @@ describe('rotation notes', () => {
       performanceIds: [7217],
       reasons: ['city-only when city has several shows', 'unknown format'],
     })
+  })
+})
+
+describe('rotation reason text', () => {
+  it('translates every known parser reason into Chinese', () => {
+    expect(formatRotationReason('unknown format')).toBe('备注写法未识别')
+    expect(formatRotationReason('unmatched city')).toBe('城市没有对到任何一场')
+    expect(formatRotationReason('city-only when city has several shows')).toBe('只写了城市，该城市有多场')
+    expect(formatRotationReason('day with day/night shows')).toBe('当天有日场或夜场，无法确定是哪一场')
+  })
+
+  it('fills both counts into a setlist length mismatch', () => {
+    expect(formatRotationReason('setlist length mismatch: 2 vs expected 3')).toBe('本场 2 首，同歌单其他场次多为 3 首')
+  })
+
+  it('falls back to the raw token for an unrecognized reason', () => {
+    expect(formatRotationReason('some future reason')).toBe('some future reason')
   })
 })
 

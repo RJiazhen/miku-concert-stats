@@ -5,7 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
-import { reviewRotations } from '~~/shared/rotation.ts'
+import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { variantVersionNote } from '~~/shared/song-variants.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
@@ -74,6 +74,7 @@ const appearances = computed(() => {
     /** Plain text of the 备注 cell, used by the column sort. */
     noteText: string
     uncertain: boolean
+    /** 备注 lines from the rotation parser, already localized for display and sorting. */
     reasons: string[]
   }[] = []
   for (const link of catalog.value.setlistItemSongs) {
@@ -89,7 +90,7 @@ const appearances = computed(() => {
       const versionName = songById(link.song_id)?.name ?? String(link.song_id)
       // The canonical version is the page's default, so only variants need a note.
       const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind) : ''
-      const reasons = line?.reasons ?? []
+      const reasons = (line?.reasons ?? []).map(formatRotationReason)
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
         seriesId: performance.series_id,
