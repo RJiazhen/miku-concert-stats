@@ -2,8 +2,9 @@
 import { computed, h, onMounted, ref, resolveComponent, watch } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
-import { characterNames, songCharacters } from '~/composables/useCharacters.ts'
+import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { availableCharacters } from '~~/shared/character-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import { producerCredit } from '~~/shared/credit.ts'
 import { SEVERITY_LABELS } from '~~/shared/setlist-diff.ts'
@@ -54,7 +55,10 @@ type RankedSong = {
   name: string
   /** Producer credit, without the featured vocalists already shown in 演出角色; also the tooltip text. */
   artists: string
+  /** Display text for 演出角色. */
   characters: string
+  /** Base character names behind `characters`, used by the character filter and its option list. */
+  characterList: string[]
   count: number
   seriesCount: number
   firstYear: number | null
@@ -85,6 +89,7 @@ const ranked = computed<RankedSong[]>(() => {
     const groupSongs = groupIds.map((id) => byId.get(id)).filter((song) => song !== undefined)
     const characters = new Set<string>()
     for (const song of groupSongs) for (const name of songCharacters(song.artist_string)) characters.add(name)
+    const characterList = [...characters]
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
@@ -92,7 +97,7 @@ const ranked = computed<RankedSong[]>(() => {
       row.name,
       row.artists ?? '',
       variantNames,
-      characters.size > 0 ? [...characters].join(' ') : '',
+      characterList.join(' '),
     ]
       .join(' ')
       .toLowerCase()
@@ -101,7 +106,8 @@ const ranked = computed<RankedSong[]>(() => {
       rank: index + 1,
       name: row.name,
       artists: producerCredit(row.artists) ?? '—',
-      characters: characters.size === 0 ? '—' : [...characters].join('、'),
+      characters: characterList.length === 0 ? '—' : characterList.join('、'),
+      characterList,
       count: row.count,
       seriesCount: row.seriesCount,
       firstYear: row.firstYear,
@@ -119,7 +125,7 @@ const ranked = computed<RankedSong[]>(() => {
 const filtered = computed(() => {
   const needle = query.value.trim().toLowerCase()
   return ranked.value.filter((row) => {
-    if (characterFilter.value !== 'all' && !row.characters.split('、').includes(characterFilter.value)) return false
+    if (characterFilter.value !== 'all' && !row.characterList.includes(characterFilter.value)) return false
     if (needle === '') return true
     return row.search.includes(needle)
   })
@@ -277,10 +283,18 @@ const activeFilters = computed(() => {
   return count
 })
 
+/** Options for 角色, built from characters that occur in the current ranking so every choice returns rows. */
 const characterItems = computed(() => [
   { label: '全部角色', value: 'all' },
-  ...characterNames.map((name) => ({ label: name, value: name })),
+  ...availableCharacters(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
 ])
+
+/** Keeps the selection aligned with the options: a character that no longer occurs falls back to 全部角色. */
+const keepCharacterFilterValid = (): void => {
+  if (!catalog.value) return
+  if (!characterItems.value.some((item) => item.value === characterFilter.value)) characterFilter.value = 'all'
+}
+watch(characterItems, keepCharacterFilterValid)
 const seriesItems = computed(() => seriesOptions.value.map((series) => ({ label: series.name, value: series.id })))
 
 /** Calendar years present in the catalog, newest first; the same list the year filter matches against. */
@@ -368,16 +382,13 @@ const reviewHint = SEVERITY_LABELS['segment-differs']
       <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
         <UCheckbox v-model="includeBroadcast" label="计入配信 / 线上 / VR" size="sm" />
         <UCheckbox v-model="includeMedleyComponents" label="计入串烧组成" size="sm" />
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <UCheckbox
-            v-for="series in seriesItems"
-            :key="series.value"
-            v-model="selectedSeries"
-            :value="series.value"
-            :label="series.label"
-            size="sm"
-          />
-        </div>
+        <UCheckboxGroup
+          v-model="selectedSeries"
+          :items="seriesItems"
+          orientation="horizontal"
+          size="sm"
+          :ui="{ fieldset: 'flex flex-wrap items-center gap-x-4 gap-y-1' }"
+        />
       </div>
     </UCard>
 
