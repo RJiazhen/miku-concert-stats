@@ -244,7 +244,7 @@ Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `np
 
 有一个明确的修改任务（用户提出或 subagent 完成）并且 `lint` / `test` / `typecheck` / `build` 通过后，直接提交并 push 到当前工作分支，不需要先问用户。提交信息用简短的祈使句英文，与现有历史一致；不要加任何 co-author trailer（含 Cursor）。
 
-本仓库目前的主开发分支是 `feat/initial-build`，`main` 落后它若干提交；Workers Builds 的生产分支配的是 `main`，所以合并到 `main` 时要注意线上才会更新。
+`feat/initial-build` 是当前的主开发分支，`main` 由它 fast-forward 同步；Workers Builds 的生产分支配的是 `main`，所以只有把改动合进 `main` 并 push 之后线上才会更新。同步方式：`git push origin feat/initial-build:main`。
 
 ### 并发任务用 worktree
 
