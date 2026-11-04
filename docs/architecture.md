@@ -130,7 +130,19 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `app/composables/useSongLookup.ts` 提供 `songById` / `songName`；`useSongVariants.ts` 与 `useSetlistMerges.ts` 在模块加载时解析各自的 JSON 清单。
 
+`app/components/FeedbackWidget.vue` 是固定右下角的「报告错误」悬浮按钮（`UButton` + `i-lucide-message-square-warning`，窄屏只显示图标，底部留 `env(safe-area-inset-bottom)`），挂在 `app/layouts/default.vue`，所以每个页面都有。点击打开 `UModal`：
+
+- 只读灰底字段由页面当场采集：页面链接（含查询串）、页面标题、采集时间（ISO）、视口（如 `1280×800`）、目录版本（`runtimeConfig.public.catalogVersion`）。`readonly` 而不是 `disabled`，文字仍可选中复制。不采集 IP、User-Agent 等指纹信息。
+- 「问题描述」必填，最多 4000 字；「正确的数据来源（可选）」只在非空时校验为 http/https，最多 2000 字符。
+- 提交中按钮进入 pending，失败保留草稿并显示服务端返回的中文原因。
+
+`app/composables/useFeedbackDraft.ts` 把描述与来源链接写进 `localStorage` 键 `miku-feedback-draft`，每次输入即写、重新打开弹窗或刷新页面都会恢复；关闭 / 取消都不清除，只有提交成功后才删除。`localStorage` 的读写全部包在 `try/catch` 里，SSR、无痕模式和损坏的 JSON 都退回空草稿。
+
 `server/api/lookup.get.ts` 只在浏览器请求 `GET /api/lookup?q=` 时搜索 VocaDB `/api/songs`（`maxResults=5`，`fields=PVs`）。查询长度须为 1–80。失败返回 400 或 502。
+
+`server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
+
+`server/api/feedback/list.get.ts` 是维护者读取反馈的只读接口：`GET /api/feedback/list?token=<FEEDBACK_TOKEN>`，按时间倒序返回最新 50 条（`limit` 最大 200），token 不匹配返回 401。没有单独的收件箱页面，理由是这个接口已经够用，且少一个需要鉴权的页面。
 
 ## 数据流
 
@@ -156,6 +168,9 @@ flowchart TD
   browser["sql.js in the browser"]
   shared["shared/stats rotation variants slots diff"]
   pages["app/pages + Nuxt UI"]
+  widget["FeedbackWidget"]
+  feedback["POST /api/feedback"]
+  feedbackkv["KV binding FEEDBACK"]
   worker["Nitro Worker SSR"]
   lookup["GET /api/lookup"]
   report["docs/reports"]
@@ -186,6 +201,9 @@ flowchart TD
   browser --> shared
   shared --> pages
   worker --> pages
+  pages --> widget
+  widget -->|"description + sourceUrl + page context"| feedback
+  feedback --> feedbackkv
   pages -->|"local miss only"| lookup
   lookup --> vocadb
   sqlite --> report
@@ -193,6 +211,15 @@ flowchart TD
 ```
 
 ## 配置与清单文件
+
+### `wrangler.toml`
+
+对象。`name`、`compatibility_date`、`compatibility_flags` 之外，还有反馈功能需要的两项：
+
+- `[[kv_namespaces]]`：`binding = "FEEDBACK"`，`id` 由 `pnpm exec wrangler kv namespace create FEEDBACK` 生成（当前是 `777b49ffd2744f12a54fc3611ff791e9`）。`nuxt build` 会把它抄进 `.output/server/wrangler.json`，部署时生效。换账号或删掉命名空间后必须重新创建并替换 id。
+- `FEEDBACK_TOKEN`：只读收件箱接口的密钥，用 `pnpm exec wrangler secret put FEEDBACK_TOKEN` 写入，不提交到仓库。没有它时 `GET /api/feedback/list` 返回 503。
+
+`nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；本地要读真实数据请用线上的 `/api/feedback/list`。
 
 ### `data/song-variants.json`
 
@@ -246,6 +273,20 @@ NUXT_IGNORE_LOCK=1 pnpm build
 pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
+
+反馈收件箱的密钥只需设置一次（写进 Worker 的 secret，不进仓库）：
+
+```bash
+pnpm exec wrangler secret put FEEDBACK_TOKEN
+```
+
+之后直接读最新反馈，不需要打开 KV 面板：
+
+```bash
+curl -s "https://miku-concert-stats.zc791.workers.dev/api/feedback/list?token=<FEEDBACK_TOKEN>" | jq
+```
+
+返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`collectedAt`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`、`viewport`、`catalogVersion`。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
 
 线上地址：<https://miku-concert-stats.zc791.workers.dev>
 
@@ -301,7 +342,7 @@ NUXT_IGNORE_LOCK=1 pnpm dev --host 127.0.0.1 --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

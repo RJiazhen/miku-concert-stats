@@ -3,3 +3,14 @@
 name = "miku-concert-stats"
 compatibility_date = "2026-10-06"
 compatibility_flags = ["nodejs_compat"]
+
+# Error reports from the floating feedback widget.
+# Created with: pnpm exec wrangler kv namespace create FEEDBACK
+# Local `nuxt dev` keeps the binding out of the request context, so the widget
+# shows the "反馈服务暂不可用" fallback there instead of writing to a local KV.
+[[kv_namespaces]]
+binding = "FEEDBACK"
+id = "777b49ffd2744f12a54fc3611ff791e9"
+
+# The read-only inbox (GET /api/feedback/list?token=...) compares against this secret.
+# Set it with: pnpm exec wrangler secret put FEEDBACK_TOKEN
