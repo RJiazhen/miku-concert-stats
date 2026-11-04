@@ -78,8 +78,10 @@ const appearances = computed(() => {
     /** Plain text of the 备注 cell, used by the column sort. */
     noteText: string
     uncertain: boolean
-    /** 备注 lines from the rotation parser, already localized for display and sorting. */
+    /** 备注 warnings from the rotation parser, already localized for display and sorting. */
     reasons: string[]
+    /** Original note fragments the parser read as context rather than a show, shown muted. */
+    info: string[]
   }[] = []
   for (const link of catalog.value.setlistItemSongs) {
     if (!ids.has(link.song_id)) continue
@@ -98,6 +100,7 @@ const appearances = computed(() => {
       // The canonical version is the page's default, so only variants need a note.
       const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind, performers) : ''
       const reasons = (line?.reasons ?? []).map(formatRotationReason)
+      const info = line?.info ?? []
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
         seriesId: performance.series_id,
@@ -109,9 +112,10 @@ const appearances = computed(() => {
         date: performance.start_date,
         role: performance.role,
         versionNote,
-        noteText: [versionNote === '' ? '' : `版本：${versionNote}`, ...reasons].filter((part) => part !== '').join('；'),
+        noteText: [versionNote === '' ? '' : `版本：${versionNote}`, ...reasons, ...info].filter((part) => part !== '').join('；'),
         uncertain: line?.uncertain ?? false,
         reasons,
+        info,
       })
     }
   }
@@ -285,9 +289,11 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
                 </td>
                 <td class="px-2 py-1.5 text-xs">
                   <span v-if="row.versionNote" class="text-muted">版本：{{ row.versionNote }}</span>
-                  <span v-if="row.versionNote && row.reasons.length" class="text-muted">；</span>
+                  <span v-if="row.versionNote && (row.reasons.length || row.info.length)" class="text-muted">；</span>
                   <span v-if="row.reasons.length" class="text-warning">{{ row.reasons.join('；') }}</span>
-                  <span v-if="!row.versionNote && row.reasons.length === 0" class="text-muted">—</span>
+                  <span v-if="row.reasons.length && row.info.length" class="text-muted">；</span>
+                  <span v-if="row.info.length" class="text-muted">{{ row.info.join('；') }}</span>
+                  <span v-if="!row.versionNote && row.reasons.length === 0 && row.info.length === 0" class="text-muted">—</span>
                 </td>
               </tr>
             </tbody>

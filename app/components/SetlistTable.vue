@@ -42,15 +42,25 @@ const charactersOf = (row: SetlistDisplayRow): string => {
   return names.size === 0 ? '—' : [...names].join('、')
 }
 
-/** Chinese notes for a row whose lines the rotation parser could not place exactly. */
-const notesOf = (row: SetlistDisplayRow): string[] => {
-  const notes = new Set<string>()
+/** One part of the 数据说明 cell: a parser warning or a muted original note. */
+type NotePart = {
+  text: string
+  warning: boolean
+}
+
+/** Warnings and muted context for a row whose lines carry setlist notes. */
+const notePartsOf = (row: SetlistDisplayRow): NotePart[] => {
+  const parts = new Map<string, NotePart>()
   for (const item of row.items) {
     const line = lineByKey.value.get(`${item.songListId}:${item.position}`)
-    if (!line?.uncertain) continue
-    for (const reason of line.reasons) notes.add(formatRotationReason(reason))
+    if (!line) continue
+    for (const reason of line.reasons) {
+      const text = formatRotationReason(reason)
+      parts.set(`w:${text}`, { text, warning: true })
+    }
+    for (const text of line.info) parts.set(`i:${text}`, { text, warning: false })
   }
-  return [...notes]
+  return [...parts.values()].sort((left, right) => Number(right.warning) - Number(left.warning))
 }
 </script>
 
@@ -100,8 +110,11 @@ const notesOf = (row: SetlistDisplayRow): string[] => {
               <span class="text-highlighted">{{ localizePlace(row.showLabel) }}</span>
             </UTooltip>
           </td>
-          <td class="px-3 py-2 text-xs text-warning">
-            {{ notesOf(row).join('；') }}
+          <td class="px-3 py-2 text-xs">
+            <template v-for="(part, partIndex) in notePartsOf(row)" :key="`${part.warning ? 'w' : 'i'}:${part.text}`">
+              <span v-if="partIndex > 0" class="text-muted">；</span>
+              <span :class="part.warning ? 'text-warning' : 'text-muted'">{{ part.text }}</span>
+            </template>
           </td>
         </tr>
       </tbody>
