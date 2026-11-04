@@ -7,6 +7,7 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { formatCharacters, songCharacters } from '~/composables/useCharacters.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
+import { editionCoverage, formatEditionCoverage } from '~~/shared/edition-coverage.ts'
 import { variantVersionNote } from '~~/shared/song-variants.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
@@ -36,6 +37,31 @@ const songId = computed(() => Number(route.params.id))
 const canonicalId = computed(() => variants.canonicalSongId(songId.value))
 const song = computed(() => songById(canonicalId.value))
 
+/** One part of the 备注 cell, in display order. */
+type NotePart = {
+  text: string
+  /** Parser warnings stay yellow; facts and original note text stay muted. */
+  warning: boolean
+}
+
+/**
+ * Builds the 备注 parts of one appearance row: variant note, edition coverage,
+ * rotation warnings, then the parser's muted context text.
+ */
+const appearanceNoteParts = (
+  versionNote: string,
+  coverage: string | null,
+  reasons: readonly string[],
+  info: readonly string[],
+): NotePart[] => {
+  const parts: NotePart[] = []
+  if (versionNote !== '') parts.push({ text: `版本：${versionNote}`, warning: false })
+  if (coverage !== null) parts.push({ text: coverage, warning: false })
+  for (const reason of reasons) parts.push({ text: formatRotationReason(reason), warning: true })
+  for (const text of info) parts.push({ text, warning: false })
+  return parts
+}
+
 /** Merged variant ids, sorted. */
 const variantIds = computed(() => variants.variantSongIdsOf(canonicalId.value))
 
@@ -61,6 +87,7 @@ const appearances = computed(() => {
   const ids = new Set(groupIds.value)
   const review = reviewRotations(catalog.value)
   const lineByKey = new Map(review.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
+  const coverageByPerformance = editionCoverage(catalog.value, review, groupIds.value)
   const canonicalName = song.value?.name ?? ''
   const showVersion = variantIds.value.length > 0
   const rows: {
@@ -74,14 +101,11 @@ const appearances = computed(() => {
     performanceName: string
     date: string | null
     role: string
-    versionNote: string
     /** Plain text of the 备注 cell, used by the column sort. */
     noteText: string
     uncertain: boolean
-    /** 备注 warnings from the rotation parser, already localized for display and sorting. */
-    reasons: string[]
-    /** Original note fragments the parser read as context rather than a show, shown muted. */
-    info: string[]
+    /** 备注 cell parts in display order, also concatenated into `noteText`. */
+    noteParts: NotePart[]
   }[] = []
   for (const link of catalog.value.setlistItemSongs) {
     if (!ids.has(link.song_id)) continue
@@ -99,8 +123,8 @@ const appearances = computed(() => {
       const performers = entry?.kind === 'cover' ? songCharacters(variantSong?.artist_string ?? null) : []
       // The canonical version is the page's default, so only variants need a note.
       const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind, performers) : ''
-      const reasons = (line?.reasons ?? []).map(formatRotationReason)
-      const info = line?.info ?? []
+      const coverage = formatEditionCoverage(coverageByPerformance.get(performance.id) ?? null, line?.reasons ?? [])
+      const noteParts = appearanceNoteParts(versionNote, coverage, line?.reasons ?? [], line?.info ?? [])
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
         seriesId: performance.series_id,
@@ -111,11 +135,9 @@ const appearances = computed(() => {
         performanceName: localizePlace(shortPerformanceName(performance.name, seriesName, performance.series_number)),
         date: performance.start_date,
         role: performance.role,
-        versionNote,
-        noteText: [versionNote === '' ? '' : `版本：${versionNote}`, ...reasons, ...info].filter((part) => part !== '').join('；'),
+        noteText: noteParts.map((part) => part.text).join('；'),
         uncertain: line?.uncertain ?? false,
-        reasons,
-        info,
+        noteParts,
       })
     }
   }
@@ -288,12 +310,11 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
                   <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.performanceName || '—' }}</NuxtLink>
                 </td>
                 <td class="px-2 py-1.5 text-xs">
-                  <span v-if="row.versionNote" class="text-muted">版本：{{ row.versionNote }}</span>
-                  <span v-if="row.versionNote && (row.reasons.length || row.info.length)" class="text-muted">；</span>
-                  <span v-if="row.reasons.length" class="text-warning">{{ row.reasons.join('；') }}</span>
-                  <span v-if="row.reasons.length && row.info.length" class="text-muted">；</span>
-                  <span v-if="row.info.length" class="text-muted">{{ row.info.join('；') }}</span>
-                  <span v-if="!row.versionNote && row.reasons.length === 0 && row.info.length === 0" class="text-muted">—</span>
+                  <template v-for="(part, partIndex) in row.noteParts" :key="`${part.warning ? 'w' : 'm'}:${part.text}`">
+                    <span v-if="partIndex > 0" class="text-muted">；</span>
+                    <span :class="part.warning ? 'text-warning' : 'text-muted'">{{ part.text }}</span>
+                  </template>
+                  <span v-if="row.noteParts.length === 0" class="text-muted">—</span>
                 </td>
               </tr>
             </tbody>

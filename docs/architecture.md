@@ -100,6 +100,14 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 不是轮换信息的片段（`Encore`、乐队介绍、活动名、链接、开演时间等）不产生 reason，而是收集到 `RotationParse.info`，页面用灰色原样显示，读者不会看到解析器状态。
 
+`shared/edition-coverage.ts` 统计一首歌在一个年版里演出了几场，给歌曲页的出场记录用：
+
+- 年版 = `series_id` + `series_number`，与排行页的年鉴模式同一分组；「场」沿用出场记录的口径，指一条 VocaDB 演出记录（一个城市站，可能跨多天），不是演出日。
+- 分母只数带歌单的演出记录：没有歌单的场次无证据可依，不能算作「没演出」。
+- 分子是轮换解析把该行的 `performanceIds` 指到的场次，对歌曲在该年版里的所有 `listed` 行取并集，所以同一首歌的多份地区歌单（如 2019 年东京 / 大阪各一份）都计入；`Day N` 这类备注会像解析器一样收窄。
+- 显示为 `全部 N 场`（全覆盖）或 `M/N 场`（部分覆盖）。只有一场的年版不显示，避免每行都写 `全部 1 场`。
+- 备注已经给出 `共 N 场`（`city-only when city has several shows: N`）的行不再显示覆盖数，由该警告独占数字，避免同一格出现两个不同总数。`/shows` 与 `SetlistTable` 是按场次的视图，不显示覆盖数。
+
 
 `shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把场次名里的系列标签换成中文名而保留年版年份；没有条目的系列（如 `MIKU EXPO`、`MIKU WITH YOU`）或语言为 `original` 时原样返回。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配，并把 VocaDB 搜索结果收成最多 5 条投稿链接。
 
@@ -119,7 +127,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | `/raw` | `app/pages/raw.vue` | 原始数据。按年版合并歌单（`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单场次、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演唱会数与场数（演出日）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上场次单独提示 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown |
-| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录、相关投稿（有快照时附播放量） |
+| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录（备注列写明该年版覆盖几场）、相关投稿（有快照时附播放量） |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一场的轮换解析结果与长度一致性；歌单来自专辑时显示来源提示 |
 | `/editions/{seriesId}/{number}` | `app/pages/editions/[seriesId]/[number].vue` | 一个年版的合并歌单，可切到逐份歌单；专辑补位的歌单同样标注来源 |
 
