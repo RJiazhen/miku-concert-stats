@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
+import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import {
@@ -15,6 +16,7 @@ import {
 const { catalog, error, pending, load } = useCatalog()
 const merges = useSetlistMerges()
 const { songName } = useSongLookup()
+const { localizeSeries } = useSeriesTitles()
 const toast = useToast()
 
 /** Starts the browser catalog load after hydration. */
@@ -130,7 +132,7 @@ const copyMarkdown = async (): Promise<void> => {
     <div v-else class="space-y-3">
       <UCard v-for="pair in pairs" :key="`${pair.scope}-${pair.leftId}-${pair.rightId}`">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="font-semibold text-highlighted">{{ pair.seriesName }} {{ pair.seriesNumber }}</span>
+          <span class="font-semibold text-highlighted" :title="pair.seriesName">{{ localizeSeries(pair.seriesName) }} {{ pair.seriesNumber }}</span>
           <UBadge :color="severityColor(pair.severity)" variant="subtle" size="sm">{{ SEVERITY_LABELS[pair.severity] }}</UBadge>
           <UBadge :color="pair.merged ? 'primary' : 'neutral'" variant="outline" size="sm">{{ pair.merged ? '已合并' : '未合并' }}</UBadge>
           <ULink

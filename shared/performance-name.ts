@@ -23,11 +23,11 @@ const YEAR_RANGE = /^\d{4}(?:[-–—~〜]\d{4})?/
 const TILDE_WRAPPER = /〜([^〜]+)〜/g
 
 /**
- * Labels the series column can show, longest first.
+ * Labels a series can appear as inside a performance name, longest first.
  * Includes the year inside a trailing quote so `初音ミク「マジカルミライ」` + 2013
  * also matches `初音ミク「マジカルミライ 2013」`.
  */
-const seriesLabels = (seriesName: string, seriesNumber: number | null): string[] => {
+export const seriesLabels = (seriesName: string, seriesNumber: number | null): string[] => {
   const series = normalize(seriesName)
   if (series === '') return []
   const labels = [series]

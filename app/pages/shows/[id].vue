@@ -3,12 +3,14 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
+import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { buildSetlistDisplay } from '~~/shared/edition-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
+const { localizePerformanceSeries } = useSeriesTitles()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -29,8 +31,19 @@ const display = computed(() => {
 
 const editionNumber = computed(() => performance.value?.series_number ?? null)
 
-/** Performance name with its place in the site language. */
-const performanceLabel = computed(() => (performance.value ? localizePlace(performance.value.name) : ''))
+/** Series behind this show, needed to translate the label inside the performance name. */
+const series = computed(() => {
+  const current = performance.value
+  if (!catalog.value || !current) return null
+  return catalog.value.series.find((row) => row.id === current.series_id) ?? null
+})
+
+/** Performance name with its series and place in the site language. */
+const performanceLabel = computed(() => {
+  const current = performance.value
+  if (!current) return ''
+  return localizePlace(localizePerformanceSeries(current.name, series.value?.name ?? '', current.series_number))
+})
 </script>
 
 <template>

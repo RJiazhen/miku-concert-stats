@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
+import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { formatCharacters, songCharacters } from '~/composables/useCharacters.ts'
@@ -23,6 +24,7 @@ const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const { songById } = useSongLookup()
 const { localizePlace } = usePlaceNames()
+const { localizeSeries } = useSeriesTitles()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -65,6 +67,8 @@ const appearances = computed(() => {
     key: string
     seriesId: number
     seriesName: string
+    /** `seriesName` in the site language, kept separate so the sort and edition key stay on the catalog name. */
+    seriesLabel: string
     seriesNumber: number | null
     performanceId: number
     performanceName: string
@@ -98,6 +102,7 @@ const appearances = computed(() => {
         key: `${performance.id}:${link.song_id}:${link.position}`,
         seriesId: performance.series_id,
         seriesName,
+        seriesLabel: localizeSeries(seriesName),
         seriesNumber: performance.series_number,
         performanceId: performance.id,
         performanceName: localizePlace(shortPerformanceName(performance.name, seriesName, performance.series_number)),
@@ -265,10 +270,15 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
               <tr v-for="row in sortedAppearances" :key="row.key" class="border-t border-default/40">
                 <td class="px-2 py-1.5 font-mono text-muted">{{ row.date ?? '—' }}</td>
                 <td class="px-2 py-1.5 text-muted">
-                  <NuxtLink v-if="row.seriesNumber !== null" :to="`/editions/${row.seriesId}/${row.seriesNumber}`" class="text-primary">
-                    {{ row.seriesName }} {{ row.seriesNumber }}
+                  <NuxtLink
+                    v-if="row.seriesNumber !== null"
+                    :to="`/editions/${row.seriesId}/${row.seriesNumber}`"
+                    class="text-primary"
+                    :title="row.seriesName"
+                  >
+                    {{ row.seriesLabel }} {{ row.seriesNumber }}
                   </NuxtLink>
-                  <template v-else>{{ row.seriesName }}</template>
+                  <span v-else :title="row.seriesName">{{ row.seriesLabel }}</span>
                 </td>
                 <td class="px-2 py-1.5">
                   <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.performanceName || '—' }}</NuxtLink>

@@ -3,14 +3,17 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
+import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { buildSetlistDisplay, displaySides, editionSongLists } from '~~/shared/edition-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
+import type { PerformanceRow } from '~~/shared/types.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const merges = useSetlistMerges()
 const { localizePlace } = usePlaceNames()
+const { localizePerformanceSeries, seriesTitle } = useSeriesTitles()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -22,6 +25,16 @@ const seriesId = computed(() => Number(route.params.seriesId))
 const seriesNumber = computed(() => Number(route.params.number))
 
 const series = computed(() => catalog.value?.series.find((row) => row.id === seriesId.value) ?? null)
+
+/** Series name in the site language, with the catalog spelling kept as a note when translated. */
+const seriesView = computed(() =>
+  series.value ? seriesTitle(series.value.name) : { primary: String(seriesId.value), originalNote: null },
+)
+
+/** One performance name with its series and place in the site language. */
+const performanceLabel = (performance: PerformanceRow): string => {
+  return localizePlace(localizePerformanceSeries(performance.name, series.value?.name ?? '', performance.series_number))
+}
 
 const performances = computed(() => {
   const rows = catalog.value?.performances.filter((row) => row.series_id === seriesId.value && row.series_number === seriesNumber.value) ?? []
@@ -77,12 +90,13 @@ const premiere = computed(() => {
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
 
     <template v-else-if="catalog">
-      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '年版' }, { label: `${series?.name ?? seriesId} ${seriesNumber}` }]" />
+      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '年版' }, { label: `${seriesView.primary} ${seriesNumber}` }]" />
 
       <header class="space-y-2">
         <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
-          {{ series?.name ?? seriesId }} {{ seriesNumber }}
+          {{ seriesView.primary }} {{ seriesNumber }}
         </h1>
+        <p v-if="seriesView.originalNote" class="text-xs text-muted">{{ seriesView.originalNote }}</p>
         <p class="text-sm text-muted">
           {{ performances.length }} 场
           <template v-if="premiere">· 首演 {{ premiere.premiere_date }}</template>
@@ -97,7 +111,7 @@ const premiere = computed(() => {
         <ul class="space-y-1 text-sm">
           <li v-for="performance in performances" :key="performance.id">
             <NuxtLink :to="`/shows/${performance.id}`" class="text-primary">
-              {{ performance.start_date ?? '日期未知' }} · {{ localizePlace(performance.name) }}
+              {{ performance.start_date ?? '日期未知' }} · {{ performanceLabel(performance) }}
             </NuxtLink>
             <span v-if="performance.song_list_id === null" class="text-muted"> · 无歌单</span>
           </li>

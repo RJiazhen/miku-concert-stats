@@ -3,6 +3,7 @@ import { computed, h, onMounted, ref, resolveComponent, watch } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { songCharacters } from '~/composables/useCharacters.ts'
+import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
@@ -21,6 +22,7 @@ const UButton = resolveComponent('UButton')
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
+const { localizeSeries } = useSeriesTitles()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -300,7 +302,8 @@ const keepCharacterFilterValid = (): void => {
   if (!characterItems.value.some((item) => item.value === characterFilter.value)) characterFilter.value = 'all'
 }
 watch(characterItems, keepCharacterFilterValid)
-const seriesItems = computed(() => seriesOptions.value.map((series) => ({ label: series.name, value: series.id })))
+/** Series checkboxes in the site language; `value` stays the numeric catalog id used in the URL. */
+const seriesItems = computed(() => seriesOptions.value.map((series) => ({ label: localizeSeries(series.name), value: series.id })))
 
 /** Calendar years present in the catalog, newest first; the same list the year filter matches against. */
 const yearOptions = computed(() => availablePerformanceYears(catalog.value?.performances ?? []))
