@@ -45,10 +45,8 @@ type RankedSong = {
   songId: number
   rank: number
   name: string
-  /** Producer credit, without the featured vocalists already shown in 演出角色. */
+  /** Producer credit, without the featured vocalists already shown in 演出角色; also the tooltip text. */
   artists: string
-  /** Full credit, used for the tooltip and the search index. */
-  fullArtists: string
   characters: string
   count: number
   seriesCount: number
@@ -96,7 +94,6 @@ const ranked = computed<RankedSong[]>(() => {
       rank: index + 1,
       name: row.name,
       artists: producerCredit(row.artists) ?? '—',
-      fullArtists: row.artists ?? '—',
       characters: characters.size === 0 ? '—' : [...characters].join('、'),
       count: row.count,
       seriesCount: row.seriesCount,
@@ -388,7 +385,7 @@ const reviewHint = SEVERITY_LABELS['segment-differs']
           </div>
         </template>
         <template #artists-cell="{ row }">
-          <UTooltip :text="row.original.fullArtists" :content="{ side: 'top' }">
+          <UTooltip :text="row.original.artists" :content="{ side: 'top' }">
             <span class="block max-w-40 truncate text-muted">{{ row.original.artists }}</span>
           </UTooltip>
         </template>
