@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatRotationReason, parseRotationNotes, reviewRotations, type RotationPerformance } from '../shared/rotation.ts'
+import { formatRotationReason, parseRotationNotes, reviewRotations, splitNote, type RotationPerformance } from '../shared/rotation.ts'
 import type { Catalog, PerformanceRow } from '../shared/types.ts'
 
 /** One city stop on a shared song list. */
@@ -19,11 +19,28 @@ const show = (
   end_date: end,
 })
 
+/** Three 2024 Magical Mirai stops, each spanning several days. */
 const magicalMirai2024 = (): RotationPerformance[] => [
   show(7214, '初音ミク「マジカルミライ 2024」in FUKUOKA', '2024-08-17', '2024-08-18', '福岡国際会議場'),
   show(7215, '初音ミク「マジカルミライ 2024」in TOKYO', '2024-08-30', '2024-09-01', '幕張メッセ'),
   show(7217, '初音ミク「マジカルミライ 2024」in OSAKA', '2024-10-12', '2024-10-14', 'インテックス大阪'),
 ]
+
+/** One Tokyo run used by note-context tests. */
+const tokyo = (): RotationPerformance[] => [show(9, 'Magical Mirai in TOKYO', '2017-09-01', '2017-09-03')]
+
+describe('rotation note splitting', () => {
+  it('splits on slashes, commas, semicolons, and newlines but keeps date slashes', () => {
+    expect(splitNote('Fukuoka Day 1 / Tokyo Day 1；Osaka Day 2, Sendai')).toEqual([
+      'Fukuoka Day 1',
+      'Tokyo Day 1',
+      'Osaka Day 2',
+      'Sendai',
+    ])
+    expect(splitNote('2024/08/31')).toEqual(['2024/08/31'])
+    expect(splitNote('8/31')).toEqual(['8/31'])
+  })
+})
 
 describe('rotation notes', () => {
   it('treats a blank note as every show of the list', () => {
@@ -32,6 +49,7 @@ describe('rotation notes', () => {
       performanceIds: [7214, 7215, 7217],
       uncertain: false,
       reasons: [],
+      info: [],
     })
     expect(parseRotationNotes('  ', shows).uncertain).toBe(false)
   })
@@ -45,6 +63,7 @@ describe('rotation notes', () => {
       performanceIds: [7214, 7215, 7217],
       uncertain: false,
       reasons: [],
+      info: [],
     })
     expect(parseRotationNotes('Day 2 OSAKA / Day 1 TOKYO / Day 3 TOKYO', magicalMirai2024()).performanceIds).toEqual([
       7215,
@@ -52,21 +71,53 @@ describe('rotation notes', () => {
     ])
   })
 
-  it('flags city-only notes when that city spans several shows', () => {
+  it('applies a city-less day number to each city run instead of guessing one city', () => {
+    expect(parseRotationNotes('Day 2', magicalMirai2024()).performanceIds).toEqual([7214, 7215, 7217])
+    expect(parseRotationNotes('Day 1 / Day 3', magicalMirai2024()).performanceIds).toEqual([7214, 7215, 7217])
+  })
+
+  it('flags city-only notes when that city spans several shows and carries the count', () => {
     expect(parseRotationNotes('Osaka', magicalMirai2024())).toEqual({
       performanceIds: [7217],
       uncertain: true,
-      reasons: ['city-only when city has several shows'],
+      reasons: ['city-only when city has several shows: 3'],
+      info: [],
     })
     const oneNight = [show(1, 'Magical Mirai in OSAKA', '2016-09-01', '2016-09-01')]
     expect(parseRotationNotes('Osaka', oneNight)).toEqual({
       performanceIds: [1],
       uncertain: false,
       reasons: [],
+      info: [],
     })
   })
 
-  it('flags day and night shows, unknown text, and cities that are not on the list', () => {
+  it('reads Japanese and Chinese day wording', () => {
+    expect(parseRotationNotes('東京 2日目', magicalMirai2024()).performanceIds).toEqual([7215])
+    expect(parseRotationNotes('2日目 夜', magicalMirai2024()).reasons).toEqual(['day with day/night shows'])
+    expect(parseRotationNotes('両日', magicalMirai2024()).performanceIds).toEqual([7214, 7215, 7217])
+    expect(parseRotationNotes('初日', [show(9, 'Magical Mirai in TOKYO', '2017-09-01', '2017-09-03')]).performanceIds).toEqual([9])
+    expect(parseRotationNotes('千秋楽', [show(9, 'Magical Mirai in TOKYO', '2017-09-01', '2017-09-03')]).performanceIds).toEqual([9])
+    expect(parseRotationNotes('第2天', magicalMirai2024()).performanceIds).toEqual([7214, 7215, 7217])
+  })
+
+  it('maps bare dates and keeps time-only notes as context', () => {
+    expect(parseRotationNotes('2024-08-31', magicalMirai2024()).performanceIds).toEqual([7215])
+    expect(parseRotationNotes('8/31', magicalMirai2024()).performanceIds).toEqual([7215])
+    expect(parseRotationNotes('18:00', magicalMirai2024())).toEqual({
+      performanceIds: [7214, 7215, 7217],
+      uncertain: false,
+      reasons: [],
+      info: ['18:00'],
+    })
+  })
+
+  it('matches cities read from the performance titles', () => {
+    const expo2026 = [show(9811, 'MIKU EXPO 2026 Chicago', '2026-04-12', '2026-04-13'), show(9817, 'MIKU EXPO 2026 Glendale', '2026-04-28', '2026-04-28')]
+    expect(parseRotationNotes('Chicago Day 1 / Glendale', expo2026).performanceIds).toEqual([9811, 9817])
+  })
+
+  it('flags day and night shows, and unresolved day markers', () => {
     const tokyo = [show(9, 'Magical Mirai in TOKYO', '2017-09-01', '2017-09-03', '幕張メッセ')]
     expect(parseRotationNotes('Day 1 Daytime', tokyo).reasons).toEqual(['day with day/night shows'])
     const splitBill = [
@@ -78,16 +129,34 @@ describe('rotation notes', () => {
       uncertain: true,
       reasons: ['day with day/night shows'],
     })
-    expect(parseRotationNotes('Encore', tokyo).reasons).toContain('unknown format')
-    expect(parseRotationNotes('Sendai', tokyo)).toMatchObject({
-      performanceIds: [9],
+    expect(parseRotationNotes('Day 9', tokyo).reasons).toEqual(['unknown format'])
+    expect(parseRotationNotes('Sendai', magicalMirai2024())).toMatchObject({
+      performanceIds: [7214, 7215, 7217],
       uncertain: true,
       reasons: ['unmatched city'],
     })
+  })
+
+  it('passes non-rotation prose through as muted context instead of a warning', () => {
+    const tokyo = [show(9, 'Magical Mirai in TOKYO', '2017-09-01', '2017-09-03')]
+    expect(parseRotationNotes('Encore', tokyo)).toEqual({
+      performanceIds: [9],
+      uncertain: false,
+      reasons: [],
+      info: ['Encore'],
+    })
+    expect(parseRotationNotes('Band Members Introduction', tokyo).info).toEqual(['Band Members Introduction'])
+    expect(parseRotationNotes('Chinese version', tokyo).reasons).toEqual([])
+    expect(parseRotationNotes('HATSUNE MIKU EXPO 2021 Online', tokyo).info).toEqual(['HATSUNE MIKU EXPO 2021 Online'])
+  })
+
+  it('keeps context next to a partial city match', () => {
     expect(parseRotationNotes('Encore / Osaka', magicalMirai2024())).toMatchObject({
       performanceIds: [7217],
-      reasons: ['city-only when city has several shows', 'unknown format'],
+      reasons: ['city-only when city has several shows: 3'],
+      info: ['Encore'],
     })
+    expect(parseRotationNotes('Sendai', tokyo()).info).toEqual(['Sendai'])
   })
 })
 
@@ -95,8 +164,12 @@ describe('rotation reason text', () => {
   it('translates every known parser reason into Chinese', () => {
     expect(formatRotationReason('unknown format')).toBe('备注写法未识别')
     expect(formatRotationReason('unmatched city')).toBe('城市没有对到任何一场')
-    expect(formatRotationReason('city-only when city has several shows')).toBe('只写了城市，该城市有多场')
     expect(formatRotationReason('day with day/night shows')).toBe('当天有日场或夜场，无法确定是哪一场')
+  })
+
+  it('prints the show count for a city-only note', () => {
+    expect(formatRotationReason('city-only when city has several shows: 3')).toBe('共 3 场')
+    expect(formatRotationReason('city-only when city has several shows')).toBe('该城市有多场')
   })
 
   it('fills both counts into a setlist length mismatch', () => {
@@ -124,6 +197,13 @@ describe('setlist length check', () => {
     expect(osaka?.uncertain).toBe(true)
     expect(osaka?.reasons).toContain('setlist length mismatch: 2 vs expected 3')
     expect(review.lines.filter((line) => line.position !== 3).every((line) => line.uncertain === false)).toBe(true)
+  })
+
+  it('keeps informational note fragments on the resolved line', () => {
+    const review = reviewRotations(lengthCatalog())
+    const encore = review.lines.find((line) => line.position === 3)
+    expect(encore?.info).toEqual(['Encore'])
+    expect(review.lines.filter((line) => line.position !== 3).every((line) => line.info.length === 0)).toBe(true)
   })
 })
 
@@ -164,7 +244,7 @@ const lengthCatalog = (): Catalog => {
     setlistItems: [
       { song_list_id: 10, position: 1, listed_song_id: 1, notes: null },
       { song_list_id: 10, position: 2, listed_song_id: 2, notes: '' },
-      { song_list_id: 10, position: 3, listed_song_id: 3, notes: 'Osaka' },
+      { song_list_id: 10, position: 3, listed_song_id: 3, notes: 'Osaka / Encore' },
     ],
     setlistItemSongs: [
       { song_list_id: 10, position: 1, song_id: 1, role: 'listed' },

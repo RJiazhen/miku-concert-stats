@@ -96,8 +96,8 @@ describe('merged setlist display', () => {
 
   it('splits a merged group when a list length disagrees with its own shows', () => {
     expect(displaySides([8101, 8102], merges, review)).toEqual([[8101, 8102]])
-    // 16544 and 18446 are flagged by the rotation length check, so each shows on its own.
-    expect(displaySides([16544, 18446, 18583], merges, review)).toEqual([[16544], [18446], [18583]])
+    // 16544 is flagged by the rotation length check, so it shows on its own; 18446 and 18583 are consistent.
+    expect(displaySides([16544, 18446, 18583], merges, review)).toEqual([[16544], [18446, 18583]])
   })
 
   it('leaves an unmerged edition in two separate displays', () => {

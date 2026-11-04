@@ -88,7 +88,18 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/setlist-diff.ts` 生成差异报告：单份歌单的结构指标（行数、去重曲目、正片/安可行数、分天替换行数）、两份歌单的 LCS 与差异曲目、五级分类（`identical` / `order-only` / `count-differs` / `segment-differs` / `probably-different-program`）。`scripts/setlist-diff-report.ts` 把它写成 `docs/reports/setlist-differences.{md,csv}`，`--check` 只比对不写入，CI 使用。
 
-`shared/rotation.ts` 解析歌单备注，把一行分到共享该歌单的场次。空备注表示该歌单的全部场次且不算不确定。备注按 `/`、`／`、逗号、顿号切开。识别城市别名、`day N`、昼夜 / 1st·2nd show。`reviewRotations` 再做长度一致性检查，与众数不同的场次记入 `shows`。
+`shared/rotation.ts` 解析歌单备注，把一行分到共享该歌单的场次。空备注表示该歌单的全部场次且不算不确定。备注按 `/`、`／`、逗号、顿号、分号、换行切开，`8/31` 这类日期斜杠保留。城市来自 `CITY_ALIASES`，也会从场次名推导（`MIKU EXPO 2026 Glendale`、`…」in HAMAMATSU`），所以新增城市不必先改清单。识别 `day N` / `DAY 1 1st Show` / `1日目` / `第2天`、`初日`、`千秋楽` / `最終日`、`両日` / `全日`、裸日期（`2024-08-31`、`8/31`、`8月31日`）、昼夜 / 1st·2nd show。没有写城市的 `Day N` 会落到每个城市自己的第 N 天，而不是随便挑一个城市。`reviewRotations` 再做长度一致性检查，与众数不同的场次记入 `shows`。
+
+备注的最终分类：
+
+- `unknown format`：看起来在选日期却落不到任何一天（例如 `Day 9`）。保留为警告；当前目录里为 0 行。
+- `unmatched city`：备注写了城市，但该歌单有多场且没有这个城市。单场歌单上的城市名视为背景说明，不算警告。
+- `city-only when city has several shows: N`：只写了城市，该城市在这个歌单里有 N 场。`formatRotationReason` 输出 `共 N 场`，行仍然是 `uncertain`。
+- `day with day/night shows`：日期落在同日多场，或备注写明了日场 / 夜场，无法进一步区分。
+- `setlist length mismatch: N vs expected M`：该场解析出的曲目数与该歌单的常见长度不同。
+
+不是轮换信息的片段（`Encore`、乐队介绍、活动名、链接、开演时间等）不产生 reason，而是收集到 `RotationParse.info`，页面用灰色原样显示，读者不会看到解析器状态。
+
 
 `shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把场次名里的系列标签换成中文名而保留年版年份；没有条目的系列（如 `MIKU EXPO`、`MIKU WITH YOU`）或语言为 `original` 时原样返回。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配，并把 VocaDB 搜索结果收成最多 5 条投稿链接。
 
@@ -116,7 +127,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `app/pages/catalog.vue`、`compare.vue`、`windows.vue`、`correlation.vue` 保留实现，但都带 `definePageMeta({ middleware: 'retired' })`，直接访问会重定向到首页。`app/middleware/retired.ts` 是唯一的重定向实现；拿到播放量快照后删掉页面上的这一行并恢复导航项即可。
 
-`app/components/SetlistTable.vue` 是 `/raw` 与 `/editions`、`/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾「场次」列说明该行属于哪一场，每一场都演出的行留空。列是「序号 / 歌曲 / 演出角色 / 场次 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」只写轮换解析的疑点，用 `formatRotationReason` 转成中文。
+`app/components/SetlistTable.vue` 是 `/raw` 与 `/editions`、`/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾「场次」列说明该行属于哪一场，每一场都演出的行留空。列是「序号 / 歌曲 / 演出角色 / 场次 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。
 
 `partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同场的歌曲数量对不上时不合并，按多份歌单分别显示。
 
