@@ -78,7 +78,9 @@ describe('song producer collection', () => {
       "INSERT OR IGNORE INTO song_producers (song_id, artist_id, name, roles) VALUES\n(680530, 89, 'kz', 'producer, composer');",
     )
     expect(sql).toContain('COMMIT;')
-    expect(sql).not.toContain('DELETE FROM')
+    // The derived table is replaced wholesale, but no catalog or setlist data may be touched.
+    expect(sql).toContain('DELETE FROM song_producers;')
+    expect(sql.replace('DELETE FROM song_producers;', '')).not.toContain('DELETE FROM')
     expect(songProducerSql([], '2026-11-04T00:00:00.000Z')).not.toContain('INTO song_producers')
   })
 })

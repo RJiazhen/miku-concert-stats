@@ -66,6 +66,7 @@ The current built catalog has 7 `series` rows, 207 `performances`, 448 `songs`, 
 | `setlist_item_songs` | one song counted from a line | `song_list_id`, `position`, `song_id`, `role` (`listed` / `component`) |
 | `songs` | one song entry | `id`, `name`, `name_ja`, `name_en`, `artist_string`, `song_type`, `publish_date`, `source_url` (`vocadb.net/S/{id}`) |
 | `song_vocalists` | one credited vocalist of a song | `song_id`, `name`; this is the preferred cast source over `artist_string` |
+| `song_producers` | one producer-side credit of a song | `song_id`, `artist_id` (VocaDB artist id), `name`, `roles`; mirrors VocaDB's song-page "Producers" section (`Producer` category, plus Composer / Arranger / Voice manipulator roles), so lyricists are absent. Display still prefers `artist_string`, which keeps circles such as `supercell` |
 
 Supporting tables: `medley_quarantine` (mashup lines that could not be split; excluded from counts), `videos` (PV links; `platform` is `niconico` / `youtube` / `bilibili`), `view_snapshots` (dated counts), `milestones`, `edition_premieres` (earliest non-broadcast 演出 of a series year), `performance_links`, `conversion_formulas`, `sources` (VocaDB attribution).
 

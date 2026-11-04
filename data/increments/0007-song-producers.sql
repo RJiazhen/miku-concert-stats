@@ -1,13 +1,16 @@
 -- Producer-side credits on each catalog song, from VocaDB structured artists (fields=Artists).
 -- Source: https://vocadb.net/api/songs/{id}?fields=Artists&lang=Default
--- Retrieved: 2026-11-04T16:05:43.411Z
+-- Retrieved: 2026-11-04T16:08:50.638Z
 -- License: https://wiki.vocadb.net/docs/license (link back when reusing database contents)
 -- Kept when categories contain Producer or roles contain Composer / Arranger / VoiceManipulator,
 -- matching the VocaDB song page "Producers" section (https://wiki.vocadb.net/docs/song-entry-page);
 -- Lyricist is not included because VocaDB lists lyricists under "Other artists".
 -- roles stores that evidence lower-cased (producer, composer, ...). Placeholders are dropped.
--- Purely additive: INSERT OR IGNORE, with no DELETE of catalog tables.
+-- The table is wholly derived, so it is cleared first: INSERT OR IGNORE alone would keep the
+-- credits of songs that a later collection drops. No other table is touched.
+-- An empty result writes no statements, so a failed fetch cannot erase the existing rows.
 BEGIN;
+DELETE FROM song_producers;
 INSERT OR IGNORE INTO song_producers (song_id, artist_id, name, roles) VALUES
 (20, 53, 'wowaka', 'producer'),
 (123, 83, 'daniwell', 'producer'),

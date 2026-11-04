@@ -112,9 +112,13 @@ export const collectSongProducers = async (
   return rows
 }
 
-/** Renders the song_producers increment; additive only, so INSERT OR IGNORE keeps existing rows. */
+/**
+ * Renders the song_producers increment.
+ * The table is wholly derived, so a non-empty run clears it before inserting; an empty run writes
+ * nothing at all, because wiping every credit is never the intended outcome of a failed fetch.
+ */
 export const songProducerSql = (rows: readonly SongProducerRow[], retrievedAt: string): string => {
-  return [
+  const header = [
     '-- Producer-side credits on each catalog song, from VocaDB structured artists (fields=Artists).',
     '-- Source: https://vocadb.net/api/songs/{id}?fields=Artists&lang=Default',
     `-- Retrieved: ${retrievedAt}`,
@@ -123,8 +127,15 @@ export const songProducerSql = (rows: readonly SongProducerRow[], retrievedAt: s
     '-- matching the VocaDB song page "Producers" section (https://wiki.vocadb.net/docs/song-entry-page);',
     '-- Lyricist is not included because VocaDB lists lyricists under "Other artists".',
     '-- roles stores that evidence lower-cased (producer, composer, ...). Placeholders are dropped.',
-    '-- Purely additive: INSERT OR IGNORE, with no DELETE of catalog tables.',
+    '-- The table is wholly derived, so it is cleared first: INSERT OR IGNORE alone would keep the',
+    '-- credits of songs that a later collection drops. No other table is touched.',
+    '-- An empty result writes no statements, so a failed fetch cannot erase the existing rows.',
+  ]
+  if (rows.length === 0) return [...header, ''].join('\n')
+  return [
+    ...header,
     'BEGIN;',
+    'DELETE FROM song_producers;',
     chunkInsertsIgnoring(
       'song_producers',
       ['song_id', 'artist_id', 'name', 'roles'],
