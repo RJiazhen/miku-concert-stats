@@ -9,7 +9,6 @@ import { availableCharacters } from '~~/shared/character-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import { producerCredit } from '~~/shared/credit.ts'
 import { formatRotationReason } from '~~/shared/rotation.ts'
-import { SEVERITY_LABELS } from '~~/shared/setlist-diff.ts'
 import {
   availablePerformanceYears,
   canEndRangeAt,
@@ -332,9 +331,6 @@ const yearToItems = computed(() =>
     return { ...item, disabled: year !== null && !canEndRangeAt(year, yearRange.value) }
   }),
 )
-
-/** Severity labels are reused in the link to the review page. */
-const reviewHint = SEVERITY_LABELS['segment-differs']
 </script>
 
 <template>
@@ -348,14 +344,6 @@ const reviewHint = SEVERITY_LABELS['segment-differs']
         按歌单或按场次统计每首歌出现的次数。默认不计配信、线上和 VR 场，也不把串烧的组成歌曲单独计入。
         同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
       </p>
-      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-        <UBadge color="primary" variant="subtle" icon="i-lucide-music">按歌单是默认口径</UBadge>
-        <UButton to="/cities" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">按城市统计场次</UButton>
-        <UButton to="/raw" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">查看原始数据</UButton>
-        <UButton to="/report" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">
-          歌单差异核验（{{ reviewHint }}）
-        </UButton>
-      </div>
     </section>
 
     <UAlert
