@@ -94,6 +94,9 @@ const yearRange = computed(() => {
           每个演出是一个城市站（VocaDB release event），点进演出查看歌单与场次；场次按天计，同一天有日场 / 夜场时分别计算。
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
+          <UButton to="/series" color="neutral" variant="link" size="xs" icon="i-lucide-layers">
+            全部系列
+          </UButton>
           <UButton :to="series.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
             VocaDB 系列
           </UButton>

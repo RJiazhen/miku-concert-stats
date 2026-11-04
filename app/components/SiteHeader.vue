@@ -4,6 +4,7 @@ const { showChinese } = useSongLanguage()
 /** Primary navigation; retired sections stay out until they have data. */
 const links = [
   { label: '歌曲', to: '/', icon: 'i-lucide-music' },
+  { label: '系列', to: '/series', icon: 'i-lucide-layers' },
   { label: '城市', to: '/cities', icon: 'i-lucide-map-pin' },
   { label: '原始数据', to: '/raw', icon: 'i-lucide-table-2' },
   { label: '核验', to: '/report', icon: 'i-lucide-list-checks' },
