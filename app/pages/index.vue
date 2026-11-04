@@ -28,11 +28,14 @@ const startLoad = (): void => {
 }
 onMounted(startLoad)
 
+/** Sentinel for an open end of the year range; Reka UI forbids an empty `SelectItem` value. */
+const YEAR_ANY = 'all'
+
 const mode = ref<RankingMode>('setlist')
 const selectedSeries = ref<number[]>([])
 const seriesTouched = ref(false)
-const yearFrom = ref('')
-const yearTo = ref('')
+const yearFrom = ref(YEAR_ANY)
+const yearTo = ref(YEAR_ANY)
 const includeBroadcast = ref(false)
 const includeMedleyComponents = ref(false)
 const characterFilter = ref('all')
@@ -179,8 +182,8 @@ type FilterState = {
 const state = computed<FilterState>(() => ({
   mode: mode.value,
   series: selectedSeries.value,
-  from: yearFrom.value,
-  to: yearTo.value,
+  from: yearOrNull(yearFrom.value) === null ? '' : yearFrom.value,
+  to: yearOrNull(yearTo.value) === null ? '' : yearTo.value,
   broadcast: includeBroadcast.value,
   medley: includeMedleyComponents.value,
   character: characterFilter.value,
@@ -234,8 +237,8 @@ const readUrl = (): void => {
   }
   /** Restored bounds are swapped when a shared link holds an inverted range. */
   const restored = normalizeYearRange({ from: yearOrNull(readString(url.from)), to: yearOrNull(readString(url.to)) })
-  yearFrom.value = restored.from === null ? '' : String(restored.from)
-  yearTo.value = restored.to === null ? '' : String(restored.to)
+  yearFrom.value = restored.from === null ? YEAR_ANY : String(restored.from)
+  yearTo.value = restored.to === null ? YEAR_ANY : String(restored.to)
   includeBroadcast.value = readString(url.broadcast) === '1'
   includeMedleyComponents.value = readString(url.medley) === '1'
   characterFilter.value = readString(url.character) || 'all'
@@ -262,8 +265,8 @@ onMounted(() => {
 const reset = (): void => {
   mode.value = 'setlist'
   selectedSeries.value = catalog.value?.series.map((row) => row.id) ?? []
-  yearFrom.value = ''
-  yearTo.value = ''
+  yearFrom.value = YEAR_ANY
+  yearTo.value = YEAR_ANY
   includeBroadcast.value = false
   includeMedleyComponents.value = false
   characterFilter.value = 'all'
@@ -275,7 +278,7 @@ const reset = (): void => {
 const activeFilters = computed(() => {
   let count = 0
   if (mode.value === 'show') count++
-  if (yearFrom.value || yearTo.value) count++
+  if (yearOrNull(yearFrom.value) !== null || yearOrNull(yearTo.value) !== null) count++
   if (includeBroadcast.value) count++
   if (includeMedleyComponents.value) count++
   if (characterFilter.value !== 'all') count++
@@ -304,7 +307,7 @@ const yearOptions = computed(() => availablePerformanceYears(catalog.value?.perf
 
 /** Items shared by both year pickers: 不限 plus every year the data contains. */
 const yearItems = computed(() => [
-  { label: '不限', value: '' },
+  { label: '不限', value: YEAR_ANY },
   ...yearOptions.value.map((year) => ({ label: `${year} 年`, value: String(year) })),
 ])
 
