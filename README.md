@@ -6,6 +6,8 @@
 
 模块划分、数据流，以及怎么跑、构建和部署，见 [docs/architecture.md](docs/architecture.md)。
 
+外部 AI agent 的调用说明（目录、公开路由、SQL 示例与计数口径）见 [`.cursor/skills/query-concert-stats/SKILL.md`](.cursor/skills/query-concert-stats/SKILL.md)。
+
 ## 站点
 
 | 路由 | 内容 |
