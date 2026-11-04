@@ -344,6 +344,17 @@ const addReason = (line: ResolvedRotationLine, reason: string): void => {
   line.uncertain = true
 }
 
+/** Human-readable Chinese text for one parser reason. */
+export const formatRotationReason = (reason: string): string => {
+  const mismatch = reason.match(/^setlist length mismatch: (\d+) vs expected (\d+)$/)
+  if (mismatch) return `本场 ${mismatch[1]} 首，同歌单其他场次多为 ${mismatch[2]} 首`
+  if (reason === 'unknown format') return '备注写法未识别'
+  if (reason === 'unmatched city') return '城市没有对到任何一场'
+  if (reason === 'city-only when city has several shows') return '只写了城市，该城市有多场'
+  if (reason === 'day with day/night shows') return '当天有日场或夜场，无法确定是哪一场'
+  return reason
+}
+
 /** Inclusive day list from start_date through end_date, capped at two weeks. */
 const datesOf = (performance: RotationPerformance): string[] => {
   const start = performance.start_date

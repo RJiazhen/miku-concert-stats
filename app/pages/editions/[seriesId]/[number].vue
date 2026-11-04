@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
-import { buildSetlistDisplay, editionSongLists, partitionSongLists } from '~~/shared/edition-setlists.ts'
+import { buildSetlistDisplay, displaySides, editionSongLists } from '~~/shared/edition-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
@@ -30,8 +30,8 @@ const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : 
 
 /** Merged groups plus standalone song lists for this edition. */
 const sides = computed(() => {
-  if (!catalog.value) return []
-  return partitionSongLists(editionSongLists(catalog.value, seriesId.value, seriesNumber.value), merges)
+  if (!catalog.value || !review.value) return []
+  return displaySides(editionSongLists(catalog.value, seriesId.value, seriesNumber.value), merges, review.value)
 })
 
 const sideIndex = ref(0)
@@ -45,6 +45,16 @@ const sideOptions = computed(() =>
     value: index,
   })),
 )
+
+/** Explains why a list that belongs to a merge group is shown on its own. */
+const splitNote = computed(() => {
+  const side = sides.value[sideIndex.value]
+  if (!side || side.length !== 1 || !review.value) return null
+  const listId = side[0]
+  if (listId === undefined || merges.groupOf(listId) === null) return null
+  if (!review.value.shows.some((show) => show.songListId === listId)) return null
+  return '这场歌单的长度与同组其他场次不一致，因此单独显示，不与它们合并。'
+})
 
 const display = computed(() => {
   if (!catalog.value || !review.value) return null
@@ -103,6 +113,7 @@ const premiere = computed(() => {
         </div>
       </UCard>
 
+      <UAlert v-if="splitNote" color="warning" variant="subtle" icon="i-lucide-info" :description="splitNote" />
       <USkeleton v-if="pending" class="h-64 w-full rounded-xl" />
       <UEmpty v-else-if="!display" icon="i-lucide-list-x" title="这个年版没有歌单" description="VocaDB 上没有可用的歌单记录。" />
       <SetlistTable v-else-if="display && review" :display="display" :review="review" />

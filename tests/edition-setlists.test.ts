@@ -5,6 +5,7 @@ import { loadCatalog } from '../shared/catalog.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import {
   buildSetlistDisplay,
+  displaySides,
   emptySetlistMergeIndex,
   parseSetlistMerges,
   partitionSongLists,
@@ -91,6 +92,12 @@ describe('merged setlist display', () => {
     expect(romio).toHaveLength(1)
     expect(romio[0]?.items.map((item) => item.songListId)).toEqual([8101, 8102])
     expect(romio[0]?.showLabel).toBeNull()
+  })
+
+  it('splits a merged group when a list length disagrees with its own shows', () => {
+    expect(displaySides([8101, 8102], merges, review)).toEqual([[8101, 8102]])
+    // 16544 and 18446 are flagged by the rotation length check, so each shows on its own.
+    expect(displaySides([16544, 18446, 18583], merges, review)).toEqual([[16544], [18446], [18583]])
   })
 
   it('leaves an unmerged edition in two separate displays', () => {

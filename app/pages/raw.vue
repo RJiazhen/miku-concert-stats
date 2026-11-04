@@ -4,7 +4,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import { buildSetlistDisplay, partitionSongLists } from '~~/shared/edition-setlists.ts'
+import { buildSetlistDisplay, displaySides } from '~~/shared/edition-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
 
@@ -63,28 +63,39 @@ const editions = computed(() => {
     .sort((left, right) => left.label.localeCompare(right.label, 'zh-Hans'))
 })
 
-const editionKey = ref('')
+type EditionItem = { label: string; value: string }
+
+/** Chosen edition; empty means "the newest one". */
+const chosenEditionKey = ref('')
 const sideIndex = ref(0)
 
-/** Selects the newest edition once the catalog arrives. */
-const chooseEdition = (): void => {
-  if (editionKey.value !== '' || editions.value.length === 0) return
-  editionKey.value = editions.value[editions.value.length - 1]?.key ?? ''
-}
-watch(editions, chooseEdition, { immediate: true })
+/** Options for the searchable edition menu. */
+const editionItems = computed<EditionItem[]>(() => editions.value.map((row) => ({ label: row.label, value: row.key })))
 
+/** Newest edition, used until the visitor picks another one. */
+const defaultEditionKey = computed(() => editions.value[editions.value.length - 1]?.key ?? '')
+
+const editionKey = computed(() => chosenEditionKey.value || defaultEditionKey.value)
 const selectedEdition = computed(() => editions.value.find((row) => row.key === editionKey.value) ?? null)
+
+/** Displayed menu value, derived from the active edition. */
+const editionModel = computed<EditionItem | undefined>(() => editionItems.value.find((item) => item.value === editionKey.value))
+
+/** Stores the visitor's edition choice. */
+const selectEdition = (item: EditionItem | undefined): void => {
+  chosenEditionKey.value = item?.value ?? ''
+}
 
 /** Song lists of the selected edition, split into merged groups and standalone lists. */
 const sides = computed(() => {
-  if (!catalog.value || !selectedEdition.value) return []
+  if (!catalog.value || !selectedEdition.value || !review.value) return []
   const [seriesIdText, numberText] = selectedEdition.value.key.split(':')
   const ids = new Set<number>()
   for (const performance of catalog.value.performances) {
     if (performance.series_id !== Number(seriesIdText) || performance.series_number !== Number(numberText)) continue
     if (performance.song_list_id !== null) ids.add(performance.song_list_id)
   }
-  return partitionSongLists([...ids], merges)
+  return displaySides([...ids], merges, review.value)
 })
 
 /** Side options: a merged group or one song list. */
@@ -97,6 +108,16 @@ const sideOptions = computed(() =>
 
 watch(sides, () => {
   sideIndex.value = 0
+})
+
+/** Explains why a list that belongs to a merge group is shown on its own. */
+const splitNote = computed(() => {
+  const side = sides.value[sideIndex.value]
+  if (!side || side.length !== 1 || !review.value) return null
+  const listId = side[0]
+  if (listId === undefined || merges.groupOf(listId) === null) return null
+  if (!review.value.shows.some((show) => show.songListId === listId)) return null
+  return '这场歌单的长度与同组其他场次不一致，因此单独显示，不与它们合并。'
 })
 
 const display = computed(() => {
@@ -414,7 +435,16 @@ const editionSongCount = computed(() => {
         <div class="flex flex-wrap items-end gap-3">
           <label class="grid gap-1 text-xs text-muted">
             年版
-            <USelect v-model="editionKey" :items="editions.map((row) => ({ label: row.label, value: row.key }))" size="sm" class="w-72" />
+            <USelectMenu
+              :model-value="editionModel"
+              :items="editionItems"
+              by="value"
+              search-input
+              placeholder="选择年版"
+              size="sm"
+              class="w-72"
+              @update:model-value="selectEdition"
+            />
           </label>
           <label class="grid gap-1 text-xs text-muted">
             显示范围
@@ -423,6 +453,7 @@ const editionSongCount = computed(() => {
           <p class="pb-2 text-xs text-muted">{{ editionSongCount }} 首（合并版本后去重）</p>
         </div>
       </UCard>
+      <UAlert v-if="splitNote" color="warning" variant="subtle" icon="i-lucide-info" :description="splitNote" />
       <USkeleton v-if="pending" class="h-64 w-full rounded-xl" />
       <UEmpty
         v-else-if="!display"

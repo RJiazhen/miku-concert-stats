@@ -104,6 +104,32 @@ export const partitionSongLists = (listIds: readonly number[], merges: SetlistMe
   return sides.sort((left, right) => (left[0] ?? 0) - (right[0] ?? 0))
 }
 
+/**
+ * Display sides for one edition.
+ * A song list whose parsed length disagrees with its own shows is shown on its own instead of merged,
+ * because a different song count means the two setlists are not the same programme.
+ */
+export const displaySides = (
+  listIds: readonly number[],
+  merges: SetlistMergeIndex,
+  review: RotationReview,
+): number[][] => {
+  const mismatched = new Set(review.shows.map((show) => show.songListId))
+  const sides: number[][] = []
+  for (const side of partitionSongLists(listIds, merges)) {
+    if (side.length === 1) {
+      sides.push(side)
+      continue
+    }
+    const keep = side.filter((listId) => !mismatched.has(listId))
+    const dropped = side.filter((listId) => mismatched.has(listId))
+    if (keep.length > 1) sides.push(keep)
+    else for (const listId of keep) sides.push([listId])
+    for (const listId of dropped) sides.push([listId])
+  }
+  return sides.sort((left, right) => (left[0] ?? 0) - (right[0] ?? 0))
+}
+
 /** One displayed setlist row after folding and slot numbering. */
 export type SetlistDisplayRow = {
   /** Printed slot number; rows inside one slot share it. */

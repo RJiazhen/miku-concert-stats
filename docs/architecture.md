@@ -86,17 +86,20 @@
 
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
-| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，模式、系列、年份、配信、串烧、角色、关键词筛选；筛选写入 URL query；合并版本行显示「含 N 个版本」 |
+| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，模式、系列、年份、配信、串烧、角色、关键词筛选；筛选写入 URL query；合并版本行显示「含 N 个版本」；艺人列只显示制作人，宽度受限并带完整署名气泡 |
 | `/raw` | `app/pages/raw.vue` | 原始数据。按年版合并歌单（`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单场次、未解析备注、串烧隔离、疑似重复） |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown |
 | `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录、投稿与（有快照时的）播放量 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一场的轮换解析结果与长度一致性 |
 | `/editions/{seriesId}/{number}` | `app/pages/editions/[seriesId]/[number].vue` | 一个年版的合并歌单，可切到逐份歌单 |
-| `/lookup` | `app/pages/lookup.vue` | 先 `localSongMatches`，本地没有命中才请求 `/api/lookup` |
+
+`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它先跑 `localSongMatches`，本地没有命中时才请求 `/api/lookup`；结果链到 `/songs/{id}`，也可以带着关键词跳到排行。
 
 `app/pages/catalog.vue`、`compare.vue`、`windows.vue`、`correlation.vue` 保留实现，但都带 `definePageMeta({ middleware: 'retired' })`，直接访问会重定向到首页。`app/middleware/retired.ts` 是唯一的重定向实现；拿到播放量快照后删掉页面上的这一行并恢复导航项即可。
 
-`app/components/SetlistTable.vue` 是 `/raw` 与 `/editions`、`/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，父行带「替换 N」徽标，末尾「场次」列说明该行属于哪一场，每一场都演出的行留空。
+`app/components/SetlistTable.vue` 是 `/raw` 与 `/editions`、`/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾「场次」列说明该行属于哪一场，每一场都演出的行留空。列是「序号 / 歌曲 / 演出角色 / 场次 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」只写轮换解析的疑点，用 `formatRotationReason` 转成中文。
+
+`partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同场的歌曲数量对不上时不合并，按多份歌单分别显示。
 
 `app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌、四个入口、中文歌名开关（`USwitch`，只在客户端生效）、`UColorModeButton`。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
 

@@ -6,7 +6,6 @@ const links = [
   { label: '排行', to: '/', icon: 'i-lucide-trophy' },
   { label: '原始数据', to: '/raw', icon: 'i-lucide-table-2' },
   { label: '核验', to: '/report', icon: 'i-lucide-list-checks' },
-  { label: '检索', to: '/lookup', icon: 'i-lucide-search' },
 ]
 </script>
 
@@ -38,9 +37,10 @@ const links = [
       </nav>
 
       <div class="order-2 ml-auto flex items-center gap-3 sm:order-3">
+        <SiteSearch />
         <label class="flex cursor-pointer items-center gap-2 text-xs text-muted">
           <USwitch v-model="showChinese" aria-label="显示中文歌名" size="sm" />
-          <span class="hidden sm:inline">中文歌名</span>
+          <span class="hidden lg:inline">中文歌名</span>
         </label>
         <UColorModeButton color="neutral" variant="ghost" size="sm" />
       </div>

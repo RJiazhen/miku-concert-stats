@@ -5,6 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { characterNames, songCharacters } from '~/composables/useCharacters.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
+import { producerCredit } from '~~/shared/credit.ts'
 import { SEVERITY_LABELS } from '~~/shared/setlist-diff.ts'
 
 const UButton = resolveComponent('UButton')
@@ -44,7 +45,10 @@ type RankedSong = {
   songId: number
   rank: number
   name: string
+  /** Producer credit, without the featured vocalists already shown in 演出角色. */
   artists: string
+  /** Full credit, used for the tooltip and the search index. */
+  fullArtists: string
   characters: string
   count: number
   seriesCount: number
@@ -91,7 +95,8 @@ const ranked = computed<RankedSong[]>(() => {
       songId: row.songId,
       rank: index + 1,
       name: row.name,
-      artists: row.artists ?? '—',
+      artists: producerCredit(row.artists) ?? '—',
+      fullArtists: row.artists ?? '—',
       characters: characters.size === 0 ? '—' : [...characters].join('、'),
       count: row.count,
       seriesCount: row.seriesCount,
@@ -133,7 +138,7 @@ const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: 
 const columns: TableColumn<RankedSong>[] = [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
   { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true },
-  { accessorKey: 'artists', header: '艺人', enableSorting: true },
+  { accessorKey: 'artists', header: '艺人', enableSorting: true, meta: { class: { td: 'max-w-40' } } },
   { accessorKey: 'characters', header: sortableHeader('演出角色'), enableSorting: true },
   { accessorKey: 'count', header: sortableHeader('次数'), enableSorting: true },
   { accessorKey: 'seriesCount', header: sortableHeader('系列数'), enableSorting: true },
@@ -383,7 +388,9 @@ const reviewHint = SEVERITY_LABELS['segment-differs']
           </div>
         </template>
         <template #artists-cell="{ row }">
-          <span class="text-muted">{{ row.original.artists }}</span>
+          <UTooltip :text="row.original.fullArtists" :content="{ side: 'top' }">
+            <span class="block max-w-40 truncate text-muted">{{ row.original.artists }}</span>
+          </UTooltip>
         </template>
         <template #characters-cell="{ row }">
           <span class="text-muted">{{ row.original.characters }}</span>
