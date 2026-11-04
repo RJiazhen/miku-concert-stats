@@ -20,27 +20,18 @@ const startLoad = (): void => {
 }
 onMounted(startLoad)
 
-const seriesId = computed(() => Number(route.params.seriesId))
-const seriesNumber = computed(() => Number(route.params.number))
-
+const seriesId = computed(() => Number(route.params.id))
 const series = computed(() => catalog.value?.series.find((row) => row.id === seriesId.value) ?? null)
 
-/** Series name in the site language, with the catalog spelling kept as a note when translated. */
+/** Series name in the site language; the id stands in when the catalog has no row. */
 const seriesView = computed(() =>
-  series.value ? seriesTitle(series.value.name) : { primary: String(seriesId.value), originalNote: null },
+  series.value ? seriesTitle(series.value.name) : { primary: `系列 ${seriesId.value}`, originalNote: null },
 )
 
-/** One 演出 name with its series and place in the site language. */
+/** 演出 name with its series label and place in the site language. */
 const performanceLabel = (performance: PerformanceRow): string => {
   return localizePlace(localizePerformanceSeries(performance.name, series.value?.name ?? '', performance.series_number))
 }
-
-/** 演出 of this series year, earliest first; one row per city stop. */
-const performances = computed(() => {
-  if (!Number.isInteger(seriesId.value) || !Number.isInteger(seriesNumber.value)) return []
-  const rows = catalog.value?.performances.filter((row) => row.series_id === seriesId.value && row.series_number === seriesNumber.value) ?? []
-  return [...rows].sort((left, right) => (left.start_date ?? '').localeCompare(right.start_date ?? '') || left.id - right.id)
-})
 
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
 
@@ -50,7 +41,13 @@ const schedules = computed(() => {
   return performanceSchedules(catalog.value, review.value)
 })
 
-/** One row per 演出 with the facts the index prints. */
+/** 演出 of this series, newest first; one row per city stop. */
+const performances = computed(() => {
+  const rows = catalog.value?.performances.filter((row) => row.series_id === seriesId.value) ?? []
+  return [...rows].sort((left, right) => (right.start_date ?? '').localeCompare(left.start_date ?? '') || right.id - left.id)
+})
+
+/** One row per 演出 with the facts the page prints. */
 const entries = computed(() =>
   performances.value.map((performance) => ({
     performance,
@@ -61,13 +58,16 @@ const entries = computed(() =>
   })),
 )
 
-/** 场次 across every 演出 of this series year. */
+/** 场次 across every 演出 of this series. */
 const totalShows = computed(() => entries.value.reduce((sum, entry) => sum + entry.showCount, 0))
 
-/** First 演出 of this series year, from `edition_premieres`. */
-const premiere = computed(() => {
-  if (!catalog.value) return null
-  return catalog.value.premieres.find((row) => row.series_id === seriesId.value && row.series_number === seriesNumber.value) ?? null
+/** Year span of the series, e.g. `2013–2026`; null when no 演出 carries a year. */
+const yearRange = computed(() => {
+  const years = entries.value.flatMap((entry) => (entry.performance.series_number === null ? [] : [entry.performance.series_number]))
+  if (years.length === 0) return null
+  const first = Math.min(...years)
+  const last = Math.max(...years)
+  return first === last ? String(first) : `${first}–${last}`
 })
 </script>
 
@@ -75,23 +75,29 @@ const premiere = computed(() => {
   <main class="space-y-6">
     <p v-if="pending" class="text-sm text-muted">正在浏览器中加载目录…</p>
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
+    <UEmpty
+      v-else-if="catalog && series === null"
+      icon="i-lucide-list-x"
+      title="找不到这个系列"
+      description="这个 id 不在已提交的目录里。"
+    />
 
-    <template v-else-if="catalog">
-      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '演出列表' }, { label: `${seriesView.primary} ${seriesNumber}` }]" />
-
+    <template v-else-if="series">
       <header class="space-y-2">
-        <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
-          {{ seriesView.primary }} {{ seriesNumber }}
-        </h1>
+        <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ seriesView.primary }}</h1>
         <p v-if="seriesView.originalNote" class="text-xs text-muted">{{ seriesView.originalNote }}</p>
         <p class="text-sm text-muted">
-          系列年度的演出列表 · {{ entries.length }} 个演出 · {{ totalShows }} 个场次
-          <template v-if="premiere">· 年度首演 {{ premiere.premiere_date }}</template>
+          系列主页 · {{ performances.length }} 个演出 · {{ totalShows }} 个场次
+          <template v-if="yearRange">· {{ yearRange }}</template>
         </p>
         <p class="text-xs text-muted">
-          每个演出是一个城市站（VocaDB release event），点进单独的演出页查看歌单；场次按天计，同一天有日场 / 夜场时分别计算。
-          日期、场馆与歌单都来自 VocaDB。
+          每个演出是一个城市站（VocaDB release event），点进演出查看歌单与场次；场次按天计，同一天有日场 / 夜场时分别计算。
         </p>
+        <div class="flex flex-wrap gap-2 text-xs">
+          <UButton :to="series.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
+            VocaDB 系列
+          </UButton>
+        </div>
       </header>
 
       <UCard>
@@ -116,11 +122,12 @@ const premiere = computed(() => {
               target="_blank"
               class="text-xs text-dimmed hover:text-primary"
               aria-label="在 VocaDB 查看这个演出"
+              title="在 VocaDB 查看这个演出"
             >
-              演出 {{ entry.performance.id }}
+              <UIcon name="i-lucide-external-link" class="size-4" />
             </ULink>
           </li>
-          <li v-if="entries.length === 0" class="py-3 text-sm text-muted">这个系列年度没有演出记录。</li>
+          <li v-if="entries.length === 0" class="py-3 text-sm text-muted">这个系列没有演出记录。</li>
         </ul>
       </UCard>
     </template>

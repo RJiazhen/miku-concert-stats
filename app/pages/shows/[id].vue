@@ -43,9 +43,6 @@ const shows = computed(() => {
   return performanceSchedules(catalog.value, review.value).get(current.id) ?? []
 })
 
-/** Series year of this 演出, i.e. `series_number`, used for the index link. */
-const seriesYear = computed(() => performance.value?.series_number ?? null)
-
 /** Series behind this show, needed to translate the label inside the performance name. */
 const series = computed(() => {
   const current = performance.value
@@ -82,6 +79,21 @@ const cityName = computed(() => {
   return showChinese.value ? match.city : match.original
 })
 
+/** Series name for the first crumb; null when the catalog has no series row. */
+const breadcrumbSeriesLabel = computed(() => seriesView.value?.primary ?? null)
+
+/** Breadcrumb trail: 系列 (links to `/series/{id}`) → 演出 (links to `/shows/{id}`). */
+const breadcrumb = computed(() => {
+  const current = performance.value
+  if (!current) return []
+  const items: { label: string, to?: string }[] = []
+  if (breadcrumbSeriesLabel.value !== null) {
+    items.push({ label: breadcrumbSeriesLabel.value, to: `/series/${current.series_id}` })
+  }
+  items.push({ label: performanceLabel.value, to: `/shows/${current.id}` })
+  return items
+})
+
 /** One-line facts under the title: date, city, venue, and start time, joined only when present. */
 const headerLine = computed(() => {
   const facts = headerFacts.value
@@ -102,20 +114,18 @@ const headerLine = computed(() => {
     <UEmpty v-else-if="catalog && !performance" icon="i-lucide-calendar-x" title="找不到这个演出" description="这个 id 不在已提交的目录里。" />
 
     <template v-else-if="performance">
-      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '演出' }, { label: performanceLabel }]" />
+      <UBreadcrumb :items="breadcrumb" />
 
       <header class="space-y-2">
         <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ performanceLabel }}</h1>
         <p class="text-sm text-muted">{{ headerLine }}</p>
         <p v-if="seriesView" class="text-xs text-muted">
           <NuxtLink
-            v-if="seriesYear !== null"
-            :to="`/editions/${performance.series_id}/${seriesYear}`"
+            :to="`/series/${performance.series_id}`"
             class="text-primary hover:underline"
           >
-            {{ seriesView.primary }} {{ seriesYear }} 演出列表
+            {{ seriesView.primary }} 系列
           </NuxtLink>
-          <template v-else>{{ seriesView.primary }}</template>
         </p>
         <p v-if="shows.length > 0" class="text-xs text-muted">
           场次（{{ shows.length }}）：

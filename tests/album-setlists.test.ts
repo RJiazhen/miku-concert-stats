@@ -98,9 +98,10 @@ describe('album provenance', () => {
   it('names the medium, the album, and the source page in Chinese', () => {
     expect(albumMediumLabel('bluray')).toBe('蓝光')
     expect(albumMediumLabel('cd')).toBe('CD')
-    expect(albumSetlistNotice('初音ミクシンフォニー 2017', 'bluray')).toBe(
-      '歌单来自蓝光《初音ミクシンフォニー 2017》的曲目列表，不是 VocaDB 上该场演出的歌单。',
-    )
+    expect(albumSetlistNotice('bluray')).toEqual({
+      before: '歌单来自蓝光《',
+      after: '》的曲目列表，不是 VocaDB 上该场演出的歌单。',
+    })
     expect(albumPageUrl(30961)).toBe('https://vocadb.net/Al/30961')
   })
 

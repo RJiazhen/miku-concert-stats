@@ -11,6 +11,8 @@ import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
 import { variantVersionNote } from '~~/shared/song-variants.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
+import { useSongLanguage } from '~/composables/useSongLanguage.ts'
+import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { latestSnapshot } from '~~/shared/stats.ts'
 import {
   nextAppearanceSort,
@@ -26,6 +28,7 @@ const variants = useSongVariants()
 const { songById } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries } = useSeriesTitles()
+const { language, translationFor } = useSongLanguage()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -36,6 +39,14 @@ onMounted(startLoad)
 const songId = computed(() => Number(route.params.id))
 const canonicalId = computed(() => variants.canonicalSongId(songId.value))
 const song = computed(() => songById(canonicalId.value))
+
+/** Title in the current language, matching the `<h1>` above it. */
+const breadcrumbSongLabel = computed(() => {
+  const current = song.value
+  if (!current) return ''
+  const view = formatSongTitle(current.name, translationFor(canonicalId.value), language.value)
+  return view.originalNote ? `${view.primary} (${view.originalNote})` : view.primary
+})
 
 /** One part of the 备注 cell, in display order. */
 type NotePart = {
@@ -176,10 +187,10 @@ const appearanceAriaSort = (key: AppearanceSortKey): 'ascending' | 'descending' 
   return appearanceSort.value.direction === 'asc' ? 'ascending' : 'descending'
 }
 
-/** Distinct series years the song appears in, for the header count. */
-const seriesYearCount = computed(() => {
-  const keys = new Set(appearances.value.map((row) => `${row.seriesName}:${row.seriesNumber}`))
-  return keys.size
+/** Distinct series the song appears in, for the header count. */
+const seriesCount = computed(() => {
+  const ids = new Set(appearances.value.map((row) => row.seriesId))
+  return ids.size
 })
 
 /** PVs for any version of the song, grouped by platform. */
@@ -221,9 +232,8 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
     <template v-else-if="song">
       <UBreadcrumb
         :items="[
-          { label: '排行', to: '/' },
           { label: '歌曲' },
-          { label: song.name },
+          { label: breadcrumbSongLabel },
         ]"
       />
 
@@ -264,7 +274,7 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
         <template #header>
           <div class="flex flex-wrap items-baseline justify-between gap-2">
             <h2 class="text-base font-semibold text-highlighted">出场记录</h2>
-            <span class="text-xs text-muted">{{ appearances.length }} 个演出 · {{ seriesYearCount }} 个系列年度</span>
+            <span class="text-xs text-muted">{{ appearances.length }} 个演出 · {{ seriesCount }} 个系列</span>
           </div>
         </template>
         <p v-if="appearances.length === 0" class="text-sm text-muted">没有在已收录的歌单里出现。</p>
@@ -297,14 +307,13 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
                 <td class="px-2 py-1.5 font-mono text-muted">{{ row.date ?? '—' }}</td>
                 <td class="px-2 py-1.5 text-muted">
                   <NuxtLink
-                    v-if="row.seriesNumber !== null"
-                    :to="`/editions/${row.seriesId}/${row.seriesNumber}`"
+                    :to="`/series/${row.seriesId}`"
                     class="text-primary"
                     :title="row.seriesName"
                   >
-                    {{ row.seriesLabel }} {{ row.seriesNumber }}
+                    {{ row.seriesLabel }}
                   </NuxtLink>
-                  <span v-else :title="row.seriesName">{{ row.seriesLabel }}</span>
+                  <template v-if="row.seriesNumber !== null"> {{ row.seriesNumber }}</template>
                 </td>
                 <td class="px-2 py-1.5">
                   <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.performanceName || '—' }}</NuxtLink>

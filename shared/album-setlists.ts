@@ -110,9 +110,20 @@ export const albumMediumLabel = (medium: ReleaseMedium): string => {
   return 'CD'
 }
 
+/** One notice split around the album name, which the UI renders as a link to the album page. */
+export type AlbumSetlistNotice = {
+  /** Text before the album name, e.g. `歌单来自蓝光《`. */
+  before: string
+  /** Text after the album name, e.g. `》的曲目列表，不是 VocaDB 上该场演出的歌单。`. */
+  after: string
+}
+
 /** Chinese notice that a setlist came from a release, not from the performance's own song list. */
-export const albumSetlistNotice = (albumName: string, medium: ReleaseMedium): string => {
-  return `歌单来自${albumMediumLabel(medium)}《${albumName}》的曲目列表，不是 VocaDB 上该场演出的歌单。`
+export const albumSetlistNotice = (medium: ReleaseMedium): AlbumSetlistNotice => {
+  return {
+    before: `歌单来自${albumMediumLabel(medium)}《`,
+    after: '》的曲目列表，不是 VocaDB 上该场演出的歌单。',
+  }
 }
 
 /** Minimal album track shape the collector reads. */
@@ -140,7 +151,8 @@ export type AlbumSetlistSource = {
   medium: ReleaseMedium
   name: string
   url: string
-  notice: string
+  /** Sentence parts around the linked album name. */
+  notice: AlbumSetlistNotice
 }
 
 /** Album sources among the given song lists, ordered by list id. */
@@ -156,7 +168,7 @@ export const albumSetlistSources = (catalog: Catalog, songListIds: readonly numb
       medium: list.medium,
       name: list.name,
       url: albumPageUrl(list.album_id),
-      notice: albumSetlistNotice(list.name, list.medium),
+      notice: albumSetlistNotice(list.medium),
     })
   }
   return sources.sort((left, right) => left.songListId - right.songListId)
