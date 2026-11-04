@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
@@ -10,6 +10,12 @@ import { variantVersionNote } from '~~/shared/song-variants.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { latestSnapshot } from '~~/shared/stats.ts'
+import {
+  nextAppearanceSort,
+  sortAppearances,
+  type AppearanceSort,
+  type AppearanceSortKey,
+} from '~~/shared/appearance-sort.ts'
 import type { Platform } from '~~/shared/types.ts'
 
 const route = useRoute()
@@ -65,6 +71,8 @@ const appearances = computed(() => {
     date: string | null
     role: string
     versionNote: string
+    /** Plain text of the 备注 cell, used by the column sort. */
+    noteText: string
     uncertain: boolean
     reasons: string[]
   }[] = []
@@ -81,6 +89,7 @@ const appearances = computed(() => {
       const versionName = songById(link.song_id)?.name ?? String(link.song_id)
       // The canonical version is the page's default, so only variants need a note.
       const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind) : ''
+      const reasons = line?.reasons ?? []
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
         seriesId: performance.series_id,
@@ -91,14 +100,46 @@ const appearances = computed(() => {
         date: performance.start_date,
         role: performance.role,
         versionNote,
+        noteText: [versionNote === '' ? '' : `版本：${versionNote}`, ...reasons].filter((part) => part !== '').join('；'),
         uncertain: line?.uncertain ?? false,
-        reasons: line?.reasons ?? [],
+        reasons,
       })
     }
   }
   rows.sort((left, right) => (left.date ?? '').localeCompare(right.date ?? '') || left.performanceId - right.performanceId)
   return rows
 })
+
+/** Active column of the 出场记录 table; date ascending is the order the table always had. */
+const appearanceSort = ref<AppearanceSort>({ key: 'date', direction: 'asc' })
+
+/** Columns of the 出场记录 table, in display order. */
+const appearanceColumns: readonly { key: AppearanceSortKey; label: string }[] = [
+  { key: 'date', label: '日期' },
+  { key: 'series', label: '系列' },
+  { key: 'venue', label: '场次' },
+  { key: 'note', label: '备注' },
+]
+
+/** Appearances in the order the active header asks for. */
+const sortedAppearances = computed(() => sortAppearances(appearances.value, appearanceSort.value))
+
+/** Applies a header click: a new column starts ascending, the active column flips. */
+const toggleAppearanceSort = (key: AppearanceSortKey): void => {
+  appearanceSort.value = nextAppearanceSort(appearanceSort.value, key)
+}
+
+/** Sort indicator icon for a header, matching the ranking table on the home page. */
+const appearanceSortIcon = (key: AppearanceSortKey): string => {
+  if (appearanceSort.value.key !== key) return 'i-lucide-arrow-up-down'
+  return appearanceSort.value.direction === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow'
+}
+
+/** `aria-sort` value announced for a header cell. */
+const appearanceAriaSort = (key: AppearanceSortKey): 'ascending' | 'descending' | 'none' => {
+  if (appearanceSort.value.key !== key) return 'none'
+  return appearanceSort.value.direction === 'asc' ? 'ascending' : 'descending'
+}
 
 /** Distinct editions the song appears in, for the header count. */
 const editionCount = computed(() => {
@@ -196,14 +237,28 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
           <table class="w-full text-sm">
             <thead class="text-left text-xs tracking-wide text-muted uppercase">
               <tr>
-                <th class="px-2 py-1.5 font-medium">日期</th>
-                <th class="px-2 py-1.5 font-medium">系列</th>
-                <th class="px-2 py-1.5 font-medium">场次</th>
-                <th class="px-2 py-1.5 font-medium">备注</th>
+                <th
+                  v-for="column in appearanceColumns"
+                  :key="column.key"
+                  scope="col"
+                  :aria-sort="appearanceAriaSort(column.key)"
+                  class="px-2 py-1 font-medium"
+                >
+                  <UButton
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                    class="-mx-2"
+                    :label="column.label"
+                    :trailing-icon="appearanceSortIcon(column.key)"
+                    :aria-label="`按${column.label}排序`"
+                    @click="toggleAppearanceSort(column.key)"
+                  />
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="row in appearances" :key="row.key" class="border-t border-default/40">
+              <tr v-for="row in sortedAppearances" :key="row.key" class="border-t border-default/40">
                 <td class="px-2 py-1.5 font-mono text-muted">{{ row.date ?? '—' }}</td>
                 <td class="px-2 py-1.5 text-muted">
                   <NuxtLink v-if="row.seriesNumber !== null" :to="`/editions/${row.seriesId}/${row.seriesNumber}`" class="text-primary">
