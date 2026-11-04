@@ -5,10 +5,13 @@ import {
   FEEDBACK_URL_MAX,
   FEEDBACK_VERSION_MAX,
   FEEDBACK_VIEWPORT_MAX,
+  FEEDBACK_STATUS_LABEL,
   buildFeedbackRecord,
   feedbackKey,
   isoOrNull,
+  isFeedbackStatus,
   isHttpUrl,
+  normalizeFeedbackStatus,
   parseFeedbackPayload,
   parseFeedbackRecord,
 } from '../shared/feedback.ts'
@@ -183,6 +186,7 @@ describe('stored record', () => {
       pageTitle: null,
       viewport: null,
       catalogVersion: null,
+      status: 'open',
     })
   })
 
@@ -231,5 +235,50 @@ describe('helpers', () => {
     expect(isoOrNull(null)).toBeNull()
     expect(isoOrNull('2026-11-04')).toBe('2026-11-04T00:00:00.000Z')
     expect(isoOrNull('nope')).toBeNull()
+  })
+})
+
+describe('feedback status', () => {
+  it('defaults new records to open', () => {
+    const record = buildFeedbackRecord(acceptance(validBody()), {
+      id: 'abc',
+      now: new Date('2026-11-04T07:17:00.000Z'),
+    })
+    expect(record.status).toBe('open')
+    expect(FEEDBACK_STATUS_LABEL[record.status]).toBe('未解决')
+  })
+
+  it('treats legacy records without status as open', () => {
+    const legacy = {
+      id: 'abc',
+      receivedAt: '2026-11-04T07:17:00.000Z',
+      collectedAt: '2026-11-04T07:17:00.000Z',
+      description: '旧数据',
+      sourceUrl: null,
+      pageUrl: null,
+      pageTitle: null,
+      viewport: null,
+      catalogVersion: null,
+    }
+    expect(parseFeedbackRecord(JSON.stringify(legacy))).toEqual({ ...legacy, status: 'open' })
+  })
+
+  it('keeps an explicit resolved status when reading KV JSON', () => {
+    const record = buildFeedbackRecord(acceptance(validBody()), {
+      id: 'abc',
+      now: new Date('2026-11-04T07:17:00.000Z'),
+    })
+    const resolved = { ...record, status: 'resolved' as const }
+    expect(parseFeedbackRecord(JSON.stringify(resolved))?.status).toBe('resolved')
+    expect(FEEDBACK_STATUS_LABEL.resolved).toBe('已解决')
+  })
+
+  it('normalises unknown status values to open', () => {
+    expect(normalizeFeedbackStatus('resolved')).toBe('resolved')
+    expect(normalizeFeedbackStatus('open')).toBe('open')
+    expect(normalizeFeedbackStatus('done')).toBe('open')
+    expect(normalizeFeedbackStatus(undefined)).toBe('open')
+    expect(isFeedbackStatus('resolved')).toBe(true)
+    expect(isFeedbackStatus('nope')).toBe(false)
   })
 })

@@ -5,7 +5,7 @@ import {
   parseFeedbackRecord,
   type FeedbackRecord,
 } from '../../../shared/feedback.ts'
-import { feedbackStoreOf, feedbackTokenOf, sameSecret, type FeedbackKv } from '../../utils/feedback.ts'
+import { assertFeedbackToken, feedbackStoreOf, type FeedbackKv } from '../../utils/feedback.ts'
 
 /** Keys read per request; KV lists at most 1000 keys, so the inbox stays one round trip. */
 const MAX_KEYS = 1000
@@ -31,20 +31,9 @@ const readRecord = async (store: FeedbackKv, key: string): Promise<FeedbackRecor
  * Returns the newest submissions first and is never public; without a matching token it is 401.
  */
 const listFeedback = async (event: H3Event): Promise<{ count: number; items: FeedbackRecord[] }> => {
-  const expected = feedbackTokenOf(event)
-  if (expected === '') {
-    throw createError({
-      statusCode: 503,
-      statusMessage: 'Feedback token missing',
-      message: '反馈收件箱还没有配置 FEEDBACK_TOKEN',
-    })
-  }
-
   const query = getQuery(event)
   const supplied = typeof query.token === 'string' ? query.token : ''
-  if (!sameSecret(supplied, expected)) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'token 不正确' })
-  }
+  assertFeedbackToken(event, supplied)
 
   const store = feedbackStoreOf(event)
   if (!store) {

@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import { createError, type H3Event } from 'h3'
 import type { FeedbackRecord } from '../../shared/feedback.ts'
 
 /**
@@ -53,4 +53,19 @@ export const sameSecret = (left: string, right: string): boolean => {
 /** Serialises a record for KV. Kept here so the stored format has one owner. */
 export const serialiseFeedbackRecord = (record: FeedbackRecord): string => {
   return JSON.stringify(record)
+}
+
+/** Requires a matching FEEDBACK_TOKEN query/body secret; throws 401/503 otherwise. */
+export const assertFeedbackToken = (event: H3Event, supplied: string): void => {
+  const expected = feedbackTokenOf(event)
+  if (expected === '') {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Feedback token missing',
+      message: '反馈收件箱还没有配置 FEEDBACK_TOKEN',
+    })
+  }
+  if (!sameSecret(supplied, expected)) {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'token 不正确' })
+  }
 }

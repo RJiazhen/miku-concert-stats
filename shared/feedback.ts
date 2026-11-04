@@ -41,10 +41,20 @@ export type FeedbackPayload = {
   collectedAt: string | null
 }
 
-/** A submission as stored in KV, with the server id and receive time. */
+/** Triage state for a stored submission. Legacy KV rows without this field are treated as open. */
+export type FeedbackStatus = 'open' | 'resolved'
+
+/** Chinese labels shown in the admin inbox. */
+export const FEEDBACK_STATUS_LABEL: Record<FeedbackStatus, string> = {
+  open: '未解决',
+  resolved: '已解决',
+}
+
+/** A submission as stored in KV, with the server id, receive time, and triage status. */
 export type FeedbackRecord = FeedbackPayload & {
   id: string
   receivedAt: string
+  status: FeedbackStatus
 }
 
 /** Result of validating an untrusted request body. `message` is user-facing Chinese. */
@@ -141,13 +151,30 @@ export const parseFeedbackPayload = (raw: unknown): FeedbackValidation => {
   }
 }
 
+
+/** Whether a value is a known feedback status. */
+export const isFeedbackStatus = (value: unknown): value is FeedbackStatus => {
+  return value === 'open' || value === 'resolved'
+}
+
+/** Normalises a stored or requested status; missing or unknown values become open. */
+export const normalizeFeedbackStatus = (value: unknown): FeedbackStatus => {
+  return isFeedbackStatus(value) ? value : 'open'
+}
+
 /**
  * Builds the stored record. A missing or invalid client timestamp falls back to the receive time,
  * so every record always carries both clocks.
  */
 export const buildFeedbackRecord = (payload: FeedbackPayload, meta: FeedbackRecordMeta): FeedbackRecord => {
   const receivedAt = meta.now.toISOString()
-  return { ...payload, id: meta.id, receivedAt, collectedAt: payload.collectedAt ?? receivedAt }
+  return {
+    ...payload,
+    id: meta.id,
+    receivedAt,
+    collectedAt: payload.collectedAt ?? receivedAt,
+    status: 'open',
+  }
 }
 
 /** KV key for a record. ISO timestamps sort lexicographically, so listing stays chronological. */
@@ -185,5 +212,6 @@ export const parseFeedbackRecord = (raw: string): FeedbackRecord | null => {
     pageTitle: text(decoded.pageTitle),
     viewport: text(decoded.viewport),
     catalogVersion: text(decoded.catalogVersion),
+    status: normalizeFeedbackStatus(decoded.status),
   }
 }

@@ -1,0 +1,82 @@
+import { createError, defineEventHandler, readBody, type H3Event } from 'h3'
+import {
+  FEEDBACK_KEY_PREFIX,
+  FEEDBACK_TTL_SECONDS,
+  isFeedbackStatus,
+  parseFeedbackRecord,
+  type FeedbackRecord,
+  type FeedbackStatus,
+} from '../../../shared/feedback.ts'
+import {
+  assertFeedbackToken,
+  feedbackStoreOf,
+  serialiseFeedbackRecord,
+} from '../../utils/feedback.ts'
+
+/** Body for `POST /api/feedback/status`. */
+type StatusBody = {
+  token?: unknown
+  id?: unknown
+  receivedAt?: unknown
+  status?: unknown
+}
+
+/**
+ * Sets the triage status of one stored feedback record.
+ * Auth uses the same FEEDBACK_TOKEN secret as the inbox list.
+ */
+const updateFeedbackStatus = async (
+  event: H3Event,
+): Promise<{ ok: true; item: FeedbackRecord }> => {
+  const body = (await readBody(event)) as StatusBody | null
+  const token = typeof body?.token === 'string' ? body.token : ''
+  assertFeedbackToken(event, token)
+
+  const id = typeof body?.id === 'string' ? body.id.trim() : ''
+  const receivedAt = typeof body?.receivedAt === 'string' ? body.receivedAt.trim() : ''
+  if (id === '' || receivedAt === '') {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid feedback', message: '缺少反馈 id 或时间' })
+  }
+  if (!isFeedbackStatus(body?.status)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid feedback',
+      message: '状态只能是 open 或 resolved',
+    })
+  }
+  const nextStatus: FeedbackStatus = body.status
+
+  const store = feedbackStoreOf(event)
+  if (!store) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Feedback unavailable',
+      message: '反馈服务暂不可用，请稍后再试。',
+    })
+  }
+
+  const key = `${FEEDBACK_KEY_PREFIX}${receivedAt}:${id}`
+  const raw = await store.get(key, { type: 'text' })
+  if (typeof raw !== 'string') {
+    throw createError({ statusCode: 404, statusMessage: 'Not found', message: '找不到这条反馈' })
+  }
+  const record = parseFeedbackRecord(raw)
+  if (record === null) {
+    throw createError({ statusCode: 404, statusMessage: 'Not found', message: '找不到这条反馈' })
+  }
+
+  const updated: FeedbackRecord = { ...record, status: nextStatus }
+  try {
+    await store.put(key, serialiseFeedbackRecord(updated), { expirationTtl: FEEDBACK_TTL_SECONDS })
+  } catch {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Feedback storage failed',
+      message: '反馈状态保存失败，请稍后再试。',
+    })
+  }
+
+  return { ok: true, item: updated }
+}
+
+export default defineEventHandler(updateFeedbackStatus)
