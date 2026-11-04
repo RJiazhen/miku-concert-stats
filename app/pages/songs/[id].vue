@@ -5,11 +5,11 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import { formatCharacters, songCharacters } from '~/composables/useCharacters.ts'
+import { songCharacters, type SongCredits } from '~/composables/useCharacters.ts'
+import { displayArtistString, producerCredit } from '~~/shared/credit.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
-import { variantVersionNote } from '~~/shared/song-variants.ts'
-import { shortPerformanceName } from '~~/shared/performance-name.ts'
+import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
@@ -27,7 +27,7 @@ const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const { songById } = useSongLookup()
 const { localizePlace } = usePlaceNames()
-const { localizeSeries } = useSeriesTitles()
+const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { language, translationFor } = useSongLanguage()
 
 /** Starts the browser catalog load after hydration. */
@@ -79,18 +79,36 @@ const variantIds = computed(() => variants.variantSongIdsOf(canonicalId.value))
 /** Every song id in the group, canonical first. */
 const groupIds = computed(() => variants.groupSongIds(canonicalId.value))
 
-/** Variant entries with their names. */
-const variantRows = computed(() =>
-  variantIds.value.map((id) => {
+/** 演出角色 text for a credit line; `未记录` reads better than the table's em dash. */
+const charactersText = (credits: SongCredits | null): string => {
+  const names = songCharacters(credits)
+  return names.length === 0 ? '未记录' : names.join('、')
+}
+
+/** Variant entries with the facts the 其他版本 card needs to describe each merged song. */
+const variantRows = computed(() => {
+  const canonicalCharacters = songCharacters(song.value ?? null)
+  return variantIds.value.map((id) => {
     const entry = variants.entries.get(id)
+    const variantSong = songById(id)
+    const artistString = variantSong?.artist_string ?? null
+    // A variant without its own cast is sung by the same characters as the original.
+    const ownCharacters = songCharacters(variantSong ?? null)
+    const characters = ownCharacters.length > 0 ? ownCharacters : canonicalCharacters
+    const producer = producerCredit(artistString)
+    const meta: string[] = []
+    if (producer !== null) meta.push(`制作人 ${producer}`)
+    if (characters.length > 0) meta.push(`演出角色 ${characters.join('、')}`)
     return {
       id,
-      name: songById(id)?.name ?? String(id),
-      kind: entry?.kind ?? '',
-      note: entry?.note ?? '',
+      name: variantSong?.name ?? String(id),
+      /** Chinese kind label; the raw `kind` token stays in the lookup file. */
+      kindLabel: entry ? variantKindLabels[entry.kind] : '其他版本',
+      /** 制作人 and 演出角色 of the variant; an empty string hides the line. */
+      meta: meta.join(' · '),
     }
-  }),
-)
+  })
+})
 
 /** Performances that played any version of this song. */
 const appearances = computed(() => {
@@ -131,7 +149,7 @@ const appearances = computed(() => {
       const variantSong = songById(link.song_id)
       const versionName = variantSong?.name ?? String(link.song_id)
       // A cover is sung by the variant's own cast, not the canonical song's.
-      const performers = entry?.kind === 'cover' ? songCharacters(variantSong?.artist_string ?? null) : []
+      const performers = entry?.kind === 'cover' ? songCharacters(variantSong ?? null) : []
       // The canonical version is the page's default, so only variants need a note.
       const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind, performers) : ''
       const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, line?.reasons ?? [])
@@ -143,7 +161,7 @@ const appearances = computed(() => {
         seriesLabel: localizeSeries(seriesName),
         seriesNumber: performance.series_number,
         performanceId: performance.id,
-        performanceName: localizePlace(shortPerformanceName(performance.name, seriesName, performance.series_number)),
+        performanceName: localizePlace(localizePerformanceSeries(performance.name, seriesName, performance.series_number)),
         date: performance.start_date,
         role: performance.role,
         noteText: noteParts.map((part) => part.text).join('；'),
@@ -214,8 +232,16 @@ const viewsText = (count: number | null): string => (count === null ? '无快照
 
 const hasSnapshots = computed(() => (catalog.value?.snapshots.length ?? 0) > 0)
 
-/** 演出角色 for the canonical song. */
-const characters = computed(() => (song.value ? formatCharacters(song.value.artist_string) : '—'))
+/** 演出角色 for the canonical song, shown in the header rather than the merged card. */
+const characters = computed(() => charactersText(song.value ?? null))
+
+/** Muted facts under the title: 投稿日期 and 演出角色 of the canonical song. */
+const headerFacts = computed(() => {
+  const facts: string[] = []
+  if (song.value?.publish_date) facts.push(`投稿日期 ${song.value.publish_date}`)
+  facts.push(`演出角色 ${characters.value}`)
+  return facts.join(' · ')
+})
 </script>
 
 <template>
@@ -243,31 +269,26 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
         </h1>
         <div class="flex flex-wrap items-center gap-2 text-xs">
           <UBadge color="primary" variant="subtle">{{ song.song_type }}</UBadge>
-          <UBadge v-if="variantIds.length > 0" color="secondary" variant="subtle">含 {{ variantIds.length }} 个版本</UBadge>
-          <span class="text-muted">{{ song.artist_string ?? '艺人未记录' }}</span>
+          <UBadge v-if="variantIds.length > 0" color="secondary" variant="subtle">共 {{ groupIds.length }} 个版本</UBadge>
+          <span class="text-muted">{{ displayArtistString(song.artist_string) ?? '未记录' }}</span>
           <ULink :to="song.source_url" target="_blank" class="text-primary">VocaDB</ULink>
         </div>
-        <p class="text-sm text-muted" v-if="song.publish_date">投稿日期 {{ song.publish_date }}</p>
+        <p class="text-sm text-muted">{{ headerFacts }}</p>
       </header>
 
-      <UCard>
+      <UCard v-if="variantRows.length > 0">
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">合并的版本</h2>
+          <h2 class="text-base font-semibold text-highlighted">其他版本</h2>
         </template>
-        <p v-if="variantRows.length === 0" class="text-sm text-muted">这首歌没有合并其他版本。</p>
-        <ul v-else class="space-y-2 text-sm">
-          <li v-for="row in variantRows" :key="row.id" class="flex flex-wrap items-baseline gap-2">
-            <UBadge color="secondary" variant="subtle" size="sm">{{ row.kind }}</UBadge>
-            <ULink :to="`https://vocadb.net/S/${row.id}`" target="_blank" class="text-highlighted">{{ row.name }}</ULink>
-            <span v-if="row.note" class="text-xs text-muted">{{ row.note }}</span>
+        <ul class="space-y-3 text-sm">
+          <li v-for="row in variantRows" :key="row.id" class="space-y-1">
+            <div class="flex flex-wrap items-baseline gap-2">
+              <UBadge color="secondary" variant="subtle" size="sm">{{ row.kindLabel }}</UBadge>
+              <ULink :to="`https://vocadb.net/S/${row.id}`" target="_blank" class="text-highlighted">{{ row.name }}</ULink>
+            </div>
+            <p v-if="row.meta" class="text-xs text-muted">{{ row.meta }}</p>
           </li>
         </ul>
-        <p class="mt-3 text-xs text-muted">
-          合并清单见
-          <ULink to="https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-variants.json" target="_blank" class="text-primary">
-            data/song-variants.json
-          </ULink>。演出角色：{{ characters }}
-        </p>
       </UCard>
 
       <UCard>
@@ -313,7 +334,6 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
                   >
                     {{ row.seriesLabel }}
                   </NuxtLink>
-                  <template v-if="row.seriesNumber !== null"> {{ row.seriesNumber }}</template>
                 </td>
                 <td class="px-2 py-1.5">
                   <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.performanceName || '—' }}</NuxtLink>

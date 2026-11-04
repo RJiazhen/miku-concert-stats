@@ -2,9 +2,12 @@
 import { computed, h, onMounted, ref, resolveComponent, watch } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
-import { songCharacters } from '~/composables/useCharacters.ts'
+import { songCharacters, characterColor } from '~/composables/useCharacters.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { useSongLanguage } from '~/composables/useSongLanguage.ts'
+import { splitCharacterChips } from '~~/shared/character-chips.ts'
+import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import { producerCredit } from '~~/shared/credit.ts'
@@ -22,6 +25,13 @@ const UButton = resolveComponent('UButton')
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const { localizeSeries } = useSeriesTitles()
+const { language, translationFor } = useSongLanguage()
+
+/** Width the character column may occupy; three chips plus the `+N` button fit inside the `p-4` padding. */
+const CHARACTERS_WIDTH = 276
+
+/** Width the song title may occupy before it is truncated. */
+const NAME_WIDTH = 288
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -57,21 +67,28 @@ type RankedSong = {
   songId: number
   rank: number
   name: string
-  /** Producer credit, without the featured vocalists already shown in 演出角色; also the tooltip text. */
+  /** Producer credit, without the singers already shown in 歌手; also the tooltip text. */
   artists: string
-  /** Display text for 演出角色. */
-  characters: string
-  /** Base character names behind `characters`, used by the character filter and its option list. */
+  /** Base character names shown in 歌手 and used by the character filter. */
   characterList: string[]
   count: number
-  seriesCount: number
+  /** Distinct 演出 the song appeared in, independent of the counting mode. */
+  performanceCount: number
   firstYear: number | null
   lastYear: number | null
   approximate: boolean
   /** Rotation notes for the ≈ badge tooltip, already localized. */
   reasons: string[]
   variantSongIds: number[]
+  /** Canonical song plus every merged variant, so the badge counts all versions. */
+  versionCount: number
   variantNames: string
+  /** Full title in the active language, shown in the tooltip when the cell truncates. */
+  titleText: string
+  /** Character chips shown inline; the rest sit behind the counter button. */
+  characterChips: string[]
+  /** Characters the counter button reveals on hover. */
+  hiddenCharacterChips: string[]
 }
 
 /** Ranking rows enriched with the display text and character list the table needs. */
@@ -91,26 +108,31 @@ const ranked = computed<RankedSong[]>(() => {
     const groupIds = [row.songId, ...row.variantSongIds]
     const groupSongs = groupIds.map((id) => byId.get(id)).filter((song) => song !== undefined)
     const characters = new Set<string>()
-    for (const song of groupSongs) for (const name of songCharacters(song.artist_string)) characters.add(name)
+    for (const song of groupSongs) for (const name of songCharacters(song)) characters.add(name)
     const characterList = [...characters]
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
+    const title = formatSongTitle(row.name, translationFor(row.songId), language.value)
+    const chipSplit = splitCharacterChips(characterList)
     return {
       songId: row.songId,
       rank: index + 1,
       name: row.name,
       artists: producerCredit(row.artists) ?? '—',
-      characters: characterList.length === 0 ? '—' : characterList.join('、'),
       characterList,
       count: row.count,
-      seriesCount: row.seriesCount,
+      performanceCount: row.performanceCount,
       firstYear: row.firstYear,
       lastYear: row.lastYear,
       approximate: row.approximate,
       reasons: row.reasons.map(formatRotationReason),
       variantSongIds: row.variantSongIds,
+      versionCount: row.variantSongIds.length + 1,
       variantNames,
+      titleText: title.originalNote === null ? title.primary : `${title.primary}（${title.originalNote}）`,
+      characterChips: chipSplit.visible,
+      hiddenCharacterChips: chipSplit.hidden,
     }
   })
 })
@@ -136,14 +158,30 @@ const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: 
 
 const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
-  { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true },
-  { accessorKey: 'artists', header: '艺人', enableSorting: true, meta: { class: { td: 'max-w-40' } } },
-  { accessorKey: 'characters', header: sortableHeader('演出角色'), enableSorting: true },
+  { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true, meta: { class: { td: 'max-w-[288px]' } } },
+  { accessorKey: 'artists', header: '制作人', enableSorting: true, meta: { class: { td: 'max-w-40' } } },
+  { id: 'characters', accessorFn: (row) => row.characterList.join('、'), header: sortableHeader('歌手'), enableSorting: true, meta: { class: { td: 'max-w-[276px]' } } },
   { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? '场次数' : '演出数'), enableSorting: true },
-  { accessorKey: 'seriesCount', header: sortableHeader('系列数'), enableSorting: true },
+  // 按演出统计时 count 已经是演出数，不再重复一列。
+  ...(mode.value === 'show'
+    ? [{ accessorKey: 'performanceCount', header: sortableHeader('演出数'), enableSorting: true }]
+    : []),
   { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
 ])
+
+/**
+ * Inline style of one character chip: its image colour as the border, with a faint tint of
+ * the same colour behind the name so light and dark themes both keep the text readable.
+ */
+const chipStyle = (name: string): Record<string, string> => {
+  const color = characterColor(name)
+  if (color === null) return {}
+  return {
+    borderColor: color,
+    backgroundColor: `${color}1f`,
+  }
+}
 
 /** Blank marker for a missing value. */
 const cell = (value: string | number | null): string => (value === null || value === '' ? '—' : String(value))
@@ -378,7 +416,7 @@ const yearToItems = computed(() =>
           排行
           <span class="ml-1 text-sm font-normal text-muted">{{ filtered.length }} 首</span>
         </h2>
-        <p class="text-xs text-muted">「含 N 个版本」表示 remix、声库或翻唱版本已并入该行</p>
+        <p class="text-xs text-muted">「含 N 个版本」表示原版与并入的 remix、声库或翻唱版本共 N 个</p>
       </div>
 
       <UTable
@@ -394,19 +432,24 @@ const yearToItems = computed(() =>
           <span class="font-mono text-muted">{{ row.original.rank }}</span>
         </template>
         <template #name-cell="{ row }">
-          <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <NuxtLink :to="`/songs/${row.original.songId}`" class="text-highlighted no-underline hover:text-primary">
-              <SongTitle :song-id="row.original.songId" :original="row.original.name" />
-            </NuxtLink>
+          <div class="flex flex-nowrap items-center gap-x-2 overflow-hidden" :style="{ maxWidth: `${NAME_WIDTH}px` }">
+            <UTooltip :text="row.original.titleText" :content="{ side: 'top' }">
+              <NuxtLink
+                :to="`/songs/${row.original.songId}`"
+                class="min-w-0 truncate text-highlighted no-underline hover:text-primary"
+              >
+                <SongTitle :song-id="row.original.songId" :original="row.original.name" truncate />
+              </NuxtLink>
+            </UTooltip>
             <UTooltip v-if="row.original.variantSongIds.length > 0" :text="`并入：${row.original.variantNames}`">
-              <UBadge color="secondary" variant="subtle" size="sm">
-                含 {{ row.original.variantSongIds.length }} 个版本
+              <UBadge color="secondary" variant="subtle" size="sm" class="shrink-0">
+                含 {{ row.original.versionCount }} 个版本
               </UBadge>
             </UTooltip>
             <ULink
               :to="`https://vocadb.net/S/${row.original.songId}`"
               target="_blank"
-              class="text-dimmed hover:text-primary"
+              class="shrink-0 text-dimmed hover:text-primary"
               aria-label="在 VocaDB 查看"
             >
               <UIcon name="i-lucide-external-link" class="size-3.5" />
@@ -419,7 +462,44 @@ const yearToItems = computed(() =>
           </UTooltip>
         </template>
         <template #characters-cell="{ row }">
-          <span class="text-muted">{{ row.original.characters }}</span>
+          <div
+            v-if="row.original.characterList.length > 0"
+            class="flex w-full flex-nowrap items-center gap-1 overflow-hidden"
+          >
+            <span
+              v-for="name in row.original.characterChips"
+              :key="name"
+              class="shrink-0 rounded border px-1.5 py-0.5 text-xs"
+              :style="chipStyle(name)"
+            >
+              {{ name }}
+            </span>
+            <UTooltip
+              v-if="row.original.hiddenCharacterChips.length > 0"
+              :content="{ side: 'top' }"
+            >
+              <UButton
+                color="neutral"
+                variant="subtle"
+                size="xs"
+                class="shrink-0 rounded border px-1.5 py-0.5 text-xs font-normal"
+                :label="`+${row.original.hiddenCharacterChips.length}`"
+              />
+              <template #content>
+                <div class="flex max-w-60 flex-wrap items-center gap-1">
+                  <span
+                    v-for="name in row.original.hiddenCharacterChips"
+                    :key="name"
+                    class="rounded border px-1.5 py-0.5 text-xs"
+                    :style="chipStyle(name)"
+                  >
+                    {{ name }}
+                  </span>
+                </div>
+              </template>
+            </UTooltip>
+          </div>
+          <span v-else class="text-muted">—</span>
         </template>
         <template #count-cell="{ row }">
           <UBadge
@@ -430,8 +510,8 @@ const yearToItems = computed(() =>
             {{ row.original.approximate ? `≈ ${row.original.count}` : row.original.count }}
           </UBadge>
         </template>
-        <template #seriesCount-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ row.original.seriesCount }}</span>
+        <template #performanceCount-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ row.original.performanceCount }}</span>
         </template>
         <template #firstYear-cell="{ row }">
           <span class="tabular-nums text-muted">{{ cell(row.original.firstYear) }}</span>

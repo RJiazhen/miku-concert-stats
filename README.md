@@ -13,7 +13,7 @@
 | `/` | 曲目排行：按场次（默认）或按演出计数，支持系列、年份、角色、关键词筛选，筛选条件写入 URL |
 | `/raw` | 原始数据：跨演出歌单对照、逐张数据表、质量报告，每行附 VocaDB / 平台来源链接 |
 | `/report` | 歌单差异核验：同一系列年度不同演出的曲目数量与正片/安可段差异，按严重程度分级 |
-| `/songs/{id}` | 单曲详情：合并的版本、出场记录、各平台投稿 |
+| `/songs/{id}` | 单曲详情：其他版本、出场记录、各平台投稿 |
 | `/shows/{id}` | 一个演出的场次列表、歌单与轮换解析结果 |
 | `/series` | 系列与演出总览：全部系列的关键数字，以及可按系列筛选的全部演出表 |
 | `/series/{id}` | 系列主页：该系列的全部演出，链到各自演出页 |
@@ -41,7 +41,7 @@ niconico 与哔哩哔哩只保存 VocaDB 上的投稿链接。不调用 niconico
 | `data/setlist-merges.json` | 同一系列年度不同演出的歌单并排对照（例如 2019 マジカルミライ 东京与大阪） |
 | `data/song-titles.zh-CN.json` | 歌曲中文名，页眉开关控制是否显示 |
 | `data/place-names.zh-CN.json` | 演出名里的地点中文名，跟随页眉同一个开关切换 |
-| `data/characters.json` | 声库名到角色的映射，用于「演出角色」 |
+| `data/characters.json` | 声库名到角色的映射与应援色，用于「歌手」列 |
 
 两个清单都只收录人工核对过的条目，格式与校验规则见 [docs/architecture.md](docs/architecture.md)。
 
@@ -56,7 +56,7 @@ pnpm dev
 
 Node 22 或更高（Nuxt 4 与 Nuxt UI 4 要求 ≥ 22.12）。
 
-`pnpm collect` 会按至少 300 毫秒的间隔请求 VocaDB，并把原始响应缓存在 `data/cache/`（不提交）。增量 SQL 写到 `data/increments/`。
+`pnpm collect` 会按至少 300 毫秒的间隔请求 VocaDB，并把原始响应缓存在 `data/cache/`（不提交）。增量 SQL 写到 `data/increments/`。`pnpm collect:vocalists` 单独重写 `0006-song-vocalists.sql`（每首歌的出演声库名单），新增或改动的歌曲要重跑一次再 `pnpm build:catalog`。
 
 YouTube 快照：
 

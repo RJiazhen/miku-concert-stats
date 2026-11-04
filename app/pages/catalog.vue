@@ -71,7 +71,7 @@ const songName = (songId: number): string => {
 /** 演出角色 for a catalog song, or an em dash when none matched. */
 const songCharactersText = (songId: number): string => {
   const song = catalog.value ? songById(catalog.value, songId) : undefined
-  return formatCharacters(song?.artist_string ?? null)
+  return formatCharacters(song ?? null)
 }
 
 /** View count text. Missing snapshots stay blank rather than zero. */
@@ -128,7 +128,7 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
           <thead class="text-left text-xs tracking-wide text-muted uppercase">
             <tr>
               <th class="px-2 py-1.5 font-medium">歌曲</th>
-              <th class="px-2 py-1.5 font-medium">演出角色</th>
+              <th class="px-2 py-1.5 font-medium">歌手</th>
               <th class="px-2 py-1.5 font-medium">区间</th>
               <th class="px-2 py-1.5 font-medium">播放量</th>
               <th class="px-2 py-1.5 font-medium">投稿</th>

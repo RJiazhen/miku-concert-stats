@@ -10,6 +10,8 @@ export type ArtistCredit = {
 export type CharacterRule = {
   name: string
   patterns: RegExp[]
+  /** Image (応援) colour as `#rrggbb`, or null when the config does not list one. */
+  color: string | null
 }
 
 /** Matched base names, in config order, and vocalist tokens that matched nothing. */
@@ -18,8 +20,10 @@ export type CharacterAssignment = {
   unmatched: string[]
 }
 
-/** Credits used to name the characters on one song. Structured vocalists win when present. */
+/** Credits used to name the characters on one song. Collected credits win in the order they are available. */
 export type CharacterSource = {
+  /** Already-resolved vocalist names, e.g. `SongRow.vocalists`. */
+  vocalists?: readonly string[] | null
   artistString?: string | null
   artists?: readonly ArtistCredit[] | null
 }
@@ -32,7 +36,8 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
 /**
  * Compiles `data/characters.json`.
  * Each key is the display name. `patterns` are regular expressions, and each alias matches that text or the same text plus a voicebank suffix.
- * Throws when an entry has no rules or a pattern does not compile.
+ * `color` is optional; when present it must be `#rrggbb` and is used for the character chips.
+ * Throws when an entry has no rules, a pattern does not compile, or a colour is malformed.
  */
 export const parseCharacterConfig = (value: unknown): CharacterRule[] => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Character config must be an object')
@@ -40,7 +45,7 @@ export const parseCharacterConfig = (value: unknown): CharacterRule[] => {
   for (const [name, entry] of Object.entries(value)) {
     if (!name.trim()) throw new Error('Character name is empty')
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw new Error(`Character ${name} is not an object`)
-    const record = entry as { patterns?: unknown; aliases?: unknown }
+    const record = entry as { patterns?: unknown; aliases?: unknown; color?: unknown }
     const sources: { source: string; flags: string }[] = []
     if (record.patterns !== undefined) {
       if (!Array.isArray(record.patterns)) throw new Error(`Character ${name} patterns must be an array`)
@@ -65,7 +70,10 @@ export const parseCharacterConfig = (value: unknown): CharacterRule[] => {
         throw new Error(`Character ${name} pattern failed: ${message}`)
       }
     })
-    rules.push({ name, patterns })
+    if (record.color !== undefined && (typeof record.color !== 'string' || !/^#[0-9a-f]{6}$/i.test(record.color))) {
+      throw new Error(`Character ${name} color must be #rrggbb`)
+    }
+    rules.push({ name, patterns, color: typeof record.color === 'string' ? record.color.toLowerCase() : null })
   }
   return rules
 }
@@ -103,10 +111,12 @@ export const vocalistsAfterFeat = (artistString: string | null | undefined): str
 
 /**
  * Maps one song's vocalists onto base character names.
- * Structured Vocalist credits replace the `feat.` fallback. Unmatched tokens are returned as written.
+ * Collected vocalist names replace the `feat.` fallback, which in turn follows structured credits.
+ * Unmatched tokens are returned as written.
  */
 export const assignCharacters = (rules: readonly CharacterRule[], source: CharacterSource): CharacterAssignment => {
-  const tokens = vocalistNames(source.artists) ?? vocalistsAfterFeat(source.artistString)
+  const collected = source.vocalists?.filter((name) => name.trim() !== '') ?? []
+  const tokens = collected.length > 0 ? collected : vocalistNames(source.artists) ?? vocalistsAfterFeat(source.artistString)
   const matched = new Set<string>()
   const unmatched: string[] = []
   for (const token of tokens) {

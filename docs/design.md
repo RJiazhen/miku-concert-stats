@@ -168,7 +168,7 @@ flowchart LR
 - `includeBroadcast` 为 false 时排除 `role = broadcast`，以及名称、日文名或 `series_suffix` 命中 livestream、online、オンライン、VR、ＶＲ、配信的演出。演出简介没有单独落在 `performances` 上；`performance_links.description` 多是外链标题（例如现场场次的 “Online Live Information”），不参与排除。
 - `includeMedleyComponents` 为 false 时只计 `setlist_item_songs.role = listed`（直接列出的曲目）。`component` 仅在为 true 时计入。未能拆分的串烧不写入 `setlist_item_songs`，两种模式都不计。
 
-每行输出歌曲 id、名称（`songs.name`）、艺人字符串、次数、出现过的系列数、最早年份、最晚年份。次数为 0 的歌曲不输出。默认按次数降序、歌曲 id 升序。
+每行输出歌曲 id、名称（`songs.name`）、制作人署名、次数、出现过的演出数、最早年份、最晚年份。次数为 0 的歌曲不输出。默认按次数降序、歌曲 id 升序。`seriesCount` 仍保留在返回值里但不再展示；表格的「演出数」用 `performanceCount`（去重后的演出行数，两种统计模式都一样）。
 
 首页改为这张可排序的表，并提供模式、系列多选、年份、配信/VR、串烧组成的控件。覆盖说明写明：默认按场次统计，按演出时每个城市站各算一次。原来的单场播放量页移到 `/catalog`。顶栏增加两个入口。
 
@@ -202,15 +202,17 @@ flowchart LR
 
 `title` 非空。`source` 为字面量 `vocadb-alias`（来自缓存的 VocaDB `names[]` 中文别名），或一条能核对的 URL / 简短出处说明。`comment` 可省略。`shared/song-titles.ts` 校验并按 id 取出。测试要求每个 id 都在已提交目录里。
 
-顶栏用「中文歌名」开关（`USwitch`）控制是否显示中文，记在 `localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`）。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，先显示译文，原文用灰色括号跟在后面；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
+顶栏用「中文歌名」开关（`USwitch`）控制是否显示中文，记在 `localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`）。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，译文作主标题，原文用灰色小字换行显示在译文下方；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
 
 ## 演出角色
 
-`data/characters.json` 把固定的角色本名映射到匹配规则，用来合并声库变体。键是显示名，例如 `初音ミク`。值含 `patterns`（锚定在名称开头的正则）和可选 `aliases`（整段或作为前缀的别名，如英语名）。`初音ミク Append (Unknown)`、`初音ミク V4X (Original)`、`初音ミク V4X (Dark)` 都落到 `初音ミク`。对不上任何规则的名字保持未匹配，不猜测。
+`data/characters.json` 把固定的角色本名映射到匹配规则，用来合并声库变体。键是显示名，例如 `初音ミク`。值含 `patterns`（锚定在名称开头的正则）、可选 `aliases`（整段或作为前缀的别名，如英语名）与可选 `color`（应援色的 `#rrggbb`，渲染歌手标签时用作边框色，并以 12% 透明度作底色）。`初音ミク Append (Unknown)`、`初音ミク V4X (Original)`、`初音ミク V4X (Dark)` 都落到 `初音ミク`。对不上任何规则的名字保持未匹配，不猜测；没有 `color` 的角色标签不带颜色。
 
-一首歌的演唱者优先取缓存里该歌曲对象的 `artists`：`categories` 或 `roles` 含 `Vocalist` 的条目，名字用条目的 `name`，否则用嵌套 `artist.name`。当前已缓存的歌曲响应是用 `fields=Names,PVs,WebLinks` 拉的，没有 `artists` 数组。没有可用的结构化演唱者时，退回 `songs.artist_string` 里第一次出现的 `feat.` 之后的名单，按逗号拆开。`feat.` 前面的制作人不算角色。
+一首歌的演唱者优先取 `song_vocalists` 表：`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）对每首歌请求 VocaDB 的 `fields=Artists`，只保留 `categories` 或 `roles` 含 `Vocalist` 的条目，名字用条目的 `name`，否则用嵌套 `artist.name`，写成 `data/increments/0006-song-vocalists.sql`。`artist_string` 会把大编制合唱压成 `feat. various`（例如 Hand in Hand 的现场翻唱实际由 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン 演唱），所以这份名单才是「演出角色」的来源。库里没有该歌的名单时，退回 `songs.artist_string` 里第一次出现的 `feat.` 之后的名单，按逗号拆开；`feat.` 前面的制作人不算角色。
 
-结果在读取目录时推导，不另写 SQL 列。排行、演出、系列年度索引和播放量页的歌曲行显示「演出角色」。排行可按一个角色筛选。
+结果在读取目录时推导，不另写 SQL 列。排行、演出、系列年度索引和播放量页的歌曲行显示「歌手」。排行可按一个角色筛选。
+
+`shared/credit.ts` 负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都会丢掉 VocaDB 的名字占位（`Unknown producer(s)`、`Unknown artist` 等，不指向任何作者），只由占位组成的署名返回 `null`，页面显示「未记录」。页头、单曲页的「其他版本」卡片、站内搜索结果与表格的「制作人」列都走这两个函数。
 
 ## 实现步骤
 
@@ -221,7 +223,7 @@ flowchart LR
 
 ## 版本合并
 
-`data/song-variants.json` 是人工核对的清单，只收录确认属于同一首歌的 remix、remaster、声库、翻唱与语言版本。`shared/song-variants.ts` 拒绝链式映射与自指。统计函数接受 `SongVariantIndex`：计数时先归一到 canonical id 再按演出或场次去重，代表投稿在合并组内选，排行行带上 `variantSongIds` 供页面标注「含 N 个版本」。清单之外的重复条目不会被自动合并，`/raw` 的「疑似重复但未合并」会持续列出候选。
+`data/song-variants.json` 是人工核对的清单，只收录确认属于同一首歌的 remix、remaster、声库、翻唱与语言版本。`shared/song-variants.ts` 拒绝链式映射与自指。统计函数接受 `SongVariantIndex`：计数时先归一到 canonical id 再按演出或场次去重，代表投稿在合并组内选，排行行带上 `variantSongIds`，页面标注「含 N 个版本」时 N 含原版（`variantSongIds.length + 1`）。单曲页的「其他版本」卡片只列并入的其他版本（没有并入版本时整块不渲染）：类型、制作人与歌手。制作人取署名 `feat.` 之前的部分，并去掉 VocaDB 的 `Unknown producer(s)` 占位（它不指向任何作者）；歌手取 `song_vocalists` 里该变体自己的名单，没有时退回 `feat.` 名单，仍解析不到才改用原版的角色。原版的投稿日期与演出角色留在页头。清单之外的重复条目不会被自动合并，`/raw` 的「疑似重复但未合并」会持续列出候选。
 
 ## 歌单槽位与跨地区合并
 
@@ -239,4 +241,4 @@ Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目�
 
 ## 页眉搜索
 
-搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。目录里没有命中时才请求 `/api/lookup`，远程结果只给 VocaDB 链接。排行表的艺人列只显示 `feat.` 之前的制作人，宽度受限，悬停看完整署名；出演角色由单独的列负责。
+搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。目录里没有命中时才请求 `/api/lookup`，远程结果只给 VocaDB 链接。排行表的「制作人」列只显示 `feat.` 之前的制作人，宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。

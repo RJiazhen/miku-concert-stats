@@ -84,6 +84,14 @@ CREATE TABLE songs (
   retrieved_at TEXT NOT NULL
 );
 
+-- Vocalists credited on a song, from VocaDB's structured artists list.
+-- artist_string collapses a large cast into `feat. various`, so the cast is stored per name.
+CREATE TABLE song_vocalists (
+  song_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  PRIMARY KEY (song_id, name)
+);
+
 CREATE TABLE setlist_items (
   song_list_id INTEGER NOT NULL,
   position INTEGER NOT NULL,

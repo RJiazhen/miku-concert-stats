@@ -39,6 +39,17 @@ describe('character names', () => {
     }).characters).toEqual(['KAITO'])
   })
 
+  it('prefers collected vocalists over both credit sources', () => {
+    expect(assignCharacters(rules, {
+      vocalists: ['KAITO', 'MEIKO', '初音ミク', '巡音ルカ', '鏡音リン', '鏡音レン'],
+      artistString: 'kz, Unknown producer(s) feat. various',
+    }).characters).toEqual(['初音ミク', '鏡音リン', '鏡音レン', '巡音ルカ', 'MEIKO', 'KAITO'])
+    expect(assignCharacters(rules, {
+      vocalists: [],
+      artistString: 'halyosy feat. various',
+    }).unmatched).toEqual(['various'])
+  })
+
   it('rejects a config entry that cannot match anything', () => {
     expect(() => parseCharacterConfig({ 初音ミク: {} })).toThrow(/no patterns/)
     expect(() => parseCharacterConfig({ 初音ミク: { patterns: ['['] } })).toThrow(/pattern failed/)

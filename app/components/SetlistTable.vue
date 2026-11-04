@@ -65,7 +65,7 @@ const charactersOf = (row: SetlistDisplayRow): string => {
   for (const songId of songIdsOf(row)) {
     const song = songById(songId)
     if (song === null) continue
-    const text = formatCharacters(song.artist_string)
+    const text = formatCharacters(song)
     if (text !== '—') for (const name of text.split('、')) names.add(name)
   }
   return names.size === 0 ? '—' : [...names].join('、')
@@ -100,7 +100,7 @@ const notePartsOf = (row: SetlistDisplayRow): NotePart[] => {
         <tr>
           <th class="w-14 px-3 py-2 font-medium">序号</th>
           <th class="px-3 py-2 font-medium">歌曲</th>
-          <th class="px-3 py-2 font-medium">演出角色</th>
+          <th class="px-3 py-2 font-medium">歌手</th>
           <th class="px-3 py-2 font-medium">{{ currentPerformanceId === null || currentPerformanceId === undefined ? '演出' : '场次' }}</th>
           <th class="px-3 py-2 font-medium">数据说明</th>
         </tr>

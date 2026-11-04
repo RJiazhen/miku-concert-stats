@@ -11,6 +11,14 @@ export type ApiWebLink = {
   disabled?: boolean
 }
 
+/** One artist credit on a song. */
+export type ApiArtist = {
+  name?: string
+  categories?: string
+  roles?: string
+  artist?: { name?: string }
+}
+
 /** PV object from the public API. */
 export type ApiPv = {
   id: number
@@ -35,6 +43,8 @@ export type ApiSong = {
   lengthSeconds?: number
   /** Song this entry is a version of, which may itself be another version. */
   originalVersionId?: number
+  /** Structured credits; `categories` / `roles` carry `Vocalist` for singers. */
+  artists?: ApiArtist[]
   pvs?: ApiPv[]
   webLinks?: ApiWebLink[]
 }

@@ -302,6 +302,8 @@ export type SongRanking = {
   artists: string | null
   count: number
   seriesCount: number
+  /** Distinct 演出 the song appeared in, regardless of the counting mode. */
+  performanceCount: number
   firstYear: number | null
   lastYear: number | null
   approximate: boolean
@@ -360,6 +362,8 @@ const performanceIncluded = (
 type RankingBucket = {
   keys: Set<string>
   seriesIds: Set<number>
+  /** Distinct `performances` rows behind the counted keys. */
+  performanceIds: Set<number>
   years: Set<number>
   reasons: Set<string>
 }
@@ -392,12 +396,20 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
     songId: number,
     key: string,
     seriesId: number,
+    performanceId: number,
     year: number | null,
     reasons: readonly string[],
   ): void => {
-    const bucket = buckets.get(songId) ?? { keys: new Set<string>(), seriesIds: new Set<number>(), years: new Set<number>(), reasons: new Set<string>() }
+    const bucket = buckets.get(songId) ?? {
+      keys: new Set<string>(),
+      seriesIds: new Set<number>(),
+      performanceIds: new Set<number>(),
+      years: new Set<number>(),
+      reasons: new Set<string>(),
+    }
     bucket.keys.add(key)
     bucket.seriesIds.add(seriesId)
+    bucket.performanceIds.add(performanceId)
     if (year !== null) bucket.years.add(year)
     for (const reason of reasons) bucket.reasons.add(reason)
     buckets.set(songId, bucket)
@@ -417,11 +429,11 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       const songId = variants.canonicalSongId(link.song_id)
       const reasons = line.uncertain ? line.reasons : []
       if (mode === 'event') {
-        addAppearance(songId, String(performance.id), performance.series_id, year, reasons)
+        addAppearance(songId, String(performance.id), performance.series_id, performance.id, year, reasons)
         continue
       }
       for (const show of showsForNotes(line.notes, performance, shows)) {
-        addAppearance(songId, show.key, performance.series_id, year, reasons)
+        addAppearance(songId, show.key, performance.series_id, performance.id, year, reasons)
       }
     }
   }
@@ -437,6 +449,7 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       artists: song?.artist_string ?? null,
       count: bucket.keys.size,
       seriesCount: bucket.seriesIds.size,
+      performanceCount: bucket.performanceIds.size,
       firstYear: years.length === 0 ? null : Math.min(...years),
       lastYear: years.length === 0 ? null : Math.max(...years),
       approximate: bucket.reasons.size > 0,

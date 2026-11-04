@@ -7,6 +7,8 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { buildSetlistDisplay, displaySides } from '~~/shared/edition-setlists.ts'
 import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
+import { producerCredit } from '~~/shared/credit.ts'
+import { formatCharacters } from '~/composables/useCharacters.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
 
 const { catalog, error, pending, load } = useCatalog()
@@ -224,12 +226,13 @@ const tables = computed<RawTable[]>(() => {
     {
       id: 'songs',
       label: '歌曲',
-      headers: ['id', '名称', '日文名', '艺人', '类型', '投稿日期', 'VocaDB'],
+      headers: ['id', '名称', '日文名', '制作人', '歌手', '类型', '投稿日期', 'VocaDB'],
       rows: catalog.value.songs.map((row) => [
         { text: String(row.id) },
         { text: row.name },
         { text: row.name_ja ?? '—' },
-        { text: row.artist_string ?? '—' },
+        { text: producerCredit(row.artist_string) ?? '—' },
+        { text: formatCharacters(row) },
         { text: row.song_type },
         { text: row.publish_date ?? '—' },
         { text: row.source_url, href: row.source_url },

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { displayArtistString } from '~~/shared/credit.ts'
 import type { LookupHit } from '~~/shared/lookup.ts'
 import type { SongRow } from '~~/shared/types.ts'
 
@@ -26,7 +27,7 @@ const emit = defineEmits<{ select: [songId: number] }>()
         @click="emit('select', song.id)"
       >
         <SongTitle :song-id="song.id" :original="song.name_ja || song.name" />
-        <span class="truncate text-xs text-muted">{{ song.artist_string }}</span>
+        <span class="truncate text-xs text-muted">{{ displayArtistString(song.artist_string) ?? '未记录' }}</span>
       </button>
       <ULink :to="`/?q=${encodeURIComponent(query.trim())}`" class="block px-2 py-1.5 text-xs text-primary">
         在排行中查看全部结果
@@ -44,7 +45,7 @@ const emit = defineEmits<{ select: [songId: number] }>()
         class="block rounded-lg px-2 py-1.5 hover:bg-elevated"
       >
         <SongTitle :song-id="hit.id" :original="hit.name" />
-        <span class="block truncate text-xs text-muted">{{ hit.artistString ?? '艺人未记录' }}</span>
+        <span class="block truncate text-xs text-muted">{{ displayArtistString(hit.artistString) ?? '未记录' }}</span>
       </a>
     </template>
     <p v-else-if="lookedUp" class="px-2 py-3 text-xs text-muted">没有找到，试试更短的歌名。</p>

@@ -153,6 +153,13 @@ export const loadCatalog = (db: Queryable): Catalog => {
     album_id: intOrNull(row, 'album_id'),
     medium: releaseMedium(row),
   }))
+  const vocalistsBySong = new Map<number, string[]>()
+  for (const row of db.all('SELECT song_id, name FROM song_vocalists ORDER BY song_id, name')) {
+    const songId = int(row, 'song_id')
+    const list = vocalistsBySong.get(songId) ?? []
+    list.push(text(row, 'name'))
+    vocalistsBySong.set(songId, list)
+  }
   const songs = db.all('SELECT * FROM songs ORDER BY id').map((row): SongRow => ({
     id: int(row, 'id'),
     name: text(row, 'name'),
@@ -162,6 +169,7 @@ export const loadCatalog = (db: Queryable): Catalog => {
     song_type: text(row, 'song_type'),
     publish_date: textOrNull(row, 'publish_date'),
     length_seconds: intOrNull(row, 'length_seconds'),
+    vocalists: vocalistsBySong.get(int(row, 'id')) ?? [],
     source_url: text(row, 'source_url'),
     retrieved_at: text(row, 'retrieved_at'),
   }))

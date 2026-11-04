@@ -80,6 +80,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `rankSongAppearances`：排行。`event`（按演出）对每条 `performances` 行最多计 1，同一年大阪 / 东京两个城市站各计一次；`show`（按场次，默认）计 `shared/event-schedule.ts` 推导的场次：三日巡演计 3，同日日场 + 夜场计 2，无日期的演出没有场次、按场次不计、按演出仍计 1。备注写了天 / 半天 / 场次号时只计对应场次，否则一行计入该演出的全部场次。默认排除 `role = broadcast` 以及名称、日文名、`series_suffix` 命中 livestream / online / オンライン / VR / 配信 的演出。`role = component` 默认不计。每行带 `variantSongIds`，供页面标注「含 N 个版本」。
 - 所有计数函数接受可选的 `SongVariantIndex`，默认不合并版本。
 
+`shared/credit.ts` 也负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都过滤 VocaDB 的 `Unknown producer(s)` / `Unknown artist` 占位并返回 `null`（页面显示「未记录」）；表格的「制作人」列统一用 `producerCredit`。`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）请求每首歌的 `fields=Artists`，只保留 `categories` / `roles` 含 `Vocalist` 的条目，写成 `data/increments/0006-song-vocalists.sql` 的 `song_vocalists` 行（`song_id`、`name`）。`artist_string` 会把大编制合唱压成 `feat. various`（Hand in Hand 的现场翻唱实际是 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン），所以「演出角色」以这张表为先；表里没有该歌时退回 `artist_string` 的 `feat.` 名单。`SongRow.vocalists` 由 `shared/catalog.ts` 读取时拼好，`shared/characters.ts` 的 `assignCharacters` 优先用它。
+
 `shared/song-variants.ts` 校验 `data/song-variants.json`：键是变体歌曲 id，值含 `canonical`、`kind`（`remix` / `remaster` / `voicebank` / `cover` / `language`）与可选 `note`。链式映射（canonical 本身也是变体）与自指会抛错。导出 `canonicalSongId`、`variantSongIdsOf`、`groupSongIds`。
 
 `shared/setlist-slots.ts` 负责歌单槽位：
@@ -143,11 +145,11 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
-| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色筛选；筛选写入 URL query（`mode=event` 切到按演出）；合并版本行显示「含 N 个版本」；艺人列只显示制作人，宽度受限并带完整署名气泡 |
+| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色筛选；筛选写入 URL query（`mode=event` 切到按演出）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，宽度受限并带完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown；范围是同一系列年度或相邻系列年度 |
-| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录（备注列写明本演出覆盖几个场次）、相关投稿（有快照时附播放量） |
+| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人取自 `artist_string` 的 `feat.` 前、去掉 VocaDB 的 `Unknown producer(s)` 占位；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次；相关投稿有快照时附播放量 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一个演出的场次列表、轮换解析结果与长度一致性；歌单来自专辑时显示来源提示。面包屑只有 系列 → 演出 两级，系列项链到 `/series/{id}` |
 | `/series` | `app/pages/series/index.vue` | 系列与演出总览。上半是系列表（演出数、场次、年份跨度、首次与最近演出），下半是全部演出的表（日期、演出、系列、场馆、场次），可按系列筛选与排序；两张表都链到 `/series/{id}` 与 `/shows/{id}` |
 | `/series/{id}` | `app/pages/series/[id].vue` | 系列主页：该系列的全部演出（每个城市站一行，列出日期、场馆与场次数并链到 `/shows/{id}`），带年份跨度、演出数与场次合计，页头链回 `/series` 总览。站内只有 系列 → 演出 → 场次 三级，不再有年度索引页 |
@@ -158,7 +160,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `app/pages/catalog.vue`、`compare.vue`、`windows.vue`、`correlation.vue` 保留实现，但都带 `definePageMeta({ middleware: 'retired' })`，直接访问会重定向到首页。`app/middleware/retired.ts` 是唯一的重定向实现；拿到播放量快照后删掉页面上的这一行并恢复导航项即可。
 
-`app/components/SetlistTable.vue` 是 `/raw` 与 `/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾一列在演出页是「场次」（该行属于这个演出的哪一天 / 日场 / 夜场），在 `/raw` 的跨演出对照是「演出」（该行属于哪个城市站）；每个场次都演出的行留空。列是「序号 / 歌曲 / 演出角色 / 场次或演出 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。`/shows` 会传入 `currentPerformanceId`、`currentCity` 与系列名：页头已经写出当前演出与场次，因此只属于当前演出的行留空，确实属于其他演出的行只显示 `shortPerformanceName` 留下的城市等短名（再经 `localizePlace`），完整演出名保留在气泡里；`/raw` 不传这些 prop，仍显示 VocaDB 完整名。
+`app/components/SetlistTable.vue` 是 `/raw` 与 `/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾一列在演出页是「场次」（该行属于这个演出的哪一天 / 日场 / 夜场），在 `/raw` 的跨演出对照是「演出」（该行属于哪个城市站）；每个场次都演出的行留空。列是「序号 / 歌曲 / 歌手 / 场次或演出 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。`/shows` 会传入 `currentPerformanceId`、`currentCity` 与系列名：页头已经写出当前演出与场次，因此只属于当前演出的行留空，确实属于其他演出的行只显示 `shortPerformanceName` 留下的城市等短名（再经 `localizePlace`），完整演出名保留在气泡里；`/raw` 不传这些 prop，仍显示 VocaDB 完整名。
 
 `/shows` 页头在标题下用一行写出具体演出信息：日期（单日或 `start – end` 区间）、城市、场馆，以及目录有记录时的开演时间；再下一行是场次列表（`2023-08-11 日场` / `夜场` 这类），然后是所属系列并链到 `/series/{id}`。空字段直接省略，日期与场馆的拼接由 `shared/performance-header.ts` 的 `performanceHeaderFacts` 统一处理，场次由 `shared/event-schedule.ts` 推导。
 
@@ -292,7 +294,7 @@ flowchart TD
 
 ### `data/characters.json`
 
-对象。键是展示用的角色名。值含 `patterns`（锚定名称开头的正则）与可选 `aliases`（整段或前缀别名）。排行页的角色筛选项不按这个顺序列出，而是取当前排行中实际出现的角色，按出现次数从多到少排列，并带上次数。
+对象。键是展示用的角色名。值含 `patterns`（锚定名称开头的正则）、可选 `aliases`（整段或前缀别名）与可选 `color`（应援色 `#rrggbb`，非法值会让解析抛错）。排行页的角色筛选项不按这个顺序列出，而是取当前排行中实际出现的角色，按出现次数从多到少排列，并带上次数。歌手列的标签用 `color` 作边框、同色 12% 透明度作底色；`shared/character-chips.ts` 的 `splitCharacterChips` 只让前 3 个角色直接显示，其余收进末尾的 `+N` 按钮，悬停时用同样的彩色标签在气泡里列出剩余角色。
 
 ## 运行、构建、测试、部署
 

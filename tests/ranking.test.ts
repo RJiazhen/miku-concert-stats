@@ -93,14 +93,16 @@ describe('song appearance ranking', () => {
       performance({ id: 3, series_id: 82, song_list_id: 11, start_date: '2016-03-23' }),
     ]
     const byEvent = rankSongAppearances(rows, { mode: 'event' })
-    expect(byEvent.map((row) => [row.songId, row.count, row.seriesCount, row.firstYear, row.lastYear])).toEqual([
-      [1, 3, 2, 2014, 2016],
-      [2, 2, 1, 2014, 2014],
+    expect(byEvent.map((row) => [row.songId, row.count, row.seriesCount, row.performanceCount, row.firstYear, row.lastYear])).toEqual([
+      [1, 3, 2, 3, 2014, 2016],
+      [2, 2, 1, 2, 2014, 2014],
     ])
     expect(byEvent[0]).toMatchObject({ name: 'World is Mine', artists: 'ryo' })
     const byShow = rankSongAppearances(rows, { mode: 'show' })
     expect(byShow.find((row) => row.songId === 1)?.count).toBe(3)
     expect(byShow.find((row) => row.songId === 2)?.count).toBe(2)
+    // 演出数 stays the number of distinct 演出 in both modes.
+    expect(byShow.find((row) => row.songId === 1)?.performanceCount).toBe(3)
   })
 
   it('counts two cities of one year as two 演出 and two 场次, no longer one 系列年度', () => {
@@ -123,6 +125,19 @@ describe('song appearance ranking', () => {
     expect(byEvent.find((row) => row.songId === 1)?.count).toBe(3)
     expect(byEvent.find((row) => row.songId === 2)?.count).toBe(1)
     expect(rankSongAppearances(rows, { mode: 'show' }).find((row) => row.songId === 1)?.count).toBe(3)
+  })
+
+  it('keeps 演出数 at one for a multi-day run that counts three 场次', () => {
+    const rows = catalog()
+    rows.songs = [song(1, 'Shared', 'a')]
+    rows.setlistItems = [item(10, 1, 1)]
+    rows.setlistItemSongs = [link(10, 1, 1, 'listed')]
+    rows.performances = [
+      performance({ id: 1, series_id: 81, song_list_id: 10, start_date: '2016-09-02', end_date: '2016-09-04' }),
+    ]
+    const byShow = rankSongAppearances(rows, { mode: 'show' }).find((row) => row.songId === 1)
+    expect(byShow?.count).toBe(3)
+    expect(byShow?.performanceCount).toBe(1)
   })
 
   it('defaults to 按场次 when options.mode is omitted', () => {

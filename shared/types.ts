@@ -113,6 +113,8 @@ export type SongRow = {
   song_type: string
   publish_date: string | null
   length_seconds: number | null
+  /** Credited vocalists from VocaDB's artists list; empty when the song has no structured credit. */
+  vocalists?: string[]
   source_url: string
   retrieved_at: string
 }
