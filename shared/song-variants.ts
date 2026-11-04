@@ -162,12 +162,32 @@ const titleRemainder = (variantName: string, canonicalName: string): string => {
 }
 
 /**
+ * Parenthesized character list appended to a cover note, e.g. `（鏡音リン、鏡音レン）`.
+ * Blank names are dropped and duplicates collapse; an empty result returns '' so no `（）` is rendered.
+ */
+const performerSuffix = (performers: readonly string[]): string => {
+  const names = [...new Set(performers.map((name) => name.trim()).filter((name) => name !== ''))]
+  return names.length === 0 ? '' : `（${names.join('、')}）`
+}
+
+/**
  * Version note shown next to a performance: the canonical song reads `原版`,
  * a variant reads its kind plus the distinguishing title fragment.
- * The full song name is never repeated, and a variant with no visible difference keeps just the kind.
+ * A cover also names the characters that sing it, e.g. `翻唱（鏡音リン、鏡音レン）`
+ * or `翻唱 · piano ver.（初音ミク）`; callers resolve `performers` from the variant
+ * song's own credits, and an empty list leaves the note without parentheses.
+ * Other kinds ignore `performers`. The full song name is never repeated, and a
+ * variant with no visible difference keeps just the kind.
  */
-export const variantVersionNote = (canonicalName: string, variantName: string, kind?: VariantKind): string => {
+export const variantVersionNote = (
+  canonicalName: string,
+  variantName: string,
+  kind?: VariantKind,
+  performers?: readonly string[],
+): string => {
   const kindLabel = kind ? variantKindLabels[kind] : '其他版本'
   const remainder = titleRemainder(variantName, canonicalName)
-  return remainder === '' ? kindLabel : `${kindLabel} · ${remainder}`
+  const base = remainder === '' ? kindLabel : `${kindLabel} · ${remainder}`
+  if (kind !== 'cover' || !performers) return base
+  return `${base}${performerSuffix(performers)}`
 }

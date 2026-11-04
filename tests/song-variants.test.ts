@@ -110,6 +110,26 @@ describe('version notes', () => {
     expect(variantVersionNote('Just Be Friends', 'Just be Friends', 'cover')).toBe('翻唱')
     expect(variantVersionNote('歌に形はないけれど', '虽然歌声无形', 'cover')).toBe('翻唱')
   })
+
+  it('names the performing characters of a cover', () => {
+    expect(variantVersionNote('Just Be Friends', 'Just be Friends', 'cover', ['巡音ルカ'])).toBe('翻唱（巡音ルカ）')
+    expect(variantVersionNote('ロキ', 'ロキ', 'cover', ['鏡音リン', '鏡音レン'])).toBe('翻唱（鏡音リン、鏡音レン）')
+  })
+
+  it('keeps the title fragment before the cover performers', () => {
+    expect(variantVersionNote('星のカケラ', '星のカケラ（piano ver.）', 'cover', ['初音ミク'])).toBe('翻唱 · piano ver.（初音ミク）')
+  })
+
+  it('omits the parentheses when a cover has no characters', () => {
+    expect(variantVersionNote('Hand in Hand', 'Hand in Hand', 'cover', [])).toBe('翻唱')
+    expect(variantVersionNote('Hand in Hand', 'Hand in Hand', 'cover', ['', '  '])).toBe('翻唱')
+  })
+
+  it('leaves non-cover kinds unchanged by performers', () => {
+    expect(variantVersionNote('初音ミクの激唱', '初音ミクの激唱（LONG VERSION）', 'remix', ['初音ミク'])).toBe('混音 · LONG VERSION')
+    expect(variantVersionNote('Fire◎Flower', 'Fire◎Flower 2011', 'remaster', ['初音ミク'])).toBe('重制 · 2011')
+    expect(variantVersionNote('右肩の蝶', '右肩の蝶', 'voicebank', ['鏡音リン'])).toBe('声库')
+  })
 })
 
 describe('variant folding in the ranking', () => {
