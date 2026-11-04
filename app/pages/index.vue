@@ -312,17 +312,12 @@ const yearToItems = computed(() =>
 
 <template>
   <main class="space-y-6">
-    <section class="pt-4 sm:pt-8">
-      <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
-      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
-        初音未来演唱会<br class="sm:hidden">曲目统计
-      </h1>
-      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        按场次或按年版统计每首歌出现的次数。按年版时同一系列年鉴只算一次，跨地区的多份歌单不重复计数。
-        默认不计配信、线上和 VR 场，也不把串烧的组成歌曲单独计入。
-        同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
-      </p>
-    </section>
+    <h1 class="sr-only">初音未来演唱会曲目统计</h1>
+    <p class="max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
+      按场次或按年版统计每首歌出现的次数。按年版时同一系列年鉴只算一次，跨地区的多份歌单不重复计数。
+      默认不计配信、线上和 VR 场，也不把串烧的组成歌曲单独计入。
+      同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
+    </p>
 
     <UAlert
       v-if="error"
