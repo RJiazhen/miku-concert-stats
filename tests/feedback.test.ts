@@ -15,6 +15,12 @@ import {
   parseFeedbackPayload,
   parseFeedbackRecord,
 } from '../shared/feedback.ts'
+import {
+  normaliseTeamDomain,
+  resolveAccessIdentity,
+  verifyAccessJwt,
+  type AccessJwks,
+} from '../server/utils/access.ts'
 
 /** Minimal valid body; each test overrides the field it cares about. */
 const validBody = () => ({ description: '2024 年东京场的播放量不对' })
@@ -280,5 +286,194 @@ describe('feedback status', () => {
     expect(normalizeFeedbackStatus(undefined)).toBe('open')
     expect(isFeedbackStatus('resolved')).toBe(true)
     expect(isFeedbackStatus('nope')).toBe(false)
+  })
+})
+
+/** Base64url without padding, the encoding JWT segments use. */
+const toBase64Url = (bytes: Uint8Array): string => {
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+/** Encodes one JWT header or payload segment as base64url JSON. */
+const jwtSegment = (value: unknown): string => toBase64Url(new TextEncoder().encode(JSON.stringify(value)))
+
+/** RSA keypair plus the JWKS document Cloudflare Access would serve for it. */
+type TestAccessKey = { pair: CryptoKeyPair; jwks: AccessJwks }
+
+/** Generates a throwaway RS256 keypair, so the tests never need the network or a real team. */
+const generateAccessKey = async (kid = 'test-key'): Promise<TestAccessKey> => {
+  const generated = await crypto.subtle.generateKey(
+    { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+    true,
+    ['sign', 'verify'],
+  )
+  const pair = generated as CryptoKeyPair
+  const jwk = await crypto.subtle.exportKey('jwk', pair.publicKey)
+  if (typeof jwk.n !== 'string' || typeof jwk.e !== 'string') throw new Error('missing RSA parameters')
+  return { pair, jwks: { keys: [{ kty: 'RSA', n: jwk.n, e: jwk.e, kid }] } }
+}
+
+/** Signs a JWT exactly like Cloudflare Access does (RS256 over `header.payload`). */
+const signAccessToken = async (
+  key: CryptoKey,
+  claims: Record<string, unknown>,
+  header: Record<string, unknown> = { alg: 'RS256', kid: 'test-key', typ: 'JWT' },
+): Promise<string> => {
+  const signingInput = `${jwtSegment(header)}.${jwtSegment(claims)}`
+  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(signingInput))
+  return `${signingInput}.${toBase64Url(new Uint8Array(signature))}`
+}
+
+const ACCESS_ISSUER = 'https://team.cloudflareaccess.com'
+const ACCESS_AUD = 'aud-tag-0123456789'
+const ACCESS_NOW = Date.parse('2026-11-04T07:17:00.000Z')
+
+/** Valid Access claims; each test breaks the single claim it cares about. */
+const validAccessClaims = () => ({
+  aud: [ACCESS_AUD],
+  iss: ACCESS_ISSUER,
+  sub: 'user-1',
+  email: 'maintainer@example.com',
+  iat: ACCESS_NOW / 1000 - 60,
+  nbf: ACCESS_NOW / 1000 - 60,
+  exp: ACCESS_NOW / 1000 + 600,
+})
+
+const ACCESS_CONFIG = { teamDomain: 'team.cloudflareaccess.com', aud: ACCESS_AUD }
+
+const accessKey = await generateAccessKey()
+
+describe('Cloudflare Access identity', () => {
+  it('accepts a correctly signed token and returns only identity claims', async () => {
+    const token = await signAccessToken(accessKey.pair.privateKey, validAccessClaims())
+    const claims = await verifyAccessJwt(token, {
+      jwks: accessKey.jwks,
+      aud: ACCESS_AUD,
+      issuer: ACCESS_ISSUER,
+      now: ACCESS_NOW,
+    })
+    expect(claims?.email).toBe('maintainer@example.com')
+    expect(claims?.sub).toBe('user-1')
+
+    const identity = await resolveAccessIdentity({
+      token,
+      config: ACCESS_CONFIG,
+      loadJwks: async () => accessKey.jwks,
+      now: ACCESS_NOW,
+    })
+    // The resolved identity is exactly these two fields: no description, counts, or other payload.
+    expect(identity).toEqual({ subject: 'user-1', email: 'maintainer@example.com' })
+  })
+
+  it('accepts an audience as a bare string', async () => {
+    const token = await signAccessToken(accessKey.pair.privateKey, { ...validAccessClaims(), aud: ACCESS_AUD })
+    const claims = await verifyAccessJwt(token, {
+      jwks: accessKey.jwks,
+      aud: ACCESS_AUD,
+      issuer: ACCESS_ISSUER,
+      now: ACCESS_NOW,
+    })
+    expect(claims?.aud).toBe(ACCESS_AUD)
+  })
+
+  it('rejects a token issued for another Access application', async () => {
+    const token = await signAccessToken(accessKey.pair.privateKey, { ...validAccessClaims(), aud: ['other-aud'] })
+    expect(
+      await verifyAccessJwt(token, { jwks: accessKey.jwks, aud: ACCESS_AUD, issuer: ACCESS_ISSUER, now: ACCESS_NOW }),
+    ).toBeNull()
+  })
+
+  it('rejects a token from another team domain', async () => {
+    const token = await signAccessToken(accessKey.pair.privateKey, {
+      ...validAccessClaims(),
+      iss: 'https://other.cloudflareaccess.com',
+    })
+    expect(
+      await verifyAccessJwt(token, { jwks: accessKey.jwks, aud: ACCESS_AUD, issuer: ACCESS_ISSUER, now: ACCESS_NOW }),
+    ).toBeNull()
+  })
+
+  it('rejects an expired token and one that is not valid yet', async () => {
+    const expired = await signAccessToken(accessKey.pair.privateKey, {
+      ...validAccessClaims(),
+      exp: ACCESS_NOW / 1000 - 3600,
+    })
+    const future = await signAccessToken(accessKey.pair.privateKey, {
+      ...validAccessClaims(),
+      nbf: ACCESS_NOW / 1000 + 3600,
+    })
+    const options = { jwks: accessKey.jwks, aud: ACCESS_AUD, issuer: ACCESS_ISSUER, now: ACCESS_NOW }
+    expect(await verifyAccessJwt(expired, options)).toBeNull()
+    expect(await verifyAccessJwt(future, options)).toBeNull()
+  })
+
+  it('rejects a token without an expiry', async () => {
+    const claims = { ...validAccessClaims() } as Record<string, unknown>
+    delete claims.exp
+    const token = await signAccessToken(accessKey.pair.privateKey, claims)
+    expect(
+      await verifyAccessJwt(token, { jwks: accessKey.jwks, aud: ACCESS_AUD, issuer: ACCESS_ISSUER, now: ACCESS_NOW }),
+    ).toBeNull()
+  })
+
+  it('rejects a tampered signature and the unsigned "none" algorithm', async () => {
+    const token = await signAccessToken(accessKey.pair.privateKey, validAccessClaims())
+    const tampered = `${token.slice(0, -2)}${token.endsWith('AA') ? 'BB' : 'AA'}`
+    const unsigned = `${jwtSegment({ alg: 'none', kid: 'test-key' })}.${jwtSegment(validAccessClaims())}.`
+    const options = { jwks: accessKey.jwks, aud: ACCESS_AUD, issuer: ACCESS_ISSUER, now: ACCESS_NOW }
+    expect(await verifyAccessJwt(tampered, options)).toBeNull()
+    expect(await verifyAccessJwt(unsigned, options)).toBeNull()
+  })
+
+  it('rejects a token signed by a key the JWKS does not contain', async () => {
+    const stranger = await generateAccessKey('test-key')
+    const token = await signAccessToken(stranger.pair.privateKey, validAccessClaims())
+    expect(
+      await verifyAccessJwt(token, { jwks: accessKey.jwks, aud: ACCESS_AUD, issuer: ACCESS_ISSUER, now: ACCESS_NOW }),
+    ).toBeNull()
+  })
+
+  it('rejects a request without the Access header', async () => {
+    for (const token of [undefined, null, '', '   ']) {
+      const identity = await resolveAccessIdentity({
+        token,
+        config: ACCESS_CONFIG,
+        loadJwks: async () => accessKey.jwks,
+        now: ACCESS_NOW,
+      })
+      expect(identity).toBeNull()
+    }
+  })
+
+  it('fails closed when the Access bindings are empty', async () => {
+    const token = await signAccessToken(accessKey.pair.privateKey, validAccessClaims())
+    for (const config of [null, { teamDomain: '', aud: '' }, { teamDomain: 'team.cloudflareaccess.com', aud: '' }]) {
+      const identity = await resolveAccessIdentity({
+        token,
+        config,
+        loadJwks: async () => accessKey.jwks,
+        now: ACCESS_NOW,
+      })
+      expect(identity).toBeNull()
+    }
+  })
+
+  it('fails closed when the JWKS cannot be loaded', async () => {
+    const token = await signAccessToken(accessKey.pair.privateKey, validAccessClaims())
+    const identity = await resolveAccessIdentity({
+      token,
+      config: ACCESS_CONFIG,
+      loadJwks: async () => null,
+      now: ACCESS_NOW,
+    })
+    expect(identity).toBeNull()
+  })
+
+  it('normalises a pasted team domain', () => {
+    expect(normaliseTeamDomain('team.cloudflareaccess.com')).toBe('team.cloudflareaccess.com')
+    expect(normaliseTeamDomain('  https://team.cloudflareaccess.com/  ')).toBe('team.cloudflareaccess.com')
+    expect(normaliseTeamDomain('')).toBe('')
   })
 })

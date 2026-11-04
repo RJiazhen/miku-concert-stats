@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import {
-  FEEDBACK_STATUS_LABEL,
-  type FeedbackRecord,
-  type FeedbackStatus,
-} from '~~/shared/feedback.ts'
+import { computed, onMounted, ref } from 'vue'
+import { FEEDBACK_STATUS_LABEL, type FeedbackRecord, type FeedbackStatus } from '~~/shared/feedback.ts'
 
+// Hidden ops page: no layout, no nav entry, no link from any public component. Reachable only by
+// typing the URL, and only useful to someone already signed in to the Cloudflare Access app.
 definePageMeta({
   layout: false,
 })
@@ -15,124 +13,161 @@ useHead({
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
 })
 
-/** Local storage key for the inbox token on this browser only. */
-const TOKEN_KEY = 'miku-feedback-inbox-token'
-
 type ListResponse = { count: number; items: FeedbackRecord[] }
 type StatusResponse = { ok: true; item: FeedbackRecord }
 
-const token = ref('')
-const pending = ref(false)
-const error = ref('')
-const items = ref<FeedbackRecord[]>([])
-const busyId = ref('')
+/** Which subset of the loaded page the list shows; counts come from that same page. */
+type InboxFilter = 'all' | FeedbackStatus
 
-/** Loads a remembered token once on the client. */
-const restoreToken = (): void => {
-  if (!import.meta.client) return
-  token.value = window.localStorage.getItem(TOKEN_KEY) ?? ''
+/** Coarse reason for a failed request; the API never returns a useful/safe detail. */
+type ErrorKind = '' | 'access' | 'storage' | 'generic'
+
+/** Filter buttons; "all" is the default so an unfamiliar visitor sees everything at once. */
+const FILTERS: { value: InboxFilter; label: string }[] = [
+  { value: 'all', label: '全部' },
+  { value: 'open', label: '未解决' },
+  { value: 'resolved', label: '已解决' },
+]
+
+/** Fixed Chinese copy per failure kind. No password field is ever offered: auth is Cloudflare Access. */
+const ERROR_COPY: Record<Exclude<ErrorKind, ''>, string> = {
+  access:
+    '需要 Cloudflare Access 登录。这个页面只对通过 Cloudflare 账号登录的维护者开放：请先完成 Cloudflare Access 登录，然后刷新本页。这里没有密码输入框。如果已登录仍看到这条提示，说明 Worker 的 ACCESS_TEAM_DOMAIN / ACCESS_AUD 尚未配置，或登录账号不在允许列表里。',
+  storage:
+    '反馈存储暂不可用：Worker 可能没有 FEEDBACK 绑定（本地 nuxt dev 一定会这样），或 KV 读取失败。请稍后重试。',
+  generic: '加载失败，请稍后重试。',
 }
 
-restoreToken()
+const pending = ref(false)
+const errorKind = ref<ErrorKind>('')
+const items = ref<FeedbackRecord[]>([])
+const busyId = ref('')
+const filter = ref<InboxFilter>('all')
 
-watch(token, (value) => {
-  if (!import.meta.client) return
-  if (value.trim() === '') window.localStorage.removeItem(TOKEN_KEY)
-  else window.localStorage.setItem(TOKEN_KEY, value.trim())
+/** HTTP status of a failed `$fetch`, or 0 when the rejection is not an HTTP response. */
+const statusCodeOf = (error: unknown): number => {
+  if (typeof error === 'object' && error !== null && 'statusCode' in error) {
+    const code = (error as { statusCode?: unknown }).statusCode
+    if (typeof code === 'number') return code
+  }
+  return 0
+}
+
+/** Maps a failed request to the copy the page shows; never surfaces the server's message. */
+const errorKindOf = (error: unknown): ErrorKind => {
+  const status = statusCodeOf(error)
+  if (status === 401 || status === 403) return 'access'
+  if (status === 503) return 'storage'
+  return 'generic'
+}
+
+/** Counts per filter, derived from the loaded page so no second request is needed. */
+const counts = computed<Record<InboxFilter, number>>(() => {
+  const resolved = items.value.filter((item) => item.status === 'resolved').length
+  return { all: items.value.length, open: items.value.length - resolved, resolved }
 })
 
-/** Newest first is already returned by the API; keep a local copy for toggles. */
-const rows = computed(() => items.value)
+/** Records matching the active filter; the API already sorts newest first. */
+const visibleItems = computed<FeedbackRecord[]>(() => {
+  if (filter.value === 'all') return items.value
+  return items.value.filter((item) => item.status === filter.value)
+})
 
-/** Fetches the inbox for the current token. */
+/** Loads the inbox. A 401 means Access is missing, so the page explains that instead of a form. */
 const loadInbox = async (): Promise<void> => {
-  error.value = ''
-  const secret = token.value.trim()
-  if (secret === '') {
-    error.value = '请先填写 FEEDBACK_TOKEN'
-    items.value = []
-    return
-  }
   pending.value = true
+  errorKind.value = ''
   try {
-    const response = await $fetch<ListResponse>('/api/feedback/list', {
-      query: { token: secret, limit: 200 },
-    })
+    const response = await $fetch<ListResponse>('/api/feedback/list', { query: { limit: 200 } })
     items.value = response.items
   } catch (caught) {
     items.value = []
-    error.value = caught instanceof Error ? caught.message : '加载失败'
+    errorKind.value = errorKindOf(caught)
   } finally {
     pending.value = false
   }
 }
 
-/** Sets one item to open or resolved and refreshes that row in the list. */
+/** Sets one item to open or resolved and replaces that row with the server's copy. */
 const setStatus = async (item: FeedbackRecord, status: FeedbackStatus): Promise<void> => {
-  const secret = token.value.trim()
-  if (secret === '') {
-    error.value = '请先填写 FEEDBACK_TOKEN'
-    return
-  }
   busyId.value = item.id
-  error.value = ''
+  errorKind.value = ''
   try {
     const response = await $fetch<StatusResponse>('/api/feedback/status', {
       method: 'POST',
-      body: {
-        token: secret,
-        id: item.id,
-        receivedAt: item.receivedAt,
-        status,
-      },
+      body: { id: item.id, receivedAt: item.receivedAt, status },
     })
     items.value = items.value.map((row) => (row.id === item.id ? response.item : row))
   } catch (caught) {
-    error.value = caught instanceof Error ? caught.message : '更新状态失败'
+    errorKind.value = errorKindOf(caught)
   } finally {
     busyId.value = ''
   }
 }
 
-/** Toggles between open and resolved for one row. */
+/** Flips one row between open and resolved. */
 const toggleStatus = async (item: FeedbackRecord): Promise<void> => {
   await setStatus(item, item.status === 'resolved' ? 'open' : 'resolved')
 }
+
+onMounted(loadInbox)
 </script>
 
 <template>
   <div class="min-h-screen bg-default text-default">
     <div class="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6">
       <header class="space-y-2">
-        <h1 class="text-xl font-semibold tracking-tight">
-          反馈收件箱
-        </h1>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h1 class="text-xl font-semibold tracking-tight">
+            反馈收件箱
+          </h1>
+          <UButton size="sm" color="neutral" variant="soft" :loading="pending" @click="loadInbox">
+            刷新
+          </UButton>
+        </div>
+        <!-- Deliberately unlisted: never add this route to a nav, footer, or other public component. -->
         <p class="text-sm text-muted">
-          未挂在站点导航里。用直接 URL 打开。列表 / 详情 / 状态接口均需身份校验，失败不返回任何反馈数据。短期用 FEEDBACK_TOKEN；Cloudflare 账号登录仍按 issue #10 接入。
+          未挂在站点导航里，只能直接输入 URL。页面本身不校验密码：能读到数据，说明当前浏览器已经通过
+          Cloudflare Access 登录，Worker 在每个管理接口上自行校验 Access 身份，校验失败一律 401 且不返回任何反馈数据。
+        </p>
+        <p class="text-xs text-muted">
+          只读追加日志：不提供删除或归档，避免误删丢证据。每条记录在提交 180 天后由
+          FEEDBACK_TTL_SECONDS 自动过期；KV 里也不保留可回收的归档副本。
         </p>
       </header>
 
-      <form class="flex flex-wrap items-end gap-3" @submit.prevent="loadInbox">
-        <label class="min-w-56 flex-1 space-y-1 text-sm">
-          <span class="text-muted">FEEDBACK_TOKEN</span>
-          <UInput v-model="token" type="password" autocomplete="off" class="w-full" />
-        </label>
-        <UButton type="submit" :loading="pending" color="primary">
-          加载
+      <div class="flex flex-wrap items-center gap-2" role="group" aria-label="按状态筛选">
+        <UButton
+          v-for="option in FILTERS"
+          :key="option.value"
+          size="sm"
+          color="neutral"
+          :variant="filter === option.value ? 'solid' : 'soft'"
+          @click="filter = option.value"
+        >
+          {{ option.label }} {{ counts[option.value] }}
         </UButton>
-      </form>
+      </div>
 
-      <p v-if="error" class="text-sm text-error">
-        {{ error }}
+      <p v-if="errorKind" class="text-sm text-error">
+        {{ ERROR_COPY[errorKind] }}
       </p>
 
-      <p v-else-if="!pending && rows.length === 0" class="text-sm text-muted">
-        暂无反馈，或尚未加载。
+      <p v-else-if="pending && items.length === 0" class="text-sm text-muted">
+        正在加载…
+      </p>
+
+      <p v-else-if="items.length === 0" class="text-sm text-muted">
+        暂无反馈。
+      </p>
+
+      <p v-else-if="visibleItems.length === 0" class="text-sm text-muted">
+        没有符合当前筛选的反馈。
       </p>
 
       <ul class="space-y-3">
         <li
-          v-for="item in rows"
+          v-for="item in visibleItems"
           :key="item.id"
           class="rounded-xl border border-default/70 bg-elevated/40 p-4 shadow-sm"
         >
@@ -148,6 +183,8 @@ const toggleStatus = async (item: FeedbackRecord): Promise<void> => {
                   {{ FEEDBACK_STATUS_LABEL[item.status] }}
                 </span>
                 <time :datetime="item.receivedAt">{{ item.receivedAt }}</time>
+                <span v-if="item.viewport">视口 {{ item.viewport }}</span>
+                <span v-if="item.catalogVersion">目录 {{ item.catalogVersion }}</span>
               </div>
               <p class="whitespace-pre-wrap text-sm leading-relaxed">
                 {{ item.description }}
@@ -155,6 +192,12 @@ const toggleStatus = async (item: FeedbackRecord): Promise<void> => {
               <p v-if="item.pageUrl" class="truncate text-xs text-muted">
                 <a :href="item.pageUrl" class="text-primary" target="_blank" rel="noreferrer">
                   {{ item.pageTitle || item.pageUrl }}
+                </a>
+              </p>
+              <p v-if="item.sourceUrl" class="truncate text-xs text-muted">
+                数据来源：
+                <a :href="item.sourceUrl" class="text-primary" target="_blank" rel="noreferrer">
+                  {{ item.sourceUrl }}
                 </a>
               </p>
             </div>

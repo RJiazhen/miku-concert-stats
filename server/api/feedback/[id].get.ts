@@ -4,18 +4,17 @@ import {
   parseFeedbackRecord,
   type FeedbackRecord,
 } from '../../../shared/feedback.ts'
-import { assertFeedbackToken, feedbackStoreOf } from '../../utils/feedback.ts'
+import { assertFeedbackIdentity, feedbackStoreOf } from '../../utils/feedback.ts'
 
 /**
  * One feedback record for maintainers.
- * `GET /api/feedback/:id?token=<FEEDBACK_TOKEN>&receivedAt=<ISO>`
- * Auth is checked before any KV read; failed verification returns 401 with no data.
+ * `GET /api/feedback/:id?receivedAt=<ISO>`; the caller must carry a Cloudflare Access JWT.
+ * Identity is checked before any KV read, so failed verification returns 401 with no data.
  */
 const getFeedbackDetail = async (event: H3Event): Promise<{ item: FeedbackRecord }> => {
-  const query = getQuery(event)
-  const supplied = typeof query.token === 'string' ? query.token : ''
-  assertFeedbackToken(event, supplied)
+  await assertFeedbackIdentity(event)
 
+  const query = getQuery(event)
   const id = (getRouterParam(event, 'id') ?? '').trim()
   const receivedAt = typeof query.receivedAt === 'string' ? query.receivedAt.trim() : ''
   if (id === '' || receivedAt === '') {

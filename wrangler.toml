@@ -12,5 +12,18 @@ compatibility_flags = ["nodejs_compat"]
 binding = "FEEDBACK"
 id = "777b49ffd2744f12a54fc3611ff791e9"
 
-# The read-only inbox (GET /api/feedback/list?token=...) compares against this secret.
-# Set it with: pnpm exec wrangler secret put FEEDBACK_TOKEN
+# Cloudflare Access application that gates the hidden ops backend
+# (/ops/feedback-inbox and every /api/feedback admin route).
+# Read both values from Zero Trust > Access > Applications after creating the
+# self-hosted application for the Worker hostname:
+#   ACCESS_TEAM_DOMAIN: team domain, e.g. example.cloudflareaccess.com (no scheme)
+#   ACCESS_AUD:         the application's Audience (AUD) tag
+# While either value is an empty string the Worker rejects every admin feedback
+# API with 401 and returns no feedback payload at all, so an unconfigured deploy
+# leaks nothing. The public GET / and POST /api/feedback paths stay unprotected.
+# Created 2026-11-04: self-hosted app "miku-concert-stats feedback admin" with
+# destinations for /ops, /ops/*, /api/feedback/list, /api/feedback/status, and
+# /api/feedback/* (never a bare /api/feedback*), policy `my-cloudflare-account`.
+[vars]
+ACCESS_TEAM_DOMAIN = "summer-thunder-62e1.cloudflareaccess.com"
+ACCESS_AUD = "87de2159d583fb4b7536e98227178ba3150fc953ef3a3f817e2f8334cdd00e4b"
