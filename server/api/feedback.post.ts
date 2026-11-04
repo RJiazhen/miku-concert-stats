@@ -20,8 +20,8 @@ const byteLength = (value: string): number => {
 
 /**
  * Accepts one error report and stores it in the FEEDBACK KV namespace.
- * Public write-only: never returns stored feedback content. Admin read/update routes require
- * identity verification (`assertFeedbackToken`) and fail closed with no data.
+ * Public write-only: never returns stored feedback content. Admin read/update routes require a
+ * Cloudflare Access identity (`assertFeedbackIdentity`) and fail closed with no data.
  * Validates before touching KV; returns 503 with a Chinese message when the binding is missing
  * (always the case in `nuxt dev`) or when KV rejects the write. Never logs the description.
  */

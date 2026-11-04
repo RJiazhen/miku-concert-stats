@@ -5,7 +5,7 @@ import {
   parseFeedbackRecord,
   type FeedbackRecord,
 } from '../../../shared/feedback.ts'
-import { assertFeedbackToken, feedbackStoreOf, type FeedbackKv } from '../../utils/feedback.ts'
+import { assertFeedbackIdentity, feedbackStoreOf, type FeedbackKv } from '../../utils/feedback.ts'
 
 /** Keys read per request; KV lists at most 1000 keys, so the inbox stays one round trip. */
 const MAX_KEYS = 1000
@@ -27,19 +27,19 @@ const readRecord = async (store: FeedbackKv, key: string): Promise<FeedbackRecor
 }
 
 /**
- * Read-only inbox for maintainers: `GET /api/feedback/list?token=<FEEDBACK_TOKEN>`.
- * Identity is verified before any KV access. Failed verification is 401 with no items, counts, or metadata.
+ * Read-only inbox for maintainers: `GET /api/feedback/list`.
+ * The caller must already carry a Cloudflare Access JWT; identity is verified before any KV access,
+ * so a failed check is 401 with no items, counts, or metadata.
  */
 const listFeedback = async (event: H3Event): Promise<{ count: number; items: FeedbackRecord[] }> => {
-  const query = getQuery(event)
-  const supplied = typeof query.token === 'string' ? query.token : ''
-  assertFeedbackToken(event, supplied)
+  await assertFeedbackIdentity(event)
 
   const store = feedbackStoreOf(event)
   if (!store) {
     throw createError({ statusCode: 503, statusMessage: 'Unavailable', message: 'Unavailable', data: null })
   }
 
+  const query = getQuery(event)
   const listed = await store.list({ prefix: FEEDBACK_KEY_PREFIX, limit: MAX_KEYS })
   const keys = listed.keys
     .map((entry) => entry.name)

@@ -1,7 +1,11 @@
 <script setup lang="ts">
 const { showChinese } = useSongLanguage()
 
-/** Primary navigation; retired sections stay out until they have data. */
+/**
+ * Primary navigation; retired sections stay out until they have data.
+ * The ops backend (`/ops/...`) is intentionally absent: it is a hidden entry point reached only by
+ * direct URL and protected by Cloudflare Access, so never add it here or to the footer.
+ */
 const links = [
   { label: '歌曲', to: '/', icon: 'i-lucide-music' },
   { label: '系列', to: '/series', icon: 'i-lucide-layers' },

@@ -1,5 +1,13 @@
-import { createError, type H3Event } from 'h3'
+import { createError, getHeader, type H3Event } from 'h3'
 import type { FeedbackRecord } from '../../shared/feedback.ts'
+import {
+  ACCESS_JWT_HEADER,
+  accessJwksOf,
+  normaliseTeamDomain,
+  resolveAccessIdentity,
+  type AccessConfig,
+  type AccessIdentity,
+} from './access.ts'
 
 /**
  * The part of Cloudflare's `KVNamespace` the feedback routes use.
@@ -11,10 +19,15 @@ export type FeedbackKv = {
   list: (options?: { prefix?: string; limit?: number }) => Promise<{ keys: { name: string }[] }>
 }
 
-/** Bindings the Worker must declare for feedback and for its read-only inbox. */
+/**
+ * Bindings the Worker must declare for feedback, for its admin inbox, and for the Access gate.
+ * `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` come from the Cloudflare Access application; when either
+ * is blank every admin feedback API fails closed with 401.
+ */
 export type FeedbackBindings = {
   FEEDBACK?: FeedbackKv
-  FEEDBACK_TOKEN?: string
+  ACCESS_TEAM_DOMAIN?: string
+  ACCESS_AUD?: string
 }
 
 /** Nitro's cloudflare_module preset attaches `{ request, env, context }` to every event. */
@@ -35,39 +48,50 @@ export const feedbackStoreOf = (event: H3Event): FeedbackKv | undefined => {
   return feedbackBindingsOf(event).FEEDBACK
 }
 
-/** Configured inbox secret, or an empty string when `FEEDBACK_TOKEN` has not been set. */
-export const feedbackTokenOf = (event: H3Event): string => {
-  return feedbackBindingsOf(event).FEEDBACK_TOKEN ?? ''
-}
-
-/** Compares two secrets without stopping at the first difference. Length mismatch returns early. */
-export const sameSecret = (left: string, right: string): boolean => {
-  if (left.length === 0 || left.length !== right.length) return false
-  let difference = 0
-  for (let index = 0; index < left.length; index += 1) {
-    difference |= left.charCodeAt(index) ^ right.charCodeAt(index)
-  }
-  return difference === 0
-}
-
 /** Serialises a record for KV. Kept here so the stored format has one owner. */
 export const serialiseFeedbackRecord = (record: FeedbackRecord): string => {
   return JSON.stringify(record)
 }
 
 /**
- * Requires a matching FEEDBACK_TOKEN for every admin feedback API.
- * On failure throws 401 with no feedback content, metadata, or counts in the body
- * (missing config and bad token look the same so nothing is leaked).
+ * Reads the Access application from the Worker bindings.
+ * Returns `null` when either value is blank, which makes every admin route fail closed.
  */
-export const assertFeedbackToken = (event: H3Event, supplied: string): void => {
-  const expected = feedbackTokenOf(event)
-  if (expected === '' || !sameSecret(supplied, expected)) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      message: 'Unauthorized',
-      data: null,
-    })
-  }
+export const accessConfigOf = (event: H3Event): AccessConfig | null => {
+  const bindings = feedbackBindingsOf(event)
+  const teamDomain = normaliseTeamDomain(bindings.ACCESS_TEAM_DOMAIN ?? '')
+  const aud = (bindings.ACCESS_AUD ?? '').trim()
+  if (teamDomain === '' || aud === '') return null
+  return { teamDomain, aud }
+}
+
+/**
+ * The single 401 every admin feedback route throws when identity cannot be proven.
+ * The body carries no feedback content, metadata, or counts, and the reason is never included;
+ * a missing header, an empty binding, a bad signature, and an expired token look identical.
+ */
+const unauthorized = (): never => {
+  throw createError({
+    statusCode: 401,
+    statusMessage: 'Unauthorized',
+    message: 'Unauthorized',
+    data: null,
+  })
+}
+
+/**
+ * Requires a valid Cloudflare Access identity on every admin feedback API.
+ *
+ * Reads `Cf-Access-Jwt-Assertion`, verifies it against the team JWKS (see `access.ts`), and throws
+ * a bare 401 on any failure. Call this before touching KV: a rejected request must not read, count,
+ * or echo stored feedback. The returned identity is for the server's own use and is never sent.
+ */
+export const assertFeedbackIdentity = async (event: H3Event): Promise<AccessIdentity> => {
+  const identity = await resolveAccessIdentity({
+    token: getHeader(event, ACCESS_JWT_HEADER),
+    config: accessConfigOf(event),
+    loadJwks: (teamDomain) => accessJwksOf(teamDomain),
+  })
+  if (identity === null) unauthorized()
+  return identity
 }

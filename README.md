@@ -92,6 +92,16 @@ Previews（非 `main` 分支）用同一套 Build command，deploy 换成 `npx w
 
 `catalog.sqlite` 是构建产物。构建同时写出 `catalog.sqlite.gz`：Cloudflare 不压缩 sqlite 类型，浏览器改为下载 gzip 副本（约 200 KB，未压缩时 676 KB）并在本地解压，URL 带构建时的内容哈希，可以长期缓存。每周工作流只提交 `data/increments/*.sql` 与 `docs/reports/`，因此数据更新后要再触发一次部署才会出现在线上。
 
+## 反馈收件箱（维护者）
+
+站点的任何页面都不链接这个地址，只能直接输入 URL：
+
+<https://miku-concert-stats.zc791.workers.dev/ops/feedback-inbox>
+
+它由 Cloudflare Access 保护，访问者必须先用维护者的 Cloudflare 账号登录，页面本身没有密码框。Worker 会在每个 `/api/feedback` 管理接口上自行校验 `Cf-Access-Jwt-Assertion`（RS256 签名、`aud`、`iss`、`exp`/`nbf`），校验失败一律返回 401 且不返回任何反馈数据；`wrangler.toml` 里 `ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样全部 401。收件箱按「全部 / 未解决 / 已解决」筛选并显示计数，可以手动标记已解决。不提供删除或归档：记录在提交 180 天后自动过期。Access 应用与两项 `[vars]` 的配置步骤见 [docs/architecture.md](docs/architecture.md#wranglertoml)。
+
+`POST /api/feedback` 保持公开，站点访客无需登录。
+
 ## 测试
 
 `pnpm test` 覆盖首演选择、开演钟点、串烧拆分、播放量区间、观察窗、换算门槛、版本合并、歌单槽位合并、跨地区合并与差异报告分级。目录测试会打开已提交的 SQL，核对 2014 年マジカルミライ年度首演是大阪演出 `2014-08-30`，并断言 2019 东京/大阪对照视图是 37 行、2024 系列年度的替换曲目共享序号。

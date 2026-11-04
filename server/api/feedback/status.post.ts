@@ -7,15 +7,10 @@ import {
   type FeedbackRecord,
   type FeedbackStatus,
 } from '../../../shared/feedback.ts'
-import {
-  assertFeedbackToken,
-  feedbackStoreOf,
-  serialiseFeedbackRecord,
-} from '../../utils/feedback.ts'
+import { assertFeedbackIdentity, feedbackStoreOf, serialiseFeedbackRecord } from '../../utils/feedback.ts'
 
-/** Body for `POST /api/feedback/status`. */
+/** Body for `POST /api/feedback/status`; identity comes from the Access header, never from here. */
 type StatusBody = {
-  token?: unknown
   id?: unknown
   receivedAt?: unknown
   status?: unknown
@@ -23,14 +18,13 @@ type StatusBody = {
 
 /**
  * Sets the triage status of one stored feedback record.
- * Identity is verified before any KV access. Failed verification is 401 with no feedback data.
+ * The caller must carry a Cloudflare Access JWT; identity is verified before any KV access, so a
+ * failed check is 401 with no feedback data. The record is rewritten under the same key and TTL.
  */
-const updateFeedbackStatus = async (
-  event: H3Event,
-): Promise<{ ok: true; item: FeedbackRecord }> => {
+const updateFeedbackStatus = async (event: H3Event): Promise<{ ok: true; item: FeedbackRecord }> => {
+  await assertFeedbackIdentity(event)
+
   const body = (await readBody(event)) as StatusBody | null
-  const token = typeof body?.token === 'string' ? body.token : ''
-  assertFeedbackToken(event, token)
 
   const id = typeof body?.id === 'string' ? body.id.trim() : ''
   const receivedAt = typeof body?.receivedAt === 'string' ? body.receivedAt.trim() : ''

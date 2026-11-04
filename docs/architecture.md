@@ -189,7 +189,17 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
 
-`server/api/feedback/list.get.ts` 是维护者读取反馈的只读接口：`GET /api/feedback/list?token=<FEEDBACK_TOKEN>`，按时间倒序返回最新 50 条（`limit` 最大 200），token 不匹配返回 401。没有单独的收件箱页面，理由是这个接口已经够用，且少一个需要鉴权的页面。
+`server/api/feedback/list.get.ts`、`server/api/feedback/[id].get.ts` 与 `server/api/feedback/status.post.ts` 组成维护者后台，唯一的使用者是隐藏页面 `app/pages/ops/feedback-inbox.vue`（`/ops/feedback-inbox`）。这个页面不挂在任何导航、页脚或公共组件里，只能直接输入 URL；`definePageMeta({ layout: false })` 去掉站点外壳，`useHead` 写 `robots: noindex, nofollow`。公共站点不链接 `/ops`，改导航时不要加回去。
+
+身份完全由 Cloudflare Access 负责，页面里没有密码框。`server/utils/access.ts` 读取 `Cf-Access-Jwt-Assertion` 请求头，用 WebCrypto 验证 RS256 签名（不引入 `jose` 之类的依赖），再校验 `iss` 必须等于 `https://<ACCESS_TEAM_DOMAIN>`、`aud` 必须包含 `ACCESS_AUD`，`exp` 已过期或 `nbf` 尚未生效都拒绝（允许 30 秒时钟偏差），`alg` 只接受 `RS256`（`none` 与 HMAC 混淆直接拒绝）。团队 JWKS 从 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs` 用 `fetch` 取，模块级缓存 5 分钟；取不到就拒绝，密钥轮换最迟 5 分钟后生效。
+
+`server/utils/feedback.ts` 的 `assertFeedbackIdentity(event)` 是唯一入口，list / detail / status 三个路由都在任何 KV 访问之前 `await` 它。任何失败——缺少请求头、绑定为空、签名错误、claim 不符、JWKS 不可达——都抛出同一个 `401 Unauthorized`，body 只有 `data: null`，不返回反馈内容、条数或原因；`ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样全部 401（fail closed）。验证成功的身份（`sub` / `email`）只在 Worker 内部使用，不写进响应，也不写入日志。
+
+`GET /api/feedback/list` 按时间倒序返回最新 50 条（`limit` 最大 200），每条带 `status`；`GET /api/feedback/:id?receivedAt=<ISO>` 读单条；`POST /api/feedback/status` 接收 `{ id, receivedAt, status }`，用同一个 KV key 与同样的 `FEEDBACK_TTL_SECONDS` 重写整条记录，状态只接受 `open` / `resolved`，旧记录缺 `status` 时按 `open` 解析。
+
+收件箱页提供 `全部 / 未解决 / 已解决` 筛选与各自计数（计数来自已加载的那一页，不发第二次请求）。明确不提供删除与归档：KV 本身就是只追加的日志，记录在提交 180 天后由 TTL 自动过期，保留原始描述比腾出空间更重要，也避免误删唯一证据。
+
+`server/api/feedback.post.ts` 保持公开且行为不变：它不校验身份，只在写入成功后返回 `{ ok, id }`。
 
 ## 数据流
 
@@ -218,6 +228,9 @@ flowchart TD
   widget["FeedbackWidget"]
   feedback["POST /api/feedback"]
   feedbackkv["KV binding FEEDBACK"]
+  ops["/ops/feedback-inbox（隐藏页面）"]
+  adminapi["feedback admin APIs"]
+  access["Cloudflare Access JWKS"]
   worker["Nitro Worker SSR"]
   lookup["GET /api/lookup"]
   report["docs/reports"]
@@ -251,6 +264,9 @@ flowchart TD
   pages --> widget
   widget -->|"description + sourceUrl + page URL/title"| feedback
   feedback --> feedbackkv
+  adminapi -->|"先校验 Access 身份"| access
+  adminapi --> feedbackkv
+  ops -->|"直接输入 URL"| adminapi
   pages -->|"local miss only"| lookup
   lookup --> vocadb
   sqlite --> report
@@ -261,12 +277,14 @@ flowchart TD
 
 ### `wrangler.toml`
 
-对象。`name`、`compatibility_date`、`compatibility_flags` 之外，还有反馈功能需要的两项：
+对象。`name`、`compatibility_date`、`compatibility_flags` 之外，还有反馈功能需要的三组配置：
 
 - `[[kv_namespaces]]`：`binding = "FEEDBACK"`，`id` 由 `pnpm exec wrangler kv namespace create FEEDBACK` 生成（当前是 `777b49ffd2744f12a54fc3611ff791e9`）。`nuxt build` 会把它抄进 `.output/server/wrangler.json`，部署时生效。换账号或删掉命名空间后必须重新创建并替换 id。
-- `FEEDBACK_TOKEN`：只读收件箱接口的密钥，用 `pnpm exec wrangler secret put FEEDBACK_TOKEN` 写入，不提交到仓库。没有它时 `GET /api/feedback/list` 返回 503。
+- `[vars] ACCESS_TEAM_DOMAIN` / `ACCESS_AUD`：Cloudflare Access 应用的团队域名（如 `example.cloudflareaccess.com`，不带 `https://`，写 `https://` 也能被规范化）与 Audience（AUD）标签。仓库里两项都是空字符串；**任意一项为空时所有管理接口都返回 401 且没有 payload**，所以忘记填只会锁死后台，不会泄露反馈。
+- 手工步骤：在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/ops/*` 与 `/api/feedback/*`，策略只允许维护者邮箱；再把这个应用的 AUD 标签与团队域名填进 `[vars]` 并重新部署。注意不要写成 `/api/feedback*`：那会把公开的 `POST /api/feedback` 一起拦在 Access 后面，访客就无法提交反馈了；`/api/feedback/*` 只覆盖 `list` / `status` / `<id>` 这些管理路径。
+- 旧的 `FEEDBACK_TOKEN` secret 已不再被读取，管理接口也不接受 query / body 里的 `token`；如需清理线上的历史 secret，可执行 `pnpm exec wrangler secret delete FEEDBACK_TOKEN`。
 
-`nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；本地要读真实数据请用线上的 `/api/feedback/list`。
+`nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；本地也没有 Access 应用，`/ops/feedback-inbox` 会停在「需要 Cloudflare Access 登录」的提示上。要看真实数据请在浏览器里完成 Access 登录后打开线上页面。
 
 ### `data/song-variants.json`
 
@@ -321,19 +339,25 @@ pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-反馈收件箱的密钥只需设置一次（写进 Worker 的 secret，不进仓库）：
+反馈收件箱不再使用 secret，改由 Cloudflare Access 登录。一次性手工步骤：
 
-```bash
-pnpm exec wrangler secret put FEEDBACK_TOKEN
+1. 在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/ops/*` 与 `/api/feedback/*`（不要用 `/api/feedback*`，否则会拦住公开的 `POST /api/feedback`）。
+2. 加一条 Allow 策略，只放行维护者邮箱（需要的话再加 MFA）。
+3. 复制应用的 Audience（AUD）标签与团队域名，填进 `wrangler.toml` 的 `[vars]`，再重新部署。
+
+```toml
+[vars]
+ACCESS_TEAM_DOMAIN = "example.cloudflareaccess.com"
+ACCESS_AUD = "<application-aud-tag>"
 ```
 
-之后直接读最新反馈，不需要打开 KV 面板：
+任意一项为空时后台整体 401，不会返回任何反馈数据。之后在浏览器打开 <https://miku-concert-stats.zc791.workers.dev/ops/feedback-inbox>，先完成 Cloudflare 账号登录；页面本身没有密码框。命令行要拿 JSON 时可以交给 `cloudflared` 带上 Access 头：
 
 ```bash
-curl -s "https://miku-concert-stats.zc791.workers.dev/api/feedback/list?token=<FEEDBACK_TOKEN>" | jq
+cloudflared access curl "https://miku-concert-stats.zc791.workers.dev/api/feedback/list?limit=200" | jq
 ```
 
-返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`；`collectedAt` 由服务端在缺省时补成 `receivedAt`，旧记录还可能带 `viewport`、`catalogVersion`。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
+返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`status`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`；`collectedAt` 由服务端在缺省时补成 `receivedAt`，旧记录还可能带 `viewport`、`catalogVersion`，且缺 `status` 时按 `open` 返回。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
 
 线上地址：<https://miku-concert-stats.zc791.workers.dev>
 
