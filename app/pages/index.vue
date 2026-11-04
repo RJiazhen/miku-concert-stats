@@ -32,7 +32,7 @@ onMounted(startLoad)
 /** Sentinel for an open end of the year range; Reka UI forbids an empty `SelectItem` value. */
 const YEAR_ANY = 'all'
 
-const mode = ref<RankingMode>('setlist')
+const mode = ref<RankingMode>('show')
 const selectedSeries = ref<number[]>([])
 const seriesTouched = ref(false)
 const yearFrom = ref(YEAR_ANY)
@@ -40,7 +40,6 @@ const yearTo = ref(YEAR_ANY)
 const includeBroadcast = ref(false)
 const includeMedleyComponents = ref(false)
 const characterFilter = ref('all')
-const query = ref('')
 const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'count', desc: true }])
 
 /** Mirrors a backend value into the URL once the page is interactive. */
@@ -73,11 +72,9 @@ type RankedSong = {
   reasons: string[]
   variantSongIds: number[]
   variantNames: string
-  /** Lower-cased haystack for the search box. */
-  search: string
 }
 
-/** Chinese titles are irrelevant to search; both names are indexed. */
+/** Ranking rows enriched with the display text and character list the table needs. */
 const ranked = computed<RankedSong[]>(() => {
   if (!catalog.value || selectedSeries.value.length === 0) return []
   const songs = catalog.value.songs
@@ -99,14 +96,6 @@ const ranked = computed<RankedSong[]>(() => {
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
-    const haystack = [
-      row.name,
-      row.artists ?? '',
-      variantNames,
-      characterList.join(' '),
-    ]
-      .join(' ')
-      .toLowerCase()
     return {
       songId: row.songId,
       rank: index + 1,
@@ -122,20 +111,14 @@ const ranked = computed<RankedSong[]>(() => {
       reasons: row.reasons.map(formatRotationReason),
       variantSongIds: row.variantSongIds,
       variantNames,
-      search: haystack,
     }
   })
 })
 
-/** Ranking rows after the search box and character filter. */
-const filtered = computed(() => {
-  const needle = query.value.trim().toLowerCase()
-  return ranked.value.filter((row) => {
-    if (characterFilter.value !== 'all' && !row.characterList.includes(characterFilter.value)) return false
-    if (needle === '') return true
-    return row.search.includes(needle)
-  })
-})
+/** Ranking rows after the character filter. */
+const filtered = computed(() =>
+  ranked.value.filter((row) => characterFilter.value === 'all' || row.characterList.includes(characterFilter.value)),
+)
 
 /** Sortable header button. */
 const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: () => false | 'asc' | 'desc'; toggleSorting: (desc?: boolean) => void } }) => {
@@ -174,7 +157,6 @@ type FilterState = {
   broadcast: boolean
   medley: boolean
   character: string
-  q: string
   sort: string
   dir: 'asc' | 'desc'
 }
@@ -188,7 +170,6 @@ const state = computed<FilterState>(() => ({
   broadcast: includeBroadcast.value,
   medley: includeMedleyComponents.value,
   character: characterFilter.value,
-  q: query.value,
   sort: sorting.value[0]?.id ?? 'count',
   dir: sorting.value[0]?.desc === false ? 'asc' : 'desc',
 }))
@@ -202,14 +183,13 @@ const syncUrl = (): void => {
   void navigateTo(
     {
       query: {
-        mode: current.mode === 'show' ? 'show' : undefined,
+        mode: current.mode === 'edition' ? 'edition' : undefined,
         series: seriesIsDefault ? undefined : current.series.join(','),
         from: current.from || undefined,
         to: current.to || undefined,
         broadcast: current.broadcast ? '1' : undefined,
         medley: current.medley ? '1' : undefined,
         character: current.character === 'all' ? undefined : current.character,
-        q: current.q || undefined,
         sort: current.sort === 'count' ? undefined : current.sort,
         dir: current.dir === 'desc' ? undefined : current.dir,
       },
@@ -224,7 +204,7 @@ const readUrl = (): void => {
   const route = useRoute()
   const url = route.query
   const readString = (value: unknown): string => (typeof value === 'string' ? value : '')
-  if (readString(url.mode) === 'show') mode.value = 'show'
+  if (readString(url.mode) === 'edition') mode.value = 'edition'
   const series = readString(url.series)
   if (series !== '') {
     const ids = series
@@ -243,7 +223,6 @@ const readUrl = (): void => {
   includeBroadcast.value = readString(url.broadcast) === '1'
   includeMedleyComponents.value = readString(url.medley) === '1'
   characterFilter.value = readString(url.character) || 'all'
-  query.value = readString(url.q)
   const sort = readString(url.sort)
   if (sort !== '') sorting.value = [{ id: sort, desc: readString(url.dir) !== 'asc' }]
   mounted.value = true
@@ -264,26 +243,24 @@ onMounted(() => {
 
 /** Clears every filter back to the default view. */
 const reset = (): void => {
-  mode.value = 'setlist'
+  mode.value = 'show'
   selectedSeries.value = catalog.value?.series.map((row) => row.id) ?? []
   yearFrom.value = YEAR_ANY
   yearTo.value = YEAR_ANY
   includeBroadcast.value = false
   includeMedleyComponents.value = false
   characterFilter.value = 'all'
-  query.value = ''
   sorting.value = [{ id: 'count', desc: true }]
 }
 
 /** Active filter count, shown next to the reset button. */
 const activeFilters = computed(() => {
   let count = 0
-  if (mode.value === 'show') count++
+  if (mode.value === 'edition') count++
   if (yearOrNull(yearFrom.value) !== null || yearOrNull(yearTo.value) !== null) count++
   if (includeBroadcast.value) count++
   if (includeMedleyComponents.value) count++
   if (characterFilter.value !== 'all') count++
-  if (query.value) count++
   const all = catalog.value?.series.map((row) => row.id) ?? []
   if (selectedSeries.value.length !== all.length) count++
   return count
@@ -341,7 +318,8 @@ const yearToItems = computed(() =>
         初音未来演唱会<br class="sm:hidden">曲目统计
       </h1>
       <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        按歌单或按场次统计每首歌出现的次数。默认不计配信、线上和 VR 场，也不把串烧的组成歌曲单独计入。
+        按场次或按年版统计每首歌出现的次数。按年版时同一系列年鉴只算一次，跨地区的多份歌单不重复计数。
+        默认不计配信、线上和 VR 场，也不把串烧的组成歌曲单独计入。
         同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
       </p>
     </section>
@@ -357,13 +335,21 @@ const yearToItems = computed(() =>
     <UCard v-else>
       <div class="flex flex-wrap items-end gap-3">
         <UFieldGroup size="sm">
-          <UButton :variant="mode === 'setlist' ? 'solid' : 'outline'" label="按歌单" @click="mode = 'setlist'" />
           <UButton :variant="mode === 'show' ? 'solid' : 'outline'" label="按场次" @click="mode = 'show'" />
+          <UButton :variant="mode === 'edition' ? 'solid' : 'outline'" label="按年版" @click="mode = 'edition'" />
         </UFieldGroup>
-        <UInput v-model="query" icon="i-lucide-search" placeholder="搜索歌名、版本或艺人" size="sm" class="min-w-56 flex-1" />
-        <USelect v-model="yearFrom" :items="yearFromItems" aria-label="起始年" title="起始年" size="sm" class="w-24" />
-        <USelect v-model="yearTo" :items="yearToItems" aria-label="结束年" title="结束年" size="sm" class="w-24" />
-        <USelect v-model="characterFilter" :items="characterItems" size="sm" class="w-36" />
+        <label class="grid gap-1 text-xs text-muted">
+          起始年
+          <USelect v-model="yearFrom" :items="yearFromItems" size="sm" class="w-24" />
+        </label>
+        <label class="grid gap-1 text-xs text-muted">
+          结束年
+          <USelect v-model="yearTo" :items="yearToItems" size="sm" class="w-24" />
+        </label>
+        <label class="grid gap-1 text-xs text-muted">
+          角色
+          <USelect v-model="characterFilter" :items="characterItems" size="sm" class="w-36" />
+        </label>
         <UButton
           color="neutral"
           variant="outline"
@@ -371,6 +357,7 @@ const yearToItems = computed(() =>
           icon="i-lucide-rotate-ccw"
           :label="activeFilters > 0 ? `重置 ${activeFilters}` : '重置'"
           :disabled="activeFilters === 0"
+          class="ml-auto"
           @click="reset"
         />
       </div>
@@ -459,7 +446,7 @@ const yearToItems = computed(() =>
           <UEmpty
             icon="i-lucide-search-x"
             title="没有符合条件的歌曲"
-            description="换一个关键词，或放宽年份与系列筛选。"
+            description="放宽年份与系列筛选。"
             variant="naked"
           />
         </template>

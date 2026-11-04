@@ -271,12 +271,13 @@ export const songById = (catalog: Catalog, songId: number): SongRow | undefined 
   return catalog.songs.find((song) => song.id === songId)
 }
 
-/** How many times a song is counted: once per setlist, or once per performance. */
-export type RankingMode = 'setlist' | 'show'
+/** How many times a song is counted: once per series edition, or once per performance. */
+export type RankingMode = 'edition' | 'show'
 
 /**
  * Filters for song appearance ranking.
  * Omitted series and year bounds include everything. Broadcasts and medley components stay out unless enabled.
+ * Omitted mode defaults to show.
  */
 export type RankingOptions = {
   mode?: RankingMode
@@ -350,21 +351,24 @@ const performanceIncluded = (
   return true
 }
 
-/** Running distinct setlists or shows, series, years, and uncertainty for one song. */
+/** Running distinct editions or shows, series, years, and uncertainty for one song. */
 type RankingBucket = {
-  keys: Set<number>
+  keys: Set<string>
   seriesIds: Set<number>
   years: Set<number>
   reasons: Set<string>
 }
 
 /**
- * Ranks songs by setlist or show appearances.
- * Setlist mode counts each song_list_id at most once. Show mode counts performances the rotation parser assigns.
+ * Ranks songs by edition or show appearances.
+ * Edition mode counts each song at most once per series edition, keyed by series id and series number,
+ * so several regional setlists of one edition contribute a single appearance. Performances without a
+ * series number contribute nothing in edition mode.
+ * Show mode counts performances the rotation parser assigns.
  * Direct lines use role `listed`. Role `component` is included only when `includeMedleyComponents` is true.
  */
 export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = {}): SongRanking[] => {
-  const mode: RankingMode = options.mode === 'show' ? 'show' : 'setlist'
+  const mode: RankingMode = options.mode === 'edition' ? 'edition' : 'show'
   const variants = options.variants ?? emptySongVariantIndex()
   const knownSeries = new Set(catalog.series.map((row) => row.id))
   const itemKeys = new Set(catalog.setlistItems.map((row) => `${row.song_list_id}:${row.position}`))
@@ -380,15 +384,15 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
   }
 
   const buckets = new Map<number, RankingBucket>()
-  /** Records one setlist or show toward a song, keeping uncertainty from show mode. */
+  /** Records one edition or show toward a song; `key` dedupes within the bucket, and uncertainty is kept only in show mode. */
   const addAppearance = (
     songId: number,
-    key: number,
+    key: string,
     seriesId: number,
     year: number | null,
     reasons: readonly string[],
   ): void => {
-    const bucket = buckets.get(songId) ?? { keys: new Set<number>(), seriesIds: new Set<number>(), years: new Set<number>(), reasons: new Set<string>() }
+    const bucket = buckets.get(songId) ?? { keys: new Set<string>(), seriesIds: new Set<number>(), years: new Set<number>(), reasons: new Set<string>() }
     bucket.keys.add(key)
     bucket.seriesIds.add(seriesId)
     if (year !== null) bucket.years.add(year)
@@ -403,10 +407,11 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
     const listId = performance.song_list_id
     if (listId === null) continue
     const year = performanceYear(performance.start_date)
-    if (mode === 'setlist') {
+    if (mode === 'edition') {
       const songs = songsByList.get(listId)
-      if (!songs) continue
-      for (const songId of songs) addAppearance(songId, listId, performance.series_id, year, [])
+      if (!songs || performance.series_number === null) continue
+      const editionKey = `${performance.series_id}:${performance.series_number}`
+      for (const songId of songs) addAppearance(songId, editionKey, performance.series_id, year, [])
       continue
     }
     for (const link of catalog.setlistItemSongs) {
@@ -414,7 +419,7 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue
       const line = lineByKey.get(`${link.song_list_id}:${link.position}`)
       if (!line || !line.performanceIds.includes(performance.id)) continue
-      addAppearance(variants.canonicalSongId(link.song_id), performance.id, performance.series_id, year, line.uncertain ? line.reasons : [])
+      addAppearance(variants.canonicalSongId(link.song_id), String(performance.id), performance.series_id, year, line.uncertain ? line.reasons : [])
     }
   }
 

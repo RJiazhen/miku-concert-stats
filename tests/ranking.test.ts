@@ -82,7 +82,7 @@ const link = (songListId: number, position: number, songId: number, role: Setlis
 })
 
 describe('song appearance ranking', () => {
-  it('counts a shared setlist once and each show separately', () => {
+  it('counts one appearance per edition and each show separately', () => {
     const rows = catalog()
     rows.songs = [song(1, 'World is Mine', 'ryo'), song(2, 'Melt', 'supercell')]
     rows.setlistItems = [item(10, 1, 1), item(10, 2, 2), item(11, 1, 1)]
@@ -92,15 +92,49 @@ describe('song appearance ranking', () => {
       performance({ id: 2, series_id: 81, song_list_id: 10, start_date: '2014-09-20' }),
       performance({ id: 3, series_id: 82, song_list_id: 11, start_date: '2016-03-23' }),
     ]
-    const bySetlist = rankSongAppearances(rows)
-    expect(bySetlist.map((row) => [row.songId, row.count, row.seriesCount, row.firstYear, row.lastYear])).toEqual([
+    const byEdition = rankSongAppearances(rows, { mode: 'edition' })
+    expect(byEdition.map((row) => [row.songId, row.count, row.seriesCount, row.firstYear, row.lastYear])).toEqual([
       [1, 2, 2, 2014, 2016],
       [2, 1, 1, 2014, 2014],
     ])
-    expect(bySetlist[0]).toMatchObject({ name: 'World is Mine', artists: 'ryo' })
+    expect(byEdition[0]).toMatchObject({ name: 'World is Mine', artists: 'ryo' })
     const byShow = rankSongAppearances(rows, { mode: 'show' })
     expect(byShow.find((row) => row.songId === 1)?.count).toBe(3)
     expect(byShow.find((row) => row.songId === 2)?.count).toBe(2)
+  })
+
+  it('counts different setlists of one edition once and different editions twice', () => {
+    const rows = catalog()
+    rows.songs = [song(1, 'Shared', 'a'), song(2, 'Expo only', 'b')]
+    rows.setlistItems = [item(10, 1, 1), item(11, 1, 1), item(11, 2, 2), item(12, 1, 1)]
+    rows.setlistItemSongs = [
+      link(10, 1, 1, 'listed'),
+      link(11, 1, 1, 'listed'),
+      link(11, 2, 2, 'listed'),
+      link(12, 1, 1, 'listed'),
+    ]
+    rows.performances = [
+      performance({ id: 1, series_id: 82, series_number: 2025, song_list_id: 10, start_date: '2025-05-01' }),
+      performance({ id: 2, series_id: 82, series_number: 2025, song_list_id: 11, start_date: '2025-06-01' }),
+      performance({ id: 3, series_id: 82, series_number: 2026, song_list_id: 12, start_date: '2026-05-01' }),
+    ]
+    const byEdition = rankSongAppearances(rows, { mode: 'edition' })
+    expect(byEdition.find((row) => row.songId === 1)?.count).toBe(2)
+    expect(byEdition.find((row) => row.songId === 2)?.count).toBe(1)
+    expect(rankSongAppearances(rows, { mode: 'show' }).find((row) => row.songId === 1)?.count).toBe(3)
+  })
+
+  it('defaults to show mode when options.mode is omitted', () => {
+    const rows = catalog()
+    rows.songs = [song(1, 'Shared', 'a')]
+    rows.setlistItems = [item(10, 1, 1), item(11, 1, 1)]
+    rows.setlistItemSongs = [link(10, 1, 1, 'listed'), link(11, 1, 1, 'listed')]
+    rows.performances = [
+      performance({ id: 1, series_id: 82, series_number: 2025, song_list_id: 10, start_date: '2025-05-01' }),
+      performance({ id: 2, series_id: 82, series_number: 2025, song_list_id: 11, start_date: '2025-06-01' }),
+    ]
+    expect(rankSongAppearances(rows).find((row) => row.songId === 1)?.count).toBe(2)
+    expect(rankSongAppearances(rows, { mode: 'edition' }).find((row) => row.songId === 1)?.count).toBe(1)
   })
 
   it('filters series, years, broadcasts, and medley components', () => {
@@ -125,14 +159,14 @@ describe('song appearance ranking', () => {
     expect(rankSongAppearances(rows, { seriesIds: [82] })).toEqual([])
     expect(rankSongAppearances(rows, { yearFrom: 2015, yearTo: 2019 })).toEqual([])
     expect(rankSongAppearances(rows, { yearFrom: 2014 })[0]).toMatchObject({ songId: 1, firstYear: 2014, lastYear: 2014 })
-    const withBroadcasts = rankSongAppearances(rows, { includeBroadcast: true, seriesIds: [82] })
+    const withBroadcasts = rankSongAppearances(rows, { mode: 'edition', includeBroadcast: true, seriesIds: [82] })
     expect(withBroadcasts[0]).toMatchObject({ songId: 1, count: 1, firstYear: 2021, lastYear: 2023 })
-    const withMedley = rankSongAppearances(rows, { includeMedleyComponents: true })
+    const withMedley = rankSongAppearances(rows, { mode: 'edition', includeMedleyComponents: true })
     expect(withMedley.find((row) => row.songId === 2)).toMatchObject({ count: 1, artists: 'b' })
     expect(rankSongAppearances(rows, { mode: 'show', includeBroadcast: true }).find((row) => row.songId === 1)?.count).toBe(5)
   })
 
-  it('counts show mode from parsed notes and keeps setlist mode exact', () => {
+  it('counts show mode from parsed notes and keeps edition mode exact', () => {
     const rows = catalog()
     rows.songs = [song(1, 'Shared', 'a'), song(2, 'Tokyo only', 'b'), song(3, 'Saihate', 'Onyx')]
     rows.setlistItems = [item(10, 1, 1), item(10, 2, 2), item(10, 3, 3)]
@@ -149,7 +183,7 @@ describe('song appearance ranking', () => {
     const osaka = rows.performances[1]
     if (tokyo) tokyo.end_date = '2024-08-30'
     if (osaka) osaka.end_date = '2024-10-12'
-    expect(rankSongAppearances(rows).find((row) => row.songId === 3)).toMatchObject({ count: 1, approximate: false })
+    expect(rankSongAppearances(rows, { mode: 'edition' }).find((row) => row.songId === 3)).toMatchObject({ count: 1, approximate: false })
     expect(rankSongAppearances(rows, { mode: 'show' }).find((row) => row.songId === 3)).toMatchObject({
       count: 1,
       approximate: false,
