@@ -63,7 +63,12 @@ CREATE TABLE song_lists (
   featured_category TEXT,
   source_url TEXT NOT NULL,
   retrieved_at TEXT NOT NULL,
-  announced_at TEXT
+  announced_at TEXT,
+  -- 'vocadb' for an event song list, 'album' for a release tracklist used as a fallback.
+  source TEXT NOT NULL DEFAULT 'vocadb',
+  -- VocaDB album id and medium when source is 'album'.
+  album_id INTEGER,
+  medium TEXT
 );
 
 CREATE TABLE songs (

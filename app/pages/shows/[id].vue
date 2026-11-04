@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { buildSetlistDisplay } from '~~/shared/edition-setlists.ts'
+import { albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
@@ -28,6 +29,13 @@ const display = computed(() => {
 })
 
 const editionNumber = computed(() => performance.value?.series_number ?? null)
+
+/** Album behind this performance's setlist, empty when the list is VocaDB's own. */
+const albumSources = computed(() => {
+  const listId = performance.value?.song_list_id
+  if (!catalog.value || listId === null || listId === undefined) return []
+  return albumSetlistSources(catalog.value, [listId])
+})
 
 /** Performance name with its place in the site language. */
 const performanceLabel = computed(() => (performance.value ? localizePlace(performance.value.name) : ''))
@@ -75,8 +83,11 @@ const performanceLabel = computed(() => (performance.value ? localizePlace(perfo
         title="这场在 VocaDB 没有歌单"
         description="没有歌单时无法列出曲目。"
       />
-      <SetlistTable v-else-if="display && review" :display="display" :review="review" />
-      <USkeleton v-else class="h-64 w-full rounded-xl" />
+      <template v-else>
+        <AlbumSetlistAlert :sources="albumSources" />
+        <SetlistTable v-if="display && review" :display="display" :review="review" />
+        <USkeleton v-else class="h-64 w-full rounded-xl" />
+      </template>
     </template>
   </main>
 </template>

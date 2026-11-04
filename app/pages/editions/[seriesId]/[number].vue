@@ -5,6 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { buildSetlistDisplay, displaySides, editionSongLists } from '~~/shared/edition-setlists.ts'
+import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
@@ -69,6 +70,13 @@ const premiere = computed(() => {
   if (!catalog.value) return null
   return catalog.value.premieres.find((row) => row.series_id === seriesId.value && row.series_number === seriesNumber.value) ?? null
 })
+
+/** Album sources behind the displayed side. */
+const albumSources = computed(() => {
+  if (!catalog.value) return []
+  const side = sides.value[sideIndex.value] ?? []
+  return albumSetlistSources(catalog.value, side)
+})
 </script>
 
 <template>
@@ -100,6 +108,7 @@ const premiere = computed(() => {
               {{ performance.start_date ?? '日期未知' }} · {{ localizePlace(performance.name) }}
             </NuxtLink>
             <span v-if="performance.song_list_id === null" class="text-muted"> · 无歌单</span>
+            <span v-else-if="albumIdFromSongListId(performance.song_list_id) !== null" class="text-muted"> · 歌单来自专辑</span>
           </li>
           <li v-if="performances.length === 0" class="text-muted">这个年版没有演出记录。</li>
         </ul>
@@ -116,6 +125,7 @@ const premiere = computed(() => {
       </UCard>
 
       <UAlert v-if="splitNote" color="warning" variant="subtle" icon="i-lucide-info" :description="splitNote" />
+      <AlbumSetlistAlert :sources="albumSources" />
       <USkeleton v-if="pending" class="h-64 w-full rounded-xl" />
       <UEmpty v-else-if="!display" icon="i-lucide-list-x" title="这个年版没有歌单" description="VocaDB 上没有可用的歌单记录。" />
       <SetlistTable v-else-if="display && review" :display="display" :review="review" />

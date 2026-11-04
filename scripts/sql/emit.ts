@@ -9,13 +9,19 @@ export const sqlLiteral = (value: string | number | null): string => {
 }
 
 /** One INSERT statement, chunked by the caller. */
-export const insertSql = (table: string, columns: readonly string[], rows: readonly (readonly (string | number | null)[])[]): string => {
+export const insertSql = (
+  table: string,
+  columns: readonly string[],
+  rows: readonly (readonly (string | number | null)[])[],
+  orIgnore = false,
+): string => {
   if (rows.length === 0) return ''
   const values = rows.map((row) => {
     if (row.length !== columns.length) throw new Error(`Column mismatch for ${table}`)
     return `(${row.map((value) => sqlLiteral(value)).join(', ')})`
   })
-  return `INSERT INTO ${table} (${columns.join(', ')}) VALUES\n${values.join(',\n')};`
+  const verb = orIgnore ? 'INSERT OR IGNORE' : 'INSERT'
+  return `${verb} INTO ${table} (${columns.join(', ')}) VALUES\n${values.join(',\n')};`
 }
 
 /** Splits rows so a single statement stays reviewable in git diffs. */
@@ -24,10 +30,27 @@ export const chunkInserts = (
   columns: readonly string[],
   rows: readonly (readonly (string | number | null)[])[],
   size = 80,
+): string => chunk(table, columns, rows, size, false)
+
+/** Like `chunkInserts`, but keeps existing rows instead of failing on a duplicate primary key. */
+export const chunkInsertsIgnoring = (
+  table: string,
+  columns: readonly string[],
+  rows: readonly (readonly (string | number | null)[])[],
+  size = 80,
+): string => chunk(table, columns, rows, size, true)
+
+/** Builds one table's INSERT statements in reviewable chunks. */
+const chunk = (
+  table: string,
+  columns: readonly string[],
+  rows: readonly (readonly (string | number | null)[])[],
+  size: number,
+  orIgnore: boolean,
 ): string => {
   const parts: string[] = []
   for (let index = 0; index < rows.length; index += size) {
-    const sql = insertSql(table, columns, rows.slice(index, index + size))
+    const sql = insertSql(table, columns, rows.slice(index, index + size), orIgnore)
     if (sql) parts.push(sql)
   }
   return parts.join('\n')

@@ -32,6 +32,8 @@
 
 `scripts/vocadb/collect.ts`（`pnpm collect`）拉取上述六个系列：系列详情、每场 `releaseEvents`、歌单分页（每页 50，`fields=Names,PVs,WebLinks`）。`scripts/vocadb/normalize.ts` 把 API 对象收成目录行。`scripts/vocadb/api-types.ts` 是这些响应的类型。
 
+VocaDB 上没有歌单的演出可以由专辑曲目补位。`data/album-setlists.json` 为每一场人工指定一张专辑，`scripts/vocadb/album-setlists.ts`（`pnpm collect:albums`，`pnpm collect` 末尾也会执行）只请求这些专辑的 `Tracks`，写出 `data/increments/0004-album-setlists.sql`：每张专辑一份 `song_lists` 行（`source = 'album'`、`album_id`、`medium`），曲目按碟号与轨号写进 `setlist_items`、`setlist_item_songs`，最后 `UPDATE performances ... WHERE song_list_id IS NULL` 把这批演出指向该歌单。这个条件保证 VocaDB 以后补上真歌单时专辑曲目不会覆盖它。曲目沿 `originalVersionId` 一路解析到原曲（专辑版可能是上一张专辑版本的再版，所以不能只跟一跳），播放量仍记在原曲上；没有原曲的串烧保留专辑曲目的 id 与标题。VocaDB 上 2018 年以后的蓝光条目没有曲目，所以多数年份只能用同年版 CD。
+
 写入规则：
 
 - 名称或简介命中「配信」或 `livestream` 的场次，`shared/premiere.ts` 的 `performanceRole` 标为 `broadcast`。「Online」单独出现仍是 `show`。
@@ -70,9 +72,9 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `itemsMergeable` 判定两行是否同一槽位：演出集合不同时要求两边在日期与场次上对齐；同一场记录跨多天时，退回按备注的日期/日夜判定；任一侧没有备注时不合并。
 - `groupRowsIntoSlots` 只合并**连续**且与槽位内每一行都互斥的行。
 
-`shared/edition-setlists.ts` 负责跨歌单合并：
+`shared/album-setlists.ts` 校验 `data/album-setlists.json`：键是 performance id，值含 `albumId`、`albumType`（`bluray` / `cd` / `dvd`）与可选 `note`。它给出合成歌单 id（`1_000_000_000 + albumId`，与 VocaDB 歌单 id 不重叠）、曲目到原曲的解析，以及中文来源文案。`albumSetlistSources` 从目录里挑出某份歌单对应的专辑，页面据此显示「歌单来自蓝光/CD《…》的曲目列表，不是 VocaDB 上该场演出的歌单」。
 
-- `parseSetlistMerges` 校验 `data/setlist-merges.json`（键是 `song_list_id`，值为 `group` 与可选 `note`）。
+`shared/edition-setlists.ts` 负责跨歌单合并：- `parseSetlistMerges` 校验 `data/setlist-merges.json`（键是 `song_list_id`，值为 `group` 与可选 `note`）。
 - `partitionSongLists` 把一个年版的歌单分成合并组与独立歌单。
 - `buildSetlistDisplay` 选场次最多的歌单作骨架，其余歌单用 LCS 对齐；重复曲目折叠进已有行；最后按槽位分组并给出行号、`场次` 标签与完整场次名。每一场都演出的行不写场次标签。
 
@@ -95,12 +97,12 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，模式、系列、年份、配信、串烧、角色、关键词筛选；筛选写入 URL query；合并版本行显示「含 N 个版本」；艺人列只显示制作人，宽度受限并带完整署名气泡 |
-| `/raw` | `app/pages/raw.vue` | 原始数据。按年版合并歌单（`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单场次、未解析备注、串烧隔离、疑似重复） |
+| `/raw` | `app/pages/raw.vue` | 原始数据。按年版合并歌单（`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单场次、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演唱会数与场数（演出日）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上场次单独提示 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown |
 | `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录、投稿与（有快照时的）播放量 |
-| `/shows/{id}` | `app/pages/shows/[id].vue` | 一场的轮换解析结果与长度一致性 |
-| `/editions/{seriesId}/{number}` | `app/pages/editions/[seriesId]/[number].vue` | 一个年版的合并歌单，可切到逐份歌单 |
+| `/shows/{id}` | `app/pages/shows/[id].vue` | 一场的轮换解析结果与长度一致性；歌单来自专辑时显示来源提示 |
+| `/editions/{seriesId}/{number}` | `app/pages/editions/[seriesId]/[number].vue` | 一个年版的合并歌单，可切到逐份歌单；专辑补位的歌单同样标注来源 |
 
 `app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它先跑 `localSongMatches`，本地没有命中时才请求 `/api/lookup`；结果链到 `/songs/{id}`，也可以带着关键词跳到排行。
 
@@ -127,10 +129,13 @@ flowchart TD
   vocadb["VocaDB public API"]
   cache["data/cache SHA-256 JSON"]
   collect["scripts/vocadb/collect.ts"]
+  albums["data/album-setlists.json"]
+  collectalbums["scripts/vocadb/album-setlists.ts"]
   youtube["YouTube Data API videos.list"]
   snap["scripts/snapshot-youtube.ts"]
   inc1["data/increments/0001-vocadb-catalog.sql"]
   inc2["data/increments/0002-youtube-snapshots.sql"]
+  inc4["data/increments/0004-album-setlists.sql"]
   eval["scripts/evaluate-conversion.ts"]
   inc3["data/increments/0003-conversion.sql"]
   schema["data/schema.sql"]
@@ -150,12 +155,17 @@ flowchart TD
   cache --> collect
   collect --> inc1
   collect --> eval
+  vocadb --> collectalbums
+  albums --> collectalbums
+  collect --> collectalbums
+  collectalbums --> inc4
   youtube --> snap
   snap --> inc2
   snap --> eval
   schema --> build
   inc1 --> build
   inc2 --> build
+  inc4 --> build
   inc3 --> build
   eval --> inc3
   build --> sqlite
@@ -182,6 +192,10 @@ flowchart TD
 
 对象。键是 `song_list_id`，值是 `group`（同一组合共用）与可选 `note`。用 LCS 覆盖率人工确认过才写入；`docs/reports/setlist-differences.md` 会列出未合并的候选。
 
+### `data/album-setlists.json`
+
+对象。键是 VocaDB performance id，值是 `albumId`（VocaDB 专辑 id）、`albumType`（`bluray` / `cd` / `dvd`）与可选 `note`。只收录人工核对过的对应关系：同年份有多座城市时共用同一年版的官方专辑，并在 `note` 里写明这是年版级对应。没有发行专辑的年份（2026、2027）不写。目录里的歌单 id 是 `1_000_000_000 + albumId`，`song_lists.source = 'album'`，`medium` 取这里的 `albumType`。曲目沿 `originalVersionId` 解析到原曲，因此排行榜与播放量仍落在原曲上。
+
 ### `data/song-titles.zh-CN.json`
 
 对象。键是 VocaDB 歌曲 id，值含非空 `title`、非空 `source` 与可选 `comment`。
@@ -201,7 +215,7 @@ pnpm install
 pnpm dev --port 3001
 ```
 
-`predev` 会先跑 `build-catalog`。开发服务器已占用 Nuxt 锁时，另开的检查要跳过锁：
+`predev` 会先跑 `build-catalog`。补抓专辑曲目（只请求 `data/album-setlists.json` 里的专辑）时运行 `pnpm collect:albums`；它会重写 `data/increments/0004-album-setlists.sql`，不会碰 `0001`。开发服务器已占用 Nuxt 锁时，另开的检查要跳过锁：
 
 ```bash
 NUXT_IGNORE_LOCK=1 pnpm lint

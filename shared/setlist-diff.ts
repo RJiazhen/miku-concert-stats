@@ -1,4 +1,5 @@
 import { reviewRotations } from './rotation.ts'
+import { setlistSourceTag, setlistSourceUrl } from './album-setlists.ts'
 import { partitionSongLists, type SetlistMergeIndex } from './edition-setlists.ts'
 import type { Catalog, PerformanceRow, SongRow } from './types.ts'
 
@@ -323,9 +324,15 @@ export const pairDifferences = (catalog: Catalog, pair: SetlistPair): { onlyLeft
 /** Renders one Markdown list item for a pair. */
 const pairRow = (catalog: Catalog, pair: SetlistPair, checkable: boolean): string => {
   const differences = pairDifferences(catalog, pair)
+  /** Markdown link for a song list; album fallbacks are tagged and point at the album. */
+  const listLink = (songListId: number): string => {
+    const tag = setlistSourceTag(songListId)
+    const text = tag === null ? String(songListId) : `${songListId} · ${tag}`
+    return `[${text}](${setlistSourceUrl(songListId)})`
+  }
   const headline = [
     `**${pair.seriesName} ${pair.seriesNumber}**`,
-    `[${pair.leftId}](https://vocadb.net/SongList/Details/${pair.leftId}) → [${pair.rightId}](https://vocadb.net/SongList/Details/${pair.rightId})`,
+    `${listLink(pair.leftId)} → ${listLink(pair.rightId)}`,
     `行数 ${pair.left.itemCount} → ${pair.right.itemCount}（${signed(pair.countDelta)}）`,
     `正片/安可 ${pair.left.mainCount}/${pair.left.encoreCount} → ${pair.right.mainCount}/${pair.right.encoreCount}（安可 ${signed(pair.encoreDelta)}）`,
     `共有 ${pair.shared} / 仅左 ${pair.onlyLeft} / 仅右 ${pair.onlyRight}`,
