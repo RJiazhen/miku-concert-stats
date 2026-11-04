@@ -16,6 +16,7 @@ import type { SqlRow } from '../shared/types.ts'
 const titles = parseSeriesTitles({
   '初音ミク「マジカルミライ」': '魔法未来',
   '初音ミクシンフォニー': '初音未来交响乐',
+  'MIKU WITH YOU': '未来有你',
 })
 
 describe('Chinese series titles', () => {
@@ -62,6 +63,7 @@ describe('Chinese series titles', () => {
       '初音未来交响乐 2016 東京都',
     )
     expect(localizeSeriesInName('MIKU EXPO 2024 Vancouver', 'MIKU EXPO', 2024, titles, 'zh')).toBe('MIKU EXPO 2024 Vancouver')
+    expect(localizeSeriesInName('MIKU WITH YOU 2024 in Shanghai', 'MIKU WITH YOU', 2024, titles, 'zh')).toBe('未来有你 2024 in Shanghai')
     expect(localizeSeriesInName('初音ミクシンフォニー 2016 東京都', '初音ミクシンフォニー', 2016, titles, 'original')).toBe(
       '初音ミクシンフォニー 2016 東京都',
     )

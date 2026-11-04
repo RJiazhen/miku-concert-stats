@@ -235,7 +235,7 @@
 
 ## 五、展示层的小问题
 
-1. **MIKU EXPO / MIKU WITH YOU 没有中文译名**（刻意保留官方拉丁拼写），`data/series-titles.zh-CN.json` 里没有它们。若日后要译，需要同时更新 `tests/series-titles.test.ts` 的「每个日文系列都要有译名」守卫。
+1. **MIKU EXPO 没有中文译名**（保留官方拉丁拼写），`data/series-titles.zh-CN.json` 里没有它。`MIKU WITH YOU` 已按官方中文名补为「未来有你」。若日后要译 `MIKU EXPO`，直接加条目即可；`tests/series-titles.test.ts` 只要求日文系列必须有译名，拉丁系列不作强制。
 2. **质量报告只给汇总数字**，不逐行列出「没有歌单或开始日期的演出」（目前 30 场）。要定位具体场次只能查 `/raw` 的演出表。
 3. **公开页面只保留 系列 → 演出 → 场次 三级**，`/series/{id}` 是系列主页，`/editions` 路由已删除；`series_number` 仍留在数据里，只用于首演与歌单差异对照。
 4. **差异报告需要手动同步**：改动解析逻辑后必须跑 `pnpm report:setlist`，否则 CI 的 `pnpm report:setlist --check` 会失败。

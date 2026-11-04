@@ -127,7 +127,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - 备注已经给出 `共 N 场`（`city-only when city has several shows: N`）的行不再显示覆盖数，由该警告独占数字，避免同一格出现两个不同总数。`/shows` 与 `SetlistTable` 是按演出的视图，不显示覆盖数。
 
 
-`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把演出名里的系列标签换成中文名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`、`MIKU WITH YOU`）或语言为 `original` 时原样返回。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配，并把 VocaDB 搜索结果收成最多 5 条投稿链接。
+`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把演出名里的系列标签换成中文名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`）或语言为 `original` 时原样返回。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配，并把 VocaDB 搜索结果收成最多 5 条投稿链接。
 
 `shared/performance-name.ts` 的 `shortPerformanceName` 去掉演出名里已由「系列」列显示的系列名与年份，留下城市、系列后缀或周年说明；匹配时兼容 `初音ミク「マジカルミライ」` + 2013 与 `初音ミク「マジカルミライ 2013」` 两种写法。
 
@@ -288,7 +288,7 @@ flowchart TD
 
 ### `data/series-titles.zh-CN.json`
 
-对象。键是目录里 `series.name` 的原文（日文或拉丁字母），值是中文系列名。只收录需要翻译的系列；`MIKU EXPO`、`MIKU WITH YOU` 使用官方拉丁写法，故意不收录，显示时保持原文。渲染时键必须与 `series.name` 完全一致，缺条目时回退原文，不会显示空字符串；`localizeSeriesInName` 还会把演出名里的系列标签换掉并保留系列年度年份（`初音ミク「マジカルミライ 2024」` → `魔法未来 2024`）。
+对象。键是目录里 `series.name` 的原文（日文或拉丁字母），值是中文系列名。只收录人工核对过的译名；`MIKU EXPO` 没有收录，使用官方拉丁写法，显示时保持原文。渲染时键必须与 `series.name` 完全一致，缺条目时回退原文，不会显示空字符串；`localizeSeriesInName` 还会把演出名里的系列标签换掉并保留系列年度年份（`初音ミク「マジカルミライ 2024」` → `魔法未来 2024`，`MIKU WITH YOU 2024 in Shanghai` → `未来有你 2024 in Shanghai`）。
 
 ### `data/characters.json`
 

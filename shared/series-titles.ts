@@ -4,8 +4,8 @@ import type { SongLanguage } from './song-titles.ts'
 /**
  * Series as written by VocaDB to its checked Chinese name.
  *
- * `MIKU EXPO` and `MIKU WITH YOU` are deliberately absent: their official Latin
- * spelling is the one Chinese-speaking fans use, so they keep the catalog name.
+ * `MIKU EXPO` is deliberately absent: its official Latin spelling is the one
+ * Chinese-speaking fans use, so it keeps the catalog name.
  */
 export type SeriesTitleFile = Record<string, string>
 
