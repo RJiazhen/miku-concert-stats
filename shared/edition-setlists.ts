@@ -137,8 +137,12 @@ export type SetlistDisplayRow = {
   items: SlotItem[]
   /** Null when every performance of the edition plays this row. */
   showLabel: string | null
+  /** Label read from the row's setlist notes, e.g. `大阪 第 2 天`; null when the label is only names. */
+  selectorLabel: string | null
   /** Full performance names for this row, used as the title text. */
   showDetail: string[]
+  /** Performances the parser assigns to this row, aligned with `showDetail`. */
+  performanceIds: number[]
   /** Rows sharing this slot number. */
   slotSize: number
 }
@@ -318,12 +322,15 @@ export const buildSetlistDisplay = (
       const timed = selectors.some((selector) => selector.day !== null || selector.show !== null || selector.half !== null)
       // A song every show plays needs a note only when it shares a slot and the note names the day or half.
       const annotate = !coversEveryShow || (slot.rows.length > 1 && timed)
-      const label = annotate ? selectorLabel(selectors) ?? showNames(shows, performanceById) : null
+      const selector = annotate ? selectorLabel(selectors) : null
+      const label = annotate ? selector ?? showNames(shows, performanceById) : null
       displayRows.push({
         index,
         items: row.items,
         showLabel: label,
+        selectorLabel: selector,
         showDetail: shows.map((id) => performanceById.get(id)?.name ?? String(id)),
+        performanceIds: shows,
         slotSize: slot.rows.length,
       })
     }
@@ -360,3 +367,65 @@ export const reviewFor = (catalog: Catalog): RotationReview => reviewRotations(c
 
 /** Selectors for one row, exported for the details view. */
 export const selectorsForRow = (row: SetlistDisplayRow): NoteSelector[] => row.items.flatMap((item) => item.selectors)
+
+/** What the 场次 column shows for one row. */
+export type ShowCell = {
+  /** Text for the cell; empty when the row needs no note on this page. */
+  text: string
+  /** Full performance names behind the cell, used as the tooltip. */
+  title: string[]
+}
+
+/** Inputs for one row's 场次 cell. */
+export type ShowCellInput = {
+  /** Note-derived label such as `大阪 第 2 天`; wins over performance names when present. */
+  selectorLabel: string | null
+  /** Performances the parser assigns to this row. */
+  performanceIds: readonly number[]
+  /** Full performance names, aligned with `performanceIds`. */
+  names: readonly string[]
+  /** Performances in the displayed setlist, used to detect rows every show plays. */
+  allPerformanceIds: readonly number[]
+  /** Performance the page shows; null on the raw and edition views, where nothing is suppressed. */
+  currentPerformanceId: number | null
+  /** City of the page's performance, so a city-only note for that same city is dropped. */
+  currentCity: string | null
+  /** Shortens a full performance name to its city or subtitle, e.g. `台湾`. */
+  shortName: (name: string) => string
+}
+
+/**
+ * Text for the 场次 column.
+ * On a show page the page's own performance is already named by the header, so a row that only
+ * covers it stays blank; rows owned by, or shared with, another performance keep a shortened
+ * name list. Without a current performance (raw and edition views) the full names are kept.
+ */
+export const showCellOf = (input: ShowCellInput): ShowCell => {
+  const title = [...input.names]
+  const current = input.currentPerformanceId
+  if (current === null) {
+    return { text: input.selectorLabel ?? input.names.join('、'), title }
+  }
+  if (input.selectorLabel !== null) {
+    const redundant = input.currentCity !== null && input.selectorLabel === input.currentCity
+    return { text: redundant ? '' : input.selectorLabel, title }
+  }
+  const everyShow = new Set(input.allPerformanceIds)
+  const coversEveryShow =
+    input.performanceIds.length > 0 &&
+    input.performanceIds.length === everyShow.size &&
+    input.performanceIds.every((id) => everyShow.has(id))
+  if (coversEveryShow) return { text: '', title }
+
+  const pairs = input.performanceIds.map((id, index) => ({ id, name: input.names[index] ?? '' }))
+  const others = pairs.filter((pair) => pair.id !== current)
+  if (others.length === 0) return { text: '', title }
+  const shown = pairs.some((pair) => pair.id === current) ? pairs : others
+  const texts: string[] = []
+  for (const pair of shown) {
+    const short = input.shortName(pair.name).trim()
+    const text = short === '' ? pair.name.trim() : short
+    if (text !== '' && !texts.includes(text)) texts.push(text)
+  }
+  return { text: texts.join('、'), title }
+}

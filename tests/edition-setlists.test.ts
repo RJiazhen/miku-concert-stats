@@ -9,8 +9,10 @@ import {
   emptySetlistMergeIndex,
   parseSetlistMerges,
   partitionSongLists,
+  showCellOf,
   type SetlistDisplay,
 } from '../shared/edition-setlists.ts'
+import { shortPerformanceName } from '../shared/performance-name.ts'
 import mergesRaw from '../data/setlist-merges.json'
 import type { Catalog, SqlRow } from '../shared/types.ts'
 
@@ -105,5 +107,91 @@ describe('merged setlist display', () => {
     expect(sides).toEqual([[12354], [13440]])
     expect(buildSetlistDisplay(catalog, review, sides[0] ?? []).rows).toHaveLength(22)
     expect(buildSetlistDisplay(catalog, review, sides[1] ?? []).rows).toHaveLength(39)
+  })
+})
+
+describe('show cell on a show page', () => {
+  /** Keeps only the part after the series label, standing in for the localized shortening. */
+  const shortTail = (name: string): string => name.split(' 2012 ').at(1) ?? name
+
+  /** Inputs for a synthetic row, overridable per case. */
+  const cell = (overrides: Partial<Parameters<typeof showCellOf>[0]> = {}) =>
+    showCellOf({
+      selectorLabel: null,
+      performanceIds: [1],
+      names: ['Series 2012 Hong Kong'],
+      allPerformanceIds: [1],
+      currentPerformanceId: null,
+      currentCity: null,
+      shortName: shortTail,
+      ...overrides,
+    })
+
+  it('keeps the full names on the raw and edition views', () => {
+    expect(cell({ performanceIds: [1, 2], names: ['Series 2012 Hong Kong', 'Series 2012 Taiwan'], allPerformanceIds: [1, 2] })).toEqual({
+      text: 'Series 2012 Hong Kong、Series 2012 Taiwan',
+      title: ['Series 2012 Hong Kong', 'Series 2012 Taiwan'],
+    })
+    expect(cell({ selectorLabel: '大阪 第 2 天' }).text).toBe('大阪 第 2 天')
+  })
+
+  it('blanks a row that only covers the current performance', () => {
+    const result = cell({ currentPerformanceId: 1 })
+    expect(result.text).toBe('')
+    expect(result.title).toEqual(['Series 2012 Hong Kong'])
+  })
+
+  it('blanks a row every performance of the setlist plays', () => {
+    const result = cell({
+      performanceIds: [1, 2],
+      names: ['Series 2012 Hong Kong', 'Series 2012 Taiwan'],
+      allPerformanceIds: [1, 2],
+      currentPerformanceId: 1,
+    })
+    expect(result.text).toBe('')
+  })
+
+  it('names the other performance of a shared setlist by its city only', () => {
+    const result = cell({
+      performanceIds: [2],
+      names: ['Series 2012 Taiwan'],
+      allPerformanceIds: [1, 2],
+      currentPerformanceId: 1,
+    })
+    expect(result.text).toBe('Taiwan')
+    expect(result.title).toEqual(['Series 2012 Taiwan'])
+  })
+
+  it('keeps both cities when the row is shared with another performance', () => {
+    const result = cell({
+      performanceIds: [1, 2],
+      names: ['Series 2012 Hong Kong', 'Series 2012 Taiwan'],
+      allPerformanceIds: [1, 2, 3],
+      currentPerformanceId: 1,
+    })
+    expect(result.text).toBe('Hong Kong、Taiwan')
+  })
+
+  it('drops a city-only note that names the current show city', () => {
+    expect(cell({ selectorLabel: '香港', currentPerformanceId: 1, currentCity: '香港' }).text).toBe('')
+    expect(cell({ selectorLabel: '大阪 第 2 天', currentPerformanceId: 1, currentCity: '香港' }).text).toBe('大阪 第 2 天')
+  })
+
+  it('shortens the real 2012 Hong Kong and Taiwan rows', () => {
+    const display = buildSetlistDisplay(catalog, review, [31])
+    const taiwanOnly = display.rows.find((row) => row.items.some((item) => item.position === 25))
+    expect(taiwanOnly?.showLabel).toBe('初音ミクライブパーティー 2012 Taiwan')
+
+    const shorten = (name: string): string => shortPerformanceName(name, '初音ミクライブパーティー', 2012)
+    const input = {
+      selectorLabel: taiwanOnly?.selectorLabel ?? null,
+      performanceIds: taiwanOnly?.performanceIds ?? [],
+      names: taiwanOnly?.showDetail ?? [],
+      allPerformanceIds: display.allPerformanceIds,
+      currentCity: null,
+      shortName: shorten,
+    }
+    expect(showCellOf({ ...input, currentPerformanceId: 2524 }).text).toBe('Taiwan')
+    expect(showCellOf({ ...input, currentPerformanceId: 2525 }).text).toBe('')
   })
 })

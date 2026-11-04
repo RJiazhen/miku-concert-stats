@@ -135,7 +135,9 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `app/pages/catalog.vue`、`compare.vue`、`windows.vue`、`correlation.vue` 保留实现，但都带 `definePageMeta({ middleware: 'retired' })`，直接访问会重定向到首页。`app/middleware/retired.ts` 是唯一的重定向实现；拿到播放量快照后删掉页面上的这一行并恢复导航项即可。
 
-`app/components/SetlistTable.vue` 是 `/raw` 与 `/editions`、`/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾「场次」列说明该行属于哪一场，每一场都演出的行留空。列是「序号 / 歌曲 / 演出角色 / 场次 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。
+`app/components/SetlistTable.vue` 是 `/raw` 与 `/editions`、`/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾「场次」列说明该行属于哪一场，每一场都演出的行留空。列是「序号 / 歌曲 / 演出角色 / 场次 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。`/shows` 会传入 `currentPerformanceId`、`currentCity` 与系列名：页头已经写出当前场次，因此只属于当前场次的行留空，确实属于其他场次的行只显示 `shortPerformanceName` 留下的城市等短名（再经 `localizePlace`），完整场次名保留在气泡里；`/raw` 与 `/editions` 不传这些 prop，仍显示 VocaDB 完整名。
+
+`/shows` 页头在标题下用一行写出具体场次信息：日期（单日或 `start – end` 区间）、城市、场馆，以及目录有记录时的开演时间；下一行是所属系列与年版并链到 `/editions`。空字段直接省略，日期与场馆的拼接由 `shared/performance-header.ts` 的 `performanceHeaderFacts` 统一处理。
 
 `partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同场的歌曲数量对不上时不合并，按多份歌单分别显示。
 

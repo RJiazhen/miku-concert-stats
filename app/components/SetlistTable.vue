@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { SetlistDisplay, SetlistDisplayRow } from '~~/shared/edition-setlists.ts'
+import { showCellOf, type SetlistDisplay, type SetlistDisplayRow, type ShowCell } from '~~/shared/edition-setlists.ts'
 import { formatRotationReason, type RotationReview } from '~~/shared/rotation.ts'
+import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
@@ -9,10 +10,38 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 const props = defineProps<{
   display: SetlistDisplay
   review: RotationReview
+  /** Performance the page shows; null on the raw and edition views, which keep every 场次 label. */
+  currentPerformanceId?: number | null
+  /** City of the page's performance, so a city-only note for that same city is dropped. */
+  currentCity?: string | null
+  /** Series name of the current performance, stripped from other shows' names. */
+  seriesName?: string
+  /** Series edition of the current performance, stripped from other shows' names. */
+  seriesNumber?: number | null
 }>()
 
 const { songById, songName } = useSongLookup()
 const { localizePlace } = usePlaceNames()
+
+/** Other performances' names shortened to their city, in the site language. */
+const shortNameOf = (name: string): string => {
+  return localizePlace(shortPerformanceName(name, props.seriesName ?? '', props.seriesNumber ?? null))
+}
+
+/** 场次 cell for every row, computed once per display. */
+const cells = computed<ShowCell[]>(() =>
+  props.display.rows.map((row) =>
+    showCellOf({
+      selectorLabel: row.selectorLabel,
+      performanceIds: row.performanceIds,
+      names: row.showDetail,
+      allPerformanceIds: props.display.allPerformanceIds,
+      currentPerformanceId: props.currentPerformanceId ?? null,
+      currentCity: props.currentCity ?? null,
+      shortName: shortNameOf,
+    }),
+  ),
+)
 
 /** Rotation line lookup so a row can show why the parser was unsure. */
 const lineByKey = computed(() => new Map(props.review.lines.map((line) => [`${line.songListId}:${line.position}`, line])))
@@ -106,8 +135,12 @@ const notePartsOf = (row: SetlistDisplayRow): NotePart[] => {
           </td>
           <td class="px-3 py-2 text-muted">{{ charactersOf(row) }}</td>
           <td class="px-3 py-2">
-            <UTooltip v-if="row.showLabel" :text="row.showDetail.map(localizePlace).join('、')" :content="{ side: 'top' }">
-              <span class="text-highlighted">{{ localizePlace(row.showLabel) }}</span>
+            <UTooltip
+              v-if="cells[position]?.text"
+              :text="cells[position]?.title.map(localizePlace).join('、')"
+              :content="{ side: 'top' }"
+            >
+              <span class="text-highlighted">{{ cells[position]?.text }}</span>
             </UTooltip>
           </td>
           <td class="px-3 py-2 text-xs">
