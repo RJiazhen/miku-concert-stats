@@ -103,6 +103,24 @@ export type SongListRow = {
   medium: ReleaseMedium | null
 }
 
+/** One structured producer-side credit attached to a song for display and filtering. */
+export type SongProducerCredit = {
+  /** VocaDB artist id; one real artist stays one option even across name variants. */
+  artistId: number
+  /** Display name, preferring the credit's custom name over the canonical artist name. */
+  name: string
+  /** Lower-cased evidence behind the credit, e.g. `producer, composer`. */
+  roles: string
+}
+
+/** Stored producer credit row from `song_producers`. */
+export type SongProducerRow = {
+  song_id: number
+  artist_id: number
+  name: string
+  roles: string
+}
+
 /** Song entry used for counting and lookup. */
 export type SongRow = {
   id: number
@@ -115,6 +133,8 @@ export type SongRow = {
   length_seconds: number | null
   /** Credited vocalists from VocaDB's artists list; empty when the song has no structured credit. */
   vocalists?: string[]
+  /** Producer-side credits from `song_producers`; empty when VocaDB names none. */
+  producers?: SongProducerCredit[]
   source_url: string
   retrieved_at: string
 }

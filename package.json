@@ -14,6 +14,7 @@
   "collect": "tsx scripts/vocadb/collect.ts",
   "collect:albums": "tsx scripts/vocadb/album-setlists.ts",
   "collect:vocalists": "tsx scripts/vocadb/vocalists.ts",
+    "collect:producers": "tsx scripts/vocadb/producers.ts",
     "report:setlist": "tsx scripts/setlist-diff-report.ts",
     "snapshot:youtube": "tsx scripts/snapshot-youtube.ts"
   },

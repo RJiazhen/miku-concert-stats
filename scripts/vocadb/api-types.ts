@@ -13,10 +13,12 @@ export type ApiWebLink = {
 
 /** One artist credit on a song. */
 export type ApiArtist = {
+  /** VocaDB artist id, repeated on the nested artist object. */
+  id?: number
   name?: string
   categories?: string
   roles?: string
-  artist?: { name?: string }
+  artist?: { id?: number; name?: string }
 }
 
 /** PV object from the public API. */

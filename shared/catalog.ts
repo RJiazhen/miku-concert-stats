@@ -15,6 +15,7 @@ import type {
   SetlistItemSongRow,
   SetlistSource,
   SongListRow,
+  SongProducerCredit,
   SongRow,
   SourceRow,
   SqlRow,
@@ -160,6 +161,13 @@ export const loadCatalog = (db: Queryable): Catalog => {
     list.push(text(row, 'name'))
     vocalistsBySong.set(songId, list)
   }
+  const producersBySong = new Map<number, SongProducerCredit[]>()
+  for (const row of db.all('SELECT song_id, artist_id, name, roles FROM song_producers ORDER BY song_id, artist_id')) {
+    const songId = int(row, 'song_id')
+    const list = producersBySong.get(songId) ?? []
+    list.push({ artistId: int(row, 'artist_id'), name: text(row, 'name'), roles: text(row, 'roles') })
+    producersBySong.set(songId, list)
+  }
   const songs = db.all('SELECT * FROM songs ORDER BY id').map((row): SongRow => ({
     id: int(row, 'id'),
     name: text(row, 'name'),
@@ -170,6 +178,7 @@ export const loadCatalog = (db: Queryable): Catalog => {
     publish_date: textOrNull(row, 'publish_date'),
     length_seconds: intOrNull(row, 'length_seconds'),
     vocalists: vocalistsBySong.get(int(row, 'id')) ?? [],
+    producers: producersBySong.get(int(row, 'id')) ?? [],
     source_url: text(row, 'source_url'),
     retrieved_at: text(row, 'retrieved_at'),
   }))

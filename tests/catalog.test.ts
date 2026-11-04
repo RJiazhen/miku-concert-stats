@@ -37,6 +37,23 @@ describe('committed catalog', () => {
     }
   })
 
+  it('loads the structured producers of a known song and defaults to an empty list', () => {
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      const handInHand = catalog.songs.find((song) => song.id === 680530)
+      expect(handInHand?.producers).toContainEqual({ artistId: 89, name: 'kz', roles: 'producer, composer, lyricist' })
+      expect(catalog.songs.every((song) => Array.isArray(song.producers))).toBe(true)
+      expect(catalog.songs.some((song) => song.producers?.length === 0)).toBe(true)
+    } finally {
+      db.close()
+    }
+  })
+
   it('fills the symphony performances from album tracklists and marks the source', () => {
     const db = new Database(':memory:')
     try {

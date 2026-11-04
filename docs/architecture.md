@@ -82,6 +82,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/credit.ts` 也负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都过滤 VocaDB 的 `Unknown producer(s)` / `Unknown artist` 占位并返回 `null`（页面显示「未记录」）；表格的「制作人」列统一用 `producerCredit`。`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）请求每首歌的 `fields=Artists`，只保留 `categories` / `roles` 含 `Vocalist` 的条目，写成 `data/increments/0006-song-vocalists.sql` 的 `song_vocalists` 行（`song_id`、`name`）。`artist_string` 会把大编制合唱压成 `feat. various`（Hand in Hand 的现场翻唱实际是 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン），所以「演出角色」以这张表为先；表里没有该歌时退回 `artist_string` 的 `feat.` 名单。`SongRow.vocalists` 由 `shared/catalog.ts` 读取时拼好，`shared/characters.ts` 的 `assignCharacters` 优先用它。
 
+`scripts/vocadb/producers.ts`（`pnpm collect:producers`）同样请求每首歌的 `fields=Artists`，把 `categories` 含 `Producer`、或 `roles` 含 `Composer` / `Arranger` / `Lyricist` 的署名按 VocaDB `artist.id` 去重后，写入 `data/increments/0007-song-producers.sql` 的 `song_producers` 行（`song_id`、`artist_id`、`name`、`roles`）。`roles` 是可审计的证据：`Producer` 类别记作 `producer`，再按源顺序追加命中的角色并转小写（例如 `producer, composer`）；占位名（`Unknown producer(s)`）和没有 artist id 的署名不写入。该增量是纯新增的 `INSERT OR IGNORE`，不删除任何表，因此不会改动已有的音乐/歌单数据。展示优先级：表格「制作人」列仍先取 `producerCredit(artist_string)`，因为它保留了 VocaDB 未归为 Producer 的社团 / 厂牌（如 `supercell`、`OTOIRO`）；自由文本为空时才退回 `song_producers` 的名单。排行的「制作人」筛选按每行实际展示的名单匹配，选项由 `shared/producer-options.ts` 的 `availableProducers` 从当前排行行生成，并写入 URL 的 `producer` 参数。
+
 `shared/song-variants.ts` 校验 `data/song-variants.json`：键是变体歌曲 id，值含 `canonical`、`kind`（`remix` / `remaster` / `voicebank` / `cover` / `language`）与可选 `note`。链式映射（canonical 本身也是变体）与自指会抛错。导出 `canonicalSongId`、`variantSongIdsOf`、`groupSongIds`。
 
 `shared/setlist-slots.ts` 负责歌单槽位：
@@ -145,7 +147,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
-| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色筛选；筛选写入 URL query（`mode=event` 切到按演出）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，宽度受限并带完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
+| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，宽度受限并带完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown；范围是同一系列年度或相邻系列年度 |

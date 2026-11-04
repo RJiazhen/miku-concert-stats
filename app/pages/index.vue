@@ -10,6 +10,7 @@ import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { splitCharacterChips } from '~~/shared/character-chips.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
+import { availableProducers } from '~~/shared/producer-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import { producerCredit } from '~~/shared/credit.ts'
 import {
@@ -51,6 +52,7 @@ const yearTo = ref(YEAR_ANY)
 const includeBroadcast = ref(false)
 const includeMedleyComponents = ref(false)
 const characterFilter = ref('all')
+const producerFilter = ref('all')
 const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'count', desc: true }])
 
 /** Mirrors a backend value into the URL once the page is interactive. */
@@ -70,6 +72,8 @@ type RankedSong = {
   name: string
   /** Producer credit, without the singers already shown in 歌手; also the tooltip text. */
   artists: string
+  /** Producer names shown in 制作人 and matched by the producer filter. */
+  producerList: string[]
   /** Base character names shown in 歌手 and used by the character filter. */
   characterList: string[]
   count: number
@@ -126,16 +130,21 @@ const ranked = computed<RankedSong[]>(() => {
     const characters = new Set<string>()
     for (const song of groupSongs) for (const name of songCharacters(song)) characters.add(name)
     const characterList = [...characters]
+    const structuredProducers = new Set<string>()
+    for (const song of groupSongs) for (const credit of song.producers ?? []) structuredProducers.add(credit.name)
+    const structuredProducerNames = [...structuredProducers]
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
     const title = formatSongTitle(row.name, translationFor(row.songId), language.value)
     const chipSplit = splitCharacterChips(characterList)
+    const credit = producerCredit(row.artists)
     return {
       songId: row.songId,
       rank: index + 1,
       name: row.name,
-      artists: producerCredit(row.artists) ?? '—',
+      artists: credit ?? (structuredProducerNames.join(', ') || '—'),
+      producerList: credit === null ? structuredProducerNames : credit.split(', '),
       characterList,
       count: row.count,
       performanceCount: row.performanceCount,
@@ -153,9 +162,13 @@ const ranked = computed<RankedSong[]>(() => {
   })
 })
 
-/** Ranking rows after the character filter. */
+/** Ranking rows after the character and producer filters. */
 const filtered = computed(() =>
-  ranked.value.filter((row) => characterFilter.value === 'all' || row.characterList.includes(characterFilter.value)),
+  ranked.value.filter(
+    (row) =>
+      (characterFilter.value === 'all' || row.characterList.includes(characterFilter.value)) &&
+      (producerFilter.value === 'all' || row.producerList.includes(producerFilter.value)),
+  ),
 )
 
 /** Sortable header button. */
@@ -211,6 +224,7 @@ type FilterState = {
   broadcast: boolean
   medley: boolean
   character: string
+  producer: string
   sort: string
   dir: 'asc' | 'desc'
 }
@@ -224,6 +238,7 @@ const state = computed<FilterState>(() => ({
   broadcast: includeBroadcast.value,
   medley: includeMedleyComponents.value,
   character: characterFilter.value,
+  producer: producerFilter.value,
   sort: sorting.value[0]?.id ?? 'count',
   dir: sorting.value[0]?.desc === false ? 'asc' : 'desc',
 }))
@@ -244,6 +259,7 @@ const syncUrl = (): void => {
         broadcast: current.broadcast ? '1' : undefined,
         medley: current.medley ? '1' : undefined,
         character: current.character === 'all' ? undefined : current.character,
+        producer: current.producer === 'all' ? undefined : current.producer,
         sort: current.sort === 'count' ? undefined : current.sort,
         dir: current.dir === 'desc' ? undefined : current.dir,
       },
@@ -277,6 +293,7 @@ const readUrl = (): void => {
   includeBroadcast.value = readString(url.broadcast) === '1'
   includeMedleyComponents.value = readString(url.medley) === '1'
   characterFilter.value = readString(url.character) || 'all'
+  producerFilter.value = readString(url.producer) || 'all'
   const sort = readString(url.sort)
   if (sort !== '') sorting.value = [{ id: sort, desc: readString(url.dir) !== 'asc' }]
   mounted.value = true
@@ -304,6 +321,7 @@ const reset = (): void => {
   includeBroadcast.value = false
   includeMedleyComponents.value = false
   characterFilter.value = 'all'
+  producerFilter.value = 'all'
   sorting.value = [{ id: 'count', desc: true }]
 }
 
@@ -315,6 +333,7 @@ const activeFilters = computed(() => {
   if (includeBroadcast.value) count++
   if (includeMedleyComponents.value) count++
   if (characterFilter.value !== 'all') count++
+  if (producerFilter.value !== 'all') count++
   const all = catalog.value?.series.map((row) => row.id) ?? []
   if (selectedSeries.value.length !== all.length) count++
   return count
@@ -332,6 +351,19 @@ const keepCharacterFilterValid = (): void => {
   if (!characterItems.value.some((item) => item.value === characterFilter.value)) characterFilter.value = 'all'
 }
 watch(characterItems, keepCharacterFilterValid)
+
+/** Options for 制作人, built from the credit shown in each row so every choice returns rows. */
+const producerItems = computed(() => [
+  { label: '全部制作人', value: 'all' },
+  ...availableProducers(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
+])
+
+/** Keeps the selection aligned with the options: a producer that no longer occurs falls back to 全部制作人. */
+const keepProducerFilterValid = (): void => {
+  if (!catalog.value) return
+  if (!producerItems.value.some((item) => item.value === producerFilter.value)) producerFilter.value = 'all'
+}
+watch(producerItems, keepProducerFilterValid)
 /** Series checkboxes in the site language; `value` stays the numeric catalog id used in the URL. */
 const seriesItems = computed(() => seriesOptions.value.map((series) => ({ label: localizeSeries(series.name), value: series.id })))
 
@@ -400,6 +432,10 @@ const yearToItems = computed(() =>
         <label class="grid gap-1 text-xs text-muted">
           角色
           <USelect v-model="characterFilter" :items="characterItems" size="sm" class="w-36" />
+        </label>
+        <label class="grid gap-1 text-xs text-muted">
+          制作人
+          <USelect v-model="producerFilter" :items="producerItems" size="sm" class="w-40" />
         </label>
         <UButton
           color="neutral"

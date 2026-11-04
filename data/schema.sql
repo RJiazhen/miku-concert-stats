@@ -92,6 +92,22 @@ CREATE TABLE song_vocalists (
   PRIMARY KEY (song_id, name)
 );
 
+-- One producer-side credit per real VocaDB artist, from the song's `fields=Artists` payload.
+-- `artist_id` is VocaDB's artist id, so name variants collapse onto one filter option.
+-- `roles` is the auditable evidence: `producer` when `categories` names Producer, plus the
+-- lower-cased Composer / Arranger / Lyricist roles that also qualified the credit.
+-- Display precedence: the 制作人 column still uses `producerCredit(artist_string)` first,
+-- because it keeps labels and circles (e.g. supercell, OTOIRO) that VocaDB does not classify
+-- as Producer. These rows are the fallback when that free text is empty, and the source for
+-- the ranking producer filter.
+CREATE TABLE song_producers (
+  song_id INTEGER NOT NULL,
+  artist_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  roles TEXT NOT NULL,
+  PRIMARY KEY (song_id, artist_id)
+);
+
 CREATE TABLE setlist_items (
   song_list_id INTEGER NOT NULL,
   position INTEGER NOT NULL,
