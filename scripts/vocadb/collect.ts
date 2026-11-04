@@ -31,9 +31,19 @@ import {
 /** Concert series this site records. Ids are the VocaDB release-event series ids. */
 export const SERIES_IDS = [81, 82, 173, 256, 219, 204] as const
 
+/**
+ * Standalone VocaDB events filed under a recorded series.
+ * Event 2520 (`ミクの日感謝祭39's Giving Day`, 2010-03-09) has no series upstream and reports
+ * `seriesNumber` 0, so the series loop never reaches it. It is the 2010 edition of the
+ * 初音ミクライブパーティー Miku-no-Hi line at Zepp Tokyo that continued from 2011.
+ */
+export const STANDALONE_EVENTS = [
+  { id: 2520, seriesId: 219, seriesNumber: 2010 },
+] as const
+
 const API = 'https://vocadb.net/api'
 
-/** Pulls the six concert series and writes the catalog increment plus a formula evaluation. */
+/** Pulls the six concert series plus curated standalone events and writes the catalog increment. */
 export const collectCatalog = async (root = repoRoot()): Promise<void> => {
   const retrievedAt = new Date().toISOString()
   const client = createVocadbClient({ cacheDir: path.join(root, 'data', 'cache') })
@@ -68,10 +78,12 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
     const seriesUrl = `${API}/releaseEventSeries/${seriesId}?fields=Description,Names,WebLinks,Events&lang=Default`
     const series = (await client.getJson(seriesUrl)) as ApiSeries
     seriesRows.push(normalizeSeries(series, retrievedAt))
-    for (const stub of series.events ?? []) {
+    const extraStubs = STANDALONE_EVENTS.filter((extra) => extra.seriesId === seriesId).map((extra) => ({ id: extra.id }))
+    for (const stub of [...(series.events ?? []), ...extraStubs]) {
       const eventUrl = `${API}/releaseEvents/${stub.id}?fields=Description,Names,SongList,Venue,WebLinks&lang=Default`
       const event = (await client.getJson(eventUrl)) as ApiEvent
-      performances.push(normalizePerformance(event, seriesId, retrievedAt))
+      const extra = STANDALONE_EVENTS.find((candidate) => candidate.id === event.id)
+      performances.push(normalizePerformance(event, seriesId, retrievedAt, extra?.seriesNumber))
       links.push(...normalizeLinks(event))
       const list = event.songList
       if (!list || seenLists.has(list.id)) continue

@@ -11,7 +11,7 @@
 - 可能不是同一套节目：12 对
 - 仅顺序不同：0 对
 - 完全相同：0 对
-- 相邻年版对比：35 对（仅作参考，不参与上面的分级统计）
+- 相邻年版对比：36 对（仅作参考，不参与上面的分级统计）
 
 ## 读法
 
@@ -210,6 +210,9 @@
 - **SNOW MIKU LIVE! 2019** · [7339](https://vocadb.net/SongList/Details/7339) → [8099](https://vocadb.net/SongList/Details/8099) · 行数 29 → 32（+3） · 正片/安可 26/3 → 29/3（安可 0） · 共有 10 / 仅左 19 / 仅右 22 · LCS 0.22 · 未合并 · 可能不是同一套节目
       - 仅左：気まぐれメルシィ / こっち向いて Baby / ゴーストルール / 裏表ラバーズ / 脱法ロック / celluloid / 深海少女 / 結ンデ開イテ羅刹ト骸 / トリノコシティ / ゆめゆめ / 忘却心中 / アカツキアライヴァル / ジェミニ / カラフル×メロディ / リモコン / 白い雪のプリンセスは / Tell Your World / 歌に形はないけれど / letter song
       - 仅右：テオ / こちら、幸福安心委員会です。 / ステラ / 炉心融解 / 右肩の蝶 / Fire◎Flower / 劣等上等 / ピアノ×フォルテ×スキャンダル / Pane dhiria / Packaged / アンノウン・マザーグース / なりすましゲンガー / Birthday / No Logic / Hello, Worker / それがあなたの幸せとしても / Nyanyanyanyanyanyanya! / Satisfaction / ワールドイズマイン / 雪がとける前に / スターナイトスノウ / アイ
+- **初音ミクライブパーティー 2011** · [3952](https://vocadb.net/SongList/Details/3952) → [1](https://vocadb.net/SongList/Details/1) · 行数 40 → 27（-13） · 正片/安可 40/0 → 25/2（安可 +2） · 共有 4 / 仅左 35 / 仅右 23 · LCS 0.08 · 未合并 · 可能不是同一套节目
+      - 仅左：ハジメテノオト / Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / サウンド / 恋スルVOC@LOID / Dear cocoa girls / StargazeR / The secret garden / ミラクルペイント / Innocence / ハト / みくみく菌にご注意♪ / サヨナラ・グッバイ / ロミオとシンデレラ / Dear / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / 星屑ユートピア / Just Be Friends / magnet / Alice / あなたの歌姫 / moon / 初音ミクの消失 -DEAD END- / 炉心融解 / 右肩の蝶 / Promise / from Y to Y / サイハテ / ストロボナイツ / SPiCa / 愛言葉
+      - 仅右：初めての恋が終わる時 / ローリンガール / 二息歩行 / アルビノ / 恋色病棟 / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / RIP=RELEASE / ルカルカ★ナイトフィーバー / 私の時間 / ＊ハロー、プラネット。 / こっち向いて Baby / Yellow / カラフル×メロディ / メランコリック / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA / みくみくにしてあげる♪【してやんよ】 / 歌に形はないけれど
 - **初音ミクライブパーティー 2012** · [1](https://vocadb.net/SongList/Details/1) → [31](https://vocadb.net/SongList/Details/31) · 行数 27 → 25（-2） · 正片/安可 25/2 → 25/0（安可 -2） · 共有 16 / 仅左 11 / 仅右 9 · LCS 0.22 · 未合并 · 可能不是同一套节目
       - 仅左：二息歩行 / アルビノ / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / ＊ハロー、プラネット。 / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA
       - 仅右：ロミオとシンデレラ / trick and treat / 右肩の蝶 / Fire◎Flower / トリノコシティ / 初音ミクの激唱 / 白い雪のプリンセスは / Tell Your World / Starduster

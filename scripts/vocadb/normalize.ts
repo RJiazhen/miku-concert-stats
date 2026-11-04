@@ -52,8 +52,16 @@ export const normalizeSeries = (series: ApiSeries, retrievedAt: string): SeriesR
   }
 }
 
-/** Maps one event into a performance row. Premiere selection happens later. */
-export const normalizePerformance = (event: ApiEvent, seriesId: number, retrievedAt: string): PerformanceRow => {
+/**
+ * Maps one event into a performance row. Premiere selection happens later.
+ * `seriesNumber` replaces VocaDB's edition number for a curated standalone event.
+ */
+export const normalizePerformance = (
+  event: ApiEvent,
+  seriesId: number,
+  retrievedAt: string,
+  seriesNumber?: number,
+): PerformanceRow => {
   const description = event.description ?? null
   const country = event.venue?.addressCountryCode ?? null
   const showtime = parseShowtime(description, country)
@@ -71,7 +79,7 @@ export const normalizePerformance = (event: ApiEvent, seriesId: number, retrieve
     time_precision: 'day',
     time_evidence: showtime?.time_evidence ?? null,
     role: performanceRole(event.name, description),
-    series_number: event.seriesNumber ?? null,
+    series_number: seriesNumber ?? event.seriesNumber ?? null,
     series_suffix: event.seriesSuffix ? event.seriesSuffix : null,
     song_list_id: event.songList?.id ?? null,
     vocadb_status: event.status ?? null,
