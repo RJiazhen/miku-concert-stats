@@ -120,6 +120,31 @@ describe('parseFeedbackPayload', () => {
     expect(rejection({ ...validBody(), collectedAt: 'yesterday' })).toBe('采集时间格式不正确')
   })
 
+  it('accepts the minimal body the widget now sends', () => {
+    const payload = acceptance({
+      description: '页面上的数据不对',
+      pageUrl: 'https://example.com/songs?series=1',
+      pageTitle: '歌曲排行',
+    })
+    expect(payload).toEqual({
+      description: '页面上的数据不对',
+      sourceUrl: null,
+      pageUrl: 'https://example.com/songs?series=1',
+      pageTitle: '歌曲排行',
+      viewport: null,
+      catalogVersion: null,
+      collectedAt: null,
+    })
+  })
+
+  it('accepts a body without a client timestamp', () => {
+    const payload = acceptance(validBody())
+    expect(payload.collectedAt).toBeNull()
+    const record = buildFeedbackRecord(payload, { id: 'abc', now: new Date('2026-11-04T07:17:00.000Z') })
+    expect(record.receivedAt).toBe('2026-11-04T07:17:00.000Z')
+    expect(record.collectedAt).toBe('2026-11-04T07:17:00.000Z')
+  })
+
   it('clamps diagnostic fields instead of rejecting the report', () => {
     const payload = acceptance({
       ...validBody(),

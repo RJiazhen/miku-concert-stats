@@ -1,37 +1,31 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRuntimeConfig } from 'nuxt/app'
-import { FEEDBACK_DESCRIPTION_MAX, FEEDBACK_URL_MAX, isoOrNull, isHttpUrl } from '~~/shared/feedback.ts'
+import { FEEDBACK_DESCRIPTION_MAX, FEEDBACK_URL_MAX, isHttpUrl } from '~~/shared/feedback.ts'
 
 /** Response body of `POST /api/feedback`. */
 type FeedbackResponse = { ok: true; id: string }
 
 const { description, sourceUrl, clearDraft } = useFeedbackDraft()
-const catalogVersion = useRuntimeConfig().public.catalogVersion
 
 const open = ref(false)
 const pending = ref(false)
 const errorMessage = ref('')
 const successId = ref('')
 
-// Read-only context, re-collected every time the modal opens.
+// Read-only page context, re-collected every time the modal opens.
 const pageUrl = ref('')
 const pageTitle = ref('')
-const viewport = ref('')
-const collectedAt = ref('')
 
-/** Muted, still selectable styling for the auto-collected fields (readonly, never disabled). */
+/** Muted, still selectable styling for the read-only page context (readonly, never disabled). */
 const readonlyFieldUi = { base: 'bg-elevated/50 text-muted ring-default/50' }
 
 let closeTimer: ReturnType<typeof setTimeout> | undefined
 
-/** Refreshes the page snapshot shown in the greyed-out fields. */
+/** Refreshes the page URL and title shown in the greyed-out fields. */
 const collectContext = (): void => {
   if (!import.meta.client) return
   pageUrl.value = window.location.href
   pageTitle.value = document.title
-  viewport.value = `${window.innerWidth}×${window.innerHeight}`
-  collectedAt.value = new Date().toISOString()
 }
 
 /** Opens the modal with a fresh page snapshot, keeping any cached draft. */
@@ -87,9 +81,6 @@ const submit = async (): Promise<void> => {
         sourceUrl: trimmedSource === '' ? null : trimmedSource,
         pageUrl: pageUrl.value || null,
         pageTitle: pageTitle.value || null,
-        viewport: viewport.value || null,
-        catalogVersion: catalogVersion || null,
-        collectedAt: isoOrNull(collectedAt.value),
       },
     })
     successId.value = response.id
@@ -124,7 +115,6 @@ const submit = async (): Promise<void> => {
   <UModal
     v-model:open="open"
     title="报告错误"
-    description="发现数据或页面有问题？把细节告诉我们，会自动带上当前页面信息。"
     :ui="{ content: 'sm:max-w-xl' }"
   >
     <template #body>
@@ -140,8 +130,6 @@ const submit = async (): Promise<void> => {
 
         <template v-else>
           <div class="space-y-3">
-            <p class="text-xs text-muted">以下信息自动收集，只读。</p>
-
             <UFormField label="页面链接">
               <UInput
                 :model-value="pageUrl"
@@ -154,24 +142,6 @@ const submit = async (): Promise<void> => {
             <UFormField label="页面标题">
               <UInput :model-value="pageTitle" readonly class="w-full cursor-default" :ui="readonlyFieldUi" />
             </UFormField>
-
-            <UFormField label="采集时间">
-              <UInput :model-value="collectedAt" readonly class="w-full cursor-default font-mono text-xs" :ui="readonlyFieldUi" />
-            </UFormField>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <UFormField label="视口">
-                <UInput :model-value="viewport" readonly class="w-full cursor-default font-mono text-xs" :ui="readonlyFieldUi" />
-              </UFormField>
-              <UFormField label="目录版本">
-                <UInput
-                  :model-value="catalogVersion || '未生成'"
-                  readonly
-                  class="w-full cursor-default font-mono text-xs"
-                  :ui="readonlyFieldUi"
-                />
-              </UFormField>
-            </div>
           </div>
 
           <UFormField label="问题描述" required :hint="`${description.length}/${FEEDBACK_DESCRIPTION_MAX}`">

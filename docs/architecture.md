@@ -151,7 +151,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `app/components/FeedbackWidget.vue` 是固定右下角的「报告错误」悬浮按钮（`UButton` + `i-lucide-message-square-warning`，窄屏只显示图标，底部留 `env(safe-area-inset-bottom)`），挂在 `app/layouts/default.vue`，所以每个页面都有。点击打开 `UModal`：
 
-- 只读灰底字段由页面当场采集：页面链接（含查询串）、页面标题、采集时间（ISO）、视口（如 `1280×800`）、目录版本（`runtimeConfig.public.catalogVersion`）。`readonly` 而不是 `disabled`，文字仍可选中复制。不采集 IP、User-Agent 等指纹信息。
+- 只读灰底字段只有两个，由页面当场采集：页面链接（含查询串）与页面标题。`readonly` 而不是 `disabled`，文字仍可选中复制。不采集视口、采集时间、目录版本，也不采集 IP、User-Agent 等指纹信息。
+- 弹窗只有标题「报告错误」，没有副标题；可编辑项只有「问题描述」与「正确的数据来源（可选）」。
 - 「问题描述」必填，最多 4000 字；「正确的数据来源（可选）」只在非空时校验为 http/https，最多 2000 字符。
 - 提交中按钮进入 pending，失败保留草稿并显示服务端返回的中文原因。
 
@@ -221,7 +222,7 @@ flowchart TD
   shared --> pages
   worker --> pages
   pages --> widget
-  widget -->|"description + sourceUrl + page context"| feedback
+  widget -->|"description + sourceUrl + page URL/title"| feedback
   feedback --> feedbackkv
   pages -->|"local miss only"| lookup
   lookup --> vocadb
@@ -305,7 +306,7 @@ pnpm exec wrangler secret put FEEDBACK_TOKEN
 curl -s "https://miku-concert-stats.zc791.workers.dev/api/feedback/list?token=<FEEDBACK_TOKEN>" | jq
 ```
 
-返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`collectedAt`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`、`viewport`、`catalogVersion`。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
+返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`；`collectedAt` 由服务端在缺省时补成 `receivedAt`，旧记录还可能带 `viewport`、`catalogVersion`。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
 
 线上地址：<https://miku-concert-stats.zc791.workers.dev>
 
