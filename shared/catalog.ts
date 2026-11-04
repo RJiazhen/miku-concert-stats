@@ -9,9 +9,11 @@ import type {
   PerformanceRow,
   Platform,
   Queryable,
+  ReleaseMedium,
   SeriesRow,
   SetlistItemRow,
   SetlistItemSongRow,
+  SetlistSource,
   SongListRow,
   SongRow,
   SourceRow,
@@ -73,6 +75,22 @@ const role = (row: SqlRow, key: string): PerformanceRole => {
   return value
 }
 
+/** Narrows a song list source column. Older rows without the column default to the upstream list. */
+const setlistSource = (row: SqlRow): SetlistSource => {
+  const value = row.source
+  if (value === undefined || value === null) return 'vocadb'
+  if (value === 'vocadb' || value === 'album') return value
+  throw new Error(`Unknown song list source ${String(value)}`)
+}
+
+/** Reads an album medium column. */
+const releaseMedium = (row: SqlRow): ReleaseMedium | null => {
+  const value = row.medium
+  if (value === undefined || value === null) return null
+  if (value === 'bluray' || value === 'cd' || value === 'dvd') return value
+  throw new Error(`Unknown release medium ${String(value)}`)
+}
+
 /** Loads every catalog table. Aggregation stays outside SQL. */
 export const loadCatalog = (db: Queryable): Catalog => {
   const sources = db.all('SELECT * FROM sources ORDER BY id').map((row): SourceRow => ({
@@ -131,6 +149,9 @@ export const loadCatalog = (db: Queryable): Catalog => {
     source_url: text(row, 'source_url'),
     retrieved_at: text(row, 'retrieved_at'),
     announced_at: textOrNull(row, 'announced_at'),
+    source: setlistSource(row),
+    album_id: intOrNull(row, 'album_id'),
+    medium: releaseMedium(row),
   }))
   const songs = db.all('SELECT * FROM songs ORDER BY id').map((row): SongRow => ({
     id: int(row, 'id'),

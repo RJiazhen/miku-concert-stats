@@ -81,6 +81,12 @@ export type EditionPremiereRow = {
   rule: string
 }
 
+/** Where a setlist came from: the event's own VocaDB song list, or a release tracklist. */
+export type SetlistSource = 'vocadb' | 'album'
+
+/** Physical medium of a release whose tracklist stands in for a missing setlist. */
+export type ReleaseMedium = 'bluray' | 'cd' | 'dvd'
+
 /** Song list attached to one or more performances. */
 export type SongListRow = {
   id: number
@@ -89,6 +95,12 @@ export type SongListRow = {
   source_url: string
   retrieved_at: string
   announced_at: string | null
+  /** Upstream performance list, or an album tracklist used as a fallback. */
+  source: SetlistSource
+  /** VocaDB album id when `source` is `album`. */
+  album_id: number | null
+  /** Release medium when `source` is `album`. */
+  medium: ReleaseMedium | null
 }
 
 /** Song entry used for counting and lookup. */

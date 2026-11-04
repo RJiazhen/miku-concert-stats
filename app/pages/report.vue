@@ -4,6 +4,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
+import { setlistSourceTag, setlistSourceUrl } from '~~/shared/album-setlists.ts'
 import {
   SEVERITY_LABELS,
   buildSetlistDiffReport,
@@ -135,17 +136,19 @@ const copyMarkdown = async (): Promise<void> => {
           <span class="font-semibold text-highlighted" :title="pair.seriesName">{{ localizeSeries(pair.seriesName) }} {{ pair.seriesNumber }}</span>
           <UBadge :color="severityColor(pair.severity)" variant="subtle" size="sm">{{ SEVERITY_LABELS[pair.severity] }}</UBadge>
           <UBadge :color="pair.merged ? 'primary' : 'neutral'" variant="outline" size="sm">{{ pair.merged ? '已合并' : '未合并' }}</UBadge>
+          <UBadge v-if="setlistSourceTag(pair.leftId)" color="info" variant="subtle" size="sm">{{ setlistSourceTag(pair.leftId) }}</UBadge>
           <ULink
-            :to="`https://vocadb.net/SongList/Details/${pair.leftId}`"
+            :to="setlistSourceUrl(pair.leftId)"
             target="_blank"
             class="ml-auto font-mono text-xs text-primary"
           >{{ pair.leftId }}</ULink>
           <UIcon name="i-lucide-arrow-right" class="size-3 text-dimmed" />
           <ULink
-            :to="`https://vocadb.net/SongList/Details/${pair.rightId}`"
+            :to="setlistSourceUrl(pair.rightId)"
             target="_blank"
             class="font-mono text-xs text-primary"
           >{{ pair.rightId }}</ULink>
+          <UBadge v-if="setlistSourceTag(pair.rightId)" color="info" variant="subtle" size="sm">{{ setlistSourceTag(pair.rightId) }}</UBadge>
         </div>
 
         <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4">

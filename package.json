@@ -12,6 +12,7 @@
     "prebuild": "tsx scripts/build-catalog.ts",
     "build:catalog": "tsx scripts/build-catalog.ts",
     "collect": "tsx scripts/vocadb/collect.ts",
+    "collect:albums": "tsx scripts/vocadb/album-setlists.ts",
     "report:setlist": "tsx scripts/setlist-diff-report.ts",
     "snapshot:youtube": "tsx scripts/snapshot-youtube.ts"
   },

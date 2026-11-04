@@ -5,6 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { buildSetlistDisplay } from '~~/shared/edition-setlists.ts'
+import { albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
@@ -36,6 +37,13 @@ const series = computed(() => {
   const current = performance.value
   if (!catalog.value || !current) return null
   return catalog.value.series.find((row) => row.id === current.series_id) ?? null
+})
+
+/** Album behind this performance's setlist, empty when the list is VocaDB's own. */
+const albumSources = computed(() => {
+  const listId = performance.value?.song_list_id
+  if (!catalog.value || listId === null || listId === undefined) return []
+  return albumSetlistSources(catalog.value, [listId])
 })
 
 /** Performance name with its series and place in the site language. */
@@ -88,8 +96,11 @@ const performanceLabel = computed(() => {
         title="这场在 VocaDB 没有歌单"
         description="没有歌单时无法列出曲目。"
       />
-      <SetlistTable v-else-if="display && review" :display="display" :review="review" />
-      <USkeleton v-else class="h-64 w-full rounded-xl" />
+      <template v-else>
+        <AlbumSetlistAlert :sources="albumSources" />
+        <SetlistTable v-if="display && review" :display="display" :review="review" />
+        <USkeleton v-else class="h-64 w-full rounded-xl" />
+      </template>
     </template>
   </main>
 </template>

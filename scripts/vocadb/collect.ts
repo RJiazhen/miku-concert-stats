@@ -19,6 +19,7 @@ import { writeConversionSql } from '../evaluate-conversion.ts'
 import { repoRoot } from '../build-catalog.ts'
 import type { ApiEvent, ApiSeries, ApiSong, ApiSongInList, ApiSongListPage } from './api-types.ts'
 import { createVocadbClient } from './client.ts'
+import { collectAlbumSetlists } from './album-setlists.ts'
 import {
   lineDecision,
   normalizeLinks,
@@ -99,6 +100,9 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
         source_url: songListUrl(list.id),
         retrieved_at: retrievedAt,
         announced_at: null,
+        source: 'vocadb',
+        album_id: null,
+        medium: null,
       })
       const lines = await fetchAllLines(client.getJson, list.id)
       const orders = new Set<number>()
@@ -189,8 +193,10 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
     ], premieres.map((row) => [
       row.series_id, row.series_number, row.premiere_performance_id, row.premiere_date, row.premiere_showtime_local, row.rule,
     ])),
-    chunkInserts('song_lists', ['id', 'name', 'featured_category', 'source_url', 'retrieved_at', 'announced_at'], [...songLists.values()].map((row) => [
-      row.id, row.name, row.featured_category, row.source_url, row.retrieved_at, row.announced_at,
+    chunkInserts('song_lists', [
+      'id', 'name', 'featured_category', 'source_url', 'retrieved_at', 'announced_at', 'source', 'album_id', 'medium',
+    ], [...songLists.values()].map((row) => [
+      row.id, row.name, row.featured_category, row.source_url, row.retrieved_at, row.announced_at, row.source, row.album_id, row.medium,
     ])),
     chunkInserts('songs', [
       'id', 'name', 'name_ja', 'name_en', 'artist_string', 'song_type', 'publish_date', 'length_seconds', 'source_url', 'retrieved_at',
@@ -217,6 +223,7 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
   await mkdir(path.dirname(target), { recursive: true })
   await writeFile(target, catalogTransaction(body, retrievedAt))
   writeConversionSql(root)
+  await collectAlbumSetlists(root, retrievedAt)
   console.log(
     `Wrote ${target}: ${uniquePerformances.length} performances, ${songs.size} songs, ${quarantine.length} quarantined lines, ${client.requestCount()} requests`,
   )

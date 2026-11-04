@@ -33,6 +33,8 @@ export type ApiSong = {
   songType?: string
   publishDate?: string
   lengthSeconds?: number
+  /** Song this entry is a version of, which may itself be another version. */
+  originalVersionId?: number
   pvs?: ApiPv[]
   webLinks?: ApiWebLink[]
 }
@@ -90,4 +92,26 @@ export type ApiSeries = {
   category?: string
   events?: ApiEvent[]
   webLinks?: ApiWebLink[]
+}
+
+/** One track of an album from /api/albums/{id}?fields=Tracks. */
+export type ApiAlbumTrack = {
+  discNumber?: number
+  trackNumber?: number
+  name?: string
+  song?: {
+    id: number
+    name?: string
+    songType?: string
+    /** Song this album track performs, when the track is a version of one. */
+    originalVersionId?: number
+  } | null
+}
+
+/** Album object with its tracklist. */
+export type ApiAlbum = {
+  id: number
+  name: string
+  discType?: string
+  tracks?: ApiAlbumTrack[]
 }

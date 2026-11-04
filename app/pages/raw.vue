@@ -5,6 +5,7 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { buildSetlistDisplay, displaySides } from '~~/shared/edition-setlists.ts'
+import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
 
@@ -127,6 +128,13 @@ const display = computed(() => {
   return buildSetlistDisplay(catalog.value, review.value, side)
 })
 
+/** Album sources behind the raw edition side. */
+const albumSources = computed(() => {
+  if (!catalog.value) return []
+  const side = sides.value[sideIndex.value] ?? []
+  return albumSetlistSources(catalog.value, side)
+})
+
 /** Data tables mirroring the SQLite rows, each with a source link. */
 const tables = computed<RawTable[]>(() => {
   if (!catalog.value) return []
@@ -180,10 +188,11 @@ const tables = computed<RawTable[]>(() => {
     {
       id: 'songLists',
       label: '歌单',
-      headers: ['id', '名称', '公布时间', 'VocaDB'],
+      headers: ['id', '名称', '来源', '公布时间', 'VocaDB'],
       rows: catalog.value.songLists.map((row) => [
         { text: String(row.id) },
         { text: row.name },
+        { text: row.source === 'album' ? '专辑曲目' : 'VocaDB', href: row.source === 'album' ? row.source_url : undefined },
         { text: row.announced_at ?? '—' },
         { text: row.source_url, href: row.source_url },
       ]),
@@ -315,10 +324,19 @@ const incompletePerformances = computed(() => {
   return catalog.value.performances.filter((row) => row.song_list_id === null || row.start_date === null)
 })
 
-/** Setlists without an announcement time. */
+/** Performances whose setlist came from an album tracklist instead of the event. */
+const albumFallbackPerformances = computed(() => {
+  if (!catalog.value) return []
+  return catalog.value.performances.filter((row) => row.song_list_id !== null && albumIdFromSongListId(row.song_list_id) !== null)
+})
+
+/** Distinct album tracklists used as setlists. */
+const albumFallbackLists = computed(() => new Set(albumFallbackPerformances.value.map((row) => row.song_list_id)).size)
+
+/** Upstream setlists without an announcement time. Album tracklists are not upstream setlists. */
 const listsWithoutAnnouncement = computed(() => {
   if (!catalog.value) return []
-  return catalog.value.songLists.filter((row) => row.announced_at === null)
+  return catalog.value.songLists.filter((row) => row.source === 'vocadb' && row.announced_at === null)
 })
 
 /** Rotation lines the parser could not assign exactly. */
@@ -454,6 +472,7 @@ const editionSongCount = computed(() => {
         </div>
       </UCard>
       <UAlert v-if="splitNote" color="warning" variant="subtle" icon="i-lucide-info" :description="splitNote" />
+      <AlbumSetlistAlert :sources="albumSources" />
       <USkeleton v-if="pending" class="h-64 w-full rounded-xl" />
       <UEmpty
         v-else-if="!display"
@@ -561,6 +580,10 @@ const editionSongCount = computed(() => {
         <div class="space-y-2 text-sm text-muted">
           <p>没有投稿链接的歌曲：{{ songsWithoutVideo.length }} 首</p>
           <p>没有歌单或开始日期的演出：{{ incompletePerformances.length }} 场</p>
+          <p>
+            用专辑曲目代替歌单的演出：{{ albumFallbackPerformances.length }} 场（{{ albumFallbackLists }} 张专辑）。
+            这些曲目不是 VocaDB 上该场演出的歌单，场次与年版页面会标注来源。
+          </p>
           <p>没有公布时间的歌单：{{ listsWithoutAnnouncement.length }} 份（公开 API 没有该字段）</p>
           <p>未拆分的串烧：{{ catalog?.medleyQuarantine.length ?? 0 }} 行</p>
         </div>
