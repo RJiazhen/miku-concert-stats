@@ -1,6 +1,7 @@
-import { mkdirSync, readdirSync, readFileSync, copyFileSync, rmSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, copyFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
+import { gzipSync } from 'node:zlib'
 import Database from 'better-sqlite3'
 import { fileURLToPath } from 'node:url'
 
@@ -50,10 +51,22 @@ export const buildCatalogFile = (root = repoRoot()): string => {
   return target
 }
 
+/**
+ * Writes a gzip copy next to the sqlite file.
+ * Cloudflare does not compress the sqlite content type, so the browser
+ * downloads this smaller copy and inflates it with DecompressionStream.
+ */
+export const compressCatalogFile = (source: string): string => {
+  const target = `${source}.gz`
+  writeFileSync(target, gzipSync(readFileSync(source), { level: 9 }))
+  return target
+}
+
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 
 if (isDirectRun) {
   const target = buildCatalogFile()
+  const compressed = compressCatalogFile(target)
   try {
     copySqlWasm()
   } catch (error) {
@@ -61,4 +74,5 @@ if (isDirectRun) {
     console.error(`Skipping sql.js wasm copy: ${message}`)
   }
   console.log(`Wrote ${target}`)
+  console.log(`Wrote ${compressed}`)
 }

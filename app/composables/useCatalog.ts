@@ -1,4 +1,4 @@
-import { useState } from 'nuxt/app'
+import { useRuntimeConfig, useState } from 'nuxt/app'
 import initSqlJs from 'sql.js'
 import { loadCatalog } from '~~/shared/catalog.ts'
 import type { Catalog, SqlRow } from '~~/shared/types.ts'
@@ -43,12 +43,44 @@ const rowsFromSqlJs = (columns: string[], values: (string | number | null | Uint
   })
 }
 
-/** Downloads the built catalog and loads it with sql.js in the browser. */
-export const loadCatalogFromNetwork = async (): Promise<Catalog> => {
-  const SQL = await initSqlJs({ locateFile: () => '/sql-wasm.wasm' })
-  const response = await fetch('/data/catalog.sqlite')
+/** Inflates a gzip response body into the raw sqlite bytes. */
+const inflateCatalog = async (response: Response): Promise<Uint8Array> => {
+  const body = response.body
+  if (!body) throw new Error('目录响应缺少内容。')
+  const stream = body.pipeThrough(new DecompressionStream('gzip'))
+  return new Uint8Array(await new Response(stream).arrayBuffer())
+}
+
+/** Fetches one catalog URL, turning a failed response into the build hint. */
+const fetchCatalog = async (url: string): Promise<Response> => {
+  const response = await fetch(url)
   if (!response.ok) throw new Error('找不到目录数据库。请先运行 pnpm build:catalog。')
-  const bytes = new Uint8Array(await response.arrayBuffer())
+  return response
+}
+
+/**
+ * Reads the catalog bytes.
+ * Prefers the gzipped copy, which Cloudflare serves as-is; browsers without
+ * DecompressionStream fall back to the plain sqlite file.
+ *
+ * @param gzipUrl gzipped copy to inflate, or null to read the plain file only
+ * @param plainUrl uncompressed sqlite file
+ */
+const readCatalogBytes = async (gzipUrl: string | null, plainUrl: string): Promise<Uint8Array> => {
+  if (gzipUrl && typeof DecompressionStream === 'function') {
+    try {
+      return await inflateCatalog(await fetchCatalog(gzipUrl))
+    } catch {
+      // Missing or corrupt gzip copy: use the plain file below.
+    }
+  }
+  return new Uint8Array(await (await fetchCatalog(plainUrl)).arrayBuffer())
+}
+
+/** Downloads the built catalog and loads it with sql.js in the browser. */
+export const loadCatalogFromNetwork = async (gzipUrl: string | null, plainUrl: string): Promise<Catalog> => {
+  const SQL = await initSqlJs({ locateFile: () => '/sql-wasm.wasm' })
+  const bytes = await readCatalogBytes(gzipUrl, plainUrl)
   const db = new SQL.Database(bytes)
   try {
     return loadCatalog({
@@ -70,6 +102,17 @@ export const useCatalog = () => {
   const catalog = useState<Catalog | null>('catalog', emptyCatalog)
   const error = useState<string | null>('catalog-error', emptyError)
   const pending = useState<boolean>('catalog-pending', notPending)
+  const version = useRuntimeConfig().public.catalogVersion
+
+  /**
+   * Versioned gzip URL so repeat visits reuse the cached catalog.
+   * Empty in dev: `predev` rebuilds the file, and the dev server must not hand
+   * back a stale copy under an immutable URL.
+   */
+  const gzipUrl = (): string | null => {
+    if (!import.meta.dev && version) return `/data/catalog.sqlite.gz?v=${version}`
+    return null
+  }
 
   /** Loads the sqlite catalog once. Later calls reuse the same state. */
   const load = async (): Promise<void> => {
@@ -77,7 +120,7 @@ export const useCatalog = () => {
     pending.value = true
     error.value = null
     try {
-      catalog.value = await loadCatalogFromNetwork()
+      catalog.value = await loadCatalogFromNetwork(gzipUrl(), '/data/catalog.sqlite')
     } catch (caught) {
       error.value = caught instanceof Error ? caught.message : String(caught)
     } finally {

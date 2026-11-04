@@ -6,6 +6,7 @@ node_modules
 dist
 data/cache
 public/data/catalog.sqlite
+public/data/catalog.sqlite.gz
 public/sql-wasm.wasm
 *.log
 .env

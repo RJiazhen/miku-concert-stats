@@ -89,7 +89,7 @@ Workers Builds（Git 集成）监听 `main`，push 后自动构建并部署。�
 
 Previews（非 `main` 分支）用同一套 Build command，deploy 换成 `npx wrangler versions upload`，只上传版本、不影响生产；`NODE_VERSION=22` 单独配在 previews 里。
 
-`catalog.sqlite` 是构建产物。每周工作流只提交 `data/increments/*.sql` 与 `docs/reports/`，因此数据更新后要再触发一次部署才会出现在线上。
+`catalog.sqlite` 是构建产物。构建同时写出 `catalog.sqlite.gz`：Cloudflare 不压缩 sqlite 类型，浏览器改为下载 gzip 副本（约 200 KB，未压缩时 676 KB）并在本地解压，URL 带构建时的内容哈希，可以长期缓存。每周工作流只提交 `data/increments/*.sql` 与 `docs/reports/`，因此数据更新后要再触发一次部署才会出现在线上。
 
 ## 测试
 

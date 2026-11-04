@@ -1,7 +1,47 @@
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
+/**
+ * Short content hash of the gzipped catalog.
+ * It goes into the download URL so browsers can cache the catalog forever.
+ * Empty when the catalog has not been built yet (typecheck, lint).
+ */
+const catalogVersion = (): string => {
+  try {
+    const file = resolve(process.cwd(), 'public', 'data', 'catalog.sqlite.gz')
+    return createHash('sha256').update(readFileSync(file)).digest('hex').slice(0, 16)
+  } catch {
+    return ''
+  }
+}
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-06',
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
+  // Cloudflare does not compress the sqlite content type, so ship a gzip copy
+  // and cache both files by their own content hash or default validators.
+  routeRules: {
+    '/data/catalog.sqlite.gz': {
+      headers: {
+        'content-type': 'application/gzip',
+        'cache-control': 'public, max-age=31536000, immutable',
+      },
+    },
+    '/data/catalog.sqlite': {
+      headers: {
+        'content-type': 'application/vnd.sqlite3',
+        'cache-control': 'public, max-age=0, must-revalidate',
+      },
+    },
+  },
+  runtimeConfig: {
+    public: {
+      // The gzip file the browser downloads, hashed at build time.
+      catalogVersion: catalogVersion(),
+    },
+  },
   nitro: {
     preset: 'cloudflare_module',
     cloudflare: {
