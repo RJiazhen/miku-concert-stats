@@ -56,7 +56,7 @@ pnpm dev
 
 Node 22 或更高（Nuxt 4 与 Nuxt UI 4 要求 ≥ 22.12）。
 
-`pnpm collect` 会按至少 300 毫秒的间隔请求 VocaDB，并把原始响应缓存在 `data/cache/`（不提交）。增量 SQL 写到 `data/increments/`。`pnpm collect:vocalists` 单独重写 `0006-song-vocalists.sql`（每首歌的出演声库名单），`pnpm collect:producers` 重写纯新增的 `0007-song-producers.sql`（`categories` 含 `Producer` 或 `roles` 含 `Composer` / `Arranger` / `Lyricist` 的署名，按 VocaDB artist id 去重，`roles` 列保留小写证据），新增或改动的歌曲要重跑一次再 `pnpm build:catalog`。
+`pnpm collect` 会按至少 300 毫秒的间隔请求 VocaDB，并把原始响应缓存在 `data/cache/`（不提交）。增量 SQL 写到 `data/increments/`。`pnpm collect:vocalists` 单独重写 `0006-song-vocalists.sql`（每首歌的出演声库名单），`pnpm collect:producers` 重写纯新增的 `0007-song-producers.sql`（`categories` 含 `Producer` 或 `roles` 含 `Composer` / `Arranger` / `VoiceManipulator` 的署名，与 VocaDB「Producers」分区一致，按 VocaDB artist id 去重，`roles` 列保留小写证据），新增或改动的歌曲要重跑一次再 `pnpm build:catalog`。
 
 YouTube 快照：
 

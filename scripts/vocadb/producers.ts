@@ -30,8 +30,16 @@ export const catalogSongIds = (root = repoRoot()): number[] => {
   }
 }
 
-/** Roles that make a credit producer-side alongside VocaDB's Producer category. */
-const PRODUCER_ROLES = new Set(['composer', 'arranger', 'lyricist'])
+/**
+ * Roles that make a credit producer-side alongside VocaDB's Producer category.
+ *
+ * Verified against VocaDB's own documentation: the song page lists the "Producers" section as
+ * `category "Producer"` (artist types Music producer / Cover artist) **or** a credit with the
+ * roles Arranger, Composer or Voice manipulator, while Lyricist belongs to "Other artists".
+ * Sources: https://wiki.vocadb.net/docs/song-entry-page and
+ * https://wiki.vocadb.net/docs/song-entry-editing ("the artist's type determines their default roles").
+ */
+const PRODUCER_ROLES = new Set(['composer', 'arranger', 'voicemanipulator'])
 
 /** Splits a VocaDB comma-separated category or role field into trimmed lower-case tokens. */
 const tokens = (value: string | undefined): string[] =>
@@ -55,7 +63,12 @@ const producerEvidence = (credit: ApiArtist): string[] => {
  *
  * Mapping rule (documented in docs/architecture.md):
  * - keep a credit when `categories` contains `Producer`, or `roles` contains
- *   `Composer` / `Arranger` / `Lyricist` (all case-insensitive);
+ *   `Composer` / `Arranger` / `VoiceManipulator` (all case-insensitive). This mirrors the
+ *   "Producers" section of https://wiki.vocadb.net/docs/song-entry-page; Lyricist is not part
+ *   of it (VocaDB lists lyricists under "Other artists"), so `roles` is the evidence field and
+ *   `categories` is the group membership the VocaDB UI also uses;
+ * - `roles: "Default"` in the API means the credit inherits the artist type's default roles
+ *   (a Music producer defaults to Composer/Arranger), so it is never treated as evidence by itself;
  * - `roles` stores the auditable evidence: `producer` for the category plus the matched
  *   roles in source order, lower-cased and comma-separated (e.g. `producer, composer`);
  * - `artist.id` (falling back to the credit id) keeps name variants on one option, and
@@ -106,7 +119,9 @@ export const songProducerSql = (rows: readonly SongProducerRow[], retrievedAt: s
     '-- Source: https://vocadb.net/api/songs/{id}?fields=Artists&lang=Default',
     `-- Retrieved: ${retrievedAt}`,
     '-- License: https://wiki.vocadb.net/docs/license (link back when reusing database contents)',
-    '-- Kept when categories contain Producer or roles contain Composer / Arranger / Lyricist;',
+    '-- Kept when categories contain Producer or roles contain Composer / Arranger / VoiceManipulator,',
+    '-- matching the VocaDB song page "Producers" section (https://wiki.vocadb.net/docs/song-entry-page);',
+    '-- Lyricist is not included because VocaDB lists lyricists under "Other artists".',
     '-- roles stores that evidence lower-cased (producer, composer, ...). Placeholders are dropped.',
     '-- Purely additive: INSERT OR IGNORE, with no DELETE of catalog tables.',
     'BEGIN;',

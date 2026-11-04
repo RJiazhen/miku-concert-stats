@@ -16,19 +16,27 @@ describe('song producer collection', () => {
     ])
   })
 
-  it('keeps a Composer / Arranger / Lyricist credit even without the Producer category', () => {
+  it('keeps a Composer / Arranger / VoiceManipulator credit without the Producer category', () => {
     expect(producersOfSong({
       id: 2,
       name: 'Song',
       artists: [
-        { id: 7, name: 'q*Left', categories: 'Other', roles: 'Lyricist' },
+        { id: 7, name: 'Lyricist only', categories: 'Other', roles: 'Lyricist' },
         { id: 8, name: 'Someone', categories: 'Other', roles: 'Composer, Arranger' },
-        { id: 9, name: 'Vocalist', categories: 'Vocalist', roles: 'Default' },
+        { id: 9, name: 'Tuner', categories: 'Other', roles: 'VoiceManipulator' },
       ],
     })).toEqual([
-      { artistId: 7, name: 'q*Left', roles: 'lyricist' },
       { artistId: 8, name: 'Someone', roles: 'composer, arranger' },
+      { artistId: 9, name: 'Tuner', roles: 'voicemanipulator' },
     ])
+  })
+
+  it('keeps a Producer-category credit whose role is only the inherited Default', () => {
+    expect(producersOfSong({
+      id: 5,
+      name: 'Song',
+      artists: [{ id: 89, name: 'kz', categories: 'Producer', roles: 'Default' }],
+    })).toEqual([{ artistId: 89, name: 'kz', roles: 'producer' }])
   })
 
   it('drops VocaDB placeholders and credits without an artist id', () => {
@@ -59,7 +67,7 @@ describe('song producer collection', () => {
 
   it('renders an additive INSERT OR IGNORE increment with a sourced header', () => {
     const sql = songProducerSql(
-      [{ song_id: 680530, artist_id: 89, name: 'kz', roles: 'producer, composer, lyricist' }],
+      [{ song_id: 680530, artist_id: 89, name: 'kz', roles: 'producer, composer' }],
       '2026-11-04T00:00:00.000Z',
     )
     expect(sql).toContain('-- Source: https://vocadb.net/api/songs/{id}?fields=Artists&lang=Default')
@@ -67,7 +75,7 @@ describe('song producer collection', () => {
     expect(sql).toContain('https://wiki.vocadb.net/docs/license')
     expect(sql).toContain('BEGIN;')
     expect(sql).toContain(
-      "INSERT OR IGNORE INTO song_producers (song_id, artist_id, name, roles) VALUES\n(680530, 89, 'kz', 'producer, composer, lyricist');",
+      "INSERT OR IGNORE INTO song_producers (song_id, artist_id, name, roles) VALUES\n(680530, 89, 'kz', 'producer, composer');",
     )
     expect(sql).toContain('COMMIT;')
     expect(sql).not.toContain('DELETE FROM')
