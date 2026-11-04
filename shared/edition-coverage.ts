@@ -86,8 +86,9 @@ export const editionCoverage = (
 /**
  * Chinese 备注 text for one appearance row's edition coverage, or null to show nothing.
  *
- * Full coverage reads `全部 N 场`; partial coverage reads `M/N 场`. A single-show edition
- * returns null because `全部 1 场` is noise on every row. When the row's own note already
+ * Full coverage reads `全部 N 场`; partial coverage reads `N 场中 M 场` so the numbers
+ * cannot be misread as show indices. A single-show edition returns null because
+ * `全部 1 场` is noise on every row. When the row's own note already
  * failed to pick a show inside one city (`city-only when city has several shows: N`), the
  * `共 N 场` warning owns the numbers for that row and this figure is suppressed, so the
  * cell never prints two different totals.
@@ -102,5 +103,5 @@ export const formatEditionCoverage = (
   if (coverage === null || coverage.total < 2) return null
   if (reasons.some((reason) => reason.startsWith('city-only when city has several shows'))) return null
   if (coverage.covered >= coverage.total) return `全部 ${coverage.total} 场`
-  return `${coverage.covered}/${coverage.total} 场`
+  return `${coverage.total} 场中 ${coverage.covered} 场`
 }

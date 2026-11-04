@@ -89,7 +89,7 @@ describe('edition coverage', () => {
     )
     const coverage = editionCoverage(catalog, reviewRotations(catalog), [60])
     expect(coverage.get(3)).toEqual({ total: 2, covered: 1 })
-    expect(formatEditionCoverage(coverage.get(3) ?? null, [])).toBe('1/2 场')
+    expect(formatEditionCoverage(coverage.get(3) ?? null, [])).toBe('2 场中 1 场')
   })
 
   it('credits both regional setlists to a song that appears in each', () => {
@@ -155,7 +155,8 @@ describe('edition coverage', () => {
     )
     const coverage = editionCoverage(catalog, reviewRotations(catalog), [100])
     expect(coverage.get(10)).toEqual({ total: 3, covered: 1 })
-    expect(formatEditionCoverage(coverage.get(10) ?? null, [])).toBe('1/3 场')
+    expect(formatEditionCoverage(coverage.get(10) ?? null, [])).toBe('3 场中 1 场')
+    expect(formatEditionCoverage({ total: 3, covered: 2 }, [])).toBe('3 场中 2 场')
   })
 
   it('honours every variant id of a merged song group', () => {
