@@ -39,6 +39,7 @@ niconico 与哔哩哔哩只保存 VocaDB 上的投稿链接。不调用 niconico
 | `data/song-variants.json` | 把 remix、remaster、声库、翻唱、语言版本并入同一首歌，排行与统计按合并后的歌计数 |
 | `data/setlist-merges.json` | 同一年版不同地区的歌单合并成一份视图（例如 2019 マジカルミライ 东京与大阪） |
 | `data/song-titles.zh-CN.json` | 歌曲中文名，页眉开关控制是否显示 |
+| `data/place-names.zh-CN.json` | 场次名里的地点中文名，跟随页眉同一个开关切换 |
 | `data/characters.json` | 声库名到角色的映射，用于「演出角色」 |
 
 两个清单都只收录人工核对过的条目，格式与校验规则见 [docs/architecture.md](docs/architecture.md)。
@@ -80,7 +81,13 @@ pnpm exec wrangler --cwd .output deploy
 
 线上地址：<https://miku-concert-stats.zc791.workers.dev>
 
-仓库已指向 Cloudflare Worker，但 Workers Builds 仍需要面板确认两件事：生产分支为 `main`，deploy command 为 `npx wrangler deploy --cwd .output`（Nitro 把部署配置写在 `.output/wrangler.json`，根目录 `wrangler.toml` 没有 `main` 字段）。构建命令用 `pnpm install --frozen-lockfile && pnpm build`，环境变量 `NODE_VERSION=22`。
+Workers Builds（Git 集成）监听 `main`，push 后自动构建并部署。面板里的配置：
+
+- Build command `pnpm build`（依赖由 Workers Builds 先跑 `pnpm install --frozen-lockfile`）。
+- Deploy command `npx wrangler deploy`。`nuxt build` 会生成 `.wrangler/deploy/config.json` 指向 `.output/server/wrangler.json`，所以根目录直接 deploy 即可；不要写 `--cwd .output`，那会让 wrangler 在构建产物缺失时直接报 `Missing file or directory`。
+- 环境变量 `NODE_VERSION=22`。
+
+Previews（非 `main` 分支）用同一套 Build command，deploy 换成 `npx wrangler versions upload`，只上传版本、不影响生产；`NODE_VERSION=22` 单独配在 previews 里。
 
 `catalog.sqlite` 是构建产物。每周工作流只提交 `data/increments/*.sql` 与 `docs/reports/`，因此数据更新后要再触发一次部署才会出现在线上。
 

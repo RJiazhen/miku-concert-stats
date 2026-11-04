@@ -2,11 +2,13 @@
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
+import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { buildSetlistDisplay } from '~~/shared/edition-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
+const { localizePlace } = usePlaceNames()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -26,6 +28,9 @@ const display = computed(() => {
 })
 
 const editionNumber = computed(() => performance.value?.series_number ?? null)
+
+/** Performance name with its place in the site language. */
+const performanceLabel = computed(() => (performance.value ? localizePlace(performance.value.name) : ''))
 </script>
 
 <template>
@@ -35,10 +40,10 @@ const editionNumber = computed(() => performance.value?.series_number ?? null)
     <UEmpty v-else-if="catalog && !performance" icon="i-lucide-calendar-x" title="找不到这场演出" description="这个 id 不在已提交的目录里。" />
 
     <template v-else-if="performance">
-      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '场次' }, { label: performance.name }]" />
+      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '场次' }, { label: performanceLabel }]" />
 
       <header class="space-y-2">
-        <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ performance.name }}</h1>
+        <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ performanceLabel }}</h1>
         <p class="text-sm text-muted">
           {{ performance.start_date ?? '日期未知' }}
           <template v-if="performance.end_date && performance.end_date !== performance.start_date"> – {{ performance.end_date }}</template>

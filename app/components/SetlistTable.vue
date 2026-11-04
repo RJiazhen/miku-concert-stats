@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { SetlistDisplay, SetlistDisplayRow } from '~~/shared/edition-setlists.ts'
 import { formatRotationReason, type RotationReview } from '~~/shared/rotation.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
+import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 
 const props = defineProps<{
@@ -11,6 +12,7 @@ const props = defineProps<{
 }>()
 
 const { songById, songName } = useSongLookup()
+const { localizePlace } = usePlaceNames()
 
 /** Rotation line lookup so a row can show why the parser was unsure. */
 const lineByKey = computed(() => new Map(props.review.lines.map((line) => [`${line.songListId}:${line.position}`, line])))
@@ -94,8 +96,8 @@ const notesOf = (row: SetlistDisplayRow): string[] => {
           </td>
           <td class="px-3 py-2 text-muted">{{ charactersOf(row) }}</td>
           <td class="px-3 py-2">
-            <UTooltip v-if="row.showLabel" :text="row.showDetail.join('、')" :content="{ side: 'top' }">
-              <span class="text-highlighted">{{ row.showLabel }}</span>
+            <UTooltip v-if="row.showLabel" :text="row.showDetail.map(localizePlace).join('、')" :content="{ side: 'top' }">
+              <span class="text-highlighted">{{ localizePlace(row.showLabel) }}</span>
             </UTooltip>
           </td>
           <td class="px-3 py-2 text-xs text-warning">

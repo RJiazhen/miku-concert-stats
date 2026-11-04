@@ -80,6 +80,10 @@
 
 `shared/song-titles.ts` 校验并格式化中文歌名。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配，并把 VocaDB 搜索结果收成最多 5 条投稿链接。
 
+`shared/performance-name.ts` 的 `shortPerformanceName` 去掉场次名里已由「系列」列显示的系列名与年份，留下城市、年版后缀或周年说明；匹配时兼容 `初音ミク「マジカルミライ」` + 2013 与 `初音ミク「マジカルミライ 2013」` 两种写法。
+
+`shared/place-names.ts` 校验 `data/place-names.zh-CN.json`，并按站点语言把场次名里的地点换成中文名。拉丁字母的键按整词、不区分大小写匹配，长键优先（`東京都` 先于 `東京`）；语言为 `original` 时原样返回。
+
 ### 页面、组件、服务端
 
 页面在挂载后调用 `app/composables/useCatalog.ts` 的 `load`。服务端渲染不打开 wasm。客户端只下载一次 `/data/catalog.sqlite`，用 `/sql-wasm.wasm` 初始化 sql.js，再 `loadCatalog`。结果放在 Nuxt `useState` 里，各页共用。
@@ -101,9 +105,11 @@
 
 `partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同场的歌曲数量对不上时不合并，按多份歌单分别显示。
 
-`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌、四个入口、中文歌名开关（`USwitch`，只在客户端生效）、`UColorModeButton`。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
+`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌、四个入口、中文名称开关（`USwitch`，只在客户端生效，同时控制中文歌名与中文地点）、`UColorModeButton`。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
 
 `app/composables/useSongLanguage.ts` 保存歌名语言，`localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`），并暴露 `showChinese` 布尔绑定给开关。服务端和首屏先显示原文，挂载后再读选择，避免注水不一致。
+
+`app/composables/usePlaceNames.ts` 读写同一个语言状态，并暴露 `localizePlace`，把场次名里的地点换成当前语言的地名。`/songs`、`/shows`、`/editions` 与 `SetlistTable` 的场次名都经过它；`/raw` 保留 VocaDB 原文。
 
 `app/composables/useSongLookup.ts` 提供 `songById` / `songName`；`useSongVariants.ts` 与 `useSetlistMerges.ts` 在模块加载时解析各自的 JSON 清单。
 
@@ -173,6 +179,10 @@ flowchart TD
 
 对象。键是 VocaDB 歌曲 id，值含非空 `title`、非空 `source` 与可选 `comment`。
 
+### `data/place-names.zh-CN.json`
+
+对象。键是 VocaDB 场次名里的地点写法（拉丁字母或日文），值是中文名。键不能只差大小写；渲染时长键优先，拉丁键按整词匹配。只收录人工核对过的地点，没收录的写法保持原样。
+
 ### `data/characters.json`
 
 对象。键是展示用的角色名，顺序即筛选项顺序。值含 `patterns`（锚定名称开头的正则）与可选 `aliases`（整段或前缀别名）。
@@ -207,9 +217,11 @@ pnpm exec wrangler --cwd .output deploy
 Workers Builds（Git 集成）的配置要求：
 
 - 生产分支 `main`（`origin/main` 必须包含完整代码，不能只有 README）。
-- Build command `pnpm install --frozen-lockfile && pnpm build`。
-- Deploy command `npx wrangler deploy --cwd .output`。Nitro 生成的部署配置在 `.output/wrangler.json`，根目录 `wrangler.toml` 没有 `main` 字段。
+- Build command `pnpm build`（Workers Builds 会先自动跑 `pnpm install --frozen-lockfile`）。
+- Deploy command `npx wrangler deploy`。`nuxt build` 生成 `.wrangler/deploy/config.json`，把根目录配置重定向到 `.output/server/wrangler.json`。不要加 `--cwd .output`：构建未产出 `.output` 时 wrangler 会报 `Missing file or directory`，而空的 Build command 正是导致 Builds 全部失败的原因。
 - 环境变量 `NODE_VERSION=22`。
+
+Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `npx wrangler versions upload`，只上传版本不发布；它的 `NODE_VERSION=22` 与生产是两份独立配置。
 
 `catalog.sqlite` 是构建产物，所以数据提交后需要再触发一次部署才会更新线上。
 

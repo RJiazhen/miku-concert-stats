@@ -39,8 +39,8 @@ const links = [
       <div class="order-2 ml-auto flex items-center gap-3 sm:order-3">
         <SiteSearch />
         <label class="flex cursor-pointer items-center gap-2 text-xs text-muted">
-          <USwitch v-model="showChinese" aria-label="显示中文歌名" size="sm" />
-          <span class="hidden lg:inline">中文歌名</span>
+          <USwitch v-model="showChinese" aria-label="显示中文名称" size="sm" />
+          <span class="hidden lg:inline">中文名称</span>
         </label>
         <UColorModeButton color="neutral" variant="ghost" size="sm" />
       </div>

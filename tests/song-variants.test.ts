@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseSongVariants, emptySongVariantIndex } from '../shared/song-variants.ts'
+import { parseSongVariants, emptySongVariantIndex, variantVersionNote } from '../shared/song-variants.ts'
 import { rankSongAppearances } from '../shared/stats.ts'
 import type { Catalog, PerformanceRow, SetlistItemRow, SetlistItemSongRow, SongRow } from '../shared/types.ts'
 
@@ -92,7 +92,23 @@ describe('song variant file', () => {
     expect(index.groupSongIds(2)).toEqual([1, 2, 3])
     expect(index.variantSongIdsOf(1)).toEqual([2, 3])
     expect(index.size).toBe(2)
+    expect(index.entries.get(2)?.kind).toBe('remix')
     expect(emptySongVariantIndex().groupSongIds(5)).toEqual([5])
+  })
+})
+
+describe('version notes', () => {
+  it('never repeats the full song name and keeps only the distinguishing part', () => {
+    expect(variantVersionNote('Fire◎Flower', 'Fire◎Flower 2011', 'remaster')).toBe('重制 · 2011')
+    expect(variantVersionNote('初音ミクの激唱', '初音ミクの激唱（LONG VERSION）', 'remix')).toBe('混音 · LONG VERSION')
+    expect(variantVersionNote('Sharing The World', 'Sharing The World [ SPANISH VER ]', 'language')).toBe('语言 · SPANISH VER')
+    expect(variantVersionNote('Last Night, Good Night', 'Last Night, Good Night (Re:Dialed)', 'remaster')).toBe('重制 · Re:Dialed')
+  })
+
+  it('falls back to the kind when the titles do not differ', () => {
+    expect(variantVersionNote('右肩の蝶', '右肩の蝶', 'voicebank')).toBe('声库')
+    expect(variantVersionNote('Just Be Friends', 'Just be Friends', 'cover')).toBe('翻唱')
+    expect(variantVersionNote('歌に形はないけれど', '虽然歌声无形', 'cover')).toBe('翻唱')
   })
 })
 

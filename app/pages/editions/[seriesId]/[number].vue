@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
+import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { buildSetlistDisplay, displaySides, editionSongLists } from '~~/shared/edition-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
@@ -9,6 +10,7 @@ import { reviewRotations } from '~~/shared/rotation.ts'
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const merges = useSetlistMerges()
+const { localizePlace } = usePlaceNames()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -95,7 +97,7 @@ const premiere = computed(() => {
         <ul class="space-y-1 text-sm">
           <li v-for="performance in performances" :key="performance.id">
             <NuxtLink :to="`/shows/${performance.id}`" class="text-primary">
-              {{ performance.start_date ?? '日期未知' }} · {{ performance.name }}
+              {{ performance.start_date ?? '日期未知' }} · {{ localizePlace(performance.name) }}
             </NuxtLink>
             <span v-if="performance.song_list_id === null" class="text-muted"> · 无歌单</span>
           </li>

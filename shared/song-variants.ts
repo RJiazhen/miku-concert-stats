@@ -21,6 +21,8 @@ export type SongVariantIndex = {
   groupSongIds: (songId: number) => number[]
   /** Canonical id to its group, variants included. */
   groups: ReadonlyMap<number, readonly number[]>
+  /** Variant id to the entry that merges it into its canonical song. */
+  entries: ReadonlyMap<number, SongVariantEntry>
   /** Canonical id to the variant entries merged into it. */
   entriesByCanonical: ReadonlyMap<number, readonly SongVariantEntry[]>
   /** Number of merged variant entries. */
@@ -47,6 +49,7 @@ export const emptySongVariantIndex = (): SongVariantIndex => ({
   variantSongIdsOf: () => [],
   groupSongIds: (songId: number) => [songId],
   groups: new Map(),
+  entries: new Map(),
   entriesByCanonical: new Map(),
   size: 0,
 })
@@ -119,7 +122,52 @@ const buildIndex = (entries: ReadonlyMap<number, SongVariantEntry>): SongVariant
       return group ? [...group] : [canonical]
     },
     groups,
+    entries,
     entriesByCanonical: byCanonical,
     size: entries.size,
   }
+}
+
+/** Chinese label for each variant kind, used in version notes. */
+export const variantKindLabels: Record<VariantKind, string> = {
+  remix: '混音',
+  remaster: '重制',
+  voicebank: '声库',
+  cover: '翻唱',
+  language: '语言',
+}
+
+/** Brackets, dashes, and spacing that a removed title leaves at either end. */
+const EDGE_NOISE = /^[\s\-–—·:：,，、/|~〜()（）[\]【】「」『』]+|[\s\-–—·:：,，、/|~〜()（）[\]【】「」『』]+$/g
+
+/** Folds a title fragment to the text worth showing, or '' when nothing is left. */
+const trimTitleFragment = (value: string): string => value.replace(EDGE_NOISE, '').replace(/\s+/g, ' ').trim()
+
+/**
+ * Text left in a variant title after removing its canonical title.
+ * Returns '' when the titles do not share the canonical title, so callers fall back to the kind.
+ */
+const titleRemainder = (variantName: string, canonicalName: string): string => {
+  const variant = variantName.trim()
+  const canonical = canonicalName.trim()
+  if (variant === '' || canonical === '') return ''
+  const lowerVariant = variant.toLowerCase()
+  const lowerCanonical = canonical.toLowerCase()
+  const comparable = lowerVariant.length === variant.length && lowerCanonical.length === canonical.length
+  const index = comparable && lowerVariant.includes(lowerCanonical)
+    ? lowerVariant.indexOf(lowerCanonical)
+    : variant.indexOf(canonical)
+  if (index === -1) return ''
+  return trimTitleFragment(variant.slice(0, index) + variant.slice(index + canonical.length))
+}
+
+/**
+ * Version note shown next to a performance: the canonical song reads `原版`,
+ * a variant reads its kind plus the distinguishing title fragment.
+ * The full song name is never repeated, and a variant with no visible difference keeps just the kind.
+ */
+export const variantVersionNote = (canonicalName: string, variantName: string, kind?: VariantKind): string => {
+  const kindLabel = kind ? variantKindLabels[kind] : '其他版本'
+  const remainder = titleRemainder(variantName, canonicalName)
+  return remainder === '' ? kindLabel : `${kindLabel} · ${remainder}`
 }

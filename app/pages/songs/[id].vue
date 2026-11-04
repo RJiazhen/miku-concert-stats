@@ -6,6 +6,9 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
+import { variantVersionNote } from '~~/shared/song-variants.ts'
+import { shortPerformanceName } from '~~/shared/performance-name.ts'
+import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { latestSnapshot } from '~~/shared/stats.ts'
 import type { Platform } from '~~/shared/types.ts'
 
@@ -13,6 +16,7 @@ const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const { songById } = useSongLookup()
+const { localizePlace } = usePlaceNames()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -49,6 +53,8 @@ const appearances = computed(() => {
   const ids = new Set(groupIds.value)
   const review = reviewRotations(catalog.value)
   const lineByKey = new Map(review.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
+  const canonicalName = song.value?.name ?? ''
+  const showVersion = variantIds.value.length > 0
   const rows: {
     key: string
     seriesId: number
@@ -58,7 +64,7 @@ const appearances = computed(() => {
     performanceName: string
     date: string | null
     role: string
-    versionName: string
+    versionNote: string
     uncertain: boolean
     reasons: string[]
   }[] = []
@@ -70,16 +76,21 @@ const appearances = computed(() => {
       if (performance.song_list_id !== link.song_list_id) continue
       if (line && !line.performanceIds.includes(performance.id)) continue
       const series = catalog.value.series.find((row) => row.id === performance.series_id)
+      const seriesName = series?.name ?? String(performance.series_id)
+      const entry = variants.entries.get(link.song_id)
+      const versionName = songById(link.song_id)?.name ?? String(link.song_id)
+      // The canonical version is the page's default, so only variants need a note.
+      const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind) : ''
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
         seriesId: performance.series_id,
-        seriesName: series?.name ?? String(performance.series_id),
+        seriesName,
         seriesNumber: performance.series_number,
         performanceId: performance.id,
-        performanceName: performance.name,
+        performanceName: localizePlace(shortPerformanceName(performance.name, seriesName, performance.series_number)),
         date: performance.start_date,
         role: performance.role,
-        versionName: songById(link.song_id)?.name ?? String(link.song_id),
+        versionNote,
         uncertain: line?.uncertain ?? false,
         reasons: line?.reasons ?? [],
       })
@@ -188,7 +199,6 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
                 <th class="px-2 py-1.5 font-medium">日期</th>
                 <th class="px-2 py-1.5 font-medium">系列</th>
                 <th class="px-2 py-1.5 font-medium">场次</th>
-                <th class="px-2 py-1.5 font-medium">演唱版本</th>
                 <th class="px-2 py-1.5 font-medium">备注</th>
               </tr>
             </thead>
@@ -202,10 +212,14 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
                   <template v-else>{{ row.seriesName }}</template>
                 </td>
                 <td class="px-2 py-1.5">
-                  <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.performanceName }}</NuxtLink>
+                  <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.performanceName || '—' }}</NuxtLink>
                 </td>
-                <td class="px-2 py-1.5 text-muted">{{ row.versionName }}</td>
-                <td class="px-2 py-1.5 text-xs text-warning">{{ row.reasons.join('；') }}</td>
+                <td class="px-2 py-1.5 text-xs">
+                  <span v-if="row.versionNote" class="text-muted">版本：{{ row.versionNote }}</span>
+                  <span v-if="row.versionNote && row.reasons.length" class="text-muted">；</span>
+                  <span v-if="row.reasons.length" class="text-warning">{{ row.reasons.join('；') }}</span>
+                  <span v-if="!row.versionNote && row.reasons.length === 0" class="text-muted">—</span>
+                </td>
               </tr>
             </tbody>
           </table>
