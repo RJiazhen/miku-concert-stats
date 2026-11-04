@@ -272,3 +272,21 @@ git -C "$HOME/projects/full-stack/miku-concert-stats.worktrees/main" worktree ad
 ### 提交范围
 
 只 `git add` 本次任务涉及的具体路径，不要 `git add -A`：工作树里可能还有别的任务尚未提交的改动。提交前先 `git status --short` 确认只有预期文件，提交后再用 `git status --short` 确认干净。
+
+### 网页任务开本地服务器
+
+凡是改动用户可见行为的任务（页面、组件、样式、筛选、UI 里展示的数据），收尾时都要留一个本地开发服务器在运行，方便用户随时打开检查；只跑通 `build` / `test` 不算完成。
+
+本机 Node 26.x 下直接 `pnpm dev` 会在 `@nuxt/cli` 同步 allowed hosts 时崩掉（`options.hostname.toLowerCase is not a function`），必须显式指定 host：
+
+```bash
+NUXT_IGNORE_LOCK=1 pnpm dev --host 127.0.0.1 --port <port>
+```
+
+用后台 / detached 的方式启动，让它在本任务结束后继续存活。
+
+端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+
+任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
+
+`.nuxt`、`.output`、`public/data/catalog.sqlite*` 都是构建 / 开发产物，已被 git 忽略，任何时候都不要提交。
