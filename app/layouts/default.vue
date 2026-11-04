@@ -14,9 +14,6 @@
           <ULink to="https://wiki.vocadb.net/docs/license" target="_blank" class="text-primary">VocaDB License</ULink>。
           本站不收录第三方封面、歌词或官方标识。
         </p>
-        <p>
-          播放量只记录带采集时间的观测。没有 YouTube Data API 快照时，播放量相关栏目暂时隐藏；不抓取 niconico 非官方接口，也不抓取哔哩哔哩播放量。
-        </p>
       </div>
     </footer>
   </div>
