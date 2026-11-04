@@ -7,6 +7,13 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import { producerCredit } from '~~/shared/credit.ts'
 import { SEVERITY_LABELS } from '~~/shared/setlist-diff.ts'
+import {
+  availablePerformanceYears,
+  canEndRangeAt,
+  canStartRangeAt,
+  normalizeYearRange,
+  type YearRange,
+} from '~~/shared/year-range.ts'
 
 const UButton = resolveComponent('UButton')
 
@@ -22,8 +29,8 @@ onMounted(startLoad)
 const mode = ref<RankingMode>('setlist')
 const selectedSeries = ref<number[]>([])
 const seriesTouched = ref(false)
-const yearFromText = ref('')
-const yearToText = ref('')
+const yearFrom = ref('')
+const yearTo = ref('')
 const includeBroadcast = ref(false)
 const includeMedleyComponents = ref(false)
 const characterFilter = ref('all')
@@ -68,8 +75,8 @@ const ranked = computed<RankedSong[]>(() => {
   return rankSongAppearances(catalog.value, {
     mode: mode.value,
     seriesIds: selectedSeries.value,
-    yearFrom: yearOrNull(yearFromText.value),
-    yearTo: yearOrNull(yearToText.value),
+    yearFrom: yearOrNull(yearFrom.value),
+    yearTo: yearOrNull(yearTo.value),
     includeBroadcast: includeBroadcast.value,
     includeMedleyComponents: includeMedleyComponents.value,
     variants,
@@ -164,8 +171,8 @@ type FilterState = {
 const state = computed<FilterState>(() => ({
   mode: mode.value,
   series: selectedSeries.value,
-  from: yearFromText.value,
-  to: yearToText.value,
+  from: yearFrom.value,
+  to: yearTo.value,
   broadcast: includeBroadcast.value,
   medley: includeMedleyComponents.value,
   character: characterFilter.value,
@@ -217,8 +224,10 @@ const readUrl = (): void => {
       seriesTouched.value = true
     }
   }
-  yearFromText.value = readString(url.from)
-  yearToText.value = readString(url.to)
+  /** Restored bounds are swapped when a shared link holds an inverted range. */
+  const restored = normalizeYearRange({ from: yearOrNull(readString(url.from)), to: yearOrNull(readString(url.to)) })
+  yearFrom.value = restored.from === null ? '' : String(restored.from)
+  yearTo.value = restored.to === null ? '' : String(restored.to)
   includeBroadcast.value = readString(url.broadcast) === '1'
   includeMedleyComponents.value = readString(url.medley) === '1'
   characterFilter.value = readString(url.character) || 'all'
@@ -245,8 +254,8 @@ onMounted(() => {
 const reset = (): void => {
   mode.value = 'setlist'
   selectedSeries.value = catalog.value?.series.map((row) => row.id) ?? []
-  yearFromText.value = ''
-  yearToText.value = ''
+  yearFrom.value = ''
+  yearTo.value = ''
   includeBroadcast.value = false
   includeMedleyComponents.value = false
   characterFilter.value = 'all'
@@ -258,7 +267,7 @@ const reset = (): void => {
 const activeFilters = computed(() => {
   let count = 0
   if (mode.value === 'show') count++
-  if (yearFromText.value || yearToText.value) count++
+  if (yearFrom.value || yearTo.value) count++
   if (includeBroadcast.value) count++
   if (includeMedleyComponents.value) count++
   if (characterFilter.value !== 'all') count++
@@ -273,6 +282,34 @@ const characterItems = computed(() => [
   ...characterNames.map((name) => ({ label: name, value: name })),
 ])
 const seriesItems = computed(() => seriesOptions.value.map((series) => ({ label: series.name, value: series.id })))
+
+/** Calendar years present in the catalog, newest first; the same list the year filter matches against. */
+const yearOptions = computed(() => availablePerformanceYears(catalog.value?.performances ?? []))
+
+/** Items shared by both year pickers: 不限 plus every year the data contains. */
+const yearItems = computed(() => [
+  { label: '不限', value: '' },
+  ...yearOptions.value.map((year) => ({ label: `${year} 年`, value: String(year) })),
+])
+
+/** Bounds currently selected; `null` marks an open end. */
+const yearRange = computed<YearRange>(() => ({ from: yearOrNull(yearFrom.value), to: yearOrNull(yearTo.value) }))
+
+/** Start-year items; years after the selected end year stay visible but disabled, so the range cannot invert. */
+const yearFromItems = computed(() =>
+  yearItems.value.map((item) => {
+    const year = yearOrNull(item.value)
+    return { ...item, disabled: year !== null && !canStartRangeAt(year, yearRange.value) }
+  }),
+)
+
+/** End-year items; years before the selected start year stay visible but disabled, so the range cannot invert. */
+const yearToItems = computed(() =>
+  yearItems.value.map((item) => {
+    const year = yearOrNull(item.value)
+    return { ...item, disabled: year !== null && !canEndRangeAt(year, yearRange.value) }
+  }),
+)
 
 /** Severity labels are reused in the link to the review page. */
 const reviewHint = SEVERITY_LABELS['segment-differs']
@@ -314,8 +351,8 @@ const reviewHint = SEVERITY_LABELS['segment-differs']
           <UButton :variant="mode === 'show' ? 'solid' : 'outline'" label="按场次" @click="mode = 'show'" />
         </UFieldGroup>
         <UInput v-model="query" icon="i-lucide-search" placeholder="搜索歌名、版本或艺人" size="sm" class="min-w-56 flex-1" />
-        <UInput v-model="yearFromText" inputmode="numeric" placeholder="起始年" size="sm" class="w-24" />
-        <UInput v-model="yearToText" inputmode="numeric" placeholder="结束年" size="sm" class="w-24" />
+        <USelect v-model="yearFrom" :items="yearFromItems" aria-label="起始年" title="起始年" size="sm" class="w-24" />
+        <USelect v-model="yearTo" :items="yearToItems" aria-label="结束年" title="结束年" size="sm" class="w-24" />
         <USelect v-model="characterFilter" :items="characterItems" size="sm" class="w-36" />
         <UButton
           color="neutral"
