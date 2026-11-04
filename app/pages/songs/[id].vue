@@ -298,8 +298,7 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
       <UCard>
         <template #header>
           <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="text-base font-semibold text-highlighted">投稿与播放量</h2>
-            <span v-if="!hasSnapshots" class="text-xs text-muted">当前没有播放量快照，只显示投稿链接</span>
+            <h2 class="text-base font-semibold text-highlighted">相关投稿</h2>
           </div>
         </template>
         <p v-if="videos.length === 0" class="text-sm text-muted">VocaDB 上没有登记投稿链接。</p>

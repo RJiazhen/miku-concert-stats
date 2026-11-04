@@ -108,7 +108,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | `/raw` | `app/pages/raw.vue` | 原始数据。按年版合并歌单（`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单场次、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演唱会数与场数（演出日）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上场次单独提示 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown |
-| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录、投稿与（有快照时的）播放量 |
+| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲的合并版本、出场记录、相关投稿（有快照时附播放量） |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一场的轮换解析结果与长度一致性；歌单来自专辑时显示来源提示 |
 | `/editions/{seriesId}/{number}` | `app/pages/editions/[seriesId]/[number].vue` | 一个年版的合并歌单，可切到逐份歌单；专辑补位的歌单同样标注来源 |
 
