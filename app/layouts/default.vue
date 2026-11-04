@@ -6,7 +6,7 @@
       <slot />
     </div>
     <footer class="border-t border-default/60">
-      <div class="mx-auto max-w-6xl space-y-2 px-4 py-8 text-xs text-muted sm:px-6">
+      <div class="mx-auto max-w-6xl space-y-2 px-4 pt-8 pb-24 text-xs text-muted sm:px-6 sm:pb-8">
         <p>
           曲目、演出和歌单来自
           <ULink to="https://vocadb.net/" target="_blank" class="text-primary">VocaDB</ULink>
@@ -15,5 +15,6 @@
         </p>
       </div>
     </footer>
+    <FeedbackWidget />
   </div>
 </template>
