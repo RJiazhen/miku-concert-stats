@@ -78,8 +78,8 @@ type RankedSong = {
   firstYear: number | null
   lastYear: number | null
   approximate: boolean
-  /** 演出 whose 场次 could not be pinned down, in the site language; the ≈ badge names them. */
-  approximatePerformanceNames: string[]
+  /** 演出 whose 场次 could not be pinned down, linked from the ≈ badge tooltip. */
+  approximateShows: { id: number; name: string }[]
   variantSongIds: number[]
   /** Canonical song plus every merged variant, so the badge counts all versions. */
   versionCount: number
@@ -100,14 +100,17 @@ const ranked = computed<RankedSong[]>(() => {
   const performancesById = new Map(catalog.value.performances.map((performance) => [performance.id, performance]))
   const seriesById = new Map(catalog.value.series.map((series) => [series.id, series]))
 
-  /** Full 演出 names of the uncertain performances, oldest first, in the site language. */
-  const approximateNamesOf = (ids: readonly number[]): string[] =>
+  /** Uncertain 演出 as links to their page, oldest first, in the site language. */
+  const approximateShowsOf = (ids: readonly number[]): { id: number; name: string }[] =>
     ids
       .flatMap((id) => performancesById.get(id) ?? [])
       .sort((left, right) => (left.start_date ?? '').localeCompare(right.start_date ?? '') || left.id - right.id)
       .map((performance) => {
         const series = seriesById.get(performance.series_id)
-        return localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number))
+        return {
+          id: performance.id,
+          name: localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number)),
+        }
       })
   return rankSongAppearances(catalog.value, {
     mode: mode.value,
@@ -139,7 +142,7 @@ const ranked = computed<RankedSong[]>(() => {
       firstYear: row.firstYear,
       lastYear: row.lastYear,
       approximate: row.approximate,
-      approximatePerformanceNames: approximateNamesOf(row.approximatePerformanceIds),
+      approximateShows: approximateShowsOf(row.approximatePerformanceIds),
       variantSongIds: row.variantSongIds,
       versionCount: row.variantSongIds.length + 1,
       variantNames,
@@ -530,7 +533,11 @@ const yearToItems = computed(() =>
               <div class="w-60 space-y-1">
                 <p class="text-xs">以下演出尚未确认具体表演场次数：</p>
                 <ul class="list-disc space-y-0.5 pl-4 text-xs">
-                  <li v-for="name in row.original.approximatePerformanceNames" :key="name">{{ name }}</li>
+                  <li v-for="show in row.original.approximateShows" :key="show.id">
+                    <NuxtLink :to="`/shows/${show.id}`" class="text-primary underline-offset-2 hover:underline">
+                      {{ show.name }}
+                    </NuxtLink>
+                  </li>
                 </ul>
               </div>
             </template>
