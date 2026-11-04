@@ -395,7 +395,6 @@ const downloads = [
   { label: '版本合并清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-variants.json' },
   { label: '歌单合并清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/setlist-merges.json' },
   { label: '中文歌名', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-titles.zh-CN.json' },
-  { label: '差异核验报告', href: '/report' },
 ]
 
 /** Song counts for one list, used in the year view header. */
@@ -529,16 +528,6 @@ const editionSongCount = computed(() => {
             <p class="text-xl font-semibold text-highlighted">{{ item.value }}</p>
           </div>
         </div>
-      </UCard>
-
-      <UCard>
-        <template #header>
-          <h2 class="text-base font-semibold text-highlighted">歌单差异核验</h2>
-        </template>
-        <p class="text-sm text-muted">
-          同一系列不同演出之间曲目数量或正片/安可段编排不一致时，会在核验页逐条列出，并附上 VocaDB 歌单链接与差异曲目。
-        </p>
-        <UButton to="/report" class="mt-3" size="sm" trailing-icon="i-lucide-arrow-right">打开核验报告</UButton>
       </UCard>
 
       <UCard>
