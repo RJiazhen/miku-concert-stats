@@ -13,9 +13,13 @@ const links = [
   <header class="glass-header sticky top-0 z-40">
     <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
       <NuxtLink to="/" class="group flex items-center gap-2.5 text-inherit no-underline">
-        <span class="grid size-9 place-items-center rounded-xl bg-linear-to-br from-miku-400 to-magenta-500 text-sm font-bold text-neutral-950 shadow-lg shadow-miku-500/20">
-          MI
-        </span>
+        <img
+          src="/logo.png"
+          alt="初音未来演唱会曲目统计"
+          width="32"
+          height="32"
+          class="size-8 shrink-0 rounded-lg ring-1 ring-black/10 dark:ring-white/15"
+        >
         <span class="leading-tight">
           <span class="block text-sm font-semibold tracking-tight">初音未来演唱会</span>
           <span class="block text-[11px] text-muted">曲目统计</span>

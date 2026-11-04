@@ -71,6 +71,7 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'zh-Hans' },
       title: '初音未来演唱会曲目播放统计',
+      link: [{ rel: 'icon', type: 'image/png', href: '/logo.png' }],
       meta: [
         {
           name: 'description',
