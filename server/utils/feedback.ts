@@ -55,17 +55,19 @@ export const serialiseFeedbackRecord = (record: FeedbackRecord): string => {
   return JSON.stringify(record)
 }
 
-/** Requires a matching FEEDBACK_TOKEN query/body secret; throws 401/503 otherwise. */
+/**
+ * Requires a matching FEEDBACK_TOKEN for every admin feedback API.
+ * On failure throws 401 with no feedback content, metadata, or counts in the body
+ * (missing config and bad token look the same so nothing is leaked).
+ */
 export const assertFeedbackToken = (event: H3Event, supplied: string): void => {
   const expected = feedbackTokenOf(event)
-  if (expected === '') {
+  if (expected === '' || !sameSecret(supplied, expected)) {
     throw createError({
-      statusCode: 503,
-      statusMessage: 'Feedback token missing',
-      message: '反馈收件箱还没有配置 FEEDBACK_TOKEN',
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'Unauthorized',
+      data: null,
     })
-  }
-  if (!sameSecret(supplied, expected)) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'token 不正确' })
   }
 }

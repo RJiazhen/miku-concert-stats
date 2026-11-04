@@ -28,7 +28,7 @@ const readRecord = async (store: FeedbackKv, key: string): Promise<FeedbackRecor
 
 /**
  * Read-only inbox for maintainers: `GET /api/feedback/list?token=<FEEDBACK_TOKEN>`.
- * Returns the newest submissions first and is never public; without a matching token it is 401.
+ * Identity is verified before any KV access. Failed verification is 401 with no items, counts, or metadata.
  */
 const listFeedback = async (event: H3Event): Promise<{ count: number; items: FeedbackRecord[] }> => {
   const query = getQuery(event)
@@ -37,11 +37,7 @@ const listFeedback = async (event: H3Event): Promise<{ count: number; items: Fee
 
   const store = feedbackStoreOf(event)
   if (!store) {
-    throw createError({
-      statusCode: 503,
-      statusMessage: 'Feedback unavailable',
-      message: '反馈服务暂不可用，请稍后再试。',
-    })
+    throw createError({ statusCode: 503, statusMessage: 'Unavailable', message: 'Unavailable', data: null })
   }
 
   const listed = await store.list({ prefix: FEEDBACK_KEY_PREFIX, limit: MAX_KEYS })

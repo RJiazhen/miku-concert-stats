@@ -23,7 +23,7 @@ type StatusBody = {
 
 /**
  * Sets the triage status of one stored feedback record.
- * Auth uses the same FEEDBACK_TOKEN secret as the inbox list.
+ * Identity is verified before any KV access. Failed verification is 401 with no feedback data.
  */
 const updateFeedbackStatus = async (
   event: H3Event,
@@ -48,11 +48,7 @@ const updateFeedbackStatus = async (
 
   const store = feedbackStoreOf(event)
   if (!store) {
-    throw createError({
-      statusCode: 503,
-      statusMessage: 'Feedback unavailable',
-      message: '反馈服务暂不可用，请稍后再试。',
-    })
+    throw createError({ statusCode: 503, statusMessage: 'Unavailable', message: 'Unavailable', data: null })
   }
 
   const key = `${FEEDBACK_KEY_PREFIX}${receivedAt}:${id}`

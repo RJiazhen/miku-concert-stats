@@ -108,7 +108,7 @@ const toggleStatus = async (item: FeedbackRecord): Promise<void> => {
           反馈收件箱
         </h1>
         <p class="text-sm text-muted">
-          未挂在站点导航里。用直接 URL 打开，并用 FEEDBACK_TOKEN 登录。Cloudflare 账号登录仍按 issue #10 后续接入。
+          未挂在站点导航里。用直接 URL 打开。列表 / 详情 / 状态接口均需身份校验，失败不返回任何反馈数据。短期用 FEEDBACK_TOKEN；Cloudflare 账号登录仍按 issue #10 接入。
         </p>
       </header>
 
