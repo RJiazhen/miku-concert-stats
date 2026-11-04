@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { showCellOf, type SetlistDisplay, type SetlistDisplayRow, type ShowCell } from '~~/shared/edition-setlists.ts'
+import { performanceCellOf, type PerformanceCell, type SetlistDisplay, type SetlistDisplayRow } from '~~/shared/edition-setlists.ts'
 import { formatRotationReason, type RotationReview } from '~~/shared/rotation.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
@@ -10,28 +10,28 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 const props = defineProps<{
   display: SetlistDisplay
   review: RotationReview
-  /** Performance the page shows; null on the raw and edition views, which keep every 场次 label. */
+  /** 演出 the page shows; null on the raw view and the comparison view, which keep every 演出 label. */
   currentPerformanceId?: number | null
-  /** City of the page's performance, so a city-only note for that same city is dropped. */
+  /** City of the page's 演出, so a city-only note for that same city is dropped. */
   currentCity?: string | null
-  /** Series name of the current performance, stripped from other shows' names. */
+  /** Series name of the current 演出, stripped from other 演出 names. */
   seriesName?: string
-  /** Series edition of the current performance, stripped from other shows' names. */
+  /** Series year of the current 演出, stripped from other 演出 names. */
   seriesNumber?: number | null
 }>()
 
 const { songById, songName } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 
-/** Other performances' names shortened to their city, in the site language. */
+/** Other 演出 names shortened to their city, in the site language. */
 const shortNameOf = (name: string): string => {
   return localizePlace(shortPerformanceName(name, props.seriesName ?? '', props.seriesNumber ?? null))
 }
 
-/** 场次 cell for every row, computed once per display. */
-const cells = computed<ShowCell[]>(() =>
+/** 演出 cell for every row, computed once per display. */
+const cells = computed<PerformanceCell[]>(() =>
   props.display.rows.map((row) =>
-    showCellOf({
+    performanceCellOf({
       selectorLabel: row.selectorLabel,
       performanceIds: row.performanceIds,
       names: row.showDetail,
@@ -101,7 +101,7 @@ const notePartsOf = (row: SetlistDisplayRow): NotePart[] => {
           <th class="w-14 px-3 py-2 font-medium">序号</th>
           <th class="px-3 py-2 font-medium">歌曲</th>
           <th class="px-3 py-2 font-medium">演出角色</th>
-          <th class="px-3 py-2 font-medium">场次</th>
+          <th class="px-3 py-2 font-medium">{{ currentPerformanceId === null || currentPerformanceId === undefined ? '演出' : '场次' }}</th>
           <th class="px-3 py-2 font-medium">数据说明</th>
         </tr>
       </thead>

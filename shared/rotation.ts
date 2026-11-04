@@ -352,7 +352,7 @@ const addCityToken = (tokens: Set<string>, raw: string): void => {
   tokens.add(token)
 }
 
-/** City-like tokens in a performance title: the part after `in` / `at` or after the edition year. */
+/** City-like tokens in a performance title: the part after `in` / `at` or after the series year. */
 const derivedCityTokens = (performance: RotationPerformance): string[] => {
   const tokens = new Set<string>()
   for (const source of [performance.name, performance.name_ja ?? '']) {
@@ -365,7 +365,7 @@ const derivedCityTokens = (performance: RotationPerformance): string[] => {
 }
 
 /** City key of a performance: the static alias, or a city token read from its title. */
-const performanceCityKey = (performance: RotationPerformance): string | null => {
+export const performanceCityKey = (performance: RotationPerformance): string | null => {
   return performanceCity(performance) ?? derivedCityTokens(performance)[0] ?? null
 }
 
@@ -545,7 +545,7 @@ export const formatRotationReason = (reason: string): string => {
   if (reason === 'unmatched city') return '城市没有对到任何一场'
   const cityOnly = reason.match(/^city-only when city has several shows(?:: (\d+))?$/)
   if (cityOnly) return cityOnly[1] ? `共 ${cityOnly[1]} 场` : '该城市有多场'
-  if (reason === 'day with day/night shows') return '当天有日场或夜场，无法确定是哪一场'
+  if (reason === 'day with day/night shows') return '备注写到日场 / 夜场或当天有多场，解析器只定位到当天'
   return reason
 }
 

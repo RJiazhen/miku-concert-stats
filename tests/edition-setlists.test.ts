@@ -9,7 +9,7 @@ import {
   emptySetlistMergeIndex,
   parseSetlistMerges,
   partitionSongLists,
-  showCellOf,
+  performanceCellOf,
   type SetlistDisplay,
 } from '../shared/edition-setlists.ts'
 import { shortPerformanceName } from '../shared/performance-name.ts'
@@ -47,7 +47,7 @@ describe('region merge file', () => {
     expect(() => parseSetlistMerges({ '1': { group: 'x', note: 5 } })).toThrow()
   })
 
-  it('partitions an edition into merged groups and standalone lists', () => {
+  it('partitions a series year into merged groups and standalone lists', () => {
     expect(emptySetlistMergeIndex().groupOf(1)).toBeNull()
     expect(partitionSongLists([17933, 8102, 8101], merges)).toEqual([[8101, 8102], [17933]])
   })
@@ -102,7 +102,7 @@ describe('merged setlist display', () => {
     expect(displaySides([16544, 18446, 18583], merges, review)).toEqual([[16544], [18446, 18583]])
   })
 
-  it('leaves an unmerged edition in two separate displays', () => {
+  it('leaves an unmerged series year in two separate displays', () => {
     const sides = partitionSongLists([12354, 13440], merges)
     expect(sides).toEqual([[12354], [13440]])
     expect(buildSetlistDisplay(catalog, review, sides[0] ?? []).rows).toHaveLength(22)
@@ -115,8 +115,8 @@ describe('show cell on a show page', () => {
   const shortTail = (name: string): string => name.split(' 2012 ').at(1) ?? name
 
   /** Inputs for a synthetic row, overridable per case. */
-  const cell = (overrides: Partial<Parameters<typeof showCellOf>[0]> = {}) =>
-    showCellOf({
+  const cell = (overrides: Partial<Parameters<typeof performanceCellOf>[0]> = {}) =>
+    performanceCellOf({
       selectorLabel: null,
       performanceIds: [1],
       names: ['Series 2012 Hong Kong'],
@@ -127,7 +127,7 @@ describe('show cell on a show page', () => {
       ...overrides,
     })
 
-  it('keeps the full names on the raw and edition views', () => {
+  it('keeps the full names on the raw and comparison views', () => {
     expect(cell({ performanceIds: [1, 2], names: ['Series 2012 Hong Kong', 'Series 2012 Taiwan'], allPerformanceIds: [1, 2] })).toEqual({
       text: 'Series 2012 Hong Kong、Series 2012 Taiwan',
       title: ['Series 2012 Hong Kong', 'Series 2012 Taiwan'],
@@ -191,7 +191,7 @@ describe('show cell on a show page', () => {
       currentCity: null,
       shortName: shorten,
     }
-    expect(showCellOf({ ...input, currentPerformanceId: 2524 }).text).toBe('Taiwan')
-    expect(showCellOf({ ...input, currentPerformanceId: 2525 }).text).toBe('')
+    expect(performanceCellOf({ ...input, currentPerformanceId: 2524 }).text).toBe('Taiwan')
+    expect(performanceCellOf({ ...input, currentPerformanceId: 2525 }).text).toBe('')
   })
 })

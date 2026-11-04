@@ -61,7 +61,7 @@ export const localizeSeriesName = (file: SeriesTitleFile, name: string, language
   return formatSeriesTitle(name, seriesTitleFor(file, name), language).primary
 }
 
-/** Closes the bracket that may hold an edition year inside a series name. */
+/** Closes the bracket that may hold a series year inside a series name. */
 const CLOSING_BRACKET = /[」』】）)]$/
 
 /** Splits a series name that wraps its core in brackets, as `初音ミク「マジカルミライ」` does. */
@@ -73,7 +73,7 @@ const bracketParts = (name: string): { prefix: string; core: string } | null => 
 
 /**
  * Rebuilds one matched series label with its Chinese name.
- * The edition year stays whether it sits outside the name (`MIKU EXPO 2024`)
+ * The series year stays whether it sits outside the name (`MIKU EXPO 2024`)
  * or inside the closing bracket (`初音ミク「マジカルミライ 2024」`).
  */
 const translatedLabel = (label: string, seriesName: string, translation: string): string => {

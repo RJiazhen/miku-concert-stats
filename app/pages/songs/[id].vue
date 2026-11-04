@@ -7,7 +7,7 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { formatCharacters, songCharacters } from '~/composables/useCharacters.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
-import { editionCoverage, formatEditionCoverage } from '~~/shared/edition-coverage.ts'
+import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
 import { variantVersionNote } from '~~/shared/song-variants.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
@@ -45,7 +45,7 @@ type NotePart = {
 }
 
 /**
- * Builds the 备注 parts of one appearance row: variant note, edition coverage,
+ * Builds the 备注 parts of one appearance row: variant note, 演出 coverage,
  * rotation warnings, then the parser's muted context text.
  */
 const appearanceNoteParts = (
@@ -87,14 +87,14 @@ const appearances = computed(() => {
   const ids = new Set(groupIds.value)
   const review = reviewRotations(catalog.value)
   const lineByKey = new Map(review.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
-  const coverageByPerformance = editionCoverage(catalog.value, review, groupIds.value)
+  const coverageByPerformance = showCoverage(catalog.value, review, groupIds.value)
   const canonicalName = song.value?.name ?? ''
   const showVersion = variantIds.value.length > 0
   const rows: {
     key: string
     seriesId: number
     seriesName: string
-    /** `seriesName` in the site language, kept separate so the sort and edition key stay on the catalog name. */
+    /** `seriesName` in the site language, kept separate so the sort and series-year key stay on the catalog name. */
     seriesLabel: string
     seriesNumber: number | null
     performanceId: number
@@ -123,7 +123,7 @@ const appearances = computed(() => {
       const performers = entry?.kind === 'cover' ? songCharacters(variantSong?.artist_string ?? null) : []
       // The canonical version is the page's default, so only variants need a note.
       const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind, performers) : ''
-      const coverage = formatEditionCoverage(coverageByPerformance.get(performance.id) ?? null, line?.reasons ?? [])
+      const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, line?.reasons ?? [])
       const noteParts = appearanceNoteParts(versionNote, coverage, line?.reasons ?? [], line?.info ?? [])
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
@@ -152,7 +152,7 @@ const appearanceSort = ref<AppearanceSort>({ key: 'date', direction: 'asc' })
 const appearanceColumns: readonly { key: AppearanceSortKey; label: string }[] = [
   { key: 'date', label: '日期' },
   { key: 'series', label: '系列' },
-  { key: 'venue', label: '场次' },
+  { key: 'venue', label: '演出' },
   { key: 'note', label: '备注' },
 ]
 
@@ -176,8 +176,8 @@ const appearanceAriaSort = (key: AppearanceSortKey): 'ascending' | 'descending' 
   return appearanceSort.value.direction === 'asc' ? 'ascending' : 'descending'
 }
 
-/** Distinct editions the song appears in, for the header count. */
-const editionCount = computed(() => {
+/** Distinct series years the song appears in, for the header count. */
+const seriesYearCount = computed(() => {
   const keys = new Set(appearances.value.map((row) => `${row.seriesName}:${row.seriesNumber}`))
   return keys.size
 })
@@ -264,7 +264,7 @@ const characters = computed(() => (song.value ? formatCharacters(song.value.arti
         <template #header>
           <div class="flex flex-wrap items-baseline justify-between gap-2">
             <h2 class="text-base font-semibold text-highlighted">出场记录</h2>
-            <span class="text-xs text-muted">{{ appearances.length }} 场 · {{ editionCount }} 个年版</span>
+            <span class="text-xs text-muted">{{ appearances.length }} 个演出 · {{ seriesYearCount }} 个系列年度</span>
           </div>
         </template>
         <p v-if="appearances.length === 0" class="text-sm text-muted">没有在已收录的歌单里出现。</p>

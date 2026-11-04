@@ -28,7 +28,7 @@ const percent = (ratio: number | null): string => (ratio === null ? '—' : `${(
 <template>
   <main class="space-y-4">
     <p class="max-w-3xl text-sm text-muted">
-      同一组里的歌曲按歌曲去重。年份用场次开始日期的公历年，年版用系列编号。比较的是当前快照，不是演出当时的播放量。
+      同一组里的歌曲按歌曲去重。年份用演出开始日期的公历年，系列年度用系列编号。比较的是当前快照，不是演出当时的播放量。
     </p>
     <UAlert v-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UCard v-else>
@@ -46,7 +46,7 @@ const percent = (ratio: number | null): string => (ratio === null ? '—' : `${(
           分组
           <USelect
             v-model="grouping"
-            :items="[{ label: '系列', value: 'series' }, { label: '年版', value: 'edition' }, { label: '公历年', value: 'year' }]"
+            :items="[{ label: '系列', value: 'series' }, { label: '系列年度', value: 'edition' }, { label: '公历年', value: 'year' }]"
             size="sm"
             class="w-32"
           />

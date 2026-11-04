@@ -1,4 +1,5 @@
 import type { PlaceNameIndex } from './place-names.ts'
+import { showsForPerformance } from './event-schedule.ts'
 import { CITY_ALIASES } from './rotation.ts'
 import { isBroadcastAppearance, performanceYear } from './stats.ts'
 import type { PerformanceRow } from './types.ts'
@@ -31,15 +32,15 @@ export type CityMatch = {
   original: string
 }
 
-/** One city's concert and show totals. */
+/** One city's concert and 场次 totals. */
 export type CityRank = {
   /** Chinese display name; also the grouping key. */
   city: string
   /** Other spellings seen for this city, most frequent first. */
   originalNames: string[]
-  /** Distinct concert rows held in the city. */
+  /** Distinct 演出 rows held in the city. */
   concerts: number
-  /** Individual performances: one per calendar day of each concert row. */
+  /** Individual 场次: one per calendar day of each 演出, split into halves when known. */
   shows: number
   firstYear: number | null
   lastYear: number | null
@@ -63,6 +64,8 @@ export type CityRanking = {
 export type CityRankingOptions = {
   /** Count livestream, online, and VR performances. They are excluded by default like the song ranking. */
   includeBroadcast?: boolean
+  /** Precomputed 场次 counts per performance id, including day/night halves; defaults to calendar days. */
+  showCounts?: ReadonlyMap<number, number>
 }
 
 /** Performance fields checked for a city label, most specific first. */
@@ -76,12 +79,6 @@ const ADMIN_SUFFIX = /[都市]$/
 
 /** Shortest stripped name kept; `京都` ends in 都 but is the city name itself. */
 const MIN_CITY_LENGTH = 2
-
-/** Longest range counted, matching the rotation parser's two-week cap. */
-const MAX_SHOW_DAYS = 14
-
-/** Milliseconds in one calendar day. */
-const DAY_MS = 86_400_000
 
 /** Escapes a literal string for use inside a regular expression. */
 const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -154,17 +151,14 @@ export const matchCity = (performance: CityShow, index: CityIndex): CityMatch | 
 }
 
 /**
- * Performances a dated concert row covers.
- * VocaDB keeps day precision only, so every calendar day from start through end counts
- * as one show. Undated rows still happened once, and an unreasonable range is capped.
+ * 场次 a dated 演出 covers.
+ * Each covered calendar day is one 场次. Undated rows still happened once, so they count one.
+ * Day/night halves are only known from setlist notes; callers that have them pass a precomputed
+ * count through `CityRankingOptions.showCounts`.
  */
 export const showCount = (performance: CityShow): number => {
-  const start = performance.start_date
-  if (start === null || !/^\d{4}-\d{2}-\d{2}$/.test(start)) return 1
-  const end = performance.end_date
-  const last = end !== null && /^\d{4}-\d{2}-\d{2}$/.test(end) && end >= start ? end : start
-  const days = Math.floor((Date.parse(`${last}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / DAY_MS) + 1
-  return Math.min(Math.max(days, 1), MAX_SHOW_DAYS)
+  const shows = showsForPerformance(performance)
+  return shows.length === 0 ? 1 : shows.length
 }
 
 /** Shows first, then concerts, then a stable name order for fully tied cities. */
@@ -173,9 +167,10 @@ const compareCities = (left: CityRank, right: CityRank): number => {
 }
 
 /**
- * Ranks cities by how many shows were held there.
- * Concerts are distinct performance rows; shows are the calendar days those rows cover,
- * so a three-day edition contributes one concert and three shows to its city.
+ * Ranks cities by how many 场次 were held there.
+ * Concerts are distinct `performances` rows; 场次 are the calendar days those rows cover
+ * (split into day/night halves when the caller supplies counts), so a three-day 演出
+ * contributes one 演出 and three 场次 to its city.
  * Broadcast-only rows are dropped unless `includeBroadcast` is set. Unresolved rows are
  * reported in `unknown` instead of inventing a city.
  */
@@ -191,7 +186,7 @@ export const rankCities = (
 
   for (const performance of performances) {
     if (options.includeBroadcast !== true && isBroadcastAppearance(performance)) continue
-    const shows = showCount(performance)
+    const shows = options.showCounts?.get(performance.id) ?? showCount(performance)
     const match = matchCity(performance, index)
     if (match === null) {
       unknownConcerts += 1

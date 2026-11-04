@@ -42,8 +42,8 @@ const mergedItems = [
   { label: '未合并', value: 'unmerged' },
 ]
 const scopeItems = [
-  { label: '同一年版', value: 'edition' },
-  { label: '相邻年版', value: 'adjacent' },
+  { label: '同一系列年度', value: 'edition' },
+  { label: '相邻系列年度', value: 'adjacent' },
 ]
 
 const basePairs = computed<SetlistPair[]>(() => {
@@ -90,7 +90,7 @@ const copyMarkdown = async (): Promise<void> => {
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Review</p>
       <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">歌单差异核验</h1>
       <p class="max-w-3xl text-sm leading-relaxed text-muted">
-        同一系列不同场之间，曲目数量与正片/安可段的编排差异。分级越高越值得优先核对；
+        同一系列不同演出之间，曲目数量与正片/安可段的编排差异。分级越高越值得优先核对；
         每一行都附上 VocaDB 歌单链接与差异曲目，方便逐条确认。
       </p>
       <div class="flex flex-wrap gap-2">
@@ -122,7 +122,7 @@ const copyMarkdown = async (): Promise<void> => {
         </label>
         <p class="pb-2 text-xs text-muted">
           共 {{ pairs.length }} / {{ basePairs.length }} 对
-          <template v-if="report">· 同一年版 {{ report.pairCount }} 对，其中 {{ report.mergedPairCount }} 对已合并</template>
+          <template v-if="report">· 同一系列年度 {{ report.pairCount }} 对，其中 {{ report.mergedPairCount }} 对已合并</template>
         </p>
       </div>
     </UCard>

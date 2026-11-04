@@ -1,4 +1,5 @@
 import { BANDS, bandForCount } from './bands.ts'
+import { performanceSchedules, showsForNotes } from './event-schedule.ts'
 import { reviewRotations } from './rotation.ts'
 import { emptySongVariantIndex, type SongVariantIndex } from './song-variants.ts'
 import type {
@@ -28,7 +29,7 @@ export type BandSummary = {
   ratio: number | null
 }
 
-/** Comparison row for a series, edition, or calendar year. */
+/** Comparison row for a series, series year, or calendar year. */
 export type CompareRow = {
   key: string
   label: string
@@ -190,8 +191,8 @@ const groupLabel = (catalog: Catalog, grouping: CompareGrouping, key: string): s
 }
 
 /**
- * Unique counted songs per series, edition, or performance calendar year.
- * Edition groups use series_number. Year groups use the performance start_date year.
+ * Unique counted songs per series, series year, or performance calendar year.
+ * Series-year groups use series_number (内部仍叫 edition). Year groups use the performance start_date year.
  */
 export const compareBy = (
   catalog: Catalog,
@@ -271,13 +272,17 @@ export const songById = (catalog: Catalog, songId: number): SongRow | undefined 
   return catalog.songs.find((song) => song.id === songId)
 }
 
-/** How many times a song is counted: once per series edition, or once per performance. */
-export type RankingMode = 'edition' | 'show'
+/**
+ * The unit a song appearance is counted in.
+ * `show` counts once per 场次 (a calendar day, or one half of a day that had two shows).
+ * `event` counts once per 演出 (one VocaDB release event / one `performances` row / one city stop).
+ */
+export type RankingMode = 'show' | 'event'
 
 /**
  * Filters for song appearance ranking.
  * Omitted series and year bounds include everything. Broadcasts and medley components stay out unless enabled.
- * Omitted mode defaults to show.
+ * Omitted mode defaults to `show`, i.e. 按场次.
  */
 export type RankingOptions = {
   mode?: RankingMode
@@ -351,7 +356,7 @@ const performanceIncluded = (
   return true
 }
 
-/** Running distinct editions or shows, series, years, and uncertainty for one song. */
+/** Running distinct 场次 or 演出, series, years, and uncertainty for one song. */
 type RankingBucket = {
   keys: Set<string>
   seriesIds: Set<number>
@@ -360,31 +365,29 @@ type RankingBucket = {
 }
 
 /**
- * Ranks songs by edition or show appearances.
- * Edition mode counts each song at most once per series edition, keyed by series id and series number,
- * so several regional setlists of one edition contribute a single appearance. Performances without a
- * series number contribute nothing in edition mode.
- * Show mode counts performances the rotation parser assigns.
+ * Ranks songs by 场次 or 演出 appearances.
+ *
+ * `event` mode counts a song at most once per `performances` row, so 大阪 and 东京 stops of one
+ * year each count once. `show` mode counts the derived 场次 instead: a three-day run contributes
+ * three, and a day with a daytime and a night-time show contributes two.
+ *
+ * A setlist line is attributed to the 场次 of one 演出 with `showsForNotes`: a note naming a day
+ * or half narrows the line, otherwise the line counts for every 场次 of that run. Undated
+ * performances have no 场次 and therefore contribute nothing in `show` mode.
+ *
  * Direct lines use role `listed`. Role `component` is included only when `includeMedleyComponents` is true.
  */
 export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = {}): SongRanking[] => {
-  const mode: RankingMode = options.mode === 'edition' ? 'edition' : 'show'
+  const mode: RankingMode = options.mode === 'event' ? 'event' : 'show'
   const variants = options.variants ?? emptySongVariantIndex()
   const knownSeries = new Set(catalog.series.map((row) => row.id))
   const itemKeys = new Set(catalog.setlistItems.map((row) => `${row.song_list_id}:${row.position}`))
   const rotation = reviewRotations(catalog)
   const lineByKey = new Map(rotation.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
-  const songsByList = new Map<number, Set<number>>()
-  for (const link of catalog.setlistItemSongs) {
-    if (!itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
-    if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue
-    const songs = songsByList.get(link.song_list_id) ?? new Set<number>()
-    songs.add(variants.canonicalSongId(link.song_id))
-    songsByList.set(link.song_list_id, songs)
-  }
+  const schedules = performanceSchedules(catalog, rotation)
 
   const buckets = new Map<number, RankingBucket>()
-  /** Records one edition or show toward a song; `key` dedupes within the bucket, and uncertainty is kept only in show mode. */
+  /** Records one 场次 or 演出 toward a song; `key` dedupes within the bucket and uncertainty is kept in both modes. */
   const addAppearance = (
     songId: number,
     key: string,
@@ -396,9 +399,7 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
     bucket.keys.add(key)
     bucket.seriesIds.add(seriesId)
     if (year !== null) bucket.years.add(year)
-    if (mode === 'show') {
-      for (const reason of reasons) bucket.reasons.add(reason)
-    }
+    for (const reason of reasons) bucket.reasons.add(reason)
     buckets.set(songId, bucket)
   }
 
@@ -407,19 +408,21 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
     const listId = performance.song_list_id
     if (listId === null) continue
     const year = performanceYear(performance.start_date)
-    if (mode === 'edition') {
-      const songs = songsByList.get(listId)
-      if (!songs || performance.series_number === null) continue
-      const editionKey = `${performance.series_id}:${performance.series_number}`
-      for (const songId of songs) addAppearance(songId, editionKey, performance.series_id, year, [])
-      continue
-    }
+    const shows = schedules.get(performance.id) ?? []
     for (const link of catalog.setlistItemSongs) {
       if (link.song_list_id !== listId || !itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
       if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue
       const line = lineByKey.get(`${link.song_list_id}:${link.position}`)
       if (!line || !line.performanceIds.includes(performance.id)) continue
-      addAppearance(variants.canonicalSongId(link.song_id), String(performance.id), performance.series_id, year, line.uncertain ? line.reasons : [])
+      const songId = variants.canonicalSongId(link.song_id)
+      const reasons = line.uncertain ? line.reasons : []
+      if (mode === 'event') {
+        addAppearance(songId, String(performance.id), performance.series_id, year, reasons)
+        continue
+      }
+      for (const show of showsForNotes(line.notes, performance, shows)) {
+        addAppearance(songId, show.key, performance.series_id, year, reasons)
+      }
     }
   }
 

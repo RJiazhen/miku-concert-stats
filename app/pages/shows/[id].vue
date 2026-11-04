@@ -7,6 +7,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { buildSetlistDisplay } from '~~/shared/edition-setlists.ts'
 import { albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
+import { performanceSchedules } from '~~/shared/event-schedule.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
@@ -35,7 +36,15 @@ const display = computed(() => {
   return buildSetlistDisplay(catalog.value, review.value, [current.song_list_id])
 })
 
-const editionNumber = computed(() => performance.value?.series_number ?? null)
+/** 场次 of this 演出; a day with a daytime and a night-time show contributes two. */
+const shows = computed(() => {
+  const current = performance.value
+  if (!catalog.value || !review.value || !current) return []
+  return performanceSchedules(catalog.value, review.value).get(current.id) ?? []
+})
+
+/** Series year of this 演出, i.e. `series_number`, used for the index link. */
+const seriesYear = computed(() => performance.value?.series_number ?? null)
 
 /** Series behind this show, needed to translate the label inside the performance name. */
 const series = computed(() => {
@@ -61,7 +70,7 @@ const performanceLabel = computed(() => {
 /** Date span, venue, and start time printed under the title; empty fields stay null. */
 const headerFacts = computed(() => (performance.value ? performanceHeaderFacts(performance.value) : null))
 
-/** Series name and edition in the site language, e.g. `初音ミクライブパーティー 2012 年版`. */
+/** Series name and series year in the site language, e.g. `初音ミクライブパーティー 2012`. */
 const seriesView = computed(() => (series.value ? seriesTitle(series.value.name) : null))
 
 /** City of this show; the VocaDB spelling is kept when the site shows original names. */
@@ -72,34 +81,48 @@ const cityName = computed(() => {
   if (match === null) return null
   return showChinese.value ? match.city : match.original
 })
+
+/** One-line facts under the title: date, city, venue, and start time, joined only when present. */
+const headerLine = computed(() => {
+  const facts = headerFacts.value
+  const parts = [
+    facts?.dates ?? '日期未知',
+    cityName.value,
+    facts?.venue,
+    facts?.showtime ? `开演 ${facts.showtime}` : null,
+  ]
+  return parts.filter((part): part is string => part !== null && part !== '').join(' · ')
+})
 </script>
 
 <template>
   <main class="space-y-6">
     <p v-if="pending" class="text-sm text-muted">正在浏览器中加载目录…</p>
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
-    <UEmpty v-else-if="catalog && !performance" icon="i-lucide-calendar-x" title="找不到这场演出" description="这个 id 不在已提交的目录里。" />
+    <UEmpty v-else-if="catalog && !performance" icon="i-lucide-calendar-x" title="找不到这个演出" description="这个 id 不在已提交的目录里。" />
 
     <template v-else-if="performance">
-      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '场次' }, { label: performanceLabel }]" />
+      <UBreadcrumb :items="[{ label: '排行', to: '/' }, { label: '演出' }, { label: performanceLabel }]" />
 
       <header class="space-y-2">
         <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ performanceLabel }}</h1>
-        <p class="text-sm text-muted">
-          {{ headerFacts?.dates ?? '日期未知' }}
-          <template v-if="cityName">· {{ cityName }}</template>
-          <template v-if="headerFacts?.venue">· {{ headerFacts.venue }}</template>
-          <template v-if="headerFacts?.showtime">· 开演 {{ headerFacts.showtime }}</template>
-        </p>
+        <p class="text-sm text-muted">{{ headerLine }}</p>
         <p v-if="seriesView" class="text-xs text-muted">
           <NuxtLink
-            v-if="editionNumber !== null"
-            :to="`/editions/${performance.series_id}/${editionNumber}`"
+            v-if="seriesYear !== null"
+            :to="`/editions/${performance.series_id}/${seriesYear}`"
             class="text-primary hover:underline"
           >
-            {{ seriesView.primary }} {{ editionNumber }} 年版
+            {{ seriesView.primary }} {{ seriesYear }} 演出列表
           </NuxtLink>
           <template v-else>{{ seriesView.primary }}</template>
+        </p>
+        <p v-if="shows.length > 0" class="text-xs text-muted">
+          场次（{{ shows.length }}）：
+          <template v-for="(show, index) in shows" :key="show.key">
+            <span v-if="index > 0"> · </span>
+            <span class="text-highlighted">{{ show.label }}</span>
+          </template>
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <UButton :to="performance.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
@@ -113,7 +136,7 @@ const cityName = computed(() => {
         color="warning"
         variant="subtle"
         icon="i-lucide-info"
-        title="这场在 VocaDB 没有歌单"
+        title="这个演出在 VocaDB 没有歌单"
         description="没有歌单时无法列出曲目。"
       />
       <template v-else>

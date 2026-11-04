@@ -19,7 +19,7 @@ export type PerformanceRole = 'show' | 'broadcast'
 /** Fixed playback bands, plus songs that have no snapshot. */
 export type BandId = 'none' | 'under_100k' | '100k_1m' | '1m_10m' | '10m_plus'
 
-/** How compare mode groups performances before counting songs. */
+/** How compare mode groups 演出 before counting songs. */
 export type CompareGrouping = 'series' | 'edition' | 'year'
 
 /** VocaDB attribution row. */
@@ -41,7 +41,7 @@ export type SeriesRow = {
   retrieved_at: string
 }
 
-/** One performance date inside a series. */
+/** One 演出 inside a series: one VocaDB release event / one city stop. */
 export type PerformanceRow = {
   id: number
   series_id: number
@@ -71,7 +71,7 @@ export type PerformanceLinkRow = {
   description: string | null
 }
 
-/** Earliest non-broadcast date for a series edition. */
+/** Earliest non-broadcast 演出 of a series year. */
 export type EditionPremiereRow = {
   series_id: number
   series_number: number

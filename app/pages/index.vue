@@ -134,16 +134,16 @@ const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: 
   })
 }
 
-const columns: TableColumn<RankedSong>[] = [
+const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
   { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true },
   { accessorKey: 'artists', header: '艺人', enableSorting: true, meta: { class: { td: 'max-w-40' } } },
   { accessorKey: 'characters', header: sortableHeader('演出角色'), enableSorting: true },
-  { accessorKey: 'count', header: sortableHeader('次数'), enableSorting: true },
+  { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? '场次数' : '演出数'), enableSorting: true },
   { accessorKey: 'seriesCount', header: sortableHeader('系列数'), enableSorting: true },
   { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
-]
+])
 
 /** Blank marker for a missing value. */
 const cell = (value: string | number | null): string => (value === null || value === '' ? '—' : String(value))
@@ -183,7 +183,7 @@ const syncUrl = (): void => {
   void navigateTo(
     {
       query: {
-        mode: current.mode === 'edition' ? 'edition' : undefined,
+        mode: current.mode === 'event' ? 'event' : undefined,
         series: seriesIsDefault ? undefined : current.series.join(','),
         from: current.from || undefined,
         to: current.to || undefined,
@@ -204,7 +204,7 @@ const readUrl = (): void => {
   const route = useRoute()
   const url = route.query
   const readString = (value: unknown): string => (typeof value === 'string' ? value : '')
-  if (readString(url.mode) === 'edition') mode.value = 'edition'
+  if (readString(url.mode) === 'event') mode.value = 'event'
   const series = readString(url.series)
   if (series !== '') {
     const ids = series
@@ -256,7 +256,7 @@ const reset = (): void => {
 /** Active filter count, shown next to the reset button. */
 const activeFilters = computed(() => {
   let count = 0
-  if (mode.value === 'edition') count++
+  if (mode.value === 'event') count++
   if (yearOrNull(yearFrom.value) !== null || yearOrNull(yearTo.value) !== null) count++
   if (includeBroadcast.value) count++
   if (includeMedleyComponents.value) count++
@@ -314,8 +314,10 @@ const yearToItems = computed(() =>
   <main class="space-y-6">
     <h1 class="sr-only">初音未来演唱会曲目统计</h1>
     <p class="max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-      按场次或按年版统计每首歌出现的次数。按年版时同一系列年鉴只算一次，跨地区的多份歌单不重复计数。
-      默认不计配信、线上和 VR 场，也不把串烧的组成歌曲单独计入。
+      按场次或按演出统计每首歌出现的次数。按场次时，一个演出里的每一天各算一次，同一天的日场与夜场也分别计算；
+      按演出时，每个城市站各算一次，不再把同一年同一系列的多个城市合并。
+      例如魔法未来 2020 在大阪与东京各有一个演出：按演出计 2 次，按场次计 6 次。
+      默认不计配信、线上和 VR 演出，也不把串烧的组成歌曲单独计入。
       同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
     </p>
 
@@ -331,7 +333,7 @@ const yearToItems = computed(() =>
       <div class="flex flex-wrap items-end gap-3">
         <UFieldGroup size="sm">
           <UButton :variant="mode === 'show' ? 'solid' : 'outline'" label="按场次" @click="mode = 'show'" />
-          <UButton :variant="mode === 'edition' ? 'solid' : 'outline'" label="按年版" @click="mode = 'edition'" />
+          <UButton :variant="mode === 'event' ? 'solid' : 'outline'" label="按演出" @click="mode = 'event'" />
         </UFieldGroup>
         <label class="grid gap-1 text-xs text-muted">
           起始年

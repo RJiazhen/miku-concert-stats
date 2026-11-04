@@ -135,19 +135,19 @@ export type SetlistDisplayRow = {
   /** Printed slot number; rows inside one slot share it. */
   index: number
   items: SlotItem[]
-  /** Null when every performance of the edition plays this row. */
+  /** Null when every 演出 of the display plays this row. */
   showLabel: string | null
   /** Label read from the row's setlist notes, e.g. `大阪 第 2 天`; null when the label is only names. */
   selectorLabel: string | null
-  /** Full performance names for this row, used as the title text. */
+  /** Full 演出 names for this row, used as the title text. */
   showDetail: string[]
-  /** Performances the parser assigns to this row, aligned with `showDetail`. */
+  /** 演出 the parser assigns to this row, aligned with `showDetail`. */
   performanceIds: number[]
   /** Rows sharing this slot number. */
   slotSize: number
 }
 
-/** A whole edition or single song list, ready to render. */
+/** A whole merged comparison or a single song list, ready to render. */
 export type SetlistDisplay = {
   listIds: number[]
   baseListId: number
@@ -239,8 +239,9 @@ type WorkingRow = {
 }
 
 /**
- * Builds a merged setlist for one song list, or for a group of song lists that cover the same edition.
- * The list with the most shows seeds the order; the others align by longest common subsequence.
+ * Builds a merged setlist for one song list, or for a group of song lists that cover the same
+ * series year (the cross-演出 comparison view). The list with the most 演出 seeds the order;
+ * the others align by longest common subsequence.
  * A song that appears in another list at a different position folds into the row that already holds it.
  */
 export const buildSetlistDisplay = (
@@ -351,56 +352,45 @@ const showNames = (ids: readonly number[], performances: ReadonlyMap<number, Per
   return ids.map((id) => performances.get(id)?.name ?? String(id)).join('、')
 }
 
-/** Song list ids of one edition, in performance date order. */
-export const editionSongLists = (catalog: Catalog, seriesId: number, seriesNumber: number): number[] => {
-  const ids = new Set<number>()
-  for (const performance of catalog.performances) {
-    if (performance.series_id !== seriesId || performance.series_number !== seriesNumber) continue
-    if (performance.song_list_id === null) continue
-    ids.add(performance.song_list_id)
-  }
-  return [...ids].sort((left, right) => left - right)
-}
-
 /** Recomputes the rotation review for a catalog. */
 export const reviewFor = (catalog: Catalog): RotationReview => reviewRotations(catalog)
 
 /** Selectors for one row, exported for the details view. */
 export const selectorsForRow = (row: SetlistDisplayRow): NoteSelector[] => row.items.flatMap((item) => item.selectors)
 
-/** What the 场次 column shows for one row. */
-export type ShowCell = {
+/** What the 演出 column shows for one row. */
+export type PerformanceCell = {
   /** Text for the cell; empty when the row needs no note on this page. */
   text: string
-  /** Full performance names behind the cell, used as the tooltip. */
+  /** Full 演出 names behind the cell, used as the tooltip. */
   title: string[]
 }
 
-/** Inputs for one row's 场次 cell. */
-export type ShowCellInput = {
-  /** Note-derived label such as `大阪 第 2 天`; wins over performance names when present. */
+/** Inputs for one row's 演出 cell. */
+export type PerformanceCellInput = {
+  /** Note-derived label such as `大阪 第 2 天`; wins over 演出 names when present. */
   selectorLabel: string | null
-  /** Performances the parser assigns to this row. */
+  /** 演出 the parser assigns to this row. */
   performanceIds: readonly number[]
-  /** Full performance names, aligned with `performanceIds`. */
+  /** Full 演出 names, aligned with `performanceIds`. */
   names: readonly string[]
-  /** Performances in the displayed setlist, used to detect rows every show plays. */
+  /** 演出 in the displayed setlist, used to detect rows every 演出 plays. */
   allPerformanceIds: readonly number[]
-  /** Performance the page shows; null on the raw and edition views, where nothing is suppressed. */
+  /** 演出 the page shows; null on the raw view and the cross-演出 comparison, where nothing is suppressed. */
   currentPerformanceId: number | null
-  /** City of the page's performance, so a city-only note for that same city is dropped. */
+  /** City of the page's 演出, so a city-only note for that same city is dropped. */
   currentCity: string | null
-  /** Shortens a full performance name to its city or subtitle, e.g. `台湾`. */
+  /** Shortens a full 演出 name to its city or subtitle, e.g. `台湾`. */
   shortName: (name: string) => string
 }
 
 /**
- * Text for the 场次 column.
- * On a show page the page's own performance is already named by the header, so a row that only
- * covers it stays blank; rows owned by, or shared with, another performance keep a shortened
- * name list. Without a current performance (raw and edition views) the full names are kept.
+ * Text for the 演出 column.
+ * On a show page the page's own 演出 is already named by the header, so a row that only
+ * covers it stays blank; rows owned by, or shared with, another 演出 keep a shortened
+ * name list. Without a current 演出 (the raw view and the comparison view) the full names are kept.
  */
-export const showCellOf = (input: ShowCellInput): ShowCell => {
+export const performanceCellOf = (input: PerformanceCellInput): PerformanceCell => {
   const title = [...input.names]
   const current = input.currentPerformanceId
   if (current === null) {

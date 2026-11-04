@@ -277,7 +277,7 @@ export const buildSetlistDiffReport = (catalog: Catalog, merges: SetlistMergeInd
   }
 }
 
-/** Sorts pairs by severity first, then series and edition. */
+/** Sorts pairs by severity first, then series and series year. */
 const sortPairs = (pairs: SetlistPair[]): SetlistPair[] => {
   return [...pairs].sort((left, right) => {
     const severity = SEVERITY_ORDER.indexOf(left.severity) - SEVERITY_ORDER.indexOf(right.severity)
@@ -362,9 +362,9 @@ export const renderSetlistDiffMarkdown = (catalog: Catalog, report: SetlistDiffR
     '',
     '## 总览',
     '',
-    `- 同一年版歌单对：${report.pairCount} 对，其中 ${report.mergedPairCount} 对已在 data/setlist-merges.json 合并`,
+    `- 同一系列年度歌单对：${report.pairCount} 对，其中 ${report.mergedPairCount} 对已在 data/setlist-merges.json 合并`,
     ...SEVERITY_ORDER.map((severity) => `- ${SEVERITY_LABELS[severity]}：${editionSummary[severity]} 对`),
-    `- 相邻年版对比：${report.adjacentEditions.length} 对（仅作参考，不参与上面的分级统计）`,
+    `- 相邻系列年度对比：${report.adjacentEditions.length} 对（仅作参考，不参与上面的分级统计）`,
     '',
     '## 读法',
     '',
@@ -381,8 +381,8 @@ export const renderSetlistDiffMarkdown = (catalog: Catalog, report: SetlistDiffR
   }
   return [
     ...header,
-    ...section('同一年版歌单对', report.editions, true, '没有需要核对的组合。'),
-    ...section('相邻年版对比', report.adjacentEditions, false, '没有可比对的相邻年版。'),
+    ...section('同一系列年度歌单对', report.editions, true, '没有需要核对的组合。'),
+    ...section('相邻系列年度对比', report.adjacentEditions, false, '没有可比对的相邻系列年度。'),
   ].join('\n')
 }
 

@@ -164,7 +164,7 @@ describe('rotation reason text', () => {
   it('translates every known parser reason into Chinese', () => {
     expect(formatRotationReason('unknown format')).toBe('备注写法未识别')
     expect(formatRotationReason('unmatched city')).toBe('城市没有对到任何一场')
-    expect(formatRotationReason('day with day/night shows')).toBe('当天有日场或夜场，无法确定是哪一场')
+    expect(formatRotationReason('day with day/night shows')).toBe('备注写到日场 / 夜场或当天有多场，解析器只定位到当天')
   })
 
   it('prints the show count for a city-only note', () => {

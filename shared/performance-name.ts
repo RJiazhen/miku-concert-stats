@@ -50,7 +50,7 @@ const findLabel = (name: string, label: string): number => {
 /**
  * Performance name with the series label removed, so a table that already shows
  * the series and year does not repeat them in the show column.
- * Returns the remaining venue, edition, or subtitle; '' when the name is only the series label.
+ * Returns the remaining venue, series year, or subtitle; '' when the name is only the series label.
  */
 export const shortPerformanceName = (name: string, seriesName: string, seriesNumber: number | null): string => {
   const full = normalize(name)

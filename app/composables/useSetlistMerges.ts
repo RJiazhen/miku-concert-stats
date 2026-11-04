@@ -4,5 +4,5 @@ import { parseSetlistMerges, type SetlistMergeIndex } from '~~/shared/edition-se
 /** Parsed once: the merge file is static build-time data. */
 export const setlistMerges: SetlistMergeIndex = parseSetlistMerges(raw)
 
-/** Hand-checked region groups for song lists that cover the same edition. */
+/** Hand-checked region groups for song lists that cover the same series year. */
 export const useSetlistMerges = (): SetlistMergeIndex => setlistMerges

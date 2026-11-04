@@ -25,7 +25,7 @@ const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : 
 type Tab = 'edition' | 'tables' | 'quality'
 const tab = ref<Tab>('edition')
 const tabs: { value: Tab; label: string }[] = [
-  { value: 'edition', label: '按年版歌单' },
+  { value: 'edition', label: '跨演出歌单' },
   { value: 'tables', label: '数据表' },
   { value: 'quality', label: '质量报告' },
 ]
@@ -53,7 +53,7 @@ const showMore = (id: string): void => {
   shown.value = { ...shown.value, [id]: limitOf(id) + PAGE }
 }
 
-/** Builds the year-edition view of the merged setlist. */
+/** Builds the series-year comparison view of the merged setlist. */
 const editions = computed(() => {
   if (!catalog.value) return []
   return catalog.value.premieres
@@ -66,28 +66,28 @@ const editions = computed(() => {
 
 type EditionItem = { label: string; value: string }
 
-/** Chosen edition; empty means "the newest one". */
+/** Chosen series year; empty means "the newest one". */
 const chosenEditionKey = ref('')
 const sideIndex = ref(0)
 
-/** Options for the searchable edition menu. */
+/** Options for the searchable series-year menu. */
 const editionItems = computed<EditionItem[]>(() => editions.value.map((row) => ({ label: row.label, value: row.key })))
 
-/** Newest edition, used until the visitor picks another one. */
+/** Newest series year, used until the visitor picks another one. */
 const defaultEditionKey = computed(() => editions.value[editions.value.length - 1]?.key ?? '')
 
 const editionKey = computed(() => chosenEditionKey.value || defaultEditionKey.value)
 const selectedEdition = computed(() => editions.value.find((row) => row.key === editionKey.value) ?? null)
 
-/** Displayed menu value, derived from the active edition. */
+/** Displayed menu value, derived from the active series year. */
 const editionModel = computed<EditionItem | undefined>(() => editionItems.value.find((item) => item.value === editionKey.value))
 
-/** Stores the visitor's edition choice. */
+/** Stores the visitor's series-year choice. */
 const selectEdition = (item: EditionItem | undefined): void => {
   chosenEditionKey.value = item?.value ?? ''
 }
 
-/** Song lists of the selected edition, split into merged groups and standalone lists. */
+/** Song lists of the selected series year, split into merged groups and standalone lists. */
 const sides = computed(() => {
   if (!catalog.value || !selectedEdition.value || !review.value) return []
   const [seriesIdText, numberText] = selectedEdition.value.key.split(':')
@@ -118,7 +118,7 @@ const splitNote = computed(() => {
   const listId = side[0]
   if (listId === undefined || merges.groupOf(listId) === null) return null
   if (!review.value.shows.some((show) => show.songListId === listId)) return null
-  return '这场歌单的长度与同组其他场次不一致，因此单独显示，不与它们合并。'
+  return '这个演出的歌单长度与同组其他演出不一致，因此单独显示，不与它们合并。'
 })
 
 const display = computed(() => {
@@ -128,7 +128,7 @@ const display = computed(() => {
   return buildSetlistDisplay(catalog.value, review.value, side)
 })
 
-/** Album sources behind the raw edition side. */
+/** Album sources behind the raw comparison side. */
 const albumSources = computed(() => {
   if (!catalog.value) return []
   const side = sides.value[sideIndex.value] ?? []
@@ -172,8 +172,8 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'premieres',
-      label: '年版首演',
-      headers: ['系列', '年版', '首演日', '场次', '规则'],
+      label: '年度首演',
+      headers: ['系列', '年度', '首演日', '演出', '规则'],
       rows: catalog.value.premieres.map((row) => [
         { text: seriesById.get(row.series_id)?.name ?? String(row.series_id) },
         { text: String(row.series_number) },
@@ -416,7 +416,7 @@ const editionSongCount = computed(() => {
       <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">原始数据</h1>
       <p class="max-w-3xl text-sm leading-relaxed text-muted">
         这里的每一行都来自 VocaDB 公共 API，并附上可核验的链接。歌单里同一槽位的替换曲目会合并成一行，
-        末尾「场次」列说明这首曲子属于哪一场；每一场都演的曲目不写场次。
+        末尾「演出」列说明这首曲子属于哪个演出；每个演出都演的曲目不写说明。
       </p>
       <div class="flex flex-wrap gap-2">
         <UButton
@@ -449,16 +449,19 @@ const editionSongCount = computed(() => {
     </div>
 
     <section v-if="tab === 'edition'" class="space-y-4">
+      <p class="text-xs text-muted">
+        这里把同一系列年度多个演出的歌单并排对照，方便查看差异；它们仍是各自独立的演出，不是一场演出。
+      </p>
       <UCard>
         <div class="flex flex-wrap items-end gap-3">
           <label class="grid gap-1 text-xs text-muted">
-            年版
+            系列年度
             <USelectMenu
               :model-value="editionModel"
               :items="editionItems"
               by="value"
               search-input
-              placeholder="选择年版"
+              placeholder="选择系列年度"
               size="sm"
               class="w-72"
               @update:model-value="selectEdition"
@@ -477,8 +480,8 @@ const editionSongCount = computed(() => {
       <UEmpty
         v-else-if="!display"
         icon="i-lucide-list-x"
-        title="这个年版没有歌单"
-        description="VocaDB 上没有记录歌单，或这场演出没有关联歌单。"
+        title="这个系列年度没有歌单"
+        description="VocaDB 上没有记录歌单，或这个演出没有关联歌单。"
       />
       <SetlistTable v-else-if="display && review" :display="display" :review="review" />
     </section>
@@ -533,19 +536,19 @@ const editionSongCount = computed(() => {
           <h2 class="text-base font-semibold text-highlighted">歌单差异核验</h2>
         </template>
         <p class="text-sm text-muted">
-          同一系列不同场之间曲目数量或正片/安可段编排不一致时，会在核验页逐条列出，并附上 VocaDB 歌单链接与差异曲目。
+          同一系列不同演出之间曲目数量或正片/安可段编排不一致时，会在核验页逐条列出，并附上 VocaDB 歌单链接与差异曲目。
         </p>
         <UButton to="/report" class="mt-3" size="sm" trailing-icon="i-lucide-arrow-right">打开核验报告</UButton>
       </UCard>
 
       <UCard>
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">未解析的备注与长度不一致的场次</h2>
+          <h2 class="text-base font-semibold text-highlighted">未解析的备注与长度不一致的演出</h2>
         </template>
-        <p class="text-sm text-muted">{{ uncertainLines.length }} 行备注无法确定到具体场次，{{ mismatchedShows.length }} 场歌单长度与该歌单的常见长度不一致。</p>
+        <p class="text-sm text-muted">{{ uncertainLines.length }} 行备注无法确定到具体演出，{{ mismatchedShows.length }} 个演出的歌单长度与该歌单的常见长度不一致。</p>
         <div v-if="mismatchedShows.length > 0" class="mt-3 space-y-1 text-sm">
           <p v-for="show in mismatchedShows.slice(0, 10)" :key="show.performanceId" class="text-muted">
-            <NuxtLink :to="`/shows/${show.performanceId}`" class="text-primary">场次 {{ show.performanceId }}</NuxtLink>
+            <NuxtLink :to="`/shows/${show.performanceId}`" class="text-primary">演出 {{ show.performanceId }}</NuxtLink>
             · 歌单 {{ show.songListId }} · {{ show.reasons.map(formatRotationReason).join('；') }}
           </p>
         </div>
@@ -579,10 +582,10 @@ const editionSongCount = computed(() => {
         </template>
         <div class="space-y-2 text-sm text-muted">
           <p>没有投稿链接的歌曲：{{ songsWithoutVideo.length }} 首</p>
-          <p>没有歌单或开始日期的演出：{{ incompletePerformances.length }} 场</p>
+          <p>没有歌单或开始日期的演出：{{ incompletePerformances.length }} 个</p>
           <p>
-            用专辑曲目代替歌单的演出：{{ albumFallbackPerformances.length }} 场（{{ albumFallbackLists }} 张专辑）。
-            这些曲目不是 VocaDB 上该场演出的歌单，场次与年版页面会标注来源。
+            用专辑曲目代替歌单的演出：{{ albumFallbackPerformances.length }} 个（{{ albumFallbackLists }} 张专辑）。
+            这些曲目不是 VocaDB 上该演出的歌单，演出页与系列年度索引会标注来源。
           </p>
           <p>没有公布时间的歌单：{{ listsWithoutAnnouncement.length }} 份（公开 API 没有该字段）</p>
           <p>未拆分的串烧：{{ catalog?.medleyQuarantine.length ?? 0 }} 行</p>

@@ -19,7 +19,7 @@
 | 初音ミクライブパーティー | 219 |
 | SNOW MIKU LIVE! | 204 |
 
-每条记录保存系列、场次、歌单行、歌曲、投稿和观测值，并分开保存「该场日期」与「该年首演」。首演取该 `series_id + series_number` 下角色为 `show` 的最早日期；名称或简介命中配信 / livestream 的场次标为 `broadcast`，不参与首演。VocaDB 的 `date` 只到日，记为 `time_precision = day`。只有简介里出现可引用的 `Showtime` / `開演` 钟点，且场馆国家为 JP 时，才写入当地 `HH:MM` 与 `Asia/Tokyo`（日本无夏令时）。歌单公布时间在公开 API 的歌单对象上不存在，字段留空。
+每条记录保存系列、演出、歌单行、歌曲、投稿和观测值，并分开保存「演出日期」与「系列年度首演」。年度首演取该 `series_id + series_number` 下第一个有日期、角色为 `show` 的演出；名称或简介命中配信 / livestream 的场次标为 `broadcast`，不参与首演。VocaDB 的 `date` 只到日，记为 `time_precision = day`。只有简介里出现可引用的 `Showtime` / `開演` 钟点，且场馆国家为 JP 时，才写入当地 `HH:MM` 与 `Asia/Tokyo`（日本无夏令时）。歌单公布时间在公开 API 的歌单对象上不存在，字段留空。
 
 串烧（`songType = Mashup`）拆到组成歌曲后再计数。找不到可核验的组成歌曲时，该行进入未拆分隔离区，不按一条曲目计入区间统计。
 
@@ -44,7 +44,7 @@
 
 **SQL 增量文件是源，SQLite 是构建产物。** 规范要求把可审查的 SQL 提交到 Git。浏览器用 sql.js 只读打开构建出的 `catalog.sqlite`，再在本地用同一套 TypeScript 聚合。聚合不写第二套 SQL，避免 wasm SQL 与测试 SQL 漂移。代价是浏览器要下载整库；以当前六系列的规模（约两百场）可以接受。服务端不跑 better-sqlite3，原生模块进不了 Workers。Cloudflare 不压缩 sqlite 类型，所以构建同时写出 `catalog.sqlite.gz`，浏览器下载后自己解压。
 
-**目录以 VocaDB 公共 REST API 为准。** `https://vocadb.net/api/`，JSON，自定义 User-Agent，请求间隔 ≥ 300ms，并缓存原始响应。数据库内容按 [VocaDB License](https://wiki.vocadb.net/docs/license) 为 CC BY，页面给出返回链接。官方站点（如 magicalmirai.com）只作为场次上已有的 web link 保存，不另爬 HTML。代价是开演钟点多数缺失，日期精度停在「日」。
+**目录以 VocaDB 公共 REST API 为准。** `https://vocadb.net/api/`，JSON，自定义 User-Agent，请求间隔 ≥ 300ms，并缓存原始响应。数据库内容按 [VocaDB License](https://wiki.vocadb.net/docs/license) 为 CC BY，页面给出返回链接。官方站点（如 magicalmirai.com）只作为演出上已有的 web link 保存，不另爬 HTML。代价是开演钟点多数缺失，日期精度停在「日」。
 
 **YouTube Data API v3 `videos.list`（`part=statistics`，每次最多 50 个 id）仅在密钥存在时调用。** 这是历史曲线的采样起点；每周工作流追加快照。密钥缺失时工作流仍更新目录，并在日志中说明跳过播放量。
 
@@ -54,7 +54,7 @@
 
 | 模块 | 职责 |
 | --- | --- |
-| 采集 | 拉取系列、场次、歌单、歌曲与 PV；标示配信场；解析有证据的开演钟点；隔离无法拆分的串烧 |
+| 采集 | 拉取系列、演出、歌单、歌曲与 PV；标示配信场；解析有证据的开演钟点；隔离无法拆分的串烧 |
 | SQL | 表结构、转义后的增量、应用到 SQLite |
 | 统计 | 代表投稿、区间、跨系列/年份比较、观察点前后差值 |
 | 换算 | 分层相关、对数拟合、训练/留出门槛、公式版本行 |
@@ -120,7 +120,7 @@ flowchart LR
   Lookup -->|"用户主动检索，最多 5 条"| VocaDB
 ```
 
-首演规则在写入 SQL 前于 `shared/premiere.ts` 计算，并落表 `edition_premieres`，便于复核。
+系列年度首演规则在写入 SQL 前于 `shared/premiere.ts` 计算，并落表 `edition_premieres`（表名保留，含义是「系列年度第一个演出」），便于复核。
 
 换算发布门槛（同时满足才 `status = published`）：
 
@@ -136,7 +136,7 @@ flowchart LR
 | 风险 | 处理 |
 | --- | --- |
 | VocaDB 日期是午夜 UTC，不是开演时刻 | 精度为 day；钟点必须带简介原文摘录 |
-| 同年版多城、后至配信被当成首演 | `broadcast` 排除；首演取最早 `show` |
+| 同一系列年度多城、后至配信被当成首演 | `broadcast` 排除；首演取最早 `show` |
 | 串烧被当成一首歌 | 无组成歌曲则隔离，不进分母 |
 | 无密钥时站点看起来「没有统计」 | 空态写明原因；测试断言快照不会被填上猜测值 |
 | 换算在小样本上过拟合 | 默认不发布；门槛用 SAMPLE 夹具单测 |
@@ -154,25 +154,27 @@ flowchart LR
 
 在播放量区间之外，首页按歌曲统计「出现过多少次」。聚合仍是 `shared/stats.ts` 里的纯函数，读已加载的目录行（`setlist_item_songs`、`setlist_items`、`songs`、`performances`、`series`），不另写 SQL。
 
+三级单位与 VocaDB 对齐：系列（`series`）> 演出（一条 `performances` 行 = 一个 VocaDB release event = 一个城市站）> 场次（一天，或同一天日场 / 夜场各一场）。
+
 两种计数：
 
-- `show`（默认）：按备注解析出的场次计数。空备注表示该歌单的每一场都唱了。解析不了的场次仍给出约数，并标不确定。
-- `edition`（年版）：同一 `series_id` + `series_number` 里同一首歌最多计 1。跨地区、歌单差异较大的场次只算一次。
+- `show`（按场次，默认）：按 `shared/event-schedule.ts` 推导的场次计数。三日巡演计 3；同日日场 + 夜场计 2；没有日期的演出没有场次。备注写了天 / 半天 / 场次号时只计对应场次，否则一行计入该演出的全部场次。解析不了的场次仍给出约数，并标不确定。
+- `event`（按演出）：每条 `performances` 行最多计 1。同一年大阪与东京各计一次，不再按 `series_id` + `series_number` 合并。
 
 筛选：
 
 - 系列 id 列表。省略或空列表表示全部系列。
-- 年份闭区间，取演出 `start_date` 的公历年。没有日期的场次在设置了任一年份边界时不计入。
-- `includeBroadcast` 为 false 时排除 `role = broadcast`，以及名称、日文名或 `series_suffix` 命中 livestream、online、オンライン、VR、ＶＲ、配信的场次。演出简介没有单独落在 `performances` 上；`performance_links.description` 多是外链标题（例如现场场次的 “Online Live Information”），不参与排除。
+- 年份闭区间，取演出 `start_date` 的公历年。没有日期的演出在设置了任一年份边界时不计入。
+- `includeBroadcast` 为 false 时排除 `role = broadcast`，以及名称、日文名或 `series_suffix` 命中 livestream、online、オンライン、VR、ＶＲ、配信的演出。演出简介没有单独落在 `performances` 上；`performance_links.description` 多是外链标题（例如现场场次的 “Online Live Information”），不参与排除。
 - `includeMedleyComponents` 为 false 时只计 `setlist_item_songs.role = listed`（直接列出的曲目）。`component` 仅在为 true 时计入。未能拆分的串烧不写入 `setlist_item_songs`，两种模式都不计。
 
 每行输出歌曲 id、名称（`songs.name`）、艺人字符串、次数、出现过的系列数、最早年份、最晚年份。次数为 0 的歌曲不输出。默认按次数降序、歌曲 id 升序。
 
-首页改为这张可排序的表，并提供模式、系列多选、年份、配信/VR、串烧组成的控件。覆盖说明写明：默认按场次统计，按年版时同一系列年鉴只算一次。原来的单场播放量页移到 `/catalog`。顶栏增加两个入口。
+首页改为这张可排序的表，并提供模式、系列多选、年份、配信/VR、串烧组成的控件。覆盖说明写明：默认按场次统计，按演出时每个城市站各算一次。原来的单场播放量页移到 `/catalog`。顶栏增加两个入口。
 
 ## 歌单备注与逐场解析
 
-`setlist_items.notes` 保存 VocaDB 歌单行的自由文本。采集已经写入该列，原始响应在 `data/cache`，已提交的 `data/increments/0001-vocadb-catalog.sql` 含这些备注（例如歌单 17933 的「愛の詩」与「サイハテ」）。空备注表示该歌单下的每一场都演出了这首歌。不为此重新请求网络。
+`setlist_items.notes` 保存 VocaDB 歌单行的自由文本。采集已经写入该列，原始响应在 `data/cache`，已提交的 `data/increments/0001-vocadb-catalog.sql` 含这些备注（例如歌单 17933 的「愛の詩」与「サイハテ」）。空备注表示该歌单下的每个演出都演出了这首歌。不为此重新请求网络。
 
 `shared/rotation.ts` 把备注拆成场次集合。城市名对齐到共用该 `song_list_id` 的演出（名称、日文名、场馆、`series_suffix`）。`Day N` 是该城市按日期排序后的第 N 个不同日期；日期来自 `start_date` 到 `end_date`（含首尾）。一场演出覆盖多日时，这些日仍对应同一条演出记录。
 
@@ -180,7 +182,7 @@ flowchart LR
 
 同一歌单内，解析后统计每场的歌单行数。与该歌单行数的众数不同的场次记为 `setlist length mismatch: X vs expected Y`，并把因此受影响的行（有备注、或被排除出该场的行）标成不确定。
 
-按场次的排行使用解析结果。次数不可靠时显示「≈」，悬停列出原因。页上另列未解决的行和场次。单场页 `/shows/:id` 与年版页 `/editions/:seriesId/:seriesNumber` 展示原始备注和解析结果，并从排行、单场页链入。
+按场次的排行使用解析结果，并用 `showsForNotes` 把一行收窄到 `Day N` / 日场 / 夜场所指的场次。次数不可靠时显示「≈」，悬停列出原因。页上另列未解决的行和演出。演出页 `/shows/:id` 展示场次列表、原始备注与解析结果，系列年度索引 `/editions/:seriesId/:seriesNumber` 列出该系列年度的演出，并从排行、演出页链入。
 
 外观由 Nuxt UI 的 color mode 控制，默认跟随系统，系统无偏好时回落到深色。`html.dark` 由 `@nuxtjs/color-mode` 写入，页眉的 `UColorModeButton` 切换并记忆。深色是艺术方向基准：近黑背景配青绿 `#39C5BB` 与洋红 `#E12885` 的径向光晕；浅色同样必须可用。光晕画在固定的 `-z-10` 层，不进入正文层，避免影响对比度。
 
@@ -208,7 +210,7 @@ flowchart LR
 
 一首歌的演唱者优先取缓存里该歌曲对象的 `artists`：`categories` 或 `roles` 含 `Vocalist` 的条目，名字用条目的 `name`，否则用嵌套 `artist.name`。当前已缓存的歌曲响应是用 `fields=Names,PVs,WebLinks` 拉的，没有 `artists` 数组。没有可用的结构化演唱者时，退回 `songs.artist_string` 里第一次出现的 `feat.` 之后的名单，按逗号拆开。`feat.` 前面的制作人不算角色。
 
-结果在读取目录时推导，不另写 SQL 列。排行、单场、年版和播放量页的歌曲行显示「演出角色」。排行可按一个角色筛选。
+结果在读取目录时推导，不另写 SQL 列。排行、演出、系列年度索引和播放量页的歌曲行显示「演出角色」。排行可按一个角色筛选。
 
 ## 实现步骤
 
@@ -219,17 +221,17 @@ flowchart LR
 
 ## 版本合并
 
-`data/song-variants.json` 是人工核对的清单，只收录确认属于同一首歌的 remix、remaster、声库、翻唱与语言版本。`shared/song-variants.ts` 拒绝链式映射与自指。统计函数接受 `SongVariantIndex`：计数时先归一到 canonical id 再按年版或场次去重，代表投稿在合并组内选，排行行带上 `variantSongIds` 供页面标注「含 N 个版本」。清单之外的重复条目不会被自动合并，`/raw` 的「疑似重复但未合并」会持续列出候选。
+`data/song-variants.json` 是人工核对的清单，只收录确认属于同一首歌的 remix、remaster、声库、翻唱与语言版本。`shared/song-variants.ts` 拒绝链式映射与自指。统计函数接受 `SongVariantIndex`：计数时先归一到 canonical id 再按演出或场次去重，代表投稿在合并组内选，排行行带上 `variantSongIds` 供页面标注「含 N 个版本」。清单之外的重复条目不会被自动合并，`/raw` 的「疑似重复但未合并」会持续列出候选。
 
 ## 歌单槽位与跨地区合并
 
 同一槽位的替换曲目在 VocaDB 里是相邻但序号不同的多行。`shared/setlist-slots.ts` 判定两行是否可以共用一个序号：演出集合不同时要求日期与场次对齐；同一场记录跨多天时按备注的日期/日夜/场次判定；任一侧没有备注就不合并。只有连续且与槽位内每一行都互斥的行才会合并。
 
-同一年版不同地区的歌单（例如 2019 マジカルミライ 东京与大阪）用 `data/setlist-merges.json` 人工分组后合并展示；如果其中一份歌单被轮换检查标出长度不一致，说明各场曲目数量对不上，则拆开单独显示，不参与合并。`shared/edition-setlists.ts` 以场次最多的歌单为骨架，其余用 LCS 对齐，重复曲目折叠成一行并合并演出集合。渲染时槽位用 `rowspan` 共享序号，末尾「场次」列说明该行属于哪一场；每一场都演出的行留空，不写说明。
+同一系列年度不同演出的歌单（例如 2019 マジカルミライ 东京与大阪）只在 `/raw` 的跨演出对照里用 `data/setlist-merges.json` 人工分组后并排展示，**不再**作为该系列年度的合并歌单；如果其中一份歌单被轮换检查标出长度不一致，说明各演出曲目数量对不上，则拆开单独显示，不参与合并。`shared/edition-setlists.ts` 以演出最多的歌单为骨架，其余用 LCS 对齐，重复曲目折叠成一行并合并演出集合。渲染时槽位用 `rowspan` 共享序号，末尾「演出」列说明该行属于哪个演出；每个演出都演出的行留空，不写说明。
 
 ## 差异核验报告
 
-`shared/setlist-diff.ts` 计算同一年版歌单对（以及相邻年版）的结构差异：行数、正片与安可行数、共有与独有曲目、LCS 覆盖率、是否已合并。分级为 `identical`、`order-only`、`count-differs`、`segment-differs`、`probably-different-program`。`pnpm report:setlist` 写出 `docs/reports/setlist-differences.{md,csv}`，`--check` 供 CI 校验；`/report` 在浏览器里用同一份纯函数渲染，可复制 Markdown。相邻年版只作参考，不参与分级统计。
+`shared/setlist-diff.ts` 计算同一系列年度歌单对（以及相邻系列年度）的结构差异：行数、正片与安可行数、共有与独有曲目、LCS 覆盖率、是否已合并。分级为 `identical`、`order-only`、`count-differs`、`segment-differs`、`probably-different-program`。`pnpm report:setlist` 写出 `docs/reports/setlist-differences.{md,csv}`，`--check` 供 CI 校验；`/report` 在浏览器里用同一份纯函数渲染，可复制 Markdown。相邻系列年度只作参考，不参与分级统计。
 
 ## 界面
 

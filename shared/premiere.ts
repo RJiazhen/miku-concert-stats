@@ -6,7 +6,7 @@ export const PREMIERE_RULE =
   'role=broadcast is excluded. Equal dates prefer the lower performance id. ' +
   'VocaDB dates are day precision and are not replaced by later livestream dates.'
 
-/** Fields required to choose an edition premiere. */
+/** Fields required to choose the first 演出 of a series year. */
 export type PremiereCandidate = {
   id: number
   series_id: number
@@ -27,8 +27,8 @@ export const performanceRole = (name: string, description: string | null): Perfo
 }
 
 /**
- * Picks one premiere per series edition.
- * Performances without a series number or a start date cannot win.
+ * Picks the first 演出 of each series year (系列年度).
+ * 演出 without a series number or a start date cannot win.
  */
 export const premieresFor = (candidates: readonly PremiereCandidate[]): EditionPremiereRow[] => {
   const groups = new Map<string, PremiereCandidate[]>()

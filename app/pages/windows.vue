@@ -30,7 +30,7 @@ const editions = computed(() => {
   })
 })
 
-/** Selects the first edition once premieres are loaded. */
+/** Selects the first series year once premieres are loaded. */
 const chooseEdition = (): void => {
   if (editionKey.value !== null || editions.value.length === 0) return
   editionKey.value = editions.value[0]?.key ?? null
@@ -75,13 +75,13 @@ const sufficient = computed(() => premiereObservations.value.filter((row) => row
 <template>
   <main class="space-y-4">
     <p class="max-w-3xl text-sm text-muted">
-      观察点是年版首演日。某一侧没有快照时记为样本不足，不把曲线补齐。VocaDB 的日期只到日，边界取该日的 UTC 零点。
+      观察点是系列年度首演日。某一侧没有快照时记为样本不足，不把曲线补齐。VocaDB 的日期只到日，边界取该日的 UTC 零点。
     </p>
     <UAlert v-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UCard v-else>
       <div class="flex flex-wrap items-end gap-3">
         <label class="grid gap-1 text-xs text-muted">
-          年版
+          系列年度
           <USelect v-model="editionKey" :items="editions.map((row) => ({ label: row.label, value: row.key }))" size="sm" class="w-64" />
         </label>
         <label class="grid gap-1 text-xs text-muted">

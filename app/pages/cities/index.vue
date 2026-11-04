@@ -4,6 +4,8 @@ import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames } from '~/composables/usePlaceNames.ts'
 import { buildCityIndex, rankCities } from '~~/shared/cities.ts'
+import { performanceSchedules } from '~~/shared/event-schedule.ts'
+import { reviewRotations } from '~~/shared/rotation.ts'
 
 const UButton = resolveComponent('UButton')
 
@@ -18,7 +20,7 @@ const startLoad = (): void => {
 }
 onMounted(startLoad)
 
-/** Default order matches the ranking: most shows first. */
+/** Default order matches the ranking: most 场次 first. */
 const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'shows', desc: true }])
 
 /** A ranking row plus its position under the default shows order. */
@@ -33,7 +35,17 @@ type RankedCity = {
   lastYear: number | null
 }
 
-const ranking = computed(() => (catalog.value ? rankCities(catalog.value.performances, cityIndex) : null))
+const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
+
+/** 场次 counts per 演出, including a day split into 日场 / 夜场 by the setlist notes. */
+const showCounts = computed(() => {
+  if (!catalog.value || !review.value) return undefined
+  return new Map([...performanceSchedules(catalog.value, review.value)].map(([id, shows]) => [id, shows.length]))
+})
+
+const ranking = computed(() =>
+  catalog.value ? rankCities(catalog.value.performances, cityIndex, { showCounts: showCounts.value }) : null,
+)
 
 const rows = computed<RankedCity[]>(() => {
   return (ranking.value?.rows ?? []).map((row, index) => ({
@@ -73,8 +85,8 @@ const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: 
 const columns: TableColumn<RankedCity>[] = [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
   { accessorKey: 'city', header: sortableHeader('城市'), enableSorting: true },
-  { accessorKey: 'concerts', header: sortableHeader('演唱会数'), enableSorting: true },
-  { accessorKey: 'shows', header: sortableHeader('场数'), enableSorting: true },
+  { accessorKey: 'concerts', header: sortableHeader('演出数'), enableSorting: true },
+  { accessorKey: 'shows', header: sortableHeader('场次'), enableSorting: true },
   { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
 ]
@@ -91,11 +103,11 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
         城市演出场次<br class="sm:hidden">排名
       </h1>
       <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        按举办城市统计演唱会数量。演唱会数是目录里在该城市举办的演出场次数，一个巡演站点计一次；
-        场数按演出日拆分，多日演出因此计为多场。配信、线上与 VR 场次不计入城市排名。
+        按举办城市统计演出数量。演出是目录里在该城市举办的城市站，一个城市站计一次；
+        场次按天拆分，多日演出因此计为多个场次，同一天有日场 / 夜场时分别计算。配信、线上与 VR 演出不计入城市排名。
       </p>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-        <UBadge color="primary" variant="subtle" icon="i-lucide-map-pin">按场数排序</UBadge>
+        <UBadge color="primary" variant="subtle" icon="i-lucide-map-pin">按场次排序</UBadge>
         <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">查看曲目排行</UButton>
       </div>
     </section>
@@ -114,10 +126,10 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
         <h2 class="text-lg font-semibold text-highlighted">
           排行
           <span class="ml-1 text-sm font-normal text-muted">
-            {{ rows.length }} 个城市 · {{ totals.concerts }} 场演唱会 · {{ totals.shows }} 场演出
+            {{ rows.length }} 个城市 · {{ totals.concerts }} 个演出 · {{ totals.shows }} 个场次
           </span>
         </h2>
-        <p class="text-xs text-muted">「场数」按目录中的演出日计数</p>
+        <p class="text-xs text-muted">「场次」按目录中的演出日计数，日场 / 夜场分别计数</p>
       </div>
 
       <UTable
@@ -160,7 +172,7 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
       <USkeleton v-else class="h-72 w-full rounded-xl" />
 
       <p v-if="ranking && ranking.unknown.concerts > 0" class="text-xs text-muted">
-        另有 {{ ranking.unknown.concerts }} 场线上或没有标明城市的演出未计入排名。
+        另有 {{ ranking.unknown.concerts }} 个线上或没有标明城市的演出未计入排名。
       </p>
     </section>
   </main>

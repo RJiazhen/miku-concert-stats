@@ -94,7 +94,7 @@ export const parseNoteSelectors = (notes: string | null): NoteSelector[] => {
     const lower = segment.toLowerCase()
     const day = lower.match(/day\s*(\d+)/)?.[1]
     const city = cityOf(lower)
-    const half = /nighttime|夜/.test(lower) ? 'night' : /daytime|昼/.test(lower) ? 'day' : null
+    const half = /nighttime|evening|夜/.test(lower) ? 'night' : /daytime|afternoon|昼|日场/.test(lower) ? 'day' : null
     const shows = showNumbers(lower)
     if (shows.length === 0) {
       if (day === undefined && city === null && half === null) continue
@@ -127,7 +127,9 @@ export const selectorLabel = (selectors: readonly NoteSelector[]): string | null
     const pieces: string[] = []
     if (selector.city) pieces.push(cityLabel(selector.city))
     if (selector.day !== null) pieces.push(`第 ${selector.day} 天`)
-    if (selector.show !== null) pieces.push(`第 ${selector.show} 场`)
+    if (selector.show !== null) {
+      pieces.push(selector.show === 1 ? '日场' : selector.show === 2 ? '夜场' : `第 ${selector.show} 场`)
+    }
     if (selector.half) pieces.push(selector.half === 'night' ? '夜场' : '日场')
     return pieces.join(' ')
   })

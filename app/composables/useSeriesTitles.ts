@@ -26,7 +26,7 @@ export const useSeriesTitles = () => {
   /** Primary series name plus the catalog name when a Chinese name is showing. */
   const seriesTitle = (name: string): SeriesTitleView => formatSeriesTitle(name, seriesTitleFor(seriesTitles, name), language.value)
 
-  /** Performance name with its series label in the current language; the edition year stays. */
+  /** Performance name with its series label in the current language; the series year stays. */
   const localizePerformanceSeries = (text: string, seriesName: string, seriesNumber: number | null): string => {
     return localizeSeriesInName(text, seriesName, seriesNumber, seriesTitles, language.value)
   }

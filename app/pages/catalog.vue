@@ -81,7 +81,7 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
 <template>
   <main class="space-y-4">
     <p class="max-w-3xl text-sm text-muted">
-      选择一场演出，查看歌单里每首歌曲在选定平台上的播放量区间。串烧只在能核到至少两首组成歌曲时才拆开计数。
+      选择一个演出，查看歌单里每首歌曲在选定平台上的播放量区间。串烧只在能核到至少两首组成歌曲时才拆开计数。
     </p>
     <UAlert v-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UCard v-else>
@@ -114,8 +114,8 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
         · 日期精度 {{ selected.time_precision }}
         · 角色 {{ selected.role }}
         <template v-if="selected.showtime_local"> · 开演 {{ selected.showtime_local }}（{{ selected.timezone }}）</template>
-        <template v-if="premiere"> · 该年版首演 {{ premiere.premiere_date }}</template>
-        · <NuxtLink :to="`/shows/${selected.id}`" class="text-primary">这场歌单</NuxtLink>
+        <template v-if="premiere"> · 该系列年度首演 {{ premiere.premiere_date }}</template>
+        · <NuxtLink :to="`/shows/${selected.id}`" class="text-primary">这个演出的歌单</NuxtLink>
         · <ULink :to="selected.source_url" target="_blank" class="text-primary">VocaDB 演出</ULink>
       </p>
       <p v-if="selected?.time_evidence" class="mt-1 text-xs text-muted">开演摘录：{{ selected.time_evidence }}</p>

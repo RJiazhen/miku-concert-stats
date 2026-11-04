@@ -133,17 +133,17 @@ describe('version notes', () => {
 })
 
 describe('variant folding in the ranking', () => {
-  it('folds versions within one edition and keeps a second edition separate', () => {
+  it('folds versions within one 演出 and keeps a second series year separate', () => {
     const rows = catalog()
     rows.songs = [song(1, 'Original'), song(2, 'Remix')]
     rows.setlistItems = [item(10, 1, 1), item(10, 2, 2), item(11, 1, 1)]
     rows.setlistItemSongs = [link(10, 1, 1), link(10, 2, 2), link(11, 1, 1)]
     rows.performances = [performance(1, 10), { ...performance(2, 11), series_number: 2017 }]
     const variants = parseSongVariants({ '2': { canonical: 1, kind: 'remix' } })
-    const ranking = rankSongAppearances(rows, { variants, mode: 'edition' })
+    const ranking = rankSongAppearances(rows, { variants, mode: 'event' })
     expect(ranking).toHaveLength(1)
     expect(ranking[0]).toMatchObject({ songId: 1, count: 2, variantSongIds: [2] })
-    const withoutVariants = rankSongAppearances(rows, { mode: 'edition' })
+    const withoutVariants = rankSongAppearances(rows, { mode: 'event' })
     expect(withoutVariants.map((row) => [row.songId, row.count])).toEqual([
       [1, 2],
       [2, 1],
