@@ -21,6 +21,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm collect
       - run: pnpm collect:producers
+      - name: Re-derive the per-show setlists
+        run: pnpm derive:setlists
       - run: pnpm snapshot:youtube
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}

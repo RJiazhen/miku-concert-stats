@@ -4,10 +4,9 @@ import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames, usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
-import { buildSetlistDisplay } from '~~/shared/edition-setlists.ts'
 import { albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
-import { performanceSchedules } from '~~/shared/event-schedule.ts'
+import { catalogSchedules } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
@@ -29,18 +28,11 @@ const performanceId = computed(() => Number(route.params.id))
 const performance = computed(() => catalog.value?.performances.find((row) => row.id === performanceId.value) ?? null)
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
 
-/** One show's own song list, with day-specific lines folded into slots. */
-const display = computed(() => {
-  const current = performance.value
-  if (!catalog.value || !review.value || !current || current.song_list_id === null) return null
-  return buildSetlistDisplay(catalog.value, review.value, [current.song_list_id])
-})
-
-/** 场次 of this 演出; a day with a daytime and a night-time show contributes two. */
+/** 场次 of this 演出, using the day/night dates stored in the catalog. */
 const shows = computed(() => {
   const current = performance.value
   if (!catalog.value || !review.value || !current) return []
-  return performanceSchedules(catalog.value, review.value).get(current.id) ?? []
+  return catalogSchedules(catalog.value, review.value).get(current.id) ?? []
 })
 
 /** Series behind this show, needed to translate the label inside the performance name. */
@@ -151,14 +143,10 @@ const headerLine = computed(() => {
       />
       <template v-else>
         <AlbumSetlistAlert :sources="albumSources" />
-        <SetlistTable
-          v-if="display && review"
-          :display="display"
-          :review="review"
-          :current-performance-id="performance.id"
-          :current-city="cityName"
-          :series-name="series?.name ?? ''"
-          :series-number="performance.series_number"
+        <ShowSetlistSection
+          v-if="catalog"
+          :catalog="catalog"
+          :performance-id="performance.id"
         />
         <USkeleton v-else class="h-64 w-full rounded-xl" />
       </template>

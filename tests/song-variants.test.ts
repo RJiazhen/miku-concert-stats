@@ -19,6 +19,12 @@ const catalog = (): Catalog => ({
   snapshots: [],
   milestones: [],
   formulas: [],
+  performanceSetlists: [],
+  performanceSetlistSources: [],
+  performanceShowSetlists: [],
+  performanceShowSetlistItems: [],
+  medleys: [],
+  medleySongs: [],
 })
 
 /** Performance fixture with a setlist. */

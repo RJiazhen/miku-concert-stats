@@ -18,6 +18,12 @@ const catalog = (): Catalog => ({
   snapshots: [],
   milestones: [],
   formulas: [],
+  performanceSetlists: [],
+  performanceSetlistSources: [],
+  performanceShowSetlists: [],
+  performanceShowSetlistItems: [],
+  medleys: [],
+  medleySongs: [],
 })
 
 /** Series row with only the fields the ranking reads. */

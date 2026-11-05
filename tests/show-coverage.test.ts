@@ -62,6 +62,12 @@ const catalogOf = (
   snapshots: [],
   milestones: [],
   formulas: [],
+  performanceSetlists: [],
+  performanceSetlistSources: [],
+  performanceShowSetlists: [],
+  performanceShowSetlistItems: [],
+  medleys: [],
+  medleySongs: [],
 })
 
 describe('演出 coverage', () => {

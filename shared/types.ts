@@ -163,6 +163,80 @@ export type MedleyQuarantineRow = {
   reason: string
 }
 
+/** How the row set of one 演出 was attributed to its 场次. */
+export type SetlistResolution = 'vocadb-note' | 'vocadb-shared' | 'external' | 'unresolved'
+
+/** Confidence of one outside source. */
+export type SetlistConfidence = 'high' | 'medium' | 'low'
+
+/** Derived 演出 layer: one row per performance, with the attribution and its sources. */
+export type PerformanceSetlistRow = {
+  performance_id: number
+  source_list_id: number
+  source_kind: SetlistSource
+  /** `none` keeps every source row, `filtered` drops some, `curated` was hand-corrected. */
+  change: 'none' | 'filtered' | 'curated'
+  status: 'complete' | 'partial' | 'conflict' | 'inherited'
+  resolution: SetlistResolution
+  source_row_count: number
+  /** JSON array of dates verified to have a daytime and a night-time show. */
+  day_night_dates: string | null
+  conflict: number
+  pending_review: number
+  note: string | null
+}
+
+/** Outside evidence behind one 演出's attribution. */
+export type PerformanceSetlistSourceRow = {
+  performance_id: number
+  url: string
+  title: string
+  accessed_at: string
+  confidence: SetlistConfidence
+  note: string | null
+  conflict: number
+}
+
+/** One 场次 of the derived layer; parser facts only. */
+export type PerformanceShowSetlistRow = {
+  performance_id: number
+  show_key: string
+  date: string | null
+  half: 'day' | 'night' | null
+  item_count: number
+  omitted_count: number
+  uncertain: number
+  /** JSON array of rotation reason codes. */
+  reasons: string
+}
+
+/** One ordered setlist line of one 场次. */
+export type PerformanceShowSetlistItemRow = {
+  performance_id: number
+  show_key: string
+  position: number
+  source_position: number | null
+  song_id: number | null
+  medley_id: number | null
+  evidence: 'note' | 'shared' | 'curated'
+  notes: string | null
+}
+
+/** One complete medley entry referenced by a setlist line. */
+export type MedleyRow = {
+  id: number
+  name: string
+  note: string | null
+  source_url: string
+}
+
+/** One song inside a medley, in performance order. */
+export type MedleySongRow = {
+  medley_id: number
+  position: number
+  song_id: number
+}
+
 /** One VocaDB PV kept for niconico, YouTube, or bilibili. */
 export type VideoRow = {
   vocadb_pv_id: number
@@ -227,4 +301,14 @@ export type Catalog = {
   snapshots: ViewSnapshotRow[]
   milestones: MilestoneRow[]
   formulas: ConversionFormulaRow[]
+  /** Derived 演出 layer, one row per performance with a source song list. */
+  performanceSetlists: PerformanceSetlistRow[]
+  /** Outside evidence cited by those rows. */
+  performanceSetlistSources: PerformanceSetlistSourceRow[]
+  /** One row per 场次 of the derived layer. */
+  performanceShowSetlists: PerformanceShowSetlistRow[]
+  /** The ordered setlist of every 场次. */
+  performanceShowSetlistItems: PerformanceShowSetlistItemRow[]
+  medleys: MedleyRow[]
+  medleySongs: MedleySongRow[]
 }

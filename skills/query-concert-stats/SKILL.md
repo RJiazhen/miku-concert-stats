@@ -52,7 +52,18 @@ Known VocaDB series ids in the current catalog (`scripts/vocadb/collect.ts` `SER
 | 255 | 初音ミク×鼓童 |
 | 256 | 初音ミクシンフォニー |
 
-The current built catalog has 7 `series` rows, 207 `performances`, 448 `songs`, 1,985 `setlist_items`, and 1,985 `setlist_item_songs`. Those numbers grow; query the catalog rather than quoting them as permanent facts.
+The current built catalog has 7 `series` rows, 207 `performances`, 448 `songs`, 1,985 `setlist_items`, 1,985 `setlist_item_songs`, 177 `performance_setlists`, 287 `performance_show_setlists`, and 7,036 `performance_show_setlist_items`. Those numbers grow; query the catalog rather than quoting them as permanent facts.
+
+### Two setlist layers
+
+VocaDB stores **one** song list for a whole run and lets several 演出 share it, so a `song_lists` row is not any single show's setlist. This catalog therefore keeps two layers:
+
+| Layer | Tables | Answers |
+| --- | --- | --- |
+| Source | `song_lists`, `setlist_items`, `setlist_item_songs` | "What does the VocaDB object contain?" Shared lists, raw notes, album fallbacks. Used by `/raw` and the difference report. |
+| Per 場次 | `performance_setlists`, `performance_setlist_sources`, `performance_show_setlists`, `performance_show_setlist_items`, `medleys`, `medley_songs` | "What did this one show play?" One ordered setlist per 場次. Used by `/shows`, the ranking, and coverage. |
+
+**Use the per-場次 layer whenever the question is about a specific show.** For example song list 9359 has 29 rows but every 未来有你 2019 stop played 25: the four `Chengdu, Guangzhou` lines only apply to Chengdu and Guangzhou. A `SELECT ... WHERE song_list_id = 9359` answers the wrong question.
 
 ### Tables an agent needs
 
@@ -63,9 +74,18 @@ The current built catalog has 7 `series` rows, 207 `performances`, 448 `songs`, 
 | `song_lists` | one setlist attached to one or more performances | `id`, `name`, `source` (`vocadb` / `album`), `album_id`, `medium` (`bluray` / `cd` / `dvd`), `source_url` |
 | `setlist_items` | one printed setlist line | `song_list_id`, `position`, `listed_song_id`, `notes` |
 | `setlist_item_songs` | one song counted from a line | `song_list_id`, `position`, `song_id`, `role` (`listed` / `component`) |
+| `performance_setlists` | the derived layer for one 演出 | `performance_id`, `source_list_id`, `source_kind` (`vocadb` / `album`), `change` (`none` / `filtered` / `curated`), `status` (`complete` / `partial` / `conflict` / `inherited`), `resolution` (`vocadb-note` / `vocadb-shared` / `external` / `unresolved`), `source_row_count`, `day_night_dates` (JSON array), `conflict`, `pending_review`, `note` |
+| `performance_setlist_sources` | one outside source behind a 演出's attribution | `performance_id`, `url`, `title`, `accessed_at`, `confidence` (`high` / `medium` / `low`), `note`, `conflict` |
+| `performance_show_setlists` | one 場次 of the derived layer | `performance_id`, `show_key`, `date`, `half` (`day` / `night` / NULL), `item_count`, `omitted_count`, `uncertain`, `reasons` (JSON array) |
+| `performance_show_setlist_items` | one ordered song of one 場次 | `performance_id`, `show_key`, `position`, `source_position` (source row it came from; NULL for a hand-added row), `song_id`, `medley_id` (exactly one of the two is set), `evidence` (`note` / `shared` / `curated`), `notes` |
+| `medleys` / `medley_songs` | one complete medley and its parts | `id` / `medley_id`, `position`, `song_id`; currently empty |
 | `songs` | one song entry | `id`, `name`, `name_ja`, `name_en`, `artist_string`, `song_type`, `publish_date`, `source_url` (`vocadb.net/S/{id}`) |
 | `song_vocalists` | one credited vocalist of a song | `song_id`, `name`; this is the preferred cast source over `artist_string` |
 | `song_producers` | one producer-side credit of a song | `song_id`, `artist_id` (VocaDB artist id), `name`, `roles`; mirrors VocaDB's song-page "Producers" section (`Producer` category, plus Composer / Arranger / Voice manipulator roles), so lyricists are absent. This structured roster is authoritative for display and the producer filter; `artist_string` is only the fallback when the song entry records no producer. Disagreements are recorded in `docs/reports/producer-conflicts.md` (`pnpm report:producers`), so quote that instead of parsing `artist_string` |
+
+`show_key` is stable: `{performanceId}:{YYYY-MM-DD}` for a single show, `{performanceId}:{YYYY-MM-DD}:day|night` when the day had both. A 演出 with no start date has no 場次 and contributes nothing to the `show` ranking.
+
+`resolution` and `pending_review` are not decoration. `external` means VocaDB did not locate the show and an outside source did; `pending_review = 1` means that source is below `high` confidence and a maintainer has not reviewed it yet. Say so when you answer, and cite `performance_setlist_sources` when it exists.
 
 Supporting tables: `medley_quarantine` (mashup lines that could not be split; excluded from counts), `videos` (PV links; `platform` is `niconico` / `youtube` / `bilibili`), `view_snapshots` (dated counts), `milestones`, `edition_premieres` (earliest non-broadcast 演出 of a series year), `performance_links`, `conversion_formulas`, `sources` (VocaDB attribution).
 
@@ -192,6 +212,7 @@ Do not re-derive the rules from this document alone. The source of truth is the 
 | `shared/event-schedule.ts` | `performanceSchedules`, `showsForPerformance`, `showsForNotes`, `performanceDates`, `dayNightDatesFor` — the 场次 layer |
 | `shared/song-variants.ts` | `parseSongVariants` + `variantSongIdsOf` / `canonicalSongId` — version merging from `data/song-variants.json` |
 | `shared/edition-setlists.ts` | `parseSetlistMerges`, `partitionSongLists`, `buildSetlistDisplay` — cross-演出 setlist comparison |
+| `shared/performance-setlists.ts` | `buildPerformanceSetlists`, `parsePerformanceSetlistCuration`, `catalogSchedules`, `derivedItemsByShow`, `derivedItemSongIds`, `showSongIds` — the per-場次 layer |
 | `shared/rotation.ts` | `reviewRotations`, `parseRotationNotes`, `performanceCityKey`, `splitNote` — note → performance/场次 assignment |
 | `shared/album-setlists.ts` | album-source detection and the exact Chinese notice text |
 
@@ -347,8 +368,52 @@ WHERE sis.song_id = 1322
 
 **Open:** the catalog. **URL for a human:** <https://miku-concert-stats.rjiazhen.top/shows/12251>. Clarify whether the user means a 演出 (performance, `/shows/{id}`) or one 场次 (a day/half within it).
 
+**Start with the per-場次 layer.** It is the answer to "what did this show play", and it already applied the notes:
+
 ```sql
--- Ordered printed lines for performance 12251 (2026 Tokyo, song list 27886).
+-- The setlist of one 場次 of performance 6045 (2023 Osaka, 2023-08-11 night show).
+SELECT psi.position,
+       psi.song_id,
+       s.name,
+       psi.evidence,
+       psi.source_position,
+       psi.notes
+FROM performance_show_setlist_items psi
+LEFT JOIN songs s ON s.id = psi.song_id
+WHERE psi.performance_id = 6045
+  AND psi.show_key = '6045:2023-08-11:night'
+ORDER BY psi.position;
+-- 24 rows. The source list has 39; the extra rows belong to other days and halves.
+```
+
+List every 場次 of that 演出, with its row count and how well it is pinned down:
+
+```sql
+SELECT show_key, date, half, item_count, omitted_count, uncertain, reasons
+FROM performance_show_setlists
+WHERE performance_id = 6045
+ORDER BY date, half;
+```
+
+Report the 演出's attribution and any outside evidence alongside the rows:
+
+```sql
+SELECT status, resolution, change, conflict, pending_review,
+       source_list_id, source_row_count, note
+FROM performance_setlists
+WHERE performance_id = 6045;
+
+SELECT url, title, accessed_at, confidence, note, conflict
+FROM performance_setlist_sources
+WHERE performance_id = 6045;
+```
+
+If `medley_id` is set instead of `song_id`, the row is one medley: read `medleys` for its name and `medley_songs` for its parts.
+
+The source layer still holds the printed order and the raw notes, and it is what `/raw` compares:
+
+```sql
+-- Ordered printed lines of the source list behind performance 12251 (song list 27886).
 SELECT si.position,
        si.listed_song_id,
        s.name,
@@ -376,7 +441,15 @@ WHERE p.id = 12251;
 -- Album example: performance 2959 -> source = 'album', album_id = 30961, medium = 'bluray'.
 ```
 
-Raw `notes` are not the parsed show assignment. Use `shared/rotation.ts` + `shared/event-schedule.ts` to resolve them:
+Raw `notes` are not the parsed show assignment. In the built catalog you do not have to resolve them: `performance_show_setlist_items` already did. Only fall back to the parser when the catalog has no derived rows:
+
+```ts
+import { catalogSchedules, derivedItemsByShow } from './shared/performance-setlists.ts'
+
+const shows = catalogSchedules(catalog).get(12251) ?? []
+const byShow = derivedItemsByShow(catalog, 12251)
+// byShow.get('12251:2026-08-28:day') is the ordered row list of that 場次.
+```
 
 ```ts
 import { reviewRotations } from './shared/rotation.ts'
@@ -390,9 +463,9 @@ const labels = showsForNotes(line?.notes ?? null, performance, shows).map((show)
 // current: ['2026-08-28 日场', '2026-08-29 日场', '2026-08-30 日场']
 ```
 
-Notes such as `Hamamatsu`, `Osaka`, `Tokyo`, `Daytime Shows`, and `Nighttime Shows` select city stops or halves; an empty note means every 场次 of that 演出. `review.shows` lists length mismatches; `uncertain` / `reasons` must be reported, not hidden.
+Notes such as `Hamamatsu`, `Osaka`, `Tokyo`, `Daytime Shows`, and `Nighttime Shows` select city stops or halves; an empty note means every 场次 of that 演出. A derived row carries the same split in `evidence`: `note` means a note picked this 場次, `shared` means the whole list applies, `curated` means a hand-checked correction moved or added it.
 
-**Report:** position, `song_id`, name, artist, `role` (flag `component` separately), raw notes, resolved 场次 label(s), `song_list.source`, and if album: `album_id`, medium, `https://vocadb.net/Al/{album_id}`, plus the Chinese notice above. For a single 场次, filter to lines whose resolved labels include that 场次; do not silently drop lines that cover all shows.
+**Report:** position, `song_id`, name, artist, and for medleys the medley name with its parts. Include `evidence`, the 演出's `resolution`, and any `performance_setlist_sources` row; `pending_review = 1` must be stated. When the catalog has no derived rows, fall back to raw notes and say the attribution came from the parser.
 
 ### (c) “List the performances of a series, with dates and cities.”
 

@@ -104,6 +104,8 @@
 
 **建议方向**：新建 `data/show-schedules.json`（人工维护）+ `shared/show-schedules.ts`（校验加载器），结构建议按 VocaDB performance id 存逐日数据：
 
+**已实现（2026-11-05，B 方案）**：人工清单落在 `data/performance-setlists.json` 的 `performances.<id>.dayNight`，校验器是 `shared/performance-setlists.ts`，场次推导通过 `performanceSchedules` 的第三参数接入，并物化到 `performance_setlists.day_night_dates`。日夜场核实来源记在演出层（`performance_setlist_sources`），待核实项列在 `docs/reports/setlist-review.md` 的 A 节。字段形状与下面的示例一致，只是多了 `sources`、`resolution` 与 `conflict`：
+
 ```json
 {
   "6045": {
@@ -139,6 +141,8 @@
 已知的具体例子：歌单 31 的第 25 行（Starduster）备注 `Taiwan only`，所以只在 2525 台湾场；其余 24 行同时属于香港与台湾。
 
 **建议**：不要试图从共享歌单推断单站差异；需要精确到站的信息只能靠人工清单（与 2.3 同一个文件可承担）。
+
+**已处理（2026-11-05，B 方案）**：目录新增场次层。`pnpm derive:setlists` 把每个源行展开到它覆盖的场次，写入 `performance_show_setlist_items`；`/shows/{id}` 现在按场次列出该场自己的曲目，不再靠备注提示。源歌单仍按原样保存，`/raw` 的跨演出对照与 `/report` 继续读源层。缺场次证据的部分列在 `docs/reports/setlist-review.md`，结果由人工确认后回填 `data/performance-setlists.json`。详见 `docs/architecture.md` 的「源歌单层与场次层」。
 
 ### 2.5 `series_suffix` 语义不一致
 
@@ -246,8 +250,9 @@
 
 | 优先级 | 项目 | 理由 |
 | --- | --- | --- |
-| 高 | 2.3 日夜场人工清单（`data/show-schedules.json`） | 直接影响「场次」的正确性，且已有 40 行核实数据可用；接缝已就绪 |
-| 高 | 2.2 展览日排除 | 与 2.3 同一个文件即可解决，避免多算场次 |
+| 已完成 | 2.4 多城市共用歌单 → 场次层（`pnpm derive:setlists`） | 每个场次已有一整串曲目，`/shows` 不再靠备注 |
+| 高 | 2.3 日夜场人工清单（`data/performance-setlists.json` 的 `dayNight`） | 直接影响「场次」的正确性；机制已就绪，待逐条核实；清单见 `docs/reports/setlist-review.md` 的 A 节 |
+| 高 | 2.2 展览日排除 | 同一个文件即可解决，避免多算场次；C 节会列出疑似展览日 |
 | 中 | 3.3 版本链根节点人工合并 | 影响单曲归属与读者理解 |
 | 中 | 1.1 交响乐剩余 6 场歌单 | 等实体发行，无法提前 |
 | 低 | 4.2 取消场次标注 | 仅影响索引显示 |

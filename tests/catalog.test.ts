@@ -102,4 +102,46 @@ describe('committed catalog', () => {
       db.close()
     }
   })
+
+  it('derives one setlist per 場次 instead of storing the whole shared list', () => {
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      // Every performance with a source list gained a derived 演出 row.
+      const withList = catalog.performances.filter((row) => row.song_list_id !== null)
+      expect(catalog.performanceSetlists).toHaveLength(withList.length)
+      // 2023 Osaka carried 39 source rows, but no single show played more than 24.
+      const osaka = catalog.performanceShowSetlists.filter((row) => row.performance_id === 6045)
+      expect(osaka).toHaveLength(6)
+      expect(osaka.every((row) => row.item_count === 24)).toBe(true)
+      // The 2019 Shanghai stop is 25 songs per day, with the four Chengdu/Guangzhou lines dropped.
+      const shanghai = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3752)
+      expect(shanghai).toHaveLength(2)
+      expect(shanghai.every((row) => row.item_count === 25 && row.omitted_count === 4)).toBe(true)
+      const shanghaiSongs = catalog.performanceShowSetlistItems
+        .filter((row) => row.show_key === '3752:2019-11-02')
+        .map((row) => row.song_id)
+      expect(shanghaiSongs).toContain(1501)
+      expect(shanghaiSongs).not.toContain(1500)
+      // A list without any note is inherited whole, and says so.
+      const seattle = catalog.performanceSetlists.find((row) => row.performance_id === 1859)
+      expect(seattle?.status).toBe('inherited')
+      expect(seattle?.resolution).toBe('vocadb-shared')
+      expect(seattle?.source_list_id).toBe(6571)
+      // Album fallbacks are declared as such and never claim an outside source.
+      const symphony = catalog.performanceSetlists.find((row) => row.performance_id === 2959)
+      expect(symphony?.source_kind).toBe('album')
+      expect(symphony?.pending_review).toBe(0)
+      expect(catalog.performanceSetlistSources).toHaveLength(0)
+      // Medleys stay empty until a source line splits into verifiable songs.
+      expect(catalog.medleys).toHaveLength(0)
+      expect(catalog.medleySongs).toHaveLength(0)
+    } finally {
+      db.close()
+    }
+  })
 })

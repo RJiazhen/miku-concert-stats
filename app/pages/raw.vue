@@ -24,10 +24,11 @@ onMounted(startLoad)
 
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
 
-type Tab = 'edition' | 'tables' | 'quality'
+type Tab = 'edition' | 'shows' | 'tables' | 'quality'
 const tab = ref<Tab>('edition')
 const tabs: { value: Tab; label: string }[] = [
   { value: 'edition', label: '跨演出歌单' },
+  { value: 'shows', label: '场次歌单' },
   { value: 'tables', label: '数据表' },
   { value: 'quality', label: '质量报告' },
 ]
@@ -348,7 +349,38 @@ const uncertainLines = computed(() => review.value?.lines.filter((line) => line.
 /** Shows whose parsed setlist length differs from the list's usual length. */
 const mismatchedShows = computed(() => review.value?.shows ?? [])
 
-/** Normalized title used to propose duplicate song entries. */
+/** Derived 演出 rows joined with their 场次 counts, grouped by series for the 场次歌单 tab. */
+const showSetlists = computed(() => {
+  if (!catalog.value) return []
+  const seriesName = new Map(catalog.value.series.map((row) => [row.id, row.name]))
+  const showsByPerformance = new Map<number, number>()
+  for (const row of catalog.value.performanceShowSetlists) {
+    showsByPerformance.set(row.performance_id, (showsByPerformance.get(row.performance_id) ?? 0) + 1)
+  }
+  const sourceCount = new Map<number, number>()
+  for (const row of catalog.value.performanceSetlistSources) {
+    sourceCount.set(row.performance_id, (sourceCount.get(row.performance_id) ?? 0) + 1)
+  }
+  return catalog.value.performanceSetlists
+    .map((row) => {
+      const performance = catalog.value?.performances.find((entry) => entry.id === row.performance_id)
+      return {
+        performanceId: row.performance_id,
+        name: performance?.name ?? String(row.performance_id),
+        series: seriesName.get(performance?.series_id ?? 0) ?? '—',
+        startDate: performance?.start_date ?? null,
+        shows: showsByPerformance.get(row.performance_id) ?? 0,
+        sourceRows: row.source_row_count,
+        status: row.status,
+        resolution: row.resolution,
+        change: row.change,
+        pendingReview: row.pending_review === 1,
+        conflict: row.conflict === 1,
+        sources: sourceCount.get(row.performance_id) ?? 0,
+      }
+    })
+    .sort((left, right) => left.series.localeCompare(right.series, 'ja') || (left.startDate ?? '9999').localeCompare(right.startDate ?? '9999'))
+})/** Normalized title used to propose duplicate song entries. */
 const normalizeTitle = (title: string): string => {
   return title
     .toLowerCase()
@@ -397,6 +429,8 @@ const downloads = [
   { label: '增量 SQL', href: 'https://github.com/RJiazhen/miku-concert-stats/tree/main/data/increments' },
   { label: '版本合并清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-variants.json' },
   { label: '歌单合并清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/setlist-merges.json' },
+  { label: '场次歌单来源', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/performance-setlists.json' },
+  { label: '待确认清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/docs/reports/setlist-review.md' },
   { label: '中文歌名', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-titles.zh-CN.json' },
 ]
 
@@ -486,6 +520,47 @@ const editionSongCount = computed(() => {
         description="VocaDB 上没有记录歌单，或这个演出没有关联歌单。"
       />
       <SetlistTable v-else-if="display && review" :display="display" :review="review" />
+    </section>
+
+    <section v-else-if="tab === 'shows'" class="space-y-4">
+      <p class="text-xs text-muted">
+        这里列出每个演出派生出的场次歌单：源歌单的一行可能只属于部分城市或部分场次，
+        展开后每个场次各有一份完整曲目。共有 {{ showSetlists.length }} 个演出。
+      </p>
+      <UCard>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="text-left text-xs tracking-wide text-muted uppercase">
+              <tr>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">演出</th>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">系列</th>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">日期</th>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">场次</th>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">源行数</th>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">状态</th>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">归属方式</th>
+                <th class="px-2 py-1.5 font-medium whitespace-nowrap">来源</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in showSetlists" :key="row.performanceId" class="border-t border-default/40">
+                <td class="px-2 py-1.5">
+                  <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.name }}</NuxtLink>
+                  <span v-if="row.pendingReview" class="ml-1 text-warning">· 待复核</span>
+                  <span v-if="row.conflict" class="ml-1 text-error">· 冲突</span>
+                </td>
+                <td class="px-2 py-1.5 text-muted">{{ row.series }}</td>
+                <td class="px-2 py-1.5 text-muted">{{ row.startDate ?? '日期未知' }}</td>
+                <td class="px-2 py-1.5 text-muted">{{ row.shows }}</td>
+                <td class="px-2 py-1.5 text-muted">{{ row.sourceRows }}</td>
+                <td class="px-2 py-1.5 text-muted">{{ row.status }} / {{ row.change }}</td>
+                <td class="px-2 py-1.5 text-muted">{{ row.resolution }}</td>
+                <td class="px-2 py-1.5 text-muted">{{ row.sources }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </UCard>
     </section>
 
     <section v-else-if="tab === 'tables'" class="space-y-4">

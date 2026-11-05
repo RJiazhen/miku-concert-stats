@@ -67,9 +67,16 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | --- | --- | --- | --- |
 | 系列 | 一个演唱会系列，如魔法未来 | `series` 行，`vocadb.net/Es/{id}` | 排行的系列筛选、各页标题、`/series/{id}` |
 | 演出 | 一个城市站，即 VocaDB 的一个 release event | 一条 `performances` 行，`vocadb.net/E/{id}`；`series_id` 与 `series_number` 说明它属于哪个系列 | `/shows/{id}`；`/series/{id}` 是该系列的演出索引 |
-| 场次 | 一天，或同一天有日场 / 夜场时的半天 | 由 `start_date`–`end_date` 推导；日夜证据来自歌单备注 | 排行「按场次」、`/shows` 页头的场次列表、歌曲页的覆盖数 |
+| 场次 | 一天，或同一天有日场 / 夜场时的半天 | 由 `start_date`–`end_date` 推导，再并上 `data/performance-setlists.json` 的 `dayNight`；日夜证据也仍可来自歌单备注 | 排行「按场次」、`/shows` 页头的场次列表、歌曲页的覆盖数 |
+| 场次歌单 | 一个场次的完整曲目 | `performance_show_setlist_items`，由源歌单展开 | `/shows/{id}` 的每个场次表、`/raw` 的「场次歌单」页 |
 
 `系列年度` 是 `series_id` + `series_number` 的分组，只用于演出索引、年度首演与歌单对照，**不再**合并成一场演唱会。VocaDB 自身也是这个结构：一个 `releaseEvents` 行 = 一个演出，同一年同一系列的不同城市各有自己的事件 id。站内不改列名，`performances` 仍是一条演出，`edition_premieres` 仍存系列年度首演。
+
+**源歌单层与场次层。** VocaDB 只为每个 release event 存**一个** `songList` 引用，同一份歌单会被多个演出共用（本目录最多 17 个），地区与场次差异只能写进行内备注。因此目录额外物化一层场次歌单：`scripts/derive-performance-setlists.ts`（`pnpm derive:setlists`）读已提交的 `0001`/`0004` 与 `data/performance-setlists.json`，用 `shared/performance-setlists.ts` 把每个源行展开到它覆盖的场次，写出 `data/increments/0008-performance-setlists.sql`。源层（`song_lists` / `setlist_items` / `setlist_item_songs`）保持 VocaDB 原样，继续供 `/raw` 跨演出对照与 `/report` 使用；场次层供 `/shows`、排行与公开 skill 使用。两者都有 `source_list_id` / `source_position` 可对回。
+
+场次层六张表：`performance_setlists`（每演出一行：源歌单、`change`、`status`、`resolution`、`source_row_count`、`day_night_dates`、`conflict`、`pending_review`、`note`）、`performance_setlist_sources`（外部来源）、`performance_show_setlists`（每场次一行）、`performance_show_setlist_items`（每场次一整串有序曲目，`song_id` 与 `medley_id` 二选一）、`medleys` / `medley_songs`（串烧，当前为空表）。外部来源只记在演出层：检索都以 performance 为基准，逐场次的特殊情况写进 `performance_setlists.note`。
+
+来源查证顺序是「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」。官方页没有对应信息时**直接采用 wiki 数据继续开发**，标 `pending_review = 1`，交付时汇总进 `docs/reports/setlist-review.md` 的 F 节；只有所有来源都没有才留 `resolution = 'unresolved'`。
 
 `shared/stats.ts`：
 
@@ -77,7 +84,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `playbackForSongs` / `summarizeBands`：用最新快照落入 `shared/bands.ts` 的固定区间。
 - `compareBy`：按系列、系列年度（`series_number`）或演出开始日期的公历年分组，组内按歌曲去重后算区间占比。
 - `observeWindow`：观察点之前最近的快照与之后最早的快照。缺任一侧则 `insufficient`。
-- `rankSongAppearances`：排行。`event`（按演出）对每条 `performances` 行最多计 1，同一年大阪 / 东京两个城市站各计一次；`show`（按场次，默认）计 `shared/event-schedule.ts` 推导的场次：三日巡演计 3，同日日场 + 夜场计 2，无日期的演出没有场次、按场次不计、按演出仍计 1。备注写了天 / 半天 / 场次号时只计对应场次，否则一行计入该演出的全部场次。默认排除 `role = broadcast` 以及名称、日文名、`series_suffix` 命中 livestream / online / オンライン / VR / 配信 的演出。`role = component` 默认不计。每行带 `variantSongIds`，供页面标注「含 N 个版本」。
+- `rankSongAppearances`：排行。`event`（按演出）对每条 `performances` 行最多计 1，同一年大阪 / 东京两个城市站各计一次；`show`（按场次，默认）直接按 `performance_show_setlist_items` 的 `show_key` 去重，因此共用歌单的替换曲不会算到没演它的场次。没有展开行的旧目录（测试夹具）回退到备注解析。默认排除 `role = broadcast` 以及名称、日文名、`series_suffix` 命中 livestream / online / オンライン / VR / 配信 的演出。每行带 `variantSongIds`，供页面标注「含 N 个版本」。
 - 所有计数函数接受可选的 `SongVariantIndex`，默认不合并版本。
 
 `shared/credit.ts` 也负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都过滤 VocaDB 的 `Unknown producer(s)` / `Unknown artist` 占位并返回 `null`（页面显示「未记录」）；`/raw` 的歌曲表仍用 `producerCredit` 展示原始署名，排行的「制作人」列与单曲页的版本卡片按下一段的规则取值。`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）请求每首歌的 `fields=Artists`，只保留 `categories` / `roles` 含 `Vocalist` 的条目，写成 `data/increments/0006-song-vocalists.sql` 的 `song_vocalists` 行（`song_id`、`name`）。`artist_string` 会把大编制合唱压成 `feat. various`（Hand in Hand 的现场翻唱实际是 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン），所以「演出角色」以这张表为先；表里没有该歌时退回 `artist_string` 的 `feat.` 名单。`SongRow.vocalists` 由 `shared/catalog.ts` 读取时拼好，`shared/characters.ts` 的 `assignCharacters` 优先用它。
@@ -118,7 +125,16 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `showsForPerformance` 每个日期一个场次；`dayNightDates` 里的日期拆成 `日场` / `夜场`。key 为 `{performanceId}:{date}` 或 `{performanceId}:{date}:day|night`，label 为 `2020-11-28` / `2023-08-11 日场`。
 - `dayNightDatesFor` 从备注读日夜证据：`Daytime` / `Nighttime` / `Afternoon` / `Evening` / 昼夜 / 昼公演 / 夜公演 / `1st Show` / `2nd Show`。备注写了 `Day N` 或裸日期时只标那一天，没写则标整个演出。VocaDB 没有结构化的日夜字段（`showtime_local`、`time_evidence` 均为空），所以一天默认就是一场，只有备注证明当天有日场 + 夜场时才拆开。
 - `showsForNotes` 把一行分到场次：备注写了天、半天、场次号或裸日期时收窄到对应场次；否则计入该演出的全部场次。VocaDB 一份歌单对应整个 run，这是对「同一份歌单在每一场都演」的诚实读法。
-- `performanceSchedules` 为整个目录算出场次表，排行、歌曲页覆盖数和 `/shows` 页头共用。它的可选第三参数 `curatedDayNight` 是留给 `data/show-schedules.json` + `shared/show-schedules.ts` 的接缝：人工核对的日期与该演出的备注证据取并集，接入时不需要改推导、排行或页面。一个演出只存一对起止日期、没有逐日节目单，因此区间内「只办展、没有 live」的日子无法与演出日区分，当前按覆盖到的每一天计场次（最长 14 天）。
+- `performanceSchedules` 为整个目录算出场次表，排行、歌曲页覆盖数和 `/shows` 页头共用。第三参数 `curatedDayNight` 接收人工核实的日期，与备注证据取并集；`data/performance-setlists.json` 的 `performances.<id>.dayNight` 经 `shared/performance-setlists.ts` 转成这个映射，并物化到 `performance_setlists.day_night_dates`，页面与统计都用 `catalogDayNight` 读同一份。一个演出只存一对起止日期、没有逐日节目单，因此区间内「只办展、没有 live」的日子仍无法与演出日区分，会以「某场曲目明显少」的形式暴露在待确认清单的 C 节。
+
+`shared/performance-setlists.ts` 是场次层的核心：
+
+- `parsePerformanceSetlistCuration` 校验 `data/performance-setlists.json`（演出来源、`dayNight`、逐曲校正），`validateCurationAgainstCatalog` 再核对 id、场次 key 与日期区间。
+- `buildPerformanceSetlists` 把源歌单展开到每个场次：`performanceSchedules` 得到场次 → `showsForNotes` 收窄每一行 → 按源行号排序并重新编号。`assign` 可以把一行改派给别的城市的场次，`exclude` 整行丢弃，`extra` 追加源歌单没有的曲目。
+- `resolution` 取值 `vocadb-note`（备注到日期/半场）、`vocadb-shared`（整份无备注，含专辑补位）、`external`（外部来源定位）、`unresolved`（都没有）。`pending_review` 由脚本推导：`external` 且来源都不是 `high`。`conflict` 表示与 VocaDB 或 `docs/data-issues.md` 的既有结论不一致且未裁决。
+- `catalogDayNight` / `catalogSchedules` / `derivedItemSongIds` / `showSongIds` 供页面与统计共用，避免各自再解析一遍。
+
+`shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正、F 已采用非高置信度来源的数据。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
 
 `shared/rotation.ts` 解析歌单备注，把一行分到共享该歌单的场次。空备注表示该歌单的全部演出且不算不确定。备注按 `/`、`／`、逗号、顿号、分号、换行切开，`8/31` 这类日期斜杠保留。城市来自 `CITY_ALIASES`，也会从演出名推导（`MIKU EXPO 2026 Glendale`、`…」in HAMAMATSU`），所以新增城市不必先改清单。识别 `day N` / `DAY 1 1st Show` / `1日目` / `第2天`、`初日`、`千秋楽` / `最終日`、`両日` / `全日`、裸日期（`2024-08-31`、`8/31`、`8月31日`）、昼夜 / 1st·2nd show。没有写城市的 `Day N` 会落到每个城市自己的第 N 天，而不是随便挑一个城市。`reviewRotations` 再做长度一致性检查，与众数不同的演出记入 `shows`。
 
@@ -135,7 +151,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 `shared/show-coverage.ts` 统计一首歌在一个演出里演出了几个场次，给歌曲页的出场记录用：
 
 - 分母是该演出推导出的场次数；没有日期或没有歌单的演出没有可比的场次，不进入结果。
-- 分子是轮换解析把该行的 `performanceIds` 指到该演出后，`showsForNotes` 再按 `Day N`、日场 / 夜场、`1st Show` / `2nd Show` 或裸日期收窄到的场次，对歌曲在该演出里的所有 `listed` 行取并集。
+- 分子直接读场次层 `performance_show_setlist_items`：歌曲出现在哪些 `show_key` 就是覆盖几场，不再在运行时解析备注。没有展开行的旧目录（测试夹具）回退到 `showsForNotes`。
 - 不再跨城市汇总：大阪与东京各算各的演出，一份只在东京出现的歌单不会改变大阪那行的覆盖数。
 - 显示为 `本演出全部 N 场`（全覆盖）或 `N 场中 M 场`（部分覆盖）。只有 1 个场次的演出不显示，避免每行都写「本演出全部 1 场」。
 - 备注已经给出 `共 N 场`（`city-only when city has several shows: N`）的行不再显示覆盖数，由该警告独占数字，避免同一格出现两个不同总数。`/shows` 与 `SetlistTable` 是按演出的视图，不显示覆盖数。
@@ -346,7 +362,15 @@ pnpm install
 pnpm dev --port 3001
 ```
 
-`predev` 会先跑 `build-catalog`。补抓专辑曲目（只请求 `data/album-setlists.json` 里的专辑）时运行 `pnpm collect:albums`；它会重写 `data/increments/0004-album-setlists.sql`，不会碰 `0001`。开发服务器已占用 Nuxt 锁时，另开的检查要跳过锁：
+`predev` 会先跑 `build-catalog`。补抓专辑曲目（只请求 `data/album-setlists.json` 里的专辑）时运行 `pnpm collect:albums`；它会重写 `data/increments/0004-album-setlists.sql`，不会碰 `0001`。改过源歌单或 `data/performance-setlists.json` 之后必须重算场次层，否则 `/shows` 与排行仍是旧数据：
+
+```bash
+pnpm derive:setlists          # 重写 data/increments/0008-performance-setlists.sql
+pnpm derive:setlists --check  # CI 用，只比对不写入
+pnpm report:setlist-review    # 重写 docs/reports/setlist-review.md（已存在时需 --force）
+```
+
+开发服务器已占用 Nuxt 锁时，另开的检查要跳过锁：
 
 ```bash
 NUXT_IGNORE_LOCK=1 pnpm lint
@@ -399,9 +423,9 @@ Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `np
 
 ### GitHub Actions
 
-`.github/workflows/ci.yml`（`ci`）在指向 `main` 的 push，以及所有 pull request 上运行。Node 22，`pnpm install --frozen-lockfile`，然后 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:catalog`、`pnpm report:setlist --check`、`pnpm report:producers --check`。
+`.github/workflows/ci.yml`（`ci`）在指向 `main` 的 push，以及所有 pull request 上运行。Node 22，`pnpm install --frozen-lockfile`，然后 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:catalog`、`pnpm derive:setlists --check`、`pnpm report:setlist --check`、`pnpm report:setlist-review --check`、`pnpm report:producers --check`。
 
-`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC 和手动触发时运行。它执行 `pnpm collect`、`pnpm snapshot:youtube`、`pnpm report:setlist` 与 `pnpm report:producers`，`data/increments` 或 `docs/reports` 有差异时由 `github-actions[bot]` 提交并推送。
+`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC 和手动触发时运行。它执行 `pnpm collect`、`pnpm collect:producers`、`pnpm derive:setlists`、`pnpm snapshot:youtube`、`pnpm report:setlist` 与 `pnpm report:producers`，`data/increments` 或 `docs/reports` 有差异时由 `github-actions[bot]` 提交并推送。待确认清单不在自动提交范围内：它可能已被人勾选，需要人工跑 `pnpm report:setlist-review`。
 
 ## 协作与提交约定
 

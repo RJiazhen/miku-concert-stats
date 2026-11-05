@@ -1,4 +1,5 @@
 import { performanceSchedules, showsForNotes } from './event-schedule.ts'
+import { catalogDayNight, derivedItemSongIds } from './performance-setlists.ts'
 import type { RotationReview } from './rotation.ts'
 import type { Catalog } from './types.ts'
 
@@ -6,29 +7,28 @@ import type { Catalog } from './types.ts'
  * Coverage of one song inside one 演出.
  *
  * A 演出 is one `performances` row (one VocaDB release event / one city stop). Its 场次 are the
- * calendar days it covers, split into 日场 / 夜场 when a note proves the day had two shows.
- * The 出场记录 table lists one row per 演出, so the coverage printed there now answers
- * "did this song appear at every 场次 of this 演出?" rather than the old question
- * "at how many city stops of this series year?".
+ * calendar days it covers, split into 日场 / 夜场 when the notes or a hand-checked schedule say
+ * the day had two shows. The 出场记录 table lists one row per 演出, so the coverage printed
+ * there answers "did this song appear at every 場次 of this 演出?".
  */
 export type ShowCoverage = {
-  /** 场次 of the 演出; the denominator. */
+  /** 場次 of the 演出; the denominator. */
   total: number
-  /** Those 场次 a `listed` line containing the song is attributed to. */
+  /** Those 場次 the song appears in; the numerator. */
   covered: number
 }
 
 /**
- * Counts how many 场次 of each 演出 performed a song, keyed by performance id.
+ * Counts how many 場次 of each 演出 performed a song, keyed by performance id.
  *
- * The denominator is the 场次 count of that one 演出, because a 演出 without a start date has
- * no 场次 and gives no evidence either way. The numerator unions the 场次 that the song's
- * `listed` lines cover: `showsForNotes` narrows a line by `Day N`, a half, or a show number,
- * and otherwise credits every 场次 of the run. Every row of a song therefore carries the
- * coverage of its own 演出; there is no series-year total any more.
+ * The numerator reads the derived 場次 layer (`performance_show_setlist_items`), which already
+ * resolved every setlist note, so a shared list's replacement songs no longer count for the
+ * cities that never played them. The denominator is the 場次 count of that one 演出, using the
+ * same day/night dates the derivation used. A 演出 without a start date has no 場次 and gives
+ * no evidence either way, so it is absent from the result.
  *
- * @param catalog Loaded catalog, for performances and `listed` setlist links.
- * @param review Rotation review of the same catalog.
+ * @param catalog Loaded catalog, for the derived rows and the 演出 list.
+ * @param review Rotation review of the same catalog, used for 場次 without a derived row.
  * @param songIds Song ids to credit, usually every id of a merged variant group.
  */
 export const showCoverage = (
@@ -40,21 +40,33 @@ export const showCoverage = (
   const wanted = new Set(songIds)
   if (wanted.size === 0) return result
 
-  const schedules = performanceSchedules(catalog, review)
+  const schedules = performanceSchedules(catalog, review, catalogDayNight(catalog))
+
+  /** 場次 of each 演出 where the song appears. */
+  const coveredByPerformance = new Map<number, Set<string>>()
+  const derivedPerformances = new Set<number>()
+  for (const item of catalog.performanceShowSetlistItems) {
+    derivedPerformances.add(item.performance_id)
+    const songIdsOfItem = derivedItemSongIds(catalog, item)
+    if (!songIdsOfItem.some((songId) => wanted.has(songId))) continue
+    const covered = coveredByPerformance.get(item.performance_id) ?? new Set<string>()
+    covered.add(item.show_key)
+    coveredByPerformance.set(item.performance_id, covered)
+  }
+
+  // Catalogs without a derived layer (fixtures, older builds) fall back to reading the notes.
   const performanceById = new Map(catalog.performances.map((row) => [row.id, row]))
   const lineByKey = new Map(review.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
-
   const carryingLines = new Set<string>()
   for (const link of catalog.setlistItemSongs) {
     if (link.role !== 'listed' || !wanted.has(link.song_id)) continue
     carryingLines.add(`${link.song_list_id}:${link.position}`)
   }
-
-  const coveredByPerformance = new Map<number, Set<string>>()
   for (const key of carryingLines) {
     const line = lineByKey.get(key)
     if (!line) continue
     for (const performanceId of line.performanceIds) {
+      if (derivedPerformances.has(performanceId)) continue
       const performance = performanceById.get(performanceId)
       if (!performance) continue
       const shows = schedules.get(performanceId) ?? []
@@ -81,7 +93,7 @@ export const showCoverage = (
  * Chinese 备注 text for one appearance row's 演出 coverage, or null to show nothing.
  *
  * Full coverage reads `本演出全部 N 场`; partial coverage reads `N 场中 M 场` so the numbers
- * cannot be misread as show indices. A single-场次 演出 returns null because `本演出全部 1 场`
+ * cannot be misread as show indices. A single-場次 演出 returns null because `本演出全部 1 场`
  * is noise on every row. When the row's own note already failed to pick a show inside one city
  * (`city-only when city has several shows: N`), the `共 N 场` warning owns the numbers for that
  * row and this figure is suppressed, so the cell never prints two different totals.

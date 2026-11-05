@@ -16,6 +16,8 @@
   "collect:vocalists": "tsx scripts/vocadb/vocalists.ts",
     "collect:producers": "tsx scripts/vocadb/producers.ts",
     "report:setlist": "tsx scripts/setlist-diff-report.ts",
+    "report:setlist-review": "tsx scripts/setlist-review-report.ts",
+    "derive:setlists": "tsx scripts/derive-performance-setlists.ts",
     "report:producers": "tsx scripts/producer-conflict-report.ts",
     "snapshot:youtube": "tsx scripts/snapshot-youtube.ts"
   },

@@ -161,6 +161,12 @@ describe('curated day/night seam', () => {
     snapshots: [],
     milestones: [],
     formulas: [],
+  performanceSetlists: [],
+  performanceSetlistSources: [],
+  performanceShowSetlists: [],
+  performanceShowSetlistItems: [],
+  medleys: [],
+  medleySongs: [],
   })
 
   it('defaults to one 场次 per day when no curated schedule is supplied', () => {

@@ -1,5 +1,6 @@
 import { BANDS, bandForCount } from './bands.ts'
 import { performanceSchedules, showsForNotes } from './event-schedule.ts'
+import { derivedItemSongIds } from './performance-setlists.ts'
 import { reviewRotations } from './rotation.ts'
 import { emptySongVariantIndex, type SongVariantIndex } from './song-variants.ts'
 import type {
@@ -7,11 +8,25 @@ import type {
   Catalog,
   CompareGrouping,
   PerformanceRow,
+  PerformanceShowSetlistItemRow,
+  PerformanceShowSetlistRow,
   Platform,
   SongRow,
   VideoRow,
   ViewSnapshotRow,
 } from './types.ts'
+
+/** Reason codes of one derived 場次, parsed from its JSON column. */
+const reasonsOfDerivedShow = (row: PerformanceShowSetlistRow | undefined): string[] => {
+  if (!row || row.uncertain === 0) return []
+  try {
+    const parsed: unknown = JSON.parse(row.reasons)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((value): value is string => typeof value === 'string')
+  } catch {
+    return []
+  }
+}
 
 /** One song's representative video and latest view count on a platform. */
 export type SongPlayback = {
@@ -393,6 +408,14 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
   const rotation = reviewRotations(catalog)
   const lineByKey = new Map(rotation.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
   const schedules = performanceSchedules(catalog, rotation)
+  // The derived 場次 layer already resolved every note, so counts read it directly when present.
+  const derivedByPerformance = new Map<number, PerformanceShowSetlistItemRow[]>()
+  for (const item of catalog.performanceShowSetlistItems) {
+    const bucket = derivedByPerformance.get(item.performance_id) ?? []
+    bucket.push(item)
+    derivedByPerformance.set(item.performance_id, bucket)
+  }
+  const derivedShowByKey = new Map(catalog.performanceShowSetlists.map((row) => [row.show_key, row]))
 
   const buckets = new Map<number, RankingBucket>()
   /** Records one 场次 or 演出 toward a song; `key` dedupes within the bucket and uncertainty is kept in both modes. */
@@ -427,6 +450,18 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
     if (listId === null) continue
     const year = performanceYear(performance.start_date)
     const shows = schedules.get(performance.id) ?? []
+    const derived = derivedByPerformance.get(performance.id)
+    if (derived !== undefined && derived.length > 0) {
+      for (const item of derived) {
+        const reasons = reasonsOfDerivedShow(derivedShowByKey.get(item.show_key))
+        for (const songId of derivedItemSongIds(catalog, item)) {
+          const canonical = variants.canonicalSongId(songId)
+          const key = mode === 'event' ? String(performance.id) : item.show_key
+          addAppearance(canonical, key, performance.series_id, performance.id, year, reasons)
+        }
+      }
+      continue
+    }
     for (const link of catalog.setlistItemSongs) {
       if (link.song_list_id !== listId || !itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
       if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue

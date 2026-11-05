@@ -256,5 +256,11 @@ const lengthCatalog = (): Catalog => {
     snapshots: [],
     milestones: [],
     formulas: [],
+  performanceSetlists: [],
+  performanceSetlistSources: [],
+  performanceShowSetlists: [],
+  performanceShowSetlistItems: [],
+  medleys: [],
+  medleySongs: [],
   }
 }

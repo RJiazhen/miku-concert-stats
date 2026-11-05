@@ -3,16 +3,24 @@ import type {
   ConversionFormulaRow,
   EditionPremiereRow,
   MedleyQuarantineRow,
+  MedleyRow,
+  MedleySongRow,
   MilestoneRow,
   PerformanceLinkRow,
   PerformanceRole,
   PerformanceRow,
+  PerformanceSetlistRow,
+  PerformanceSetlistSourceRow,
+  PerformanceShowSetlistItemRow,
+  PerformanceShowSetlistRow,
   Platform,
   Queryable,
   ReleaseMedium,
   SeriesRow,
+  SetlistConfidence,
   SetlistItemRow,
   SetlistItemSongRow,
+  SetlistResolution,
   SetlistSource,
   SongListRow,
   SongProducerCredit,
@@ -90,6 +98,56 @@ const releaseMedium = (row: SqlRow): ReleaseMedium | null => {
   if (value === undefined || value === null) return null
   if (value === 'bluray' || value === 'cd' || value === 'dvd') return value
   throw new Error(`Unknown release medium ${String(value)}`)
+}
+
+/** Narrows the derived source-kind column, which mirrors `song_lists.source`. */
+const derivedSourceKind = (row: SqlRow): SetlistSource => {
+  const value = text(row, 'source_kind')
+  if (value === 'vocadb' || value === 'album') return value
+  throw new Error(`Unknown derived source kind ${value}`)
+}
+
+/** Narrows an attribution method column. */
+const setlistResolution = (row: SqlRow): SetlistResolution => {
+  const value = text(row, 'resolution')
+  if (value === 'vocadb-note' || value === 'vocadb-shared' || value === 'external' || value === 'unresolved') return value
+  throw new Error(`Unknown setlist resolution ${value}`)
+}
+
+/** Narrows a source confidence column. */
+const setlistConfidence = (row: SqlRow): SetlistConfidence => {
+  const value = text(row, 'confidence')
+  if (value === 'high' || value === 'medium' || value === 'low') return value
+  throw new Error(`Unknown source confidence ${value}`)
+}
+
+/** Narrows the derived-row evidence column. */
+const derivedEvidence = (row: SqlRow): 'note' | 'shared' | 'curated' => {
+  const value = text(row, 'evidence')
+  if (value === 'note' || value === 'shared' || value === 'curated') return value
+  throw new Error(`Unknown derived evidence ${value}`)
+}
+
+/** Narrows the derived 场次 half column. */
+const showHalf = (row: SqlRow): 'day' | 'night' | null => {
+  const value = row.half
+  if (value === undefined || value === null) return null
+  if (value === 'day' || value === 'night') return value
+  throw new Error(`Unknown show half ${String(value)}`)
+}
+
+/** Whether a performance's source rows changed in the derived layer. */
+const derivedChange = (row: SqlRow): 'none' | 'filtered' | 'curated' => {
+  const value = text(row, 'change')
+  if (value === 'none' || value === 'filtered' || value === 'curated') return value
+  throw new Error(`Unknown derived change ${value}`)
+}
+
+/** Whether a derived 演出 is complete, partial, conflicted, or fully inherited. */
+const derivedStatus = (row: SqlRow): 'complete' | 'partial' | 'conflict' | 'inherited' => {
+  const value = text(row, 'status')
+  if (value === 'complete' || value === 'partial' || value === 'conflict' || value === 'inherited') return value
+  throw new Error(`Unknown derived status ${value}`)
 }
 
 /** Loads every catalog table. Aggregation stays outside SQL. */
@@ -240,6 +298,65 @@ export const loadCatalog = (db: Queryable): Catalog => {
     formula_json: textOrNull(row, 'formula_json'),
     reason: text(row, 'reason'),
   }))
+  const performanceSetlists = db.all('SELECT * FROM performance_setlists ORDER BY performance_id').map((row): PerformanceSetlistRow => ({
+    performance_id: int(row, 'performance_id'),
+    source_list_id: int(row, 'source_list_id'),
+    source_kind: derivedSourceKind(row),
+    change: derivedChange(row),
+    status: derivedStatus(row),
+    resolution: setlistResolution(row),
+    source_row_count: int(row, 'source_row_count'),
+    day_night_dates: textOrNull(row, 'day_night_dates'),
+    conflict: int(row, 'conflict'),
+    pending_review: int(row, 'pending_review'),
+    note: textOrNull(row, 'note'),
+  }))
+  const performanceSetlistSources = db
+    .all('SELECT * FROM performance_setlist_sources ORDER BY performance_id, url')
+    .map((row): PerformanceSetlistSourceRow => ({
+      performance_id: int(row, 'performance_id'),
+      url: text(row, 'url'),
+      title: text(row, 'title'),
+      accessed_at: text(row, 'accessed_at'),
+      confidence: setlistConfidence(row),
+      note: textOrNull(row, 'note'),
+      conflict: int(row, 'conflict'),
+    }))
+  const performanceShowSetlists = db
+    .all('SELECT * FROM performance_show_setlists ORDER BY performance_id, show_key')
+    .map((row): PerformanceShowSetlistRow => ({
+      performance_id: int(row, 'performance_id'),
+      show_key: text(row, 'show_key'),
+      date: textOrNull(row, 'date'),
+      half: showHalf(row),
+      item_count: int(row, 'item_count'),
+      omitted_count: int(row, 'omitted_count'),
+      uncertain: int(row, 'uncertain'),
+      reasons: text(row, 'reasons'),
+    }))
+  const performanceShowSetlistItems = db
+    .all('SELECT * FROM performance_show_setlist_items ORDER BY performance_id, show_key, position')
+    .map((row): PerformanceShowSetlistItemRow => ({
+      performance_id: int(row, 'performance_id'),
+      show_key: text(row, 'show_key'),
+      position: int(row, 'position'),
+      source_position: intOrNull(row, 'source_position'),
+      song_id: intOrNull(row, 'song_id'),
+      medley_id: intOrNull(row, 'medley_id'),
+      evidence: derivedEvidence(row),
+      notes: textOrNull(row, 'notes'),
+    }))
+  const medleys = db.all('SELECT * FROM medleys ORDER BY id').map((row): MedleyRow => ({
+    id: int(row, 'id'),
+    name: text(row, 'name'),
+    note: textOrNull(row, 'note'),
+    source_url: text(row, 'source_url'),
+  }))
+  const medleySongs = db.all('SELECT * FROM medley_songs ORDER BY medley_id, position').map((row): MedleySongRow => ({
+    medley_id: int(row, 'medley_id'),
+    position: int(row, 'position'),
+    song_id: int(row, 'song_id'),
+  }))
   return {
     sources,
     series,
@@ -255,5 +372,11 @@ export const loadCatalog = (db: Queryable): Catalog => {
     snapshots,
     milestones,
     formulas,
+    performanceSetlists,
+    performanceSetlistSources,
+    performanceShowSetlists,
+    performanceShowSetlistItems,
+    medleys,
+    medleySongs,
   }
 }

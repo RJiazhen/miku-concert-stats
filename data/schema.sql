@@ -136,6 +136,87 @@ CREATE TABLE medley_quarantine (
   PRIMARY KEY (song_list_id, position)
 );
 
+-- Derived 演出 layer, one row per performance. VocaDB stores one setlist object for a whole
+-- run, so this layer records which 场次 rows were kept and where the attribution came from.
+-- External sources live here and not per 场次: every lookup is keyed by performance.
+CREATE TABLE performance_setlists (
+  performance_id INTEGER PRIMARY KEY,
+  -- Source song list this 演出's rows were derived from.
+  source_list_id INTEGER NOT NULL,
+  source_kind TEXT NOT NULL,
+  -- 'none' when every source row applies, 'filtered' when some were dropped, 'curated' when a
+  -- hand-checked correction changed the result.
+  change TEXT NOT NULL,
+  status TEXT NOT NULL,
+  -- 'vocadb-note' (notes name a date or half), 'vocadb-shared' (no note at all),
+  -- 'external' (an outside source located it), 'unresolved' (nothing did).
+  resolution TEXT NOT NULL,
+  -- Row count of the source list, so a page can print "本场 25 首 / 源 29 行".
+  source_row_count INTEGER NOT NULL,
+  -- JSON array of dates this 演出 was verified to have a daytime and a night-time show.
+  day_night_dates TEXT,
+  -- 1 when an outside source disagrees with VocaDB or with docs/data-issues.md and nobody ruled yet.
+  conflict INTEGER NOT NULL,
+  -- 1 when the attribution rests only on non-high-confidence sources, so a human should review it.
+  pending_review INTEGER NOT NULL,
+  note TEXT
+);
+
+-- Outside evidence behind one 演出's attribution. A 演出 may cite several URLs.
+CREATE TABLE performance_setlist_sources (
+  performance_id INTEGER NOT NULL,
+  url TEXT NOT NULL,
+  title TEXT NOT NULL,
+  accessed_at TEXT NOT NULL,
+  confidence TEXT NOT NULL,
+  note TEXT,
+  conflict INTEGER NOT NULL,
+  PRIMARY KEY (performance_id, url)
+);
+
+-- One 场次 of the derived layer. Only parser facts; no sources here.
+CREATE TABLE performance_show_setlists (
+  performance_id INTEGER NOT NULL,
+  show_key TEXT NOT NULL,
+  date TEXT,
+  half TEXT,
+  item_count INTEGER NOT NULL,
+  omitted_count INTEGER NOT NULL,
+  uncertain INTEGER NOT NULL,
+  reasons TEXT NOT NULL,
+  PRIMARY KEY (performance_id, show_key)
+);
+
+-- The ordered setlist of one 场次. `song_id` and `medley_id` are mutually exclusive:
+-- a medley row points at a medley entry instead of a single song.
+CREATE TABLE performance_show_setlist_items (
+  performance_id INTEGER NOT NULL,
+  show_key TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  source_position INTEGER,
+  song_id INTEGER,
+  medley_id INTEGER,
+  evidence TEXT NOT NULL,
+  notes TEXT,
+  PRIMARY KEY (performance_id, show_key, position),
+  CHECK ((song_id IS NULL) <> (medley_id IS NULL))
+);
+
+-- One complete medley entry. Empty until a source line splits into several verifiable songs.
+CREATE TABLE medleys (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  note TEXT,
+  source_url TEXT NOT NULL
+);
+
+CREATE TABLE medley_songs (
+  medley_id INTEGER NOT NULL,
+  position INTEGER NOT NULL,
+  song_id INTEGER NOT NULL,
+  PRIMARY KEY (medley_id, position)
+);
+
 CREATE TABLE videos (
   vocadb_pv_id INTEGER PRIMARY KEY,
   song_id INTEGER NOT NULL,
