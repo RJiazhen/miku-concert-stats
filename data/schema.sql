@@ -99,10 +99,11 @@ CREATE TABLE song_vocalists (
 -- That set mirrors VocaDB's own "Producers" section (https://wiki.vocadb.net/docs/song-entry-page);
 -- Lyricist is excluded because VocaDB groups lyricists under "Other artists", and a "Default"
 -- role means "inherit the artist type's default roles" rather than a named credit.
--- Display precedence: the 制作人 column still uses `producerCredit(artist_string)` first,
--- because it keeps labels and circles (e.g. supercell, OTOIRO) that VocaDB does not classify
--- as Producer. These rows are the fallback when that free text is empty, and the source for
--- the ranking producer filter.
+-- Publisher, Illustrator, Animator, Mixer, Mastering, Instrumentalist, and label- or circle-only
+-- credits are not producers either; tuning (VoiceManipulator / 調声) is deliberately kept.
+-- Display precedence: these rows lead the 制作人 column and the ranking producer filter, because
+-- they only carry producer-side jobs. `producerCredit(artist_string)` is the fallback for songs
+-- that have no structured row at all (e.g. Anamanaguchi), never an override.
 CREATE TABLE song_producers (
   song_id INTEGER NOT NULL,
   artist_id INTEGER NOT NULL,
