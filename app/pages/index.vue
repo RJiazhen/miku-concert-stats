@@ -10,9 +10,8 @@ import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { splitCharacterChips } from '~~/shared/character-chips.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
-import { availableProducers } from '~~/shared/producer-options.ts'
+import { availableProducers, producerNamesForSongs } from '~~/shared/producer-options.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
-import { producerCredit } from '~~/shared/credit.ts'
 import {
   availablePerformanceYears,
   canEndRangeAt,
@@ -70,7 +69,7 @@ type RankedSong = {
   songId: number
   rank: number
   name: string
-  /** Producer credit, without the singers already shown in 歌手; also the tooltip text. */
+  /** Producer names shown in 制作人, joined for display; also the tooltip text. */
   artists: string
   /** Producer names shown in 制作人 and matched by the producer filter. */
   producerList: string[]
@@ -130,21 +129,18 @@ const ranked = computed<RankedSong[]>(() => {
     const characters = new Set<string>()
     for (const song of groupSongs) for (const name of songCharacters(song)) characters.add(name)
     const characterList = [...characters]
-    const structuredProducers = new Set<string>()
-    for (const song of groupSongs) for (const credit of song.producers ?? []) structuredProducers.add(credit.name)
-    const structuredProducerNames = [...structuredProducers]
+    const producerList = producerNamesForSongs(groupSongs)
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
     const title = formatSongTitle(row.name, translationFor(row.songId), language.value)
     const chipSplit = splitCharacterChips(characterList)
-    const credit = producerCredit(row.artists)
     return {
       songId: row.songId,
       rank: index + 1,
       name: row.name,
-      artists: credit ?? (structuredProducerNames.join(', ') || '—'),
-      producerList: credit === null ? structuredProducerNames : credit.split(', '),
+      artists: producerList.join(', ') || '—',
+      producerList,
       characterList,
       count: row.count,
       performanceCount: row.performanceCount,

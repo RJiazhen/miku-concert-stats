@@ -36,6 +36,8 @@ export const catalogSongIds = (root = repoRoot()): number[] => {
  * Verified against VocaDB's own documentation: the song page lists the "Producers" section as
  * `category "Producer"` (artist types Music producer / Cover artist) **or** a credit with the
  * roles Arranger, Composer or Voice manipulator, while Lyricist belongs to "Other artists".
+ * `VoiceManipulator` (調声 / 調音) is deliberately kept: it is the vocal tuning credit, which is
+ * part of production, not a performance or publishing credit.
  * Sources: https://wiki.vocadb.net/docs/song-entry-page and
  * https://wiki.vocadb.net/docs/song-entry-editing ("the artist's type determines their default roles").
  */
@@ -64,9 +66,15 @@ const producerEvidence = (credit: ApiArtist): string[] => {
  * Mapping rule (documented in docs/architecture.md):
  * - keep a credit when `categories` contains `Producer`, or `roles` contains
  *   `Composer` / `Arranger` / `VoiceManipulator` (all case-insensitive). This mirrors the
- *   "Producers" section of https://wiki.vocadb.net/docs/song-entry-page; Lyricist is not part
- *   of it (VocaDB lists lyricists under "Other artists"), so `roles` is the evidence field and
- *   `categories` is the group membership the VocaDB UI also uses;
+ *   "Producers" section of https://wiki.vocadb.net/docs/song-entry-page;
+ * - deliberately exclude every non-producer job, even when VocaDB lists the credit on the song:
+ *   Publisher, Illustrator, Animator, Lyricist, Mixer, Mastering, Instrumentalist, and
+ *   Label- or Circle-only credits. Their categories / roles never enter `PRODUCER_ROLES`, so a
+ *   Google (`Publisher`), `momo` (`Illustrator`) or OTOIRO / supercell (`Circle` or `Label`)
+ *   credit is dropped unless VocaDB also names a producer-side job. `VoiceManipulator` (調声 /
+ *   調音) is kept on purpose as part of production. Lyricist is excluded because VocaDB lists
+ *   lyricists under "Other artists", so `roles` is the evidence field and `categories` is the
+ *   group membership the VocaDB UI also uses;
  * - `roles: "Default"` in the API means the credit inherits the artist type's default roles
  *   (a Music producer defaults to Composer/Arranger), so it is never treated as evidence by itself;
  * - `roles` stores the auditable evidence: `producer` for the category plus the matched

@@ -31,6 +31,25 @@ describe('song producer collection', () => {
     ])
   })
 
+  it('drops every non-producer job and keeps VoiceManipulator tuning', () => {
+    expect(producersOfSong({
+      id: 6,
+      name: 'Song',
+      artists: [
+        { id: 1, name: 'Google', categories: 'Publisher', roles: 'Publisher' },
+        { id: 2, name: 'momo', categories: 'Illustrator', roles: 'Illustrator' },
+        { id: 3, name: 'Animator', categories: 'Animator', roles: 'Animator' },
+        { id: 4, name: 'Lyricist', categories: 'Other', roles: 'Lyricist' },
+        { id: 5, name: 'Mixer', categories: 'Other', roles: 'Mixer' },
+        { id: 6, name: 'Mastering', categories: 'Other', roles: 'Mastering' },
+        { id: 7, name: 'Instrumentalist', categories: 'Instrumentalist', roles: 'Instrumentalist' },
+        { id: 8, name: 'OTOIRO', categories: 'Circle', roles: 'Default' },
+        { id: 9, name: 'Label', categories: 'Label', roles: 'Default' },
+        { id: 10, name: 'Tuner', categories: 'Other', roles: 'VoiceManipulator' },
+      ],
+    })).toEqual([{ artistId: 10, name: 'Tuner', roles: 'voicemanipulator' }])
+  })
+
   it('keeps a Producer-category credit whose role is only the inherited Default', () => {
     expect(producersOfSong({
       id: 5,

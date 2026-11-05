@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import Database from 'better-sqlite3'
 import { albumSongListId } from '../shared/album-setlists.ts'
 import { loadCatalog } from '../shared/catalog.ts'
+import { producerCredit } from '../shared/credit.ts'
+import { producerNamesFor } from '../shared/producer-options.ts'
 import type { SqlRow } from '../shared/types.ts'
 import { applyCatalogSql } from '../scripts/build-catalog.ts'
 
@@ -49,6 +51,29 @@ describe('committed catalog', () => {
       expect(handInHand?.producers).toContainEqual({ artistId: 89, name: 'kz', roles: 'producer, composer' })
       expect(catalog.songs.every((song) => Array.isArray(song.producers))).toBe(true)
       expect(catalog.songs.some((song) => song.producers?.length === 0)).toBe(true)
+    } finally {
+      db.close()
+    }
+  })
+
+  it('shows structured producers first and keeps the free-text fallback for uncovered songs', () => {
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      const tellYourWorld = catalog.songs.find((song) => song.id === 399060)
+      if (!tellYourWorld) throw new Error('Missing song 399060')
+      // The free text credits `Google`, which VocaDB marks as Publisher, so it must not be shown.
+      expect(producerCredit(tellYourWorld.artist_string)).toBe('kz, Google')
+      expect(producerNamesFor(tellYourWorld)).toEqual(['kz'])
+
+      const anamanaguchi = catalog.songs.find((song) => song.id === 115016)
+      if (!anamanaguchi) throw new Error('Missing song 115016')
+      expect(anamanaguchi.producers).toEqual([])
+      expect(producerNamesFor(anamanaguchi)).toEqual(['Anamanaguchi'])
     } finally {
       db.close()
     }
