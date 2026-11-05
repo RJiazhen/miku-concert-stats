@@ -64,21 +64,6 @@ const datesOf = (shows: readonly PerformanceShowSetlistRow[]): string[] => {
   return [...dates].sort()
 }
 
-/** Most common item count among the 演出 of one source list. */
-const modeLength = (rows: readonly { performance_id: number; item_count: number }[]): number => {
-  const counts = new Map<number, number>()
-  for (const row of rows) counts.set(row.item_count, (counts.get(row.item_count) ?? 0) + 1)
-  let best = 0
-  let bestTimes = -1
-  for (const [count, times] of counts) {
-    if (times > bestTimes || (times === bestTimes && count > best)) {
-      best = count
-      bestTimes = times
-    }
-  }
-  return best
-}
-
 /** Groups rows by one key, preserving first-seen order. */
 const groupBy = <T>(rows: readonly T[], key: (row: T) => string): Map<string, T[]> => {
   const map = new Map<string, T[]>()
@@ -166,19 +151,17 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
     }
   })
 
-  // C: 演出 whose row count differs from the usual length of its source list.
-  const byList = groupBy(catalog.performanceShowSetlists, (row) => {
-    const performance = performanceById.get(row.performance_id)
-    return String(performance?.song_list_id ?? 0)
-  })
-  const sectionC: ReviewEntry[] = []
-  for (const [listId, rows] of byList) {
-    const expected = modeLength(rows)
-    for (const row of rows) {
-      if (row.item_count === expected) continue
+  // C: 場次 whose row count differs from the usual length of its source list.
+  // Read the derived rows, because lengths only compare meaningfully per 場次.
+  const sectionC: ReviewEntry[] = catalog.performanceShowSetlists
+    .filter((row) => row.reasons.includes('setlist length mismatch'))
+    .sort((left, right) => left.performance_id - right.performance_id || left.show_key.localeCompare(right.show_key))
+    .map((row, index) => {
       const performance = performanceById.get(row.performance_id)
-      sectionC.push({
-        id: `C-${sectionC.length + 1}`,
+      const listId = performance?.song_list_id ?? 0
+      const expected = /expected (\d+)/.exec(row.reasons)?.[1] ?? '?'
+      return {
+        id: `C-${index + 1}`,
         title: `${performance?.name ?? String(row.performance_id)} · ${showLabel(row)}`,
         facts: [
           `源歌单：[${listId}](https://vocadb.net/L/${listId})`,
@@ -193,9 +176,8 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
           '无法确认，保留并标记不确定',
           '其它（写在下方补充说明）',
         ],
-      })
-    }
-  }
+      }
+    })
 
   // D: source lists with no usable note at all, inherited whole by every 演出.
   const inherited = catalog.performanceSetlists.filter((row) => row.status === 'inherited')

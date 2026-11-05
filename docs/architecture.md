@@ -78,6 +78,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `data/performance-setlists.json` 的 `performances.<id>` 支持四组时间修正：`dayNight`（该日昼 + 夜两场）、`noShowDates`（该日只有企划展、没有 live）、`halves`（该日只有昼场或只有夜场，例如首日仅夜场）、`singleShowDates`（该日核实为只有一场）。四者都物化为 `day_night_dates` / `no_show_dates` / `single_show_dates`，场次由 `performanceSchedules` 一次算好，页面与统计直接读 `performance_show_setlists`。
 
+`lists.<songListId>` 是逐行更正，全部要求带 `source` 与 `accessedAt`：`notes`（用百科的逐日歌单改写 VocaDB 写错的城市 / 日 / 半场的备注）、`dropShows`（备注写了某场但该场其实没演，按场次 key 剔除）、`explainedLengths`（该场曲目数不同是有意为之，例如香港 23+1 安可、台湾 23+2，记下原因后不再报长度警告）、`assign` / `exclude` / `extra`（人工指定、丢弃、追加曲目）。`citiesPlayOneSetlist` 表示来源确认「每个城市只演一套节目」，此时只写城市的备注是准确的，不再标 `city-only when city has several shows`。
+
 来源查证顺序是「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」。**查到就直接采用，不再要求二次确认**：`pending_review` 只表示归属仍然悬空（没有任何来源定位到这一场，或来源之间互相矛盾），不是「来源置信度不高」。每条来源的 `url` / `accessed_at` / `confidence` / `note` 都留在 `performance_setlist_sources`，`/shows` 页脚按演出展示，`docs/setlist-confirmation.md` 第 1 节与 `docs/reports/setlist-review.md` 的 F 节各有一份汇总，只供核对来源、不需要逐条回复。
 
 `shared/stats.ts`：
@@ -138,7 +140,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正，以及 F 数据来源记录（已采用，不需要确认）。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
 
-`scripts/confirmation-report.py`（`pnpm report:confirmation`，Python + uv）写出给人看的 `docs/setlist-confirmation.md`：把同一批待确认数据按「已采用的 wiki 数据 / 缺日夜场证据 / 单场行数异常 / 备注只到城市 / 整份无备注 / 上游无歌单」重新分组，每节末尾留填写区。两份文件的分工是：`setlist-review.md` 逐条列出供程序校验格式，`setlist-confirmation.md` 按决策类型归并供人逐节回复。
+`scripts/confirmation-report.py`（`pnpm report:confirmation`，Python + uv）写出给人看的 `docs/setlist-confirmation.md`：数据来源记录、百科也没写逐日时刻的演出、本轮按百科修正的冲突、城市级定案、整份无备注、上游无歌单。每节末尾留填写区，冲突节按「原问题 / 处理 / 来源」逐条列出。`scripts/build-setlist-curation.py`（`uv run`）是核实结果的唯一入口，它读 catalog 的原始备注、套用更正文案后再写出 `data/performance-setlists.json`。两份文件的分工是：`setlist-review.md` 逐条列出供程序校验格式，`setlist-confirmation.md` 按决策类型归并供人逐节回复。
 
 `shared/rotation.ts` 解析歌单备注，把一行分到共享该歌单的场次。空备注表示该歌单的全部演出且不算不确定。备注按 `/`、`／`、逗号、顿号、分号、换行切开，`8/31` 这类日期斜杠保留。城市来自 `CITY_ALIASES`，也会从演出名推导（`MIKU EXPO 2026 Glendale`、`…」in HAMAMATSU`），所以新增城市不必先改清单。识别 `day N` / `DAY 1 1st Show` / `1日目` / `第2天`、`初日`、`千秋楽` / `最終日`、`両日` / `全日`、裸日期（`2024-08-31`、`8/31`、`8月31日`）、昼夜 / 1st·2nd show。没有写城市的 `Day N` 会落到每个城市自己的第 N 天，而不是随便挑一个城市。`reviewRotations` 再做长度一致性检查，与众数不同的演出记入 `shows`。
 

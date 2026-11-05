@@ -44,8 +44,16 @@ const lengthSummary = computed<string>(() => {
 /** Sources cited for this 演出. */
 const sources = computed(() => props.catalog.performanceSetlistSources.filter((row) => row.performance_id === props.performanceId))
 
-/** Whether the data rests on a non-high-confidence source. */
+/** Whether the attribution is still open, so a reader should not treat the rows as settled. */
 const pendingReview = computed(() => setlist.value?.pending_review === 1)
+
+/** Source with the lowest confidence, used for the badge that says how the rows were located. */
+const bestConfidence = computed(() => {
+  const order = { high: 0, medium: 1, low: 2 } as const
+  const values = sources.value.map((row) => order[row.confidence])
+  if (values.length === 0) return null
+  return Object.entries(order).find(([, rank]) => rank === Math.max(...values))?.[0] ?? null
+})
 </script>
 
 <template>
@@ -71,7 +79,10 @@ const pendingReview = computed(() => setlist.value?.pending_review === 1)
         >
           沿用整份共用歌单
         </UBadge>
-        <UBadge v-if="pendingReview" color="warning" variant="subtle" size="sm">数据来自外部来源，待复核</UBadge>
+        <UBadge v-if="pendingReview" color="warning" variant="subtle" size="sm">场次归属仍待核实</UBadge>
+        <UBadge v-if="bestConfidence" color="neutral" variant="subtle" size="sm">
+          来源置信度 {{ bestConfidence }}
+        </UBadge>
         <UBadge v-if="setlist.conflict === 1" color="error" variant="subtle" size="sm">与既有结论存在冲突</UBadge>
         <ULink
           :to="`https://vocadb.net/L/${setlist.source_list_id}`"

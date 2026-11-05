@@ -62,6 +62,26 @@ export type ListCuration = {
   accessedAt?: string
   confidence?: SetlistConfidence
   /**
+   * Corrected note text for one source line, keyed by position.
+   * Use it when a wiki proves the VocaDB note named the wrong city, day, or half.
+   */
+  notes?: Record<string, string>
+  /**
+   * Shows a line must not appear in, keyed by position.
+   * Use it when a wiki proves the note over-claims: the line names a show that did not play it.
+   */
+  dropShows?: Record<string, string[]>
+  /**
+   * Show key to a one-line reason why its length differs from the other shows on purpose,
+   * for example `23 + 1 encore` on a stop where another city got a second encore.
+   */
+  explainedLengths?: Record<string, string>
+  /**
+   * Whether the cited source confirms each city played one programme across all of its shows.
+   * A city-only note such as `Osaka` is then exact, not an unresolved "which day" question.
+   */
+  citiesPlayOneSetlist?: boolean
+  /**
    * Source position to the shows it belongs to. `true` means every show of the 演出,
    * an array names `show_key` values.
    */
@@ -236,7 +256,12 @@ const parseListCuration = (value: unknown, songListId: number): ListCuration => 
     if (typeof record.note !== 'string') throw new Error(`Curation for song list ${songListId} note is not text`)
     parsed.note = record.note
   }
-  const hasCorrection = record.assign !== undefined || record.exclude !== undefined || record.extra !== undefined
+  const hasCorrection =
+    record.assign !== undefined ||
+    record.exclude !== undefined ||
+    record.extra !== undefined ||
+    record.notes !== undefined ||
+    record.dropShows !== undefined
   if (record.source !== undefined) {
     if (typeof record.source !== 'string' || !/^https?:\/\//.test(record.source)) {
       throw new Error(`Curation for song list ${songListId} source is not an http(s) url`)
@@ -255,6 +280,51 @@ const parseListCuration = (value: unknown, songListId: number): ListCuration => 
   }
   if (hasCorrection && (parsed.source === undefined || parsed.accessedAt === undefined)) {
     throw new Error(`Curation for song list ${songListId} changes rows but cites no source and accessedAt`)
+  }
+  if (record.notes !== undefined) {
+    if (record.notes === null || typeof record.notes !== 'object' || Array.isArray(record.notes)) {
+      throw new Error(`Curation for song list ${songListId} notes is not an object`)
+    }
+    const notes: Record<string, string> = {}
+    for (const [key, text] of Object.entries(record.notes as Record<string, unknown>)) {
+      if (!/^[1-9]\d*$/.test(key)) throw new Error(`Curation for song list ${songListId} notes key ${key} is not a position`)
+      if (typeof text !== 'string') throw new Error(`Curation for song list ${songListId} notes ${key} is not text`)
+      notes[key] = text
+    }
+    parsed.notes = notes
+  }
+  if (record.dropShows !== undefined) {
+    if (record.dropShows === null || typeof record.dropShows !== 'object' || Array.isArray(record.dropShows)) {
+      throw new Error(`Curation for song list ${songListId} dropShows is not an object`)
+    }
+    const dropShows: Record<string, string[]> = {}
+    for (const [key, value] of Object.entries(record.dropShows as Record<string, unknown>)) {
+      if (!/^[1-9]\d*$/.test(key)) throw new Error(`Curation for song list ${songListId} dropShows key ${key} is not a position`)
+      if (!Array.isArray(value) || value.length === 0 || !value.every((show) => typeof show === 'string')) {
+        throw new Error(`Curation for song list ${songListId} dropShows ${key} is not a list of show keys`)
+      }
+      dropShows[key] = value as string[]
+    }
+    parsed.dropShows = dropShows
+  }
+  if (record.citiesPlayOneSetlist !== undefined) {
+    if (typeof record.citiesPlayOneSetlist !== 'boolean') {
+      throw new Error(`Curation for song list ${songListId} citiesPlayOneSetlist is not a boolean`)
+    }
+    parsed.citiesPlayOneSetlist = record.citiesPlayOneSetlist
+  }
+  if (record.explainedLengths !== undefined) {
+    if (record.explainedLengths === null || typeof record.explainedLengths !== 'object' || Array.isArray(record.explainedLengths)) {
+      throw new Error(`Curation for song list ${songListId} explainedLengths is not an object`)
+    }
+    const explained: Record<string, string> = {}
+    for (const [key, text] of Object.entries(record.explainedLengths as Record<string, unknown>)) {
+      if (typeof text !== 'string' || text.trim() === '') {
+        throw new Error(`Curation for song list ${songListId} explainedLengths ${key} is not text`)
+      }
+      explained[key] = text
+    }
+    parsed.explainedLengths = explained
   }
   if (record.assign !== undefined) {
     if (record.assign === null || typeof record.assign !== 'object' || Array.isArray(record.assign)) {
@@ -419,6 +489,17 @@ export const validateCurationAgainstCatalog = (
     }
     for (const position of entry.exclude ?? []) {
       if (!positions.has(position)) throw new Error(`Curation for list ${songListId} excludes unknown position ${position}`)
+    }
+    for (const key of Object.keys(entry.notes ?? {})) {
+      if (!positions.has(Number(key))) throw new Error(`Curation for list ${songListId} rewrites unknown position ${key}`)
+    }
+    for (const [key, showKeys] of Object.entries(entry.dropShows ?? {})) {
+      if (!positions.has(Number(key))) throw new Error(`Curation for list ${songListId} drops unknown position ${key}`)
+      for (const showKey of showKeys) {
+        if (!showKeysByPerformance.has(showKey)) {
+          throw new Error(`Curation for list ${songListId} drops position ${key} from unknown show ${showKey}`)
+        }
+      }
     }
     for (const extra of entry.extra ?? []) {
       for (const showKey of extra.showKeys) {
@@ -592,6 +673,10 @@ export const buildPerformanceSetlists = (
         continue
       }
       const assign = listCuration?.assign?.[String(line.position)]
+      // A wiki may prove the VocaDB note named the wrong city, day, or half.
+      const correctedNote = listCuration?.notes?.[String(line.position)]
+      const effectiveNotes = correctedNote ?? line.notes
+      if (correctedNote !== undefined) curated = true
       let targets: PerformanceShow[]
       if (assign === true) {
         targets = showsOfRun
@@ -601,13 +686,21 @@ export const buildPerformanceSetlists = (
         targets = showsOfRun.filter((show) => allowed.has(show.key))
         curated = true
       } else {
-        targets = showsForNotes(line.notes, performance, showsOfRun)
+        targets = showsForNotes(effectiveNotes, performance, showsOfRun)
+      }
+      // A wiki may also prove the note over-claims: the show is named but never played it.
+      const dropped = listCuration?.dropShows?.[String(line.position)]
+      if (dropped !== undefined && dropped.length > 0) {
+        const skip = new Set(dropped)
+        targets = targets.filter((show) => !skip.has(show.key))
+        curated = true
       }
       if (targets.length === 0) continue
       const songIds = songIdsOfLine(catalog, listId, line.position)
       if (songIds.length === 0) continue
-      const shared = isSharedLine(line)
-      const evidence: PendingItem['evidence'] = Array.isArray(assign) || assign === true ? 'curated' : shared ? 'shared' : 'note'
+      const shared = effectiveNotes === null || effectiveNotes.trim() === '' ? true : isSharedLine({ ...line, notes: effectiveNotes })
+      const evidence: PendingItem['evidence'] =
+        Array.isArray(assign) || assign === true || correctedNote !== undefined ? 'curated' : shared ? 'shared' : 'note'
       for (const show of targets) {
         if (songIds.length === 1) {
           addItem(show.key, {
@@ -615,7 +708,7 @@ export const buildPerformanceSetlists = (
             songId: songIds[0] ?? null,
             medleyId: null,
             evidence,
-            notes: line.notes,
+            notes: effectiveNotes,
           })
           continue
         }
@@ -721,6 +814,9 @@ export const buildPerformanceSetlists = (
             //  - lengths are re-measured per 場次 at the end of the build.
             if (reason === 'day with day/night shows' && halvesKnown) continue
             if (reason.startsWith('setlist length mismatch')) continue
+            // A cited source may confirm the city played one programme, which settles the
+            // "which of this city's shows?" warning without changing which shows get the row.
+            if (reason.startsWith('city-only when city has several shows') && listCuration?.citiesPlayOneSetlist === true) continue
             reasons.add(reason)
           }
         }
@@ -769,6 +865,8 @@ export const buildPerformanceSetlists = (
   for (const row of shows) {
     const listId = listByPerformance.get(row.performance_id)
     if (listId === undefined || listId === null) continue
+    // A cited reason settles the difference: it is not an error to be flagged again.
+    if (curation.lists.get(listId)?.explainedLengths?.[row.show_key] !== undefined) continue
     const expected = expectedByList.get(listId)
     if (expected === undefined || row.item_count === expected) continue
     const reasons = new Set<string>(parseReasons(row.reasons))

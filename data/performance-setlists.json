@@ -588,15 +588,25 @@
       ]
     },
     "1940": {
-      "note": "Fandom 记为 6/26–6/27，VocaDB 记为 6/27–6/28，日期区间不一致，标冲突等裁决",
-      "conflict": true,
+      "note": "官方海报 6/27–6/28；萌娘百科：两天共四场（每天昼 + 夜）。Fandom 的 6/26–6/27 不采用",
+      "dayNight": [
+        "2015-06-27",
+        "2015-06-28"
+      ],
       "sources": [
         {
-          "url": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2015_in_SHANGHAI",
-          "title": "VocaDB Fandom: HATSUNE MIKU EXPO 2015 in SHANGHAI",
+          "url": "https://web.archive.org/web/20190722050158/http://www.scla.com.cn/hatsunemiku/",
+          "title": "SCLA 官方页（2019-07-22 存档）：初音未来2015上海演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "high",
+          "note": "官网海报写 6.27–6.28，与 VocaDB 一致；Fandom 的 6/26–6/27 是错的"
+        },
+        {
+          "url": "https://zh.moegirl.org.cn/HATSUNE_MIKU_EXPO_2015_in_Shanghai",
+          "title": "萌娘百科：HATSUNE MIKU EXPO 2015 in Shanghai",
           "accessedAt": "2026-11-05",
           "confidence": "medium",
-          "note": "写 6/26–6/27；VocaDB 的区间是 6/27–6/28"
+          "note": "6/27、6/28 各昼场 13:00 + 夜场 19:00，两天四场"
         }
       ]
     },
@@ -641,14 +651,22 @@
       ]
     },
     "2948": {
-      "note": "Fandom 只有日期区间 6/2–6/3，没有逐日时刻；按每天一场处理",
+      "note": "官方公演情报：6/2 昼 + 夜两场，6/3 只有昼场，共 3 场",
+      "dayNight": [
+        "2018-06-02"
+      ],
+      "halves": {
+        "2018-06-03": [
+          "day"
+        ]
+      },
       "sources": [
         {
           "url": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2018",
           "title": "VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2018",
           "accessedAt": "2026-11-05",
           "confidence": "medium",
-          "note": "仅给出 6/2–6/3，未写逐日时刻"
+          "note": "转载官方公演情报：6/2 開場 12:00 / 開演 13:00 与 開場 18:00 / 開演 19:00 两场；6/3 只有 開演 13:00 一场"
         }
       ]
     },
@@ -681,21 +699,101 @@
       ]
     },
     "2526": {
-      "note": "Fandom 只写 8/17 一天；VocaDB 记为 8/16–8/17。日期区间存疑，标冲突等裁决",
+      "note": "官方页：8/16、8/17 各一场，共 2 场。Fandom 只写 8/17，不采用",
       "singleShowDates": [
+        "2011-08-16",
         "2011-08-17"
       ],
-      "conflict": true,
       "sources": [
         {
-          "url": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2011_(Mikupa)/Sapporo",
-          "title": "VocaDB Fandom: Hatsune Miku Live Party 2011 (Mikupa)/Sapporo",
+          "url": "https://web.archive.org/web/20120512094239/http://5pb.jp/mikupa/index_sapporo.html",
+          "title": "5pb. 官方页（2012-05-12 存档）：ミクパ♪ 札幌",
           "accessedAt": "2026-11-05",
-          "confidence": "medium",
-          "note": "演出日只写 8/17；VocaDB 的区间是 8/16–8/17"
+          "confidence": "high",
+          "note": "日期 8/16–8/17，两天各一场，与 VocaDB 一致"
         }
       ]
     }
   },
-  "lists": {}
+  "lists": {
+    "9909": {
+      "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2021",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "萌娘百科 / VocaDB Fandom 的逐日歌单：大阪与东京 Day 1–3 各 25 首",
+      "notes": {
+        "15": "Day 1 OSAKA / Day 1 TOKYO"
+      }
+    },
+    "17933": {
+      "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2024",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "Fandom：大阪分「Day 1 & 3」与「Day 2」两套；VocaDB 少了 Day 3；福冈 / 东京 / 大阪各自的场次共用一套；大阪 Day 1 & 3 相同",
+      "notes": {
+        "4": "Fukuoka Day 2 / Tokyo Day 2 / Osaka Day 1 / Osaka Day 3",
+        "6": "Fukuoka Day 2 / Tokyo Day 2 / Osaka Day 1 / Osaka Day 3",
+        "21": "Fukuoka Day 2 / Tokyo Day 2 / Osaka Day 1 / Osaka Day 3",
+        "23": "Fukuoka Day 2 / Tokyo Day 2 / Osaka Day 1 / Osaka Day 3",
+        "25": "Fukuoka Day 2 / Tokyo Day 2 / Osaka Day 1 / Osaka Day 3",
+        "27": "Fukuoka Day 2 / Tokyo Day 2 / Osaka Day 1 / Osaka Day 3"
+      },
+      "citiesPlayOneSetlist": true
+    },
+    "16544": {
+      "source": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "Fandom 的三套歌单把第三套归给 San Jose Day 1；VocaDB 写成 Day 2",
+      "notes": {
+        "13": "San Jose (Day 1) / Phoenix (Day 2) / Denver (Day 2) / Austin / Washington / Detroit",
+        "17": "San Jose (Day 1) / Phoenix (Day 2) / Denver (Day 2) / Austin / Washington / Detroit / Mexico City",
+        "20": "San Jose (Day 1) / Phoenix (Day 2) / Denver (Day 2) / Austin / Washington / Detroit / Mexico City"
+      }
+    },
+    "31": {
+      "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2012_(Mikupa)/Hong_Kong_and_Taiwan",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "Fandom：23 首固定 + 香港 1 首安可、台湾 2 首安可",
+      "explainedLengths": {
+        "2524:2012-10-02": "香港 23 首 + 1 首安可 = 24 首（台湾多一首安可）"
+      }
+    },
+    "7852": {
+      "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2018",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "大阪与东京各一套 27 首歌单，各城市所有场次相同",
+      "citiesPlayOneSetlist": true
+    },
+    "7986": {
+      "source": "https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2018",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "北京 / 成都 / 上海各一套歌单，同城各场相同",
+      "citiesPlayOneSetlist": true
+    },
+    "9359": {
+      "source": "https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2019",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "A 版（上海、北京）与 B 版（成都、广州），同城各场相同",
+      "citiesPlayOneSetlist": true
+    },
+    "20912": {
+      "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2025",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "仙台 / 大阪 / 东京各自的场次共用一套",
+      "citiesPlayOneSetlist": true
+    },
+    "27886": {
+      "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2026",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "滨松 / 大阪 / 东京各自的场次共用一套",
+      "citiesPlayOneSetlist": true
+    }
+  }
 }

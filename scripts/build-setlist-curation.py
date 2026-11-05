@@ -8,9 +8,11 @@ Every entry carries the URL it came from, the day it was read, and a confidence 
 Run: uv run scripts/build-setlist-curation.py
 """
 import json
+import sqlite3
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+DB = ROOT / "public" / "data" / "catalog.sqlite"
 
 MM = "https://magicalmirai.com"
 MOE_2018 = "https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会"
@@ -36,6 +38,38 @@ def official(path: str, title: str) -> dict:
 def wiki(url: str, title: str, note: str) -> dict:
     """One fan-wiki source entry."""
     return {"url": url, "title": title, "accessedAt": ACCESSED, "confidence": "medium", "note": note}
+
+
+def official_page(url: str, title: str, note: str) -> dict:
+    """One official source that is not a magicalmirai.com ticket path, e.g. a web archive copy."""
+    return {"url": url, "title": title, "accessedAt": ACCESSED, "confidence": "high", "note": note}
+
+
+def source_note(list_id: int, position: int) -> str:
+    """Reads the VocaDB note of one source line, so a correction starts from the real text."""
+    db = sqlite3.connect(DB)
+    try:
+        row = db.execute(
+            "SELECT notes FROM setlist_items WHERE song_list_id = ? AND position = ?", (list_id, position)
+        ).fetchone()
+    finally:
+        db.close()
+    return (row[0] if row else "") or ""
+
+
+def fix_note(list_id: int, position: int, *, replace=(), append: str | None = None) -> str:
+    """Builds a corrected note by replacing or appending to the stored text.
+
+    Raises when a replacement changes nothing, so a stale correction cannot pass silently.
+    """
+    text = source_note(list_id, position)
+    for old, new in replace:
+        if old not in text:
+            raise SystemExit(f"note {list_id}:{position} has no `{old}` to replace")
+        text = text.replace(old, new)
+    if append:
+        text = f"{text}{append}"
+    return text
 
 
 performances: dict[str, dict] = {}
@@ -300,15 +334,20 @@ add(
 )
 add(
     1940,
-    conflict=True,
+    day_night=["2015-06-27", "2015-06-28"],
     sources=[
+        official_page(
+            "https://web.archive.org/web/20190722050158/http://www.scla.com.cn/hatsunemiku/",
+            "SCLA 官方页（2019-07-22 存档）：初音未来2015上海演唱会",
+            "官网海报写 6.27–6.28，与 VocaDB 一致；Fandom 的 6/26–6/27 是错的",
+        ),
         wiki(
-            FANDOM_2015_SH,
-            "VocaDB Fandom: HATSUNE MIKU EXPO 2015 in SHANGHAI",
-            "写 6/26–6/27；VocaDB 的区间是 6/27–6/28",
-        )
+            "https://zh.moegirl.org.cn/HATSUNE_MIKU_EXPO_2015_in_Shanghai",
+            "萌娘百科：HATSUNE MIKU EXPO 2015 in Shanghai",
+            "6/27、6/28 各昼场 13:00 + 夜场 19:00，两天四场",
+        ),
     ],
-    note="Fandom 记为 6/26–6/27，VocaDB 记为 6/27–6/28，日期区间不一致，标冲突等裁决",
+    note="官方海报 6/27–6/28；萌娘百科：两天共四场（每天昼 + 夜）。Fandom 的 6/26–6/27 不采用",
 )
 
 # ---------------------------------------------------------------- SNOW MIKU / 鼓童 / Live Party
@@ -337,8 +376,16 @@ add(
 )
 add(
     2948,
-    sources=[wiki(FANDOM_KODO_2018, "VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2018", "仅给出 6/2–6/3，未写逐日时刻")],
-    note="Fandom 只有日期区间 6/2–6/3，没有逐日时刻；按每天一场处理",
+    day_night=["2018-06-02"],
+    halves={"2018-06-03": ["day"]},
+    sources=[
+        wiki(
+            FANDOM_KODO_2018,
+            "VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2018",
+            "转载官方公演情报：6/2 開場 12:00 / 開演 13:00 与 開場 18:00 / 開演 19:00 两场；6/3 只有 開演 13:00 一场",
+        )
+    ],
+    note="官方公演情报：6/2 昼 + 夜两场，6/3 只有昼场，共 3 场",
 )
 add(
     5910,
@@ -359,19 +406,85 @@ add(
 )
 add(
     2526,
-    conflict=True,
-    single_show=["2011-08-17"],
+    single_show=["2011-08-16", "2011-08-17"],
     sources=[
-        wiki(
-            FANDOM_MIKUPA_2011_SP,
-            "VocaDB Fandom: Hatsune Miku Live Party 2011 (Mikupa)/Sapporo",
-            "演出日只写 8/17；VocaDB 的区间是 8/16–8/17",
+        official_page(
+            "https://web.archive.org/web/20120512094239/http://5pb.jp/mikupa/index_sapporo.html",
+            "5pb. 官方页（2012-05-12 存档）：ミクパ♪ 札幌",
+            "日期 8/16–8/17，两天各一场，与 VocaDB 一致",
         )
     ],
-    note="Fandom 只写 8/17 一天；VocaDB 记为 8/16–8/17。日期区间存疑，标冲突等裁决",
+    note="官方页：8/16、8/17 各一场，共 2 场。Fandom 只写 8/17，不采用",
 )
 
-curation = {"version": 1, "performances": performances, "lists": {}}
+lists: dict[str, dict] = {}
+
+# ---------------------------------------------------------------- 逐曲备注更正（以百科为准）
+# Magical Mirai 2021 (9909): スノーマン was day-1 only; VocaDB also tagged Osaka day 3,
+# which gave 大阪 Day 3 26 songs instead of the 25 the wiki lists for all three days.
+lists["9909"] = {
+    "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2021",
+    "accessedAt": ACCESSED,
+    "confidence": "medium",
+    "note": "萌娘百科 / VocaDB Fandom 的逐日歌单：大阪与东京 Day 1–3 各 25 首",
+    "notes": {"15": fix_note(9909, 15, replace=[("Day 1 OSAKA / Day 3 OSAKA / Day 1 TOKYO", "Day 1 OSAKA / Day 1 TOKYO")])},
+}
+
+# Magical Mirai 2024 (17933): 大阪 Day 1 与 Day 3 是同一套节目，VocaDB 只写了 Day 1。
+lists["17933"] = {
+    "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2024",
+    "accessedAt": ACCESSED,
+    "confidence": "medium",
+    "note": "Fandom：大阪分「Day 1 & 3」与「Day 2」两套；VocaDB 少了 Day 3",
+    "notes": {
+        str(position): fix_note(17933, position, append=" / Osaka Day 3")
+        for position in (4, 6, 21, 23, 25, 27)
+    },
+}
+
+# MIKU EXPO 2024 North America (16544): San Jose Day 1 played the third setlist, not Day 2.
+lists["16544"] = {
+    "source": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America",
+    "accessedAt": ACCESSED,
+    "confidence": "medium",
+    "note": "Fandom 的三套歌单把第三套归给 San Jose Day 1；VocaDB 写成 Day 2",
+    "notes": {
+        str(position): fix_note(16544, position, replace=[("San Jose (Day 2)", "San Jose (Day 1)")])
+        for position in (13, 17, 20)
+    },
+}
+
+# Live Party 2012 Hong Kong & Taiwan (31): the wiki says 23 songs + 1 encore in Hong Kong and
+# 23 + 2 in Taiwan, so the 24 vs 25 difference is by design, not a parsing error.
+lists["31"] = {
+    "source": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2012_(Mikupa)/Hong_Kong_and_Taiwan",
+    "accessedAt": ACCESSED,
+    "confidence": "medium",
+    "note": "Fandom：23 首固定 + 香港 1 首安可、台湾 2 首安可",
+    "explainedLengths": {
+        "2524:2012-10-02": "香港 23 首 + 1 首安可 = 24 首（台湾多一首安可）",
+    },
+}
+
+# 每个城市只演一套节目的歌单：百科给出城市级歌单，说明「只写城市」的备注是准确的，
+# 那句「该城市有多场」的提示可以撤掉。
+CITY_WIDE = {
+    7852: ("Hatsune Miku Magical Mirai 2018", "大阪与东京各一套 27 首歌单，各城市所有场次相同"),
+    7986: ("MIKU WITH YOU 2018", "北京 / 成都 / 上海各一套歌单，同城各场相同"),
+    9359: ("MIKU WITH YOU 2019", "A 版（上海、北京）与 B 版（成都、广州），同城各场相同"),
+    17933: ("Hatsune Miku Magical Mirai 2024", "福冈 / 东京 / 大阪各自的场次共用一套；大阪 Day 1 & 3 相同"),
+    20912: ("Hatsune Miku Magical Mirai 2025", "仙台 / 大阪 / 东京各自的场次共用一套"),
+    27886: ("Hatsune Miku Magical Mirai 2026", "滨松 / 大阪 / 东京各自的场次共用一套"),
+}
+for list_id, (page, note) in CITY_WIDE.items():
+    entry = lists.setdefault(str(list_id), {})
+    entry["source"] = f"https://vocaloid.fandom.com/wiki/{page.replace(' ', '_')}"
+    entry.setdefault("accessedAt", ACCESSED)
+    entry.setdefault("confidence", "medium")
+    entry["note"] = f"{entry.get('note', '')}{'；' if entry.get('note') else ''}{note}"
+    entry["citiesPlayOneSetlist"] = True
+
+curation = {"version": 1, "performances": performances, "lists": lists}
 target = ROOT / "data" / "performance-setlists.json"
 target.write_text(json.dumps(curation, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(f"Wrote {target} with {len(performances)} performances")
