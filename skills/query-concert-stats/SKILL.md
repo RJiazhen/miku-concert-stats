@@ -25,7 +25,6 @@ Use the cheapest correct path, in this order:
 1. **Download the catalog once**, open it read-only, and compute with SQL plus the ported `shared/` logic. This is the only way to answer counts exactly, and it works offline after the download.
 2. **Use `GET /api/lookup?q=` only when the answer is not in the catalog** — typically an unknown song title that needs a VocaDB id. It searches VocaDB on demand; it does not return setlists or appearance counts.
 3. **Never scrape HTML pages** (`/`, `/songs/{id}`, `/shows/{id}`, `/series`, `/series/{id}`, `/cities`, `/raw`, `/report`) to extract numbers. Those pages are for humans; their tables are rendered from the same catalog and can change without notice.
-4. **Never call the maintainer feedback/admin surface.** It is not an agent API. See [Public HTTP surface](#3-public-http-surface-and-static-assets).
 
 The site is Chinese-first; answer in the language the user used. Keep the Chinese terms 系列 / 演出 / 场次 when they remove ambiguity.
 
@@ -126,17 +125,6 @@ Content-Type: application/json
   "pageTitle": "初音ミク「マジカルミライ 2024」in OSAKA"
 }
 ```
-
-### Maintainer-only surface — not for agents
-
-These routes exist for maintainers and are **not** usable by agents:
-
-- `GET /api/feedback/list`
-- `GET /api/feedback/{id}`
-- `POST /api/feedback/status`
-- the page `/ops/feedback-inbox`
-
-In the deployed site they sit behind **Cloudflare Access (Zero Trust)**; without a signed-in Cloudflare account the edge answers with a **302 redirect to the Access login page**. The routes also enforce their own identity check before any storage access. Do not attempt them, do not pass credentials, and do not treat a redirect or an auth error as data. If a user asks for feedback triage, tell them this is a maintainer-only surface.
 
 ### Static assets
 
@@ -494,5 +482,4 @@ An answer is correct only if all of these hold:
 - [ ] It refuses to give a view count without a dated snapshot; if snapshots exist, it reports platform, `collected_at`, and `view_count`; if not, it says `insufficient` / no snapshot and does not estimate.
 - [ ] It labels album-derived setlists (`song_lists.source = 'album'`) with the Chinese notice and does not present them as VocaDB event setlists.
 - [ ] It does not invent producers, vocalists, setlists, cities, or missing songs; missing means “未记录 / not recorded”.
-- [ ] It never calls the maintainer feedback routes or `/ops/feedback-inbox`.
 - [ ] It includes the catalog build date/version when the numbers may change, and reports `approximate` / `reasons` when the ranking is uncertain.
