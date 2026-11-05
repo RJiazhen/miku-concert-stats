@@ -34,30 +34,9 @@ def rows(sql: str, params: tuple = ()) -> list[sqlite3.Row]:
 
 
 # 用户在确认清单里已裁决的两条日期冲突，各自记下「百科怎么说、最终按什么」。
-# 第 2 节逐条记下查过哪个百科页面；没有独立条目的写明「没有条目」。
+# 只剩这几条连百科 / 官网都没有逐日时刻；其余都已按来源展开。
 CHECKED_PAGES = {
-    1399: ("HATSUNE MIKU EXPO 2016 Japan Tour", "only range"),
-    1403: ("HATSUNE MIKU EXPO 2016 Japan Tour", "only range"),
-    1924: ("HATSUNE MIKU EXPO 2016 NORTH AMERICA", "only range"),
-    1941: ("HATSUNE MIKU EXPO 2016 NORTH AMERICA", "only range"),
-    1943: ("HATSUNE MIKU EXPO 2016 China", "missing"),
-    1942: ("HATSUNE MIKU EXPO 2016 China", "missing"),
-    6518: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
-    6519: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
-    6520: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
-    6521: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
-    9353: ("HATSUNE MIKU EXPO 2025 ASIA", "only range"),
-    9811: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
-    9815: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
-    9816: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
-    9823: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
-    7673: ("MIKU WITH YOU 2024", "only range"),
-    7674: ("MIKU WITH YOU 2024", "only range"),
-    7675: ("MIKU WITH YOU 2024", "only range"),
-    9644: ("MIKU WITH YOU 2025", "only range"),
     3792: ("SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set", "only range"),
-    2422: ("SNOW MIKU LIVE! 2019", "only range"),
-    2947: ("Hatsune Miku × Kodo Taiko Performing Arts Ensemble", "only range"),
     5910: ("Hatsune Miku × Kodo Taiko Special Live 2023", "only range"),
 }
 
@@ -116,7 +95,13 @@ conflicts = rows("SELECT COUNT(*) AS n FROM performance_setlists WHERE conflict 
 official = rows("SELECT COUNT(*) AS n FROM performance_setlist_sources WHERE confidence = 'high'")[0]["n"]
 wiki_count = rows("SELECT COUNT(*) AS n FROM performance_setlist_sources WHERE confidence = 'medium'")[0]["n"]
 
-pending_schedule = rows(
+# 任何写了 dayNight / singleShowDates / halves / noShowDates 的演出都算已核实，不进第 2 节。
+SETTLED = {
+    int(key)
+    for key, value in (curation.get("performances") or {}).items()
+    if any(value.get(field) for field in ("dayNight", "singleShowDates", "halves", "noShowDates"))
+}
+pending_schedule = [row for row in rows(
     """
     SELECT p.id, p.series_id, p.name, p.start_date, p.end_date,
            (SELECT COUNT(*) FROM performance_show_setlists s WHERE s.performance_id = p.id) AS shows,
@@ -128,9 +113,11 @@ pending_schedule = rows(
     FROM performances p JOIN performance_setlists ps ON ps.performance_id = p.id
     WHERE p.start_date IS NOT NULL AND p.end_date IS NOT NULL AND p.end_date > p.start_date
       AND ps.day_night_dates IS NULL AND ps.single_show_dates IS NULL
+      AND (SELECT COUNT(*) FROM performance_show_setlists s WHERE s.performance_id = p.id)
+          = CAST(julianday(p.end_date) - julianday(p.start_date) AS INTEGER) + 1
     ORDER BY p.series_id, p.start_date
     """
-)
+) if row["id"] not in SETTLED]
 
 out.append("## 0. 一句话现状")
 out.append("")
@@ -240,6 +227,36 @@ corrections = [
         "香港 24 首、台湾 25 首，被长度检查标成不一致",
         "Fandom：23 首固定 + 香港 1 首安可、台湾 2 首安可。24 / 25 是有意为之，已记为已解释，不再报警告。",
         "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2012_(Mikupa)/Hong_Kong_and_Taiwan",
+    ),
+    (
+        "MIKU EXPO 2016 日本 5 城（演出 1399 / 1400 / 1401 / 1402 / 1403）",
+        "VocaDB 只有日期区间，按每天一场算成 7 场",
+        "官方 jp2016/live 与萌娘百科一致：福冈 3/23、3/24 均仅夜场；大阪 3/29、名古屋 3/31、札幌 4/5 各有昼 + 夜；东京 4/9、4/10 各有昼 + 夜。合计 12 场。",
+        "https://mikuexpo.com/jp2016/live",
+    ),
+    (
+        "MIKU EXPO 2016 北美（演出 1924 / 1930 / 1936 等 10 城）",
+        "VocaDB 只有日期区间，10 城按日历天算成 11 场",
+        "萌娘百科的逐城表：旧金山 4/30 与纽约 5/28 各有昼 + 夜；墨西哥城 6/4 一场、6/5 两场；其余 7 城各一场。合计 14 场。",
+        "https://zh.moegirl.org.cn/MIKU_EXPO_2016",
+    ),
+    (
+        "MIKU EXPO 2016 中国内地（演出 1942 / 1943）与台湾（演出 1941）",
+        "中国内地按每天一场算成 4 场；台湾按每天一场算成 2 场",
+        "萌娘百科：上海、北京每日各昼夜两场（昼 13:00 / 夜 18:00），合计 8 场；官方 tw2016：新北 6/25 仅夜场、6/26 昼 + 夜，合计 3 场。",
+        "https://mikuexpo.com/tw2016/",
+    ),
+    (
+        "MIKU EXPO 2024 / 2025 / 2026 与未来有你 2024",
+        "VocaDB 只有日期区间，多日城市按每天一场算",
+        "萌娘百科给出总场次：2024 北美 17 城 21 场、2025 亚洲 8 城 9 场、2026 北美 15 城 19 场，且说明各场开演时间相同，因此每个日期只有一场；未来有你 2024 三地共 12 场 = 3 城 × 2 天 × 昼夜两场，每场 23 首。",
+        "https://zh.moegirl.org.cn/MIKU_EXPO_2024",
+    ),
+    (
+        "SNOW MIKU LIVE! 2019（演出 2422）与初音ミク×鼓童 2017（演出 2947）",
+        "按每天一场算成 2 场",
+        "萌娘百科：SNOW MIKU 2019 的 2/9、2/10 各有昼 + 夜两场（共 4 场）；鼓童 2017 的 3/4 仅夜场 19:00、3/5 仅昼场 13:00（共 2 场，但分属昼夜）。",
+        "https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019",
     ),
     (
         "初音ミク×鼓童スペシャルライブ２０１８（演出 2948）",

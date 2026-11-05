@@ -71,14 +71,6 @@ const bestConfidence = computed(() => {
         <UBadge color="neutral" variant="subtle" size="sm">{{ shows.length }} 个场次</UBadge>
         <UBadge color="neutral" variant="subtle" size="sm">{{ lengthSummary }}</UBadge>
         <UBadge color="neutral" variant="subtle" size="sm">源歌单 {{ setlist.source_row_count }} 行</UBadge>
-        <UBadge
-          v-if="setlist.status === 'inherited'"
-          color="info"
-          variant="subtle"
-          size="sm"
-        >
-          沿用整份共用歌单
-        </UBadge>
         <UBadge v-if="pendingReview" color="warning" variant="subtle" size="sm">场次归属仍待核实</UBadge>
         <UBadge v-if="bestConfidence" color="neutral" variant="subtle" size="sm">
           来源置信度 {{ bestConfidence }}

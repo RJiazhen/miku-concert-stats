@@ -7,6 +7,7 @@ Every entry carries the URL it came from, the day it was read, and a confidence 
 
 Run: uv run scripts/build-setlist-curation.py
 """
+import datetime
 import json
 import sqlite3
 from pathlib import Path
@@ -27,6 +28,16 @@ FANDOM_KODO_2018 = "https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Ta
 FANDOM_KODO_2023 = "https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2023"
 FANDOM_MIKUPA_2011_SP = "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2011_(Mikupa)/Sapporo"
 FANDOM_MIKUPA_2013_SP = "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2013_(MikuPa)/Sapporo"
+MIKUE_PO = "https://mikuexpo.com/jp2016/live"
+MIKUE_TW = "https://mikuexpo.com/tw2016/"
+MOE_EXPO2016 = "https://zh.moegirl.org.cn/MIKU_EXPO_2016"
+MOE_EXPO2024 = "https://zh.moegirl.org.cn/MIKU_EXPO_2024"
+MOE_EXPO2025 = "https://zh.moegirl.org.cn/MIKU_EXPO_2025"
+MOE_EXPO2026 = "https://zh.moegirl.org.cn/MIKU_EXPO_2026"
+MOE_MWY2024 = "https://zh.moegirl.org.cn/初音未来·未来有你2024演唱会"
+MOE_SNOW2018 = "https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2018"
+MOE_SNOW2019 = "https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019"
+MOE_KODO = "https://zh.moegirl.org.cn/初音未来×鼓童特别演唱会"
 ACCESSED = "2026-11-05"
 
 
@@ -75,9 +86,34 @@ def fix_note(list_id: int, position: int, *, replace=(), append: str | None = No
 performances: dict[str, dict] = {}
 
 
+def dates_of(pid: int) -> list[str]:
+    """Expands the performance's date range into calendar days, capped at two weeks."""
+    db = sqlite3.connect(DB)
+    try:
+        row = db.execute("SELECT start_date, end_date FROM performances WHERE id = ?", (pid,)).fetchone()
+    finally:
+        db.close()
+    if not row or not row[0]:
+        raise SystemExit(f"performance {pid} has no start date")
+    start, end = row[0], row[1] or row[0]
+    if end < start:
+        end = start
+    days: list[str] = []
+    cursor = datetime.date.fromisoformat(start)
+    last = datetime.date.fromisoformat(end)
+    while cursor <= last and len(days) < 14:
+        days.append(cursor.isoformat())
+        cursor += datetime.timedelta(days=1)
+    return days
+
+
 def add(pid: int, *, day_night=(), no_show=(), single_show=(), halves=None, conflict=False, sources, note: str) -> None:
-    """Registers one curated 演出 entry."""
+    """Registers one curated 演出 entry; `"all"` means every day of the run."""
     entry: dict = {"note": note}
+    if day_night == "all":
+        day_night = dates_of(pid)
+    if single_show == "all":
+        single_show = dates_of(pid)
     if day_night:
         entry["dayNight"] = list(day_night)
     if no_show:
@@ -483,6 +519,92 @@ for list_id, (page, note) in CITY_WIDE.items():
     entry.setdefault("confidence", "medium")
     entry["note"] = f"{entry.get('note', '')}{'；' if entry.get('note') else ''}{note}"
     entry["citiesPlayOneSetlist"] = True
+
+
+# ---------------------------------------------------------------- MIKU EXPO 2016（官网 + 萌娘百科）
+# 官方 jp2016/live 与萌娘百科的场次表一致：日本 5 城 12 场，中国内地 2 城 8 场，台湾 1 城 3 场，
+# 北美 10 城 14 场。逐条按下表展开，不再用「一个日历天 = 一场」的默认值。
+expo2016_jp = [
+    official_page(MIKUE_PO, "HATSUNE MIKU EXPO 2016 Japan Tour LIVE（官方）", "福冈 3/23、3/24 均仅夜场 19:00"),
+    wiki(MOE_EXPO2016, "萌娘百科：MIKU EXPO 2016", "日本 5 城 12 场，逐日入场 / 演出时间表"),
+]
+add(1399, halves={"2016-03-23": ["night"], "2016-03-24": ["night"]}, sources=expo2016_jp,
+    note="官方与萌娘百科：福冈 3/23、3/24 均只有夜场（18:00 入场 / 19:00 开演），共 2 场")
+add(1400, day_night=["2016-03-29"], sources=expo2016_jp,
+    note="官方与萌娘百科：大阪 3/29 昼场 14:00 + 夜场 19:00，共 2 场")
+add(1401, day_night=["2016-03-31"], sources=expo2016_jp,
+    note="官方与萌娘百科：名古屋 3/31 昼场 14:00 + 夜场 19:00，共 2 场")
+add(1402, day_night=["2016-04-05"], sources=expo2016_jp,
+    note="官方与萌娘百科：札幌 4/5 昼场 14:00 + 夜场 19:00，共 2 场")
+add(1403, day_night=["2016-04-09", "2016-04-10"], sources=expo2016_jp,
+    note="官方与萌娘百科：东京 4/9、4/10 各有昼场 14:00 + 夜场 19:00，共 4 场")
+
+expo2016_na = [
+    wiki(MOE_EXPO2016, "萌娘百科：MIKU EXPO 2016", "北美 10 城 14 场，逐城入场 / 演出时间表"),
+]
+add(1930, day_night=["2016-04-30"], sources=expo2016_na,
+    note="萌娘百科：旧金山 4/30 昼场 13:30 + 夜场 19:00 入场，共 2 场")
+add(1936, day_night=["2016-05-28"], sources=expo2016_na,
+    note="萌娘百科：纽约 5/28 昼场 13:30 + 夜场 20:00 开演，共 2 场")
+add(1924, day_night=["2016-06-05"], single_show=["2016-06-04"], sources=expo2016_na,
+    note="萌娘百科：墨西哥城 6/4 只有 14:30 一场；6/5 有 14:30 与 20:30 两场，共 3 场")
+for pid, city in ((1859, "西雅图 4/23"), (1860, "蒙特雷 6/1"), (1931, "洛杉矶 5/6"), (1932, "达拉斯 5/14"),
+                  (1933, "休斯敦 5/17"), (1934, "多伦多 5/20"), (1935, "芝加哥 5/25")):
+    add(pid, single_show="all", sources=expo2016_na, note=f"萌娘百科：{city} 只有一场")
+
+expo2016_cn = [
+    wiki(MOE_EXPO2016, "萌娘百科：MIKU EXPO 2016", "中国内地共 8 场，每日昼场 13:00 / 夜场 18:00 开演"),
+]
+add(1942, day_night=["2016-12-10", "2016-12-11"], sources=expo2016_cn,
+    note="萌娘百科：北京 12/10、12/11 每日昼场 13:00 + 夜场 18:00，共 4 场")
+add(1943, day_night=["2016-12-03", "2016-12-04"], sources=expo2016_cn,
+    note="萌娘百科：上海 12/3、12/4 每日昼场 13:00 + 夜场 18:00，共 4 场")
+add(1941, day_night=["2016-06-26"], halves={"2016-06-25": ["night"]},
+    sources=[
+        official_page(MIKUE_TW, "HATSUNE MIKU EXPO 2016 IN TAIWAN（官方）", "6/25 19:00 一场；6/26 14:00 与 19:00 两场"),
+        wiki(MOE_EXPO2016, "萌娘百科：MIKU EXPO 2016", "台湾 6/25–26 共三场"),
+    ],
+    note="官方与萌娘百科：新北 6/25 只有夜场 19:00；6/26 有 14:00 与 19:00 两场，共 3 场")
+
+# ---------------------------------------------------------------- MIKU EXPO 2024 / 2025 / 2026（萌娘百科）
+# 萌娘百科给出总场次：2024 北美 17 城 21 场、2025 亚洲 8 城 9 场、2026 北美 15 城 19 场，
+# 且明确「所有场次的开演时间相同」，因此每个日期只有一场。
+expo2024 = [wiki(MOE_EXPO2024, "萌娘百科：MIKU EXPO 2024", "17 城 21 场；圣何塞、凤凰城、丹佛、达拉斯各两场")]
+for pid, dates in (
+    (6518, ["2024-04-08", "2024-04-09"]),
+    (6519, ["2024-04-14", "2024-04-15"]),
+    (6520, ["2024-04-21", "2024-04-22"]),
+    (6521, ["2024-04-24", "2024-04-25"]),
+):
+    add(pid, single_show=dates, sources=expo2024, note="萌娘百科：该站两天各演一场，共 2 场")
+for pid in (6516, 6517, 6522, 6523, 6524, 6525, 6526, 6527, 6528, 6529, 6530, 6531, 7186):
+    add(pid, single_show="all", sources=expo2024, note="萌娘百科：该站只有一场")
+
+expo2025 = [wiki(MOE_EXPO2025, "萌娘百科：MIKU EXPO 2025", "8 城 9 场；只有首尔两场，其余各一场")]
+add(9353, single_show=["2025-11-29", "2025-11-30"], sources=expo2025, note="萌娘百科：首尔两天各一场，共 2 场")
+
+expo2026 = [wiki(MOE_EXPO2026, "萌娘百科：MIKU EXPO 2026", "北美 15 城 19 场；芝加哥、圣何塞、洛杉矶、波士顿各两场")]
+for pid, dates in (
+    (9811, ["2026-04-12", "2026-04-13"]),
+    (9815, ["2026-04-22", "2026-04-23"]),
+    (9816, ["2026-04-25", "2026-04-26"]),
+    (9823, ["2026-05-10", "2026-05-11"]),
+):
+    add(pid, single_show=dates, sources=expo2026, note="萌娘百科：该站两天各演一场，共 2 场")
+
+# ---------------------------------------------------------------- 未来有你 2024（萌娘百科）
+# 萌娘百科：三地共 12 场 = 3 城 × 2 天 × 昼夜两场；每场 23 首。
+mwy2024 = [wiki(MOE_MWY2024, "萌娘百科：初音未来·未来有你2024演唱会", "三地共 12 场，每场 23 首")]
+for pid in (7673, 7674, 7675):
+    add(pid, day_night="all", sources=mwy2024, note="萌娘百科：三地各 2 天、每天昼夜两场，合计 12 场")
+
+# ---------------------------------------------------------------- SNOW MIKU / 鼓童（萌娘百科）
+add(2422, day_night=["2019-02-09", "2019-02-10"],
+    sources=[wiki(MOE_SNOW2019, "萌娘百科：SNOW MIKU LIVE! 2019", "2/9、2/10 各有昼场 13:00 入场与夜场")],
+    note="萌娘百科：2/9、2/10 各有昼 + 夜两场，共 4 场")
+add(2947, halves={"2017-03-04": ["night"], "2017-03-05": ["day"]},
+    sources=[wiki(MOE_KODO, "萌娘百科：初音未来×鼓童特别演唱会", "3/4 开演 19:00；3/5 开演 13:00")],
+    note="萌娘百科：3/4 只有夜场 19:00，3/5 只有昼场 13:00，共 2 场")
 
 curation = {"version": 1, "performances": performances, "lists": lists}
 target = ROOT / "data" / "performance-setlists.json"

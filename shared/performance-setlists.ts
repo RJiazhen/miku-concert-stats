@@ -760,9 +760,12 @@ export const buildPerformanceSetlists = (
     const anyUncertain = ownLines.some((line) => line.uncertain)
     const everyShared = ownLines.every((line) => isSharedLine(line))
     const change: PerformanceSetlistRow['change'] = curated ? 'curated' : ownLines.length < lines.length ? 'filtered' : 'none'
+    // `inherited` describes the rows: every line applies to every 場次 of the run, so the whole
+    // source list stands in for the setlist. It is independent of whether a source confirmed the
+    // schedule, which `resolution` and `performance_setlist_sources` already record.
     const status: PerformanceSetlistRow['status'] = conflict
       ? 'conflict'
-      : everyShared && citedSources.length === 0
+      : everyShared
         ? 'inherited'
         : anyUncertain || pendingReview
           ? 'partial'
@@ -873,6 +876,18 @@ export const buildPerformanceSetlists = (
     reasons.add(`setlist length mismatch: ${row.item_count} vs expected ${expected}`)
     row.reasons = JSON.stringify([...reasons].sort())
     row.uncertain = 1
+  }
+
+  // Settle the 演出 status from what the 場次 rows actually report. A line-level warning that
+  // the curated schedule already answered (a city-wide programme) drops out of the 場次 reasons,
+  // so trusting the raw line flags here would leave the 演出 "partial" with no 場次 uncertain.
+  const uncertainByPerformance = new Map<number, boolean>()
+  for (const row of shows) {
+    if (row.uncertain === 1) uncertainByPerformance.set(row.performance_id, true)
+  }
+  for (const row of setlists) {
+    if (row.status === 'conflict' || row.status === 'inherited') continue
+    row.status = uncertainByPerformance.get(row.performance_id) === true || row.pending_review === 1 ? 'partial' : 'complete'
   }
 
   const medleys = [...medleyNames.entries()]

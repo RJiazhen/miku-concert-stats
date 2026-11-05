@@ -37,7 +37,8 @@ export type SetlistReview = {
     lengthMismatches: number
     inheritedLists: number
     curated: number
-    pendingReview: number
+    /** 演出 with at least one cited outside source; a log, not a to-do count. */
+    sourced: number
   }
 }
 
@@ -292,7 +293,7 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
       lengthMismatches: sectionC.length,
       inheritedLists: sectionD.length,
       curated: sectionE.length,
-      pendingReview: sectionF.length,
+      sourced: sectionF.length,
     },
   }
 }

@@ -6,10 +6,10 @@
 
 ## 0. 一句话现状
 
-- 目录里 177 个演出已展开成 **332 个场次**、8152 条曲目。
-- 来源记录 43 个演出：官方页 27 条、百科 17 条，全部已直接采用。
+- 目录里 177 个演出已展开成 **353 个场次**、8680 条曲目。
+- 来源记录 87 个演出：官方页 33 条、百科 61 条，全部已直接采用。
 - 待核实归属 0 个、冲突 0 个、带不确定标记的场次 0 个。
-- 还剩 **23 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
+- 还剩 **2 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
 
 ---
 
@@ -49,6 +49,46 @@
 | MIKU EXPO 2014 Los Angeles（1937） | MIKU EXPO | 2014-10-11 | 2 × 27 | vocadb-shared | medium | [VocaDB Fandom: HATSUNE MIKU EXPO 2014 in LOS ANGELES and NEW YORK](https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2014_in_LOS_ANGELES_and_NEW_YORK)（2026-11-05） |
 | MIKU EXPO 2014 New York（1938） | MIKU EXPO | 2014-10-17 | 2 × 27 | vocadb-shared | medium | [VocaDB Fandom: HATSUNE MIKU EXPO 2014 in LOS ANGELES and NEW YORK](https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2014_in_LOS_ANGELES_and_NEW_YORK)（2026-11-05） |
 | MIKU EXPO 2015 Shanghai（1940） | MIKU EXPO | 2015-06-27 | 4 × 27 | vocadb-note | high | [SCLA 官方页（2019-07-22 存档）：初音未来2015上海演唱会<br>萌娘百科：HATSUNE MIKU EXPO 2015 in Shanghai](https://web.archive.org/web/20190722050158/http://www.scla.com.cn/hatsunemiku/)（2026-11-05） |
+| MIKU EXPO 2016 Fukuoka（1399） | MIKU EXPO | 2016-03-23 | 2 × 26 | vocadb-shared | high | [HATSUNE MIKU EXPO 2016 Japan Tour LIVE（官方）<br>萌娘百科：MIKU EXPO 2016](https://mikuexpo.com/jp2016/live)（2026-11-05） |
+| MIKU EXPO 2016 Osaka（1400） | MIKU EXPO | 2016-03-29 | 2 × 26 | vocadb-shared | high | [HATSUNE MIKU EXPO 2016 Japan Tour LIVE（官方）<br>萌娘百科：MIKU EXPO 2016](https://mikuexpo.com/jp2016/live)（2026-11-05） |
+| MIKU EXPO 2016 Nagoya（1401） | MIKU EXPO | 2016-03-31 | 2 × 26 | vocadb-shared | high | [HATSUNE MIKU EXPO 2016 Japan Tour LIVE（官方）<br>萌娘百科：MIKU EXPO 2016](https://mikuexpo.com/jp2016/live)（2026-11-05） |
+| MIKU EXPO 2016 Sapporo（1402） | MIKU EXPO | 2016-04-05 | 2 × 26 | vocadb-shared | high | [HATSUNE MIKU EXPO 2016 Japan Tour LIVE（官方）<br>萌娘百科：MIKU EXPO 2016](https://mikuexpo.com/jp2016/live)（2026-11-05） |
+| MIKU EXPO 2016 Tokyo（1403） | MIKU EXPO | 2016-04-09 | 4 × 26 | vocadb-shared | high | [HATSUNE MIKU EXPO 2016 Japan Tour LIVE（官方）<br>萌娘百科：MIKU EXPO 2016](https://mikuexpo.com/jp2016/live)（2026-11-05） |
+| MIKU EXPO 2016 Seattle（1859） | MIKU EXPO | 2016-04-23 | 1 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 San Francisco（1930） | MIKU EXPO | 2016-04-30 | 2 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Los Angeles（1931） | MIKU EXPO | 2016-05-06 | 1 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Dallas（1932） | MIKU EXPO | 2016-05-14 | 1 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Houston（1933） | MIKU EXPO | 2016-05-17 | 1 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Toronto（1934） | MIKU EXPO | 2016-05-20 | 1 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Chicago（1935） | MIKU EXPO | 2016-05-25 | 1 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 New York（1936） | MIKU EXPO | 2016-05-28 | 2 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Monterrey（1860） | MIKU EXPO | 2016-06-01 | 1 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Mexico City（1924） | MIKU EXPO | 2016-06-04 | 3 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 New Taipei City（1941） | MIKU EXPO | 2016-06-25 | 3 × 26 | vocadb-shared | high | [HATSUNE MIKU EXPO 2016 IN TAIWAN（官方）<br>萌娘百科：MIKU EXPO 2016](https://mikuexpo.com/tw2016/)（2026-11-05） |
+| MIKU EXPO 2016 Shanghai（1943） | MIKU EXPO | 2016-12-03 | 4 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2016 Beijing（1942） | MIKU EXPO | 2016-12-10 | 4 × 26 | vocadb-shared | medium | [萌娘百科：MIKU EXPO 2016](https://zh.moegirl.org.cn/MIKU_EXPO_2016)（2026-11-05） |
+| MIKU EXPO 2024 Vancouver（6516） | MIKU EXPO | 2024-04-04 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Portland（6517） | MIKU EXPO | 2024-04-06 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 San Jose（6518） | MIKU EXPO | 2024-04-08 | 2 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Phoenix（6519） | MIKU EXPO | 2024-04-14 | 2 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Los Angeles（7186） | MIKU EXPO | 2024-04-17 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Denver（6520） | MIKU EXPO | 2024-04-21 | 2 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Dallas（6521） | MIKU EXPO | 2024-04-24 | 2 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Austin（6522） | MIKU EXPO | 2024-04-27 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Atlanta（6523） | MIKU EXPO | 2024-04-30 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Orlando（6524） | MIKU EXPO | 2024-05-02 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Washington（6525） | MIKU EXPO | 2024-05-05 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Newark（6526） | MIKU EXPO | 2024-05-07 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Boston（6527） | MIKU EXPO | 2024-05-09 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Detroit（6528） | MIKU EXPO | 2024-05-12 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Chicago（6529） | MIKU EXPO | 2024-05-14 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Toronto（6530） | MIKU EXPO | 2024-05-16 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2024 Mexico City（6531） | MIKU EXPO | 2024-05-21 | 1 × 23 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2024](https://zh.moegirl.org.cn/MIKU_EXPO_2024)（2026-11-05） |
+| MIKU EXPO 2025 Seoul（9353） | MIKU EXPO | 2025-11-29 | 2 × 24 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2025](https://zh.moegirl.org.cn/MIKU_EXPO_2025)（2026-11-05） |
+| MIKU EXPO 2026 Chicago（9811） | MIKU EXPO | 2026-04-12 | 2 × 26 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2026](https://zh.moegirl.org.cn/MIKU_EXPO_2026)（2026-11-05） |
+| MIKU EXPO 2026 San Jose（9815） | MIKU EXPO | 2026-04-22 | 2 × 26 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2026](https://zh.moegirl.org.cn/MIKU_EXPO_2026)（2026-11-05） |
+| MIKU EXPO 2026 Los Angeles（9816） | MIKU EXPO | 2026-04-25 | 2 × 26 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2026](https://zh.moegirl.org.cn/MIKU_EXPO_2026)（2026-11-05） |
+| MIKU EXPO 2026 Boston（9823） | MIKU EXPO | 2026-05-10 | 2 × 26 | vocadb-note | medium | [萌娘百科：MIKU EXPO 2026](https://zh.moegirl.org.cn/MIKU_EXPO_2026)（2026-11-05） |
 | MIKU WITH YOU 2018 in Beijing（2085） | 未来有你 | 2018-10-13 | 2 × 25 | vocadb-note | medium | [萌娘百科：未来有你·初音未来2018中国巡回演唱会](https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会)（2026-11-05） |
 | MIKU WITH YOU 2018 in Chengdu（2086） | 未来有你 | 2018-10-20 | 2 × 25 | vocadb-note | medium | [萌娘百科：未来有你·初音未来2018中国巡回演唱会](https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会)（2026-11-05） |
 | MIKU WITH YOU 2018 in Shanghai（2087） | 未来有你 | 2018-10-27 | 4 × 25 | external | medium | [萌娘百科：未来有你·初音未来2018中国巡回演唱会](https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会)（2026-11-05） |
@@ -56,218 +96,30 @@
 | MIKU WITH YOU 2019 in Chengdu（3753） | 未来有你 | 2019-11-09 | 1 × 25 | external | medium | [萌娘百科：未来有你·初音未来2019中国巡回演唱会](https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会)（2026-11-05） |
 | MIKU WITH YOU 2019 in Beijing（3754） | 未来有你 | 2019-11-16 | 2 × 25 | external | medium | [萌娘百科：未来有你·初音未来2019中国巡回演唱会](https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会)（2026-11-05） |
 | MIKU WITH YOU 2019 in Guangzhou（3755） | 未来有你 | 2019-11-23 | 3 × 25 | external | medium | [萌娘百科：未来有你·初音未来2019中国巡回演唱会](https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会)（2026-11-05） |
+| MIKU WITH YOU 2024 in Shanghai（7673） | 未来有你 | 2024-07-13 | 4 × 23 | vocadb-note | medium | [萌娘百科：初音未来·未来有你2024演唱会](https://zh.moegirl.org.cn/初音未来·未来有你2024演唱会)（2026-11-05） |
+| MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 2024-07-20 | 4 × 23 | vocadb-note | medium | [萌娘百科：初音未来·未来有你2024演唱会](https://zh.moegirl.org.cn/初音未来·未来有你2024演唱会)（2026-11-05） |
+| MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 2024-07-27 | 4 × 23 | vocadb-note | medium | [萌娘百科：初音未来·未来有你2024演唱会](https://zh.moegirl.org.cn/初音未来·未来有你2024演唱会)（2026-11-05） |
 | SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set（3792） | SNOW MIKU | 2015-02-07 | 2 × 27 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2015_Presents_MIKU_EXPO_Live_Set)（2026-11-05） |
 | SNOW MIKU LIVE! 2018（1618） | SNOW MIKU | 2018-02-09 | 4 × 26 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2018](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2018)（2026-11-05） |
-| SNOW MIKU LIVE! 2019（2422） | SNOW MIKU | 2019-02-09 | 2 × 26 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2019](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2019)（2026-11-05） |
+| SNOW MIKU LIVE! 2019（2422） | SNOW MIKU | 2019-02-09 | 4 × 26 | vocadb-note | medium | [萌娘百科：SNOW MIKU LIVE! 2019](https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019)（2026-11-05） |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2011-08-16 | 2 × 26 | vocadb-shared | high | [5pb. 官方页（2012-05-12 存档）：ミクパ♪ 札幌](https://web.archive.org/web/20120512094239/http://5pb.jp/mikupa/index_sapporo.html)（2026-11-05） |
 | 初音ミクライブパーティー 2013 Sapporo（2510） | Live Party | 2013-02-09 | 4 × 26 | vocadb-shared | medium | [VocaDB Fandom: Hatsune Miku Live Party 2013 (MikuPa)/Sapporo](https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2013_(MikuPa)/Sapporo)（2026-11-05） |
+| 初音ミク×鼓童スペシャルライブ（2947） | 鼓童 | 2017-03-04 | 2 × 19 | vocadb-shared | medium | [萌娘百科：初音未来×鼓童特别演唱会](https://zh.moegirl.org.cn/初音未来×鼓童特别演唱会)（2026-11-05） |
 | 初音ミク×鼓童スペシャルライブ２０１８（2948） | 鼓童 | 2018-06-02 | 3 × 21 | vocadb-shared | medium | [VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2018](https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2018)（2026-11-05） |
 | 初音ミク×鼓童スペシャルライブ２０２３ ～結～（5910） | 鼓童 | 2023-06-03 | 2 × 20 | vocadb-shared | medium | [VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2023](https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2023)（2026-11-05） |
 
-共 43 个演出、44 条来源记录。
+共 87 个演出、94 条来源记录。
 
 ---
 
-## 2. 百科与官网都没写逐日时刻（23 个演出）
+## 2. 百科与官网都没写逐日时刻（2 个演出）
 
 这些演出跨多天，但我查过的来源都只给日期区间：既没写每天几场，也没写开演时间。
 当前按「每个日历天 = 一个场次」计算。**如果你知道其中哪一站有昼夜两场，告诉我站名即可**，我按同样格式补进去。
 
-### MIKU EXPO
-
-**2.1 · MIKU EXPO 2016 Fukuoka**（演出 1399，2016-03-23 – 2016-03-24，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 Japan Tour」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_Japan_Tour
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.2 · MIKU EXPO 2016 Tokyo**（演出 1403，2016-04-09 – 2016-04-10，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 Japan Tour」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_Japan_Tour
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.3 · MIKU EXPO 2016 Mexico City**（演出 1924，2016-06-04 – 2016-06-05，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 NORTH AMERICA」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_NORTH_AMERICA
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.4 · MIKU EXPO 2016 New Taipei City**（演出 1941，2016-06-25 – 2016-06-26，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 NORTH AMERICA」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_NORTH_AMERICA
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.5 · MIKU EXPO 2016 Shanghai**（演出 1943，2016-12-03 – 2016-12-04，当前 2 场 × 26 首）
-
-- 已查：百科没有「HATSUNE MIKU EXPO 2016 China」这一条目（该年只有日本 / 北美页），也没有逐日时刻
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.6 · MIKU EXPO 2016 Beijing**（演出 1942，2016-12-10 – 2016-12-11，当前 2 场 × 26 首）
-
-- 已查：百科没有「HATSUNE MIKU EXPO 2016 China」这一条目（该年只有日本 / 北美页），也没有逐日时刻
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.7 · MIKU EXPO 2024 San Jose**（演出 6518，2024-04-08 – 2024-04-09，当前 2 场 × 23 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.8 · MIKU EXPO 2024 Phoenix**（演出 6519，2024-04-14 – 2024-04-15，当前 2 场 × 23 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.9 · MIKU EXPO 2024 Denver**（演出 6520，2024-04-21 – 2024-04-22，当前 2 场 × 23 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.10 · MIKU EXPO 2024 Dallas**（演出 6521，2024-04-24 – 2024-04-25，当前 2 场 × 23 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.11 · MIKU EXPO 2025 Seoul**（演出 9353，2025-11-29 – 2025-11-30，当前 2 场 × 24 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2025 ASIA」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2025_ASIA
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.12 · MIKU EXPO 2026 Chicago**（演出 9811，2026-04-12 – 2026-04-13，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.13 · MIKU EXPO 2026 San Jose**（演出 9815，2026-04-22 – 2026-04-23，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.14 · MIKU EXPO 2026 Los Angeles**（演出 9816，2026-04-25 – 2026-04-26，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.15 · MIKU EXPO 2026 Boston**（演出 9823，2026-05-10 – 2026-05-11，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-### 未来有你
-
-**2.16 · MIKU WITH YOU 2024 in Shanghai**（演出 7673，2024-07-13 – 2024-07-14，当前 2 场 × 23 首）
-
-- 已查：VocaDB Fandom「MIKU WITH YOU 2024」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2024
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.17 · MIKU WITH YOU 2024 in Beijing**（演出 7675，2024-07-20 – 2024-07-21，当前 2 场 × 23 首）
-
-- 已查：VocaDB Fandom「MIKU WITH YOU 2024」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2024
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.18 · MIKU WITH YOU 2024 in Guangzhou**（演出 7674，2024-07-27 – 2024-07-28，当前 2 场 × 23 首）
-
-- 已查：VocaDB Fandom「MIKU WITH YOU 2024」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2024
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.19 · MIKU WITH YOU 2025**（演出 9644，2025-12-20 – 2025-12-21，当前 4 场 × 23 首）
-
-- 已查：VocaDB Fandom「MIKU WITH YOU 2025」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2025
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
 ### SNOW MIKU
 
-**2.20 · SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set**（演出 3792，2015-02-07 – 2015-02-08，当前 2 场 × 27 首）
+**2.1 · SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set**（演出 3792，2015-02-07 – 2015-02-08，当前 2 场 × 27 首）
 
 - 已查：VocaDB Fandom「SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set」，只写日期区间，没有逐日时刻
   - https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2015_Presents_MIKU_EXPO_Live_Set
@@ -277,29 +129,9 @@
 
 > 补充：
 
-**2.21 · SNOW MIKU LIVE! 2019**（演出 2422，2019-02-09 – 2019-02-10，当前 2 场 × 26 首）
-
-- 已查：VocaDB Fandom「SNOW MIKU LIVE! 2019」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2019
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
 ### 鼓童
 
-**2.22 · 初音ミク×鼓童スペシャルライブ**（演出 2947，2017-03-04 – 2017-03-05，当前 2 场 × 19 首）
-
-- 已查：VocaDB Fandom「Hatsune Miku × Kodo Taiko Performing Arts Ensemble」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/Hatsune_Miku_×_Kodo_Taiko_Performing_Arts_Ensemble
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-**2.23 · 初音ミク×鼓童スペシャルライブ２０２３ ～結～**（演出 5910，2023-06-03 – 2023-06-04，当前 2 场 × 20 首）
+**2.2 · 初音ミク×鼓童スペシャルライブ２０２３ ～結～**（演出 5910，2023-06-03 – 2023-06-04，当前 2 场 × 20 首）
 
 - 已查：VocaDB Fandom「Hatsune Miku × Kodo Taiko Special Live 2023」，只写日期区间，没有逐日时刻
   - https://vocaloid.fandom.com/wiki/Hatsune_Miku_×_Kodo_Taiko_Special_Live_2023
@@ -353,13 +185,43 @@
 - 处理：Fandom：23 首固定 + 香港 1 首安可、台湾 2 首安可。24 / 25 是有意为之，已记为已解释，不再报警告。
 - 来源：https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2012_(Mikupa)/Hong_Kong_and_Taiwan
 
-### 3.7 · 初音ミク×鼓童スペシャルライブ２０１８（演出 2948）
+### 3.7 · MIKU EXPO 2016 日本 5 城（演出 1399 / 1400 / 1401 / 1402 / 1403）
+
+- 原问题：VocaDB 只有日期区间，按每天一场算成 7 场
+- 处理：官方 jp2016/live 与萌娘百科一致：福冈 3/23、3/24 均仅夜场；大阪 3/29、名古屋 3/31、札幌 4/5 各有昼 + 夜；东京 4/9、4/10 各有昼 + 夜。合计 12 场。
+- 来源：https://mikuexpo.com/jp2016/live
+
+### 3.8 · MIKU EXPO 2016 北美（演出 1924 / 1930 / 1936 等 10 城）
+
+- 原问题：VocaDB 只有日期区间，10 城按日历天算成 11 场
+- 处理：萌娘百科的逐城表：旧金山 4/30 与纽约 5/28 各有昼 + 夜；墨西哥城 6/4 一场、6/5 两场；其余 7 城各一场。合计 14 场。
+- 来源：https://zh.moegirl.org.cn/MIKU_EXPO_2016
+
+### 3.9 · MIKU EXPO 2016 中国内地（演出 1942 / 1943）与台湾（演出 1941）
+
+- 原问题：中国内地按每天一场算成 4 场；台湾按每天一场算成 2 场
+- 处理：萌娘百科：上海、北京每日各昼夜两场（昼 13:00 / 夜 18:00），合计 8 场；官方 tw2016：新北 6/25 仅夜场、6/26 昼 + 夜，合计 3 场。
+- 来源：https://mikuexpo.com/tw2016/
+
+### 3.10 · MIKU EXPO 2024 / 2025 / 2026 与未来有你 2024
+
+- 原问题：VocaDB 只有日期区间，多日城市按每天一场算
+- 处理：萌娘百科给出总场次：2024 北美 17 城 21 场、2025 亚洲 8 城 9 场、2026 北美 15 城 19 场，且说明各场开演时间相同，因此每个日期只有一场；未来有你 2024 三地共 12 场 = 3 城 × 2 天 × 昼夜两场，每场 23 首。
+- 来源：https://zh.moegirl.org.cn/MIKU_EXPO_2024
+
+### 3.11 · SNOW MIKU LIVE! 2019（演出 2422）与初音ミク×鼓童 2017（演出 2947）
+
+- 原问题：按每天一场算成 2 场
+- 处理：萌娘百科：SNOW MIKU 2019 的 2/9、2/10 各有昼 + 夜两场（共 4 场）；鼓童 2017 的 3/4 仅夜场 19:00、3/5 仅昼场 13:00（共 2 场，但分属昼夜）。
+- 来源：https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019
+
+### 3.12 · 初音ミク×鼓童スペシャルライブ２０１８（演出 2948）
 
 - 原问题：VocaDB 只有日期区间，按每天一场算成 2 场
 - 处理：Fandom 转载的官方公演情报：6/2 有 13:00 与 19:00 两场，6/3 只有 13:00 一场。已改成 3 场。
 - 来源：https://vocaloid.fandom.com/wiki/Hatsune_Miku_×_Kodo_Taiko_Special_Live_2018
 
-### 3.8 · 逐行备注更正汇总
+### 3.13 · 逐行备注更正汇总
 
 | 源歌单 | 更正的行 | 说明 | 来源 |
 | --- | --- | --- | --- |
@@ -392,26 +254,30 @@
 
 | 源歌单 | 名称 | 类型 | 演出数 | 场次数 | 行数 |
 | --- | --- | --- | --- | --- | --- |
-| [6571](https://vocadb.net/L/6571) | Miku Expo 2016 North America | vocadb | 10 | 11 | 26 |
-| [6570](https://vocadb.net/L/6570) | Miku Expo 2016 Japan | vocadb | 5 | 7 | 26 |
+| [6571](https://vocadb.net/L/6571) | Miku Expo 2016 North America | vocadb | 10 | 14 | 26 |
+| [6570](https://vocadb.net/L/6570) | Miku Expo 2016 Japan | vocadb | 5 | 12 | 26 |
 | [1000052449](https://vocadb.net/L/1000052449) | 初音ミクシンフォニー ~Miku Symphony 2025~ オーケストラ… | album | 5 | 5 | 31 |
 | [1000028945](https://vocadb.net/L/1000028945) | 初音ミクシンフォニー ~Miku Symphony 2020~ オーケストラ… | album | 3 | 3 | 17 |
 | [1000037020](https://vocadb.net/L/1000037020) | 初音ミクシンフォニー ~Miku Symphony 2022~ オーケストラ… | album | 3 | 3 | 14 |
 | [1000045255](https://vocadb.net/L/1000045255) | 初音ミクシンフォニー ~Miku Symphony 2024~ オーケストラ… | album | 3 | 3 | 22 |
 | [214](https://vocadb.net/L/214) | Hatsune Miku "Magical Mirai" 2014 | vocadb | 2 | 2 | 25 |
-| [6950](https://vocadb.net/L/6950) | Miku Expo 2016 China | vocadb | 2 | 4 | 26 |
+| [221](https://vocadb.net/L/221) | Miku Expo 2014 USA | vocadb | 2 | 4 | 27 |
+| [6950](https://vocadb.net/L/6950) | Miku Expo 2016 China | vocadb | 2 | 8 | 26 |
 | [8631](https://vocadb.net/L/8631) | Miku Expo 2020 London/Berlin | vocadb | 2 | 2 | 25 |
 | [1000026491](https://vocadb.net/L/1000026491) | 初音ミクシンフォニー ~Miku Symphony 2018-2019~ オ… | album | 2 | 2 | 16 |
 | [1000027432](https://vocadb.net/L/1000027432) | 初音ミクシンフォニー ~Miku Symphony 2019~ オーケストラ… | album | 2 | 2 | 21 |
 | [1000030905](https://vocadb.net/L/1000030905) | 初音ミクシンフォニー ~Miku Symphony 2021~ オーケストラ… | album | 2 | 2 | 17 |
 | [1000030961](https://vocadb.net/L/1000030961) | 初音ミクシンフォニー ~Miku Symphony 2017~ オーケストラ… | album | 2 | 2 | 15 |
 | [1000040398](https://vocadb.net/L/1000040398) | 初音ミクシンフォニー ~Miku Symphony 2023~ オーケストラ… | album | 2 | 2 | 25 |
+| [12](https://vocadb.net/L/12) | Hatsune Miku Live Party 2011 Mikupa♪ S… | vocadb | 1 | 2 | 26 |
 | [31](https://vocadb.net/L/31) | Hatsune Miku Live Party 2012 Mikupa♪ H… | vocadb | 1 | 1 | 25 |
+| [82](https://vocadb.net/L/82) | Hatsune Miku Live Party 2013 Mikupa♪ S… | vocadb | 1 | 4 | 26 |
+| [213](https://vocadb.net/L/213) | Miku Expo 2014 Indonesia | vocadb | 1 | 3 | 27 |
 | [217](https://vocadb.net/L/217) | Hatsune Miku Live Party 2012 Mikupa♪ T… | vocadb | 1 | 1 | 33 |
 | [3952](https://vocadb.net/L/3952) | ミクの日感謝祭 39's Giving Day Project DIVA p… | vocadb | 1 | 1 | 40 |
 | [3953](https://vocadb.net/L/3953) | Hatsune Miku Live Party 2011 Mikupa♪ T… | vocadb | 1 | 1 | 39 |
 | [3954](https://vocadb.net/L/3954) | Hatsune Miku Live Party 2013 Mikupa♪ K… | vocadb | 1 | 1 | 39 |
-| [6572](https://vocadb.net/L/6572) | Miku Expo 2016 Taiwan | vocadb | 1 | 2 | 26 |
+| [6572](https://vocadb.net/L/6572) | Miku Expo 2016 Taiwan | vocadb | 1 | 3 | 26 |
 | [7024](https://vocadb.net/L/7024) | Hatsune Miku × Kodō Special Live | vocadb | 1 | 2 | 19 |
 | [7979](https://vocadb.net/L/7979) | Miku Expo 2018 Paris | vocadb | 1 | 1 | 26 |
 | [7985](https://vocadb.net/L/7985) | Miku Expo 2018 Cologne | vocadb | 1 | 1 | 26 |
@@ -420,8 +286,10 @@
 | [8104](https://vocadb.net/L/8104) | Miku Expo 2019 Hong Kong | vocadb | 1 | 1 | 25 |
 | [8641](https://vocadb.net/L/8641) | Miku Expo 2020 Paris | vocadb | 1 | 1 | 25 |
 | [8654](https://vocadb.net/L/8654) | Miku Expo 2020 Amsterdam | vocadb | 1 | 1 | 25 |
+| [8961](https://vocadb.net/L/8961) | Hatsune Miku × Kodō Special Live 2018 | vocadb | 1 | 3 | 21 |
 | [9192](https://vocadb.net/L/9192) | MIKU WITH YOU 2020 | vocadb | 1 | 1 | 18 |
 | [10011](https://vocadb.net/L/10011) | MIKU WITH YOU 2021 | vocadb | 1 | 1 | 17 |
+| [13030](https://vocadb.net/L/13030) | Hatsune Miku × Kodō Special Live 2023 … | vocadb | 1 | 2 | 20 |
 | [14426](https://vocadb.net/L/14426) | HATSUNE MIKU EXPO 2023 VR Setlist | vocadb | 1 | 1 | 14 |
 | [1000019737](https://vocadb.net/L/1000019737) | 初音ミクシンフォニー ~Miku Symphony 2016~ オーケストラ… | album | 1 | 1 | 18 |
 | [1000039621](https://vocadb.net/L/1000039621) | 初音ミクシンフォニー ~Miku Symphony 2023~ Live a… | album | 1 | 1 | 24 |
