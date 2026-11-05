@@ -730,6 +730,8 @@ export const buildPerformanceSetlists = (
  * Attribution method for one 演出, preferring the hand-checked value.
  * An album tracklist applies to every 场次 of its 演出 as one release, so it counts as
  * `vocadb-shared`: `source_kind = 'album'` already tells the page where the rows came from.
+ * A cited outside source only upgrades `unresolved` to `external`: when the notes already
+ * placed the rows, the source confirmed the schedule rather than the attribution.
  */
 const resolveAttribution = (
   curation: PerformanceCuration | undefined,
@@ -743,7 +745,7 @@ const resolveAttribution = (
   if (lines.length === 0) return 'unresolved'
   if (lines.every((line) => isSharedLine(line))) return 'vocadb-shared'
   if (lines.some((line) => !isSharedLine(line) && !line.uncertain)) return 'vocadb-note'
-  return 'unresolved'
+  return curation?.sources !== undefined && curation.sources.length > 0 ? 'external' : 'unresolved'
 }
 
 /**

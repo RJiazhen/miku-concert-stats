@@ -659,7 +659,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in OSAKA
 - 场次：2018-08-25 日场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -679,7 +679,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in OSAKA
 - 场次：2018-08-25 夜场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -699,7 +699,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in OSAKA
 - 场次：2018-08-26 日场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -719,7 +719,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in OSAKA
 - 场次：2018-08-26 夜场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -779,7 +779,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in TOKYO
 - 场次：2018-09-01 日场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3"]
 
 - [ ] 确认当前数据正确
@@ -799,7 +799,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in TOKYO
 - 场次：2018-09-01 夜场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3"]
 
 - [ ] 确认当前数据正确
@@ -819,7 +819,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in TOKYO
 - 场次：2018-09-02 日场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3"]
 
 - [ ] 确认当前数据正确
@@ -839,7 +839,7 @@
 - 演出：初音ミク「マジカルミライ 2018」in TOKYO
 - 场次：2018-09-02 夜场
 - 当前数据：27 首，省略 6 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3"]
 
 - [ ] 确认当前数据正确
@@ -999,7 +999,7 @@
 - 演出：MIKU WITH YOU 2018 in Shanghai
 - 场次：2018-10-27 日场
 - 当前数据：25 首，省略 7 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1019,7 +1019,7 @@
 - 演出：MIKU WITH YOU 2018 in Shanghai
 - 场次：2018-10-27 夜场
 - 当前数据：25 首，省略 7 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1039,7 +1039,7 @@
 - 演出：MIKU WITH YOU 2018 in Shanghai
 - 场次：2018-10-28 日场
 - 当前数据：25 首，省略 7 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1059,7 +1059,7 @@
 - 演出：MIKU WITH YOU 2018 in Shanghai
 - 场次：2018-10-28 夜场
 - 当前数据：25 首，省略 7 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1099,7 +1099,7 @@
 - 演出：MIKU WITH YOU 2019 in Shanghai
 - 场次：2019-11-02 日场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1119,7 +1119,7 @@
 - 演出：MIKU WITH YOU 2019 in Shanghai
 - 场次：2019-11-02 夜场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1139,7 +1139,7 @@
 - 演出：MIKU WITH YOU 2019 in Shanghai
 - 场次：2019-11-03 日场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1159,7 +1159,7 @@
 - 演出：MIKU WITH YOU 2019 in Shanghai
 - 场次：2019-11-03 夜场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1179,7 +1179,7 @@
 - 演出：MIKU WITH YOU 2019 in Chengdu
 - 场次：2019-11-09
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1199,7 +1199,7 @@
 - 演出：MIKU WITH YOU 2019 in Beijing
 - 场次：2019-11-16 日场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1219,7 +1219,7 @@
 - 演出：MIKU WITH YOU 2019 in Beijing
 - 场次：2019-11-16 夜场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1239,7 +1239,7 @@
 - 演出：MIKU WITH YOU 2019 in Guangzhou
 - 场次：2019-11-23 日场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1259,7 +1259,7 @@
 - 演出：MIKU WITH YOU 2019 in Guangzhou
 - 场次：2019-11-23 夜场
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -1279,7 +1279,7 @@
 - 演出：MIKU WITH YOU 2019 in Guangzhou
 - 场次：2019-11-24
 - 当前数据：25 首，省略 4 行
-- 归属方式：unresolved（数据来自非高置信度来源，见 F 节）
+- 归属方式：external（数据来自非高置信度来源，见 F 节）
 - 解析原因：["city-only when city has several shows: 2"]
 
 - [ ] 确认当前数据正确
@@ -2359,7 +2359,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in SENDAI
 - 场次：2025-08-01 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2379,7 +2379,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in SENDAI
 - 场次：2025-08-02 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2399,7 +2399,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in SENDAI
 - 场次：2025-08-02 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2419,7 +2419,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in SENDAI
 - 场次：2025-08-03 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2439,7 +2439,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in SENDAI
 - 场次：2025-08-03 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2459,7 +2459,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in OSAKA
 - 场次：2025-08-09 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2479,7 +2479,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in OSAKA
 - 场次：2025-08-09 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2499,7 +2499,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in OSAKA
 - 场次：2025-08-10 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2519,7 +2519,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in OSAKA
 - 场次：2025-08-10 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2539,7 +2539,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in OSAKA
 - 场次：2025-08-11 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2559,7 +2559,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in OSAKA
 - 场次：2025-08-11 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2579,7 +2579,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in TOKYO
 - 场次：2025-08-29 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2599,7 +2599,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in TOKYO
 - 场次：2025-08-29 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2619,7 +2619,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in TOKYO
 - 场次：2025-08-30 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2639,7 +2639,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in TOKYO
 - 场次：2025-08-30 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2659,7 +2659,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in TOKYO
 - 场次：2025-08-31 日场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -2679,7 +2679,7 @@
 - 演出：初音ミク「マジカルミライ 2025」in TOKYO
 - 场次：2025-08-31 夜场
 - 当前数据：25 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3339,7 +3339,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in HAMAMATSU
 - 场次：2026-07-24 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3359,7 +3359,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in HAMAMATSU
 - 场次：2026-07-24 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3379,7 +3379,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in HAMAMATSU
 - 场次：2026-07-25 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3399,7 +3399,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in HAMAMATSU
 - 场次：2026-07-25 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3419,7 +3419,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in HAMAMATSU
 - 场次：2026-07-26 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3439,7 +3439,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in HAMAMATSU
 - 场次：2026-07-26 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3459,7 +3459,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in OSAKA
 - 场次：2026-08-14 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3479,7 +3479,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in OSAKA
 - 场次：2026-08-14 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3499,7 +3499,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in OSAKA
 - 场次：2026-08-15 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3519,7 +3519,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in OSAKA
 - 场次：2026-08-15 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3539,7 +3539,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in OSAKA
 - 场次：2026-08-16 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3559,7 +3559,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in OSAKA
 - 场次：2026-08-16 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3579,7 +3579,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in TOKYO
 - 场次：2026-08-28 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3599,7 +3599,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in TOKYO
 - 场次：2026-08-28 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3619,7 +3619,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in TOKYO
 - 场次：2026-08-29 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3639,7 +3639,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in TOKYO
 - 场次：2026-08-29 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3659,7 +3659,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in TOKYO
 - 场次：2026-08-30 日场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -3679,7 +3679,7 @@
 - 演出：初音ミク「マジカルミライ 2026」in TOKYO
 - 场次：2026-08-30 夜场
 - 当前数据：26 首，省略 2 行
-- 归属方式：unresolved
+- 归属方式：external
 - 解析原因：["city-only when city has several shows: 3","day with day/night shows"]
 
 - [ ] 确认当前数据正确
@@ -4659,7 +4659,7 @@
 
 - 演出：MIKU WITH YOU 2018 in Shanghai
 - 已采用：4 个场次 / 每场 25 首
-- VocaDB 现状：unresolved
+- VocaDB 现状：未定位到该场，已由外部来源补足
 - 来源：萌娘百科：未来有你·初音未来2018中国巡回演唱会（medium，2026-11-05）https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会
 - 说明：萌娘百科：上海站 10/27、10/28 各昼 + 夜，共 4 场
 
@@ -4678,7 +4678,7 @@
 
 - 演出：MIKU WITH YOU 2019 in Shanghai
 - 已采用：4 个场次 / 每场 25 首
-- VocaDB 现状：unresolved
+- VocaDB 现状：未定位到该场，已由外部来源补足
 - 来源：萌娘百科：未来有你·初音未来2019中国巡回演唱会（medium，2026-11-05）https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会
 - 说明：萌娘百科：上海站 11/2、11/3 各昼 + 夜，共 4 场；A 版歌单
 
@@ -4697,7 +4697,7 @@
 
 - 演出：MIKU WITH YOU 2019 in Chengdu
 - 已采用：1 个场次 / 每场 25 首
-- VocaDB 现状：unresolved
+- VocaDB 现状：未定位到该场，已由外部来源补足
 - 来源：萌娘百科：未来有你·初音未来2019中国巡回演唱会（medium，2026-11-05）https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会
 - 说明：萌娘百科：成都站 11/9 仅夜场 1 场；B 版歌单
 
@@ -4716,7 +4716,7 @@
 
 - 演出：MIKU WITH YOU 2019 in Beijing
 - 已采用：2 个场次 / 每场 25 首
-- VocaDB 现状：unresolved
+- VocaDB 现状：未定位到该场，已由外部来源补足
 - 来源：萌娘百科：未来有你·初音未来2019中国巡回演唱会（medium，2026-11-05）https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会
 - 说明：萌娘百科：北京站 11/16 昼 + 夜共 2 场；A 版歌单
 
@@ -4735,7 +4735,7 @@
 
 - 演出：MIKU WITH YOU 2019 in Guangzhou
 - 已采用：3 个场次 / 每场 25 首
-- VocaDB 现状：unresolved
+- VocaDB 现状：未定位到该场，已由外部来源补足
 - 来源：萌娘百科：未来有你·初音未来2019中国巡回演唱会（medium，2026-11-05）https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会
 - 说明：萌娘百科：广州站 11/23 昼+夜、11/24 仅夜，共 3 场（与 docs/data-issues.md §2.3 记为 2 场不一致，按萌娘展开）
 
