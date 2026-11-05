@@ -6,7 +6,8 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { songCharacters, type SongCredits } from '~/composables/useCharacters.ts'
-import { displayArtistString, producerCredit } from '~~/shared/credit.ts'
+import { displayArtistString } from '~~/shared/credit.ts'
+import { producerNamesFor } from '~~/shared/producer-options.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
 import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.ts'
@@ -91,13 +92,13 @@ const variantRows = computed(() => {
   return variantIds.value.map((id) => {
     const entry = variants.entries.get(id)
     const variantSong = songById(id)
-    const artistString = variantSong?.artist_string ?? null
     // A variant without its own cast is sung by the same characters as the original.
     const ownCharacters = songCharacters(variantSong ?? null)
     const characters = ownCharacters.length > 0 ? ownCharacters : canonicalCharacters
-    const producer = producerCredit(artistString)
+    // The song entry's structured roster wins; `artist_string` is only the fallback.
+    const producer = variantSong ? producerNamesFor(variantSong).join('、') : ''
     const meta: string[] = []
-    if (producer !== null) meta.push(`制作人 ${producer}`)
+    if (producer !== '') meta.push(`制作人 ${producer}`)
     if (characters.length > 0) meta.push(`演出角色 ${characters.join('、')}`)
     return {
       id,

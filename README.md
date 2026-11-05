@@ -68,11 +68,13 @@ cp .env.example .env
 pnpm snapshot:youtube
 ```
 
-生成歌单差异报告：
+生成报表：
 
 ```bash
-pnpm report:setlist          # 重写 docs/reports/setlist-differences.{md,csv}
-pnpm report:setlist --check  # 只校验已提交的报告是否过期（CI 使用）
+pnpm report:setlist            # 重写 docs/reports/setlist-differences.{md,csv}
+pnpm report:setlist --check    # 只校验已提交的报告是否过期（CI 使用）
+pnpm report:producers          # 重写 docs/reports/producer-conflicts.md（制作人署名冲突）
+pnpm report:producers --check  # 只校验已提交的制作人冲突报告是否过期（CI 使用）
 ```
 
 ## 构建与部署

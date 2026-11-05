@@ -80,11 +80,19 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `rankSongAppearances`：排行。`event`（按演出）对每条 `performances` 行最多计 1，同一年大阪 / 东京两个城市站各计一次；`show`（按场次，默认）计 `shared/event-schedule.ts` 推导的场次：三日巡演计 3，同日日场 + 夜场计 2，无日期的演出没有场次、按场次不计、按演出仍计 1。备注写了天 / 半天 / 场次号时只计对应场次，否则一行计入该演出的全部场次。默认排除 `role = broadcast` 以及名称、日文名、`series_suffix` 命中 livestream / online / オンライン / VR / 配信 的演出。`role = component` 默认不计。每行带 `variantSongIds`，供页面标注「含 N 个版本」。
 - 所有计数函数接受可选的 `SongVariantIndex`，默认不合并版本。
 
-`shared/credit.ts` 也负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都过滤 VocaDB 的 `Unknown producer(s)` / `Unknown artist` 占位并返回 `null`（页面显示「未记录」）；`/raw` 的歌曲表与单曲页仍用 `producerCredit`，排行的「制作人」列按下一段的优先级取值。`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）请求每首歌的 `fields=Artists`，只保留 `categories` / `roles` 含 `Vocalist` 的条目，写成 `data/increments/0006-song-vocalists.sql` 的 `song_vocalists` 行（`song_id`、`name`）。`artist_string` 会把大编制合唱压成 `feat. various`（Hand in Hand 的现场翻唱实际是 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン），所以「演出角色」以这张表为先；表里没有该歌时退回 `artist_string` 的 `feat.` 名单。`SongRow.vocalists` 由 `shared/catalog.ts` 读取时拼好，`shared/characters.ts` 的 `assignCharacters` 优先用它。
+`shared/credit.ts` 也负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都过滤 VocaDB 的 `Unknown producer(s)` / `Unknown artist` 占位并返回 `null`（页面显示「未记录」）；`/raw` 的歌曲表仍用 `producerCredit` 展示原始署名，排行的「制作人」列与单曲页的版本卡片按下一段的规则取值。`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）请求每首歌的 `fields=Artists`，只保留 `categories` / `roles` 含 `Vocalist` 的条目，写成 `data/increments/0006-song-vocalists.sql` 的 `song_vocalists` 行（`song_id`、`name`）。`artist_string` 会把大编制合唱压成 `feat. various`（Hand in Hand 的现场翻唱实际是 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン），所以「演出角色」以这张表为先；表里没有该歌时退回 `artist_string` 的 `feat.` 名单。`SongRow.vocalists` 由 `shared/catalog.ts` 读取时拼好，`shared/characters.ts` 的 `assignCharacters` 优先用它。
 
 `scripts/vocadb/producers.ts`（`pnpm collect:producers`）同样请求每首歌的 `fields=Artists`，把 `categories` 含 `Producer`、或 `roles` 含 `Composer` / `Arranger` / `VoiceManipulator` 的署名按 VocaDB `artist.id` 去重后，写入 `data/increments/0007-song-producers.sql` 的 `song_producers` 行（`song_id`、`artist_id`、`name`、`roles`）。`roles` 是可审计的证据：`Producer` 类别记作 `producer`，再按源顺序追加命中的角色并转小写（例如 `producer, composer`）；占位名（`Unknown producer(s)`）和没有 artist id 的署名不写入。这组条件取自 VocaDB 自身的「Producers」分区（`categories` 为 `Producer`，或角色为 Arranger / Composer / Voice manipulator；Lyricist 属于 Other artists），见 <https://wiki.vocadb.net/docs/song-entry-page> 与 <https://wiki.vocadb.net/docs/song-entry-editing>；`roles` 返回 `Default` 表示沿用 artist type 的默认角色，本身不算证据，所以这类署名只靠 `categories` 入选。因此 Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumentalist，以及只有 Label / Circle 的署名都不是制作人；`VoiceManipulator`（調声 / 調音）属于制作侧，特意保留。该增量只重写自己派生的 `song_producers`（先 `DELETE` 再 `INSERT OR IGNORE`），不触碰其他表，因此不会改动已有的音乐 / 歌单数据。
 
-展示优先级：排行的「制作人」列与筛选先取结构化的 `song_producers` 名单（按 artist 去重，用 `, ` 连接）；只有该行（含合并的版本组）完全没有结构化行时，才退回 `producerCredit(artist_string)` 的自由文本。这样 `Tell Your World` 只显示 `kz`，不再显示 VocaDB 标为 Publisher 的 `Google`；`supercell`、`OTOIRO`、`Various artists` 等社团、厂牌或占位署名也不会再混进制作人。`shared/producer-options.ts` 的 `producerNamesFor` 做单曲判断，`producerNamesForSongs` 把同一规则应用到合并版本组；`availableProducers` 从每行实际展示的 `producerList` 生成选项，筛选匹配同一名单，并写入 URL 的 `producer` 参数。
+**制作人名单的规则（核对制作人数据时以这条为准）**
+
+1. 歌曲条目里的制作人名单（`song_producers`，来自 VocaDB `fields=Artists`）为准。
+2. 仅当歌曲条目没有任何制作人记录时，才用 `artist_string`（歌单里显示的署名）解析。
+3. 两者冲突时显示仍按 ①，同时把冲突写进 `docs/reports/producer-conflicts.md`，人工确认后才改。
+
+结构化名单只收录制作侧职务的证据：`Producer` 类别，以及 `Composer` / `Arranger` / `VoiceManipulator` 角色（`roles` 列保存小写证据）。Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumentalist，以及只有 Label / Circle 的署名不算制作人；`VoiceManipulator`（調声 / 調音）属于制作侧，特意保留。因此 `Tell Your World` 只显示 `kz`，不显示 VocaDB 标为 Publisher 的 `Google`；`supercell`、`OTOIRO`、`livetune`、`Various artists` 等社团、厂牌或整张合辑署名也不会混进制作人。`shared/producer-options.ts` 的 `producerNamesFor` 做单曲判断，`producerNamesForSongs` 把同一规则应用到合并版本组；`availableProducers` 从每行实际展示的 `producerList` 生成选项，筛选匹配同一名单，并写入 URL 的 `producer` 参数。
+
+`shared/producer-conflicts.ts` 把每首歌的自由文本与结构化名单做集合比较，分成 `agree` / `structured-only` / `extra-in-text` / `extra-in-structured` / `conflicting`（两边各有对方没有的名字）。`scripts/producer-conflict-report.ts`（`pnpm report:producers`）写出 `docs/reports/producer-conflicts.md`，按冲突严重度排序，逐条列出结构化名字与 `roles` 证据、自由文本名字和精确差异，每类附「如何处理」；`--check` 供 CI 校验已提交的报告没有过期，每周工作流会重新生成并随 `docs/reports` 一起提交。报告只做记录，不改任何数据；结论要维护者确认后才落到 VocaDB 或本仓库。
 
 `shared/song-variants.ts` 校验 `data/song-variants.json`：键是变体歌曲 id，值含 `canonical`、`kind`（`remix` / `remaster` / `voicebank` / `cover` / `language`）与可选 `note`。链式映射（canonical 本身也是变体）与自指会抛错。导出 `canonicalSongId`、`variantSongIdsOf`、`groupSongIds`。
 
@@ -153,7 +161,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown；范围是同一系列年度或相邻系列年度 |
-| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人取自 `artist_string` 的 `feat.` 前、去掉 VocaDB 的 `Unknown producer(s)` 占位；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次；相关投稿有快照时附播放量 |
+| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人先取该版本的 `song_producers`，没有时才退回 `artist_string` 的 `feat.` 前并去掉 VocaDB 的 `Unknown producer(s)` 占位；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次；相关投稿有快照时附播放量 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一个演出的场次列表、轮换解析结果与长度一致性；歌单来自专辑时显示来源提示。面包屑只有 系列 → 演出 两级，系列项链到 `/series/{id}` |
 | `/series` | `app/pages/series/index.vue` | 系列与演出总览。上半是系列表（演出数、场次、年份跨度、首次与最近演出），下半是全部演出的表（日期、演出、系列、场馆、场次），可按系列筛选与排序；两张表都链到 `/series/{id}` 与 `/shows/{id}` |
 | `/series/{id}` | `app/pages/series/[id].vue` | 系列主页：该系列的全部演出（每个城市站一行，列出日期、场馆与场次数并链到 `/shows/{id}`），带年份跨度、演出数与场次合计，页头链回 `/series` 总览。站内只有 系列 → 演出 → 场次 三级，不再有年度索引页 |
@@ -380,9 +388,9 @@ Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `np
 
 ### GitHub Actions
 
-`.github/workflows/ci.yml`（`ci`）在指向 `main` 的 push，以及所有 pull request 上运行。Node 22，`pnpm install --frozen-lockfile`，然后 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:catalog`、`pnpm report:setlist --check`。
+`.github/workflows/ci.yml`（`ci`）在指向 `main` 的 push，以及所有 pull request 上运行。Node 22，`pnpm install --frozen-lockfile`，然后 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:catalog`、`pnpm report:setlist --check`、`pnpm report:producers --check`。
 
-`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC 和手动触发时运行。它执行 `pnpm collect`、`pnpm snapshot:youtube` 与 `pnpm report:setlist`，`data/increments` 或 `docs/reports` 有差异时由 `github-actions[bot]` 提交并推送。
+`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC 和手动触发时运行。它执行 `pnpm collect`、`pnpm snapshot:youtube`、`pnpm report:setlist` 与 `pnpm report:producers`，`data/increments` 或 `docs/reports` 有差异时由 `github-actions[bot]` 提交并推送。
 
 ## 协作与提交约定
 

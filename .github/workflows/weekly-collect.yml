@@ -26,6 +26,8 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - name: Regenerate the setlist difference report
         run: pnpm report:setlist
+      - name: Regenerate the producer conflict report
+        run: pnpm report:producers
       - name: Commit SQL increments and report
         run: |
           git diff --quiet -- data/increments docs/reports && exit 0

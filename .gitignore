@@ -12,3 +12,4 @@ public/sql-wasm.wasm
 .env
 .env.*
 !.env.example
+tmp/

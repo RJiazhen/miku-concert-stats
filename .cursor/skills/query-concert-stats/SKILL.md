@@ -66,7 +66,7 @@ The current built catalog has 7 `series` rows, 207 `performances`, 448 `songs`, 
 | `setlist_item_songs` | one song counted from a line | `song_list_id`, `position`, `song_id`, `role` (`listed` / `component`) |
 | `songs` | one song entry | `id`, `name`, `name_ja`, `name_en`, `artist_string`, `song_type`, `publish_date`, `source_url` (`vocadb.net/S/{id}`) |
 | `song_vocalists` | one credited vocalist of a song | `song_id`, `name`; this is the preferred cast source over `artist_string` |
-| `song_producers` | one producer-side credit of a song | `song_id`, `artist_id` (VocaDB artist id), `name`, `roles`; mirrors VocaDB's song-page "Producers" section (`Producer` category, plus Composer / Arranger / Voice manipulator roles), so lyricists are absent. Display still prefers `artist_string`, which keeps circles such as `supercell` |
+| `song_producers` | one producer-side credit of a song | `song_id`, `artist_id` (VocaDB artist id), `name`, `roles`; mirrors VocaDB's song-page "Producers" section (`Producer` category, plus Composer / Arranger / Voice manipulator roles), so lyricists are absent. This structured roster is authoritative for display and the producer filter; `artist_string` is only the fallback when the song entry records no producer. Disagreements are recorded in `docs/reports/producer-conflicts.md` (`pnpm report:producers`), so quote that instead of parsing `artist_string` |
 
 Supporting tables: `medley_quarantine` (mashup lines that could not be split; excluded from counts), `videos` (PV links; `platform` is `niconico` / `youtube` / `bilibili`), `view_snapshots` (dated counts), `milestones`, `edition_premieres` (earliest non-broadcast 演出 of a series year), `performance_links`, `conversion_formulas`, `sources` (VocaDB attribution).
 
@@ -264,7 +264,7 @@ Do not claim VocaDB endorses the site or your answer. Do not redistribute third-
 ### Do not scrape, do not invent
 
 - Use the catalog or `/api/lookup`; do not fetch `/songs/{id}`, `/shows/{id}`, `/` to parse numbers. Page HTML is a rendered view, not an API.
-- Do not invent producer or vocalist credits. `songs.artist_string` is the full credit; `songs.artist_string` may collapse a large cast to `feat. various`. Use `song_vocalists` first. The "制作人" column is the text before `feat.` and filters VocaDB `Unknown producer(s)` / `Unknown artist` placeholders; missing means "未记录".
+- Do not invent producer or vocalist credits. `songs.artist_string` is the full credit; `songs.artist_string` may collapse a large cast to `feat. various`. Use `song_vocalists` first. The "制作人" column uses the structured `song_producers` roster first (authoritative, producer-side jobs only) and only falls back to the text before `feat.` when the song entry names no producer; VocaDB `Unknown producer(s)` / `Unknown artist` placeholders are dropped, and missing means "未记录". Free-text-only names that disagree with the structured roster are listed in `docs/reports/producer-conflicts.md`; quote that report instead of guessing.
 - Do not invent a setlist that VocaDB does not have. Do not fill gaps from a studio album unless the catalog already records that fallback.
 - Do not report a quarantined mashup line as one song. Do not report `role = 'component'` rows as standalone songs unless the user explicitly asks for components.
 
