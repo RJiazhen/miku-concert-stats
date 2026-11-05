@@ -6,7 +6,18 @@
 
 模块划分、数据流，以及怎么跑、构建和部署，见 [docs/architecture.md](docs/architecture.md)。
 
-外部 AI agent 的调用说明（目录、公开路由、SQL 示例与计数口径）见 [`.cursor/skills/query-concert-stats/SKILL.md`](.cursor/skills/query-concert-stats/SKILL.md)。
+外部 AI agent 的调用说明（目录、公开路由、SQL 示例与计数口径）见 [`skills/query-concert-stats/SKILL.md`](skills/query-concert-stats/SKILL.md)。
+
+## 安装给外部 agent
+
+这个 skill 放在仓库根的 `skills/` 目录，遵循公开的 Agent Skills 布局，不依赖 Cursor。任何支持该生态的工具（Claude Code、Codex、Gemini CLI、Cursor 等）都可以安装：
+
+```bash
+npx skills add RJiazhen/miku-concert-stats@query-concert-stats
+npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g   # 全局安装
+```
+
+它不需要任何密钥或账号，只读取公开数据。装不了 npm 包的 agent 可以直接读 [`skills/query-concert-stats/SKILL.md`](skills/query-concert-stats/SKILL.md)。
 
 ## 站点
 

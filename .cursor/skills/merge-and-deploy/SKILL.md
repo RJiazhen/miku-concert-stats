@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # 合并到 main 并触发生产部署
 
+> 可安装给外部 agent 的公开 skill 在仓库根的 `skills/`；本文件是 Cursor 专用的内部流程，不发布。
+
 ## 前提事实
 
 - 仓库 `RJiazhen/miku-concert-stats`，远端 `origin`。
