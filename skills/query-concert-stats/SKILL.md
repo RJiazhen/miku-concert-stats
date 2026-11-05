@@ -5,7 +5,7 @@ description: Answer Hatsune Miku concert setlist and song-appearance questions f
 
 # Query Hatsune Miku concert statistics
 
-This is the skill for the site <https://miku-concert-stats.zc791.workers.dev>. It explains how to answer setlist and song-appearance questions **from data**, without scraping the site's HTML. The site is a Nuxt 4 + Cloudflare Workers frontend; its aggregation runs in the browser against a SQLite catalog. The same catalog is downloadable, so an agent can compute answers locally.
+This is the skill for the site <https://miku-concert-stats.rjiazhen.top>. It explains how to answer setlist and song-appearance questions **from data**, without scraping the site's HTML. The site is a Nuxt 4 + Cloudflare Workers frontend; its aggregation runs in the browser against a SQLite catalog. The same catalog is downloadable, so an agent can compute answers locally.
 
 ## Contents
 
@@ -100,7 +100,7 @@ On-demand VocaDB song search. Use it only when the catalog cannot answer the que
 `artistString` may be `null`. `pvs` only contains enabled PVs on `niconico`, `youtube`, or `bilibili`; disabled PVs and unsupported services are dropped. If VocaDB fails, the route returns **502**. It is rate-limited by Cloudflare only (there is **no app-level quota**). Be considerate: results are cached upstream only by the browser, so repeated tool calls re-query VocaDB.
 
 ```http
-GET https://miku-concert-stats.zc791.workers.dev/api/lookup?q=%E3%83%A1%E3%83%AB%E3%83%88
+GET https://miku-concert-stats.rjiazhen.top/api/lookup?q=%E3%83%A1%E3%83%AB%E3%83%88
 ```
 
 ### `POST /api/feedback`
@@ -115,13 +115,13 @@ Public, write-only error report used by the floating “报告错误” button. 
 - There is no auth, captcha, dedupe, or app-level rate limit on this route. It is only for a real user asking to report a data problem; never use it as a test endpoint, a log sink, or a way to submit generated content.
 
 ```http
-POST https://miku-concert-stats.zc791.workers.dev/api/feedback
+POST https://miku-concert-stats.rjiazhen.top/api/feedback
 Content-Type: application/json
 
 {
   "description": "The 2024 Osaka setlist is missing a song.",
   "sourceUrl": "https://vocadb.net/E/12345",
-  "pageUrl": "https://miku-concert-stats.zc791.workers.dev/shows/12345",
+  "pageUrl": "https://miku-concert-stats.rjiazhen.top/shows/12345",
   "pageTitle": "初音ミク「マジカルミライ 2024」in OSAKA"
 }
 ```
@@ -143,7 +143,7 @@ The `?v=` hash is a browser cache key, not an API. If you need the freshest poss
 Download once, decompress, open read-only, then run SQL or port the shared functions.
 
 ```bash
-BASE=https://miku-concert-stats.zc791.workers.dev
+BASE=https://miku-concert-stats.rjiazhen.top
 
 # Fast path: gzip copy (about 260 KB in the current build).
 curl -fL "$BASE/data/catalog.sqlite.gz" -o catalog.sqlite.gz
@@ -289,7 +289,7 @@ Each recipe ends with the fields to report. Numbers below are from the catalog b
 
 ### (a) “How many times was song X performed, by show and by event?”
 
-**Open:** the catalog (not a page). **URL for a human:** <https://miku-concert-stats.zc791.workers.dev/> (ranking page).
+**Open:** the catalog (not a page). **URL for a human:** <https://miku-concert-stats.rjiazhen.top/> (ranking page).
 
 First resolve the song id. Never guess it from a title:
 
@@ -345,7 +345,7 @@ WHERE sis.song_id = 1322
 
 ### (b) “Give me the ordered setlist for one performance/show.”
 
-**Open:** the catalog. **URL for a human:** <https://miku-concert-stats.zc791.workers.dev/shows/12251>. Clarify whether the user means a 演出 (performance, `/shows/{id}`) or one 场次 (a day/half within it).
+**Open:** the catalog. **URL for a human:** <https://miku-concert-stats.rjiazhen.top/shows/12251>. Clarify whether the user means a 演出 (performance, `/shows/{id}`) or one 场次 (a day/half within it).
 
 ```sql
 -- Ordered printed lines for performance 12251 (2026 Tokyo, song list 27886).
@@ -396,7 +396,7 @@ Notes such as `Hamamatsu`, `Osaka`, `Tokyo`, `Daytime Shows`, and `Nighttime Sho
 
 ### (c) “List the performances of a series, with dates and cities.”
 
-**Open:** the catalog. **URL for a human:** <https://miku-concert-stats.zc791.workers.dev/series/81>. Series index: <https://miku-concert-stats.zc791.workers.dev/series>.
+**Open:** the catalog. **URL for a human:** <https://miku-concert-stats.rjiazhen.top/series/81>. Series index: <https://miku-concert-stats.rjiazhen.top/series>.
 
 ```sql
 -- Series row first, so the answer names the series.
@@ -423,11 +423,11 @@ ORDER BY p.start_date DESC, p.id DESC;
 
 There is no `city` column. Derive it from `name`, `series_suffix`, and the aliases in `shared/rotation.ts` (`performanceCityKey`) or the aggregation in `shared/cities.ts`; do not guess. Get the 场次 count from `performanceSchedules(catalog, review).get(performance.id)` rather than subtracting dates by hand.
 
-**Report:** `performance.id`, name, `start_date`–`end_date`, derived city, venue, country, `role` (broadcast flag), 场次 count, whether `song_list_id` exists, and `https://miku-concert-stats.zc791.workers.dev/shows/{id}`. Group by `series_number` only when the user asks for a series-year view; it is not a separate 演出.
+**Report:** `performance.id`, name, `start_date`–`end_date`, derived city, venue, country, `role` (broadcast flag), 场次 count, whether `song_list_id` exists, and `https://miku-concert-stats.rjiazhen.top/shows/{id}`. Group by `series_number` only when the user asks for a series-year view; it is not a separate 演出.
 
 ### (d) “Which songs debuted in a given series year?”
 
-**Open:** the catalog. **URL for a human:** the series page, e.g. <https://miku-concert-stats.zc791.workers.dev/series/81>. First clarify the intended meaning: “first appearance in this series” (below) or “first appearance anywhere in the catalog” (drop the series filter and use the year of `start_date`).
+**Open:** the catalog. **URL for a human:** the series page, e.g. <https://miku-concert-stats.rjiazhen.top/series/81>. First clarify the intended meaning: “first appearance in this series” (below) or “first appearance anywhere in the catalog” (drop the series filter and use the year of `start_date`).
 
 ```sql
 -- Songs whose first appearance in series 81 was series year 2024.

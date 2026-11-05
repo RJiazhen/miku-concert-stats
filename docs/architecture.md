@@ -365,15 +365,15 @@ ACCESS_TEAM_DOMAIN = "summer-thunder-62e1.cloudflareaccess.com"
 ACCESS_AUD = "87de2159d583fb4b7536e98227178ba3150fc953ef3a3f817e2f8334cdd00e4b"
 ```
 
-任意一项为空时后台整体 401，不会返回任何反馈数据。之后在浏览器打开 <https://miku-concert-stats.zc791.workers.dev/ops/feedback-inbox>，先完成 Cloudflare 账号登录；页面本身没有密码框。命令行要拿 JSON 时可以交给 `cloudflared` 带上 Access 头：
+任意一项为空时后台整体 401，不会返回任何反馈数据。之后在浏览器打开 <https://miku-concert-stats.rjiazhen.top/ops/feedback-inbox>，先完成 Cloudflare 账号登录；页面本身没有密码框。命令行要拿 JSON 时可以交给 `cloudflared` 带上 Access 头：
 
 ```bash
-cloudflared access curl "https://miku-concert-stats.zc791.workers.dev/api/feedback/list?limit=200" | jq
+cloudflared access curl "https://miku-concert-stats.rjiazhen.top/api/feedback/list?limit=200" | jq
 ```
 
 返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`status`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`；`collectedAt` 由服务端在缺省时补成 `receivedAt`，旧记录还可能带 `viewport`、`catalogVersion`，且缺 `status` 时按 `open` 返回。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
 
-线上地址：<https://miku-concert-stats.zc791.workers.dev>
+线上地址：<https://miku-concert-stats.rjiazhen.top>
 
 Workers Builds（Git 集成）的配置要求：
 

@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 - 仓库 `RJiazhen/miku-concert-stats`，远端 `origin`。
 - 主检出的固定路径：`~/projects/full-stack/miku-concert-stats.worktrees/main`，分支 `main`。其他任务在 `.../miku-concert-stats.worktrees/<branch>` 的 worktree 里。
-- 生产地址 <https://miku-concert-stats.zc791.workers.dev>。
+- 生产地址 <https://miku-concert-stats.rjiazhen.top>。
 - 生产部署由 Workers Builds（Git 集成）完成：push 到 `main` 后自动跑 `pnpm build` 并 `npx wrangler deploy`。它在 GitHub 上表现为名为 `Workers Builds: miku-concert-stats` 的 check run。
 - 不要用 `git checkout` 切换主检出，也不要在 feat worktree 里改 `main`。
 
@@ -82,12 +82,12 @@ done
 ### 5. 验证线上
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' https://miku-concert-stats.zc791.workers.dev/
+curl -s -o /dev/null -w '%{http_code}\n' https://miku-concert-stats.rjiazhen.top/
 pnpm exec wrangler deployments list 2>&1 | head -20
 ```
 
 - 首页返回 `200`，且 `wrangler deployments list` 最新一条的创建时间在本次 push 之后，才算上线成功。
-- 这次改动若影响具体页面，再抓一次该页面确认内容，例如 `curl -s https://miku-concert-stats.zc791.workers.dev/songs/10 | rg '<关键词>'`。
+- 这次改动若影响具体页面，再抓一次该页面确认内容，例如 `curl -s https://miku-concert-stats.rjiazhen.top/songs/10 | rg '<关键词>'`。
 - 改了 `data/` 下的数据时，`catalog.sqlite` 是构建产物，必须等这次 Workers Builds 完成后线上才更新；本地不用手动提交 sqlite。
 
 ### 6. 汇报

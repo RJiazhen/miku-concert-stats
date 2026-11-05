@@ -95,7 +95,9 @@ pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-线上地址：<https://miku-concert-stats.zc791.workers.dev>
+线上地址：<https://miku-concert-stats.rjiazhen.top>
+
+`https://miku-concert-stats.zc791.workers.dev` 仍可访问，是同一个 Worker 的 workers.dev alias；文档、技能与示例统一用上面的自定义域名。
 
 Workers Builds（Git 集成）监听 `main`，push 后自动构建并部署。面板里的配置：
 
@@ -111,7 +113,7 @@ Previews（非 `main` 分支）用同一套 Build command，deploy 换成 `npx w
 
 站点的任何页面都不链接这个地址，只能直接输入 URL：
 
-<https://miku-concert-stats.zc791.workers.dev/ops/feedback-inbox>
+<https://miku-concert-stats.rjiazhen.top/ops/feedback-inbox>
 
 它由 Cloudflare Access 保护，访问者必须先用维护者的 Cloudflare 账号登录，页面本身没有密码框。Worker 会在每个 `/api/feedback` 管理接口上自行校验 `Cf-Access-Jwt-Assertion`（RS256 签名、`aud`、`iss`、`exp`/`nbf`），校验失败一律返回 401 且不返回任何反馈数据；`wrangler.toml` 里 `ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样全部 401。收件箱按「全部 / 未解决 / 已解决」筛选并显示计数，可以手动标记已解决。不提供删除或归档：记录在提交 180 天后自动过期。Access 应用与两项 `[vars]` 的配置步骤见 [docs/architecture.md](docs/architecture.md#wranglertoml)。
 
