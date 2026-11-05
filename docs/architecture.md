@@ -203,15 +203,25 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
 
-`server/api/feedback/list.get.ts`、`server/api/feedback/[id].get.ts` 与 `server/api/feedback/status.post.ts` 组成维护者后台，唯一的使用者是隐藏页面 `app/pages/ops/feedback-inbox.vue`（`/ops/feedback-inbox`）。这个页面不挂在任何导航、页脚或公共组件里，只能直接输入 URL；`definePageMeta({ layout: false })` 去掉站点外壳，`useHead` 写 `robots: noindex, nofollow`。公共站点不链接 `/ops`，改导航时不要加回去。
+`server/api/feedback/list.get.ts`、`server/api/feedback/[id].get.ts` 与 `server/api/feedback/status.post.ts` 组成维护者后台的数据接口；页面在 `app/pages/admin/` 下，统一使用 `app/layouts/admin.vue`（Nuxt UI 的 `UDashboardGroup` + `UDashboardSidebar` + `UDashboardNavbar`）提供完整后台外壳：固定侧栏、顶部导航、登录状态、主题切换与返回站点入口。后台不挂在任何公共导航、页脚或组件里，只能直接输入 URL；`useHead` 写 `robots: noindex, nofollow`。
+
+`/admin` 由 `app/pages/admin/index.vue` 通过 `definePageMeta({ redirect: '/admin/feedback' })` 默认跳到反馈收件箱。其余页面：
+
+- `/admin/feedback`：反馈收件箱，筛选、搜索、状态切换。
+- `/admin/data`：用 `useCatalog` 在浏览器读取公开的 `catalog.sqlite`，展示歌曲 / 演出 / 系列 / 歌单 / 视频规模、平台分布与数据新鲜度。
+- `/admin/system`：`/api/admin/session` 返回的 Access、身份、KV、目录版本与运行环境。
+
+`server/middleware/admin-guard.ts` 在页面渲染前运行：只处理 `GET` / `HEAD` 的 `/admin` 与 `/admin/*`。没有 `Cf-Access-Jwt-Assertion` 时用 `shared/admin.ts` 的 `buildAccessLoginUrl` 302 到 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/login/<hostname>?kid=<ACCESS_AUD>&redirect_url=<原路径>`；已经带着 token 但校验失败时不重定向，避免 Access 登录与失效 token 之间循环，改由页面显示「登录状态无效」。本地 `nuxt dev` 会通过 Cloudflare 模拟读到真实 `[vars]`，但 127.0.0.1 不是 Access 的 destination，所以 `import.meta.dev` 下只渲染后台外壳并提示不会跳转。`ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样不跳转，页面会提示配置缺失。
+
+`server/api/admin/session.get.ts` 返回 `{ configured, identity, storage, catalogVersion, environment, serverTime }`；`configured: false` 时身份为 `null`，让本地开发能渲染配置提示，配置完成后没有有效 token 仍是 401。鉴权成功的身份会由 guard 写入 `event.context.adminSession`，后台布局在 SSR 首屏直接读取，避免为了显示邮箱再发一次请求。
 
 身份完全由 Cloudflare Access 负责，页面里没有密码框。`server/utils/access.ts` 读取 `Cf-Access-Jwt-Assertion` 请求头，用 WebCrypto 验证 RS256 签名（不引入 `jose` 之类的依赖），再校验 `iss` 必须等于 `https://<ACCESS_TEAM_DOMAIN>`、`aud` 必须包含 `ACCESS_AUD`，`exp` 已过期或 `nbf` 尚未生效都拒绝（允许 30 秒时钟偏差），`alg` 只接受 `RS256`（`none` 与 HMAC 混淆直接拒绝）。团队 JWKS 从 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs` 用 `fetch` 取，模块级缓存 5 分钟；取不到就拒绝，密钥轮换最迟 5 分钟后生效。
 
-`server/utils/feedback.ts` 的 `assertFeedbackIdentity(event)` 是唯一入口，list / detail / status 三个路由都在任何 KV 访问之前 `await` 它。任何失败——缺少请求头、绑定为空、签名错误、claim 不符、JWKS 不可达——都抛出同一个 `401 Unauthorized`，body 只有 `data: null`，不返回反馈内容、条数或原因；`ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样全部 401（fail closed）。验证成功的身份（`sub` / `email`）只在 Worker 内部使用，不写进响应，也不写入日志。
+`server/utils/feedback.ts` 的 `assertFeedbackIdentity(event)` 是数据接口的唯一入口，list / detail / status 三个路由都在任何 KV 访问之前 `await` 它。任何失败——缺少请求头、绑定为空、签名错误、claim 不符、JWKS 不可达——都抛出同一个 `401 Unauthorized`，body 只有 `data: null`，不返回反馈内容、条数或原因；`ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样全部 401（fail closed）。验证成功的身份（`sub` / `email`）只在 Worker 内部使用，不写进日志；后台页面只通过受 Access 保护的 session 接口显示邮箱。
 
 `GET /api/feedback/list` 按时间倒序返回最新 50 条（`limit` 最大 200），每条带 `status`；`GET /api/feedback/:id?receivedAt=<ISO>` 读单条；`POST /api/feedback/status` 接收 `{ id, receivedAt, status }`，用同一个 KV key 与同样的 `FEEDBACK_TTL_SECONDS` 重写整条记录，状态只接受 `open` / `resolved`，旧记录缺 `status` 时按 `open` 解析。
 
-收件箱页提供 `全部 / 未解决 / 已解决` 筛选与各自计数（计数来自已加载的那一页，不发第二次请求）。明确不提供删除与归档：KV 本身就是只追加的日志，记录在提交 180 天后由 TTL 自动过期，保留原始描述比腾出空间更重要，也避免误删唯一证据。
+收件箱页提供 `全部 / 未解决 / 已解决` 筛选、各自计数（计数来自已加载的那一页，不发第二次请求）与跨描述 / 页面标题 / 页面链接 / 来源链接的客户端搜索。明确不提供删除与归档：KV 本身就是只追加的日志，记录在提交 180 天后由 TTL 自动过期，保留原始描述比腾出空间更重要，也避免误删唯一证据。
 
 `server/api/feedback.post.ts` 保持公开且行为不变：它不校验身份，只在写入成功后返回 `{ ok, id }`。
 
@@ -242,9 +252,9 @@ flowchart TD
   widget["FeedbackWidget"]
   feedback["POST /api/feedback"]
   feedbackkv["KV binding FEEDBACK"]
-  ops["/ops/feedback-inbox（隐藏页面）"]
-  adminapi["feedback admin APIs"]
-  access["Cloudflare Access JWKS"]
+  admin["/admin（隐藏后台，默认跳 /admin/feedback）"]
+  adminapi["feedback + admin session APIs"]
+  access["Cloudflare Access（登录重定向 + JWKS）"]
   worker["Nitro Worker SSR"]
   lookup["GET /api/lookup"]
   report["docs/reports"]
@@ -280,7 +290,8 @@ flowchart TD
   feedback --> feedbackkv
   adminapi -->|"先校验 Access 身份"| access
   adminapi --> feedbackkv
-  ops -->|"直接输入 URL"| adminapi
+  admin -->|"未登录时 302"| access
+  admin -->|"直接输入 URL"| adminapi
   pages -->|"local miss only"| lookup
   lookup --> vocadb
   sqlite --> report
@@ -295,10 +306,10 @@ flowchart TD
 
 - `[[kv_namespaces]]`：`binding = "FEEDBACK"`，`id` 由 `pnpm exec wrangler kv namespace create FEEDBACK` 生成（当前是 `777b49ffd2744f12a54fc3611ff791e9`）。`nuxt build` 会把它抄进 `.output/server/wrangler.json`，部署时生效。换账号或删掉命名空间后必须重新创建并替换 id。
 - `[vars] ACCESS_TEAM_DOMAIN` / `ACCESS_AUD`：Cloudflare Access 应用的团队域名（如 `example.cloudflareaccess.com`，不带 `https://`，写 `https://` 也能被规范化）与 Audience（AUD）标签。仓库里已填好 2026-11-04 创建的应用；**任意一项为空时所有管理接口都返回 401 且没有 payload**，所以忘记填只会锁死后台，不会泄露反馈。
-- 手工步骤：在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/ops/*` 与 `/api/feedback/*`，策略只允许维护者邮箱；再把这个应用的 AUD 标签与团队域名填进 `[vars]` 并重新部署。注意不要写成 `/api/feedback*`：那会把公开的 `POST /api/feedback` 一起拦在 Access 后面，访客就无法提交反馈了；`/api/feedback/*` 只覆盖 `list` / `status` / `<id>` 这些管理路径。
+- 手工步骤：在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 至少填 `/admin`、`/admin/*`、`/api/admin/*` 与 `/api/feedback/*`，策略只允许维护者邮箱；再把这个应用的 AUD 标签与团队域名填进 `[vars]` 并重新部署。`/admin` 与 `/admin/*` 让 Access 在边缘完成页面登录重定向，也让 Worker 自己拼出的登录 URL 能回到正确路径；`/api/admin/*` 覆盖 session 接口。注意不要写成 `/api/feedback*`：那会把公开的 `POST /api/feedback` 一起拦在 Access 后面，访客就无法提交反馈了；`/api/feedback/*` 只覆盖 `list` / `status` / `<id>` 这些管理路径。
 - 旧的 `FEEDBACK_TOKEN` secret 已不再被读取，管理接口也不接受 query / body 里的 `token`；如需清理线上的历史 secret，可执行 `pnpm exec wrangler secret delete FEEDBACK_TOKEN`。
 
-`nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；本地也没有 Access 应用，`/ops/feedback-inbox` 会停在「需要 Cloudflare Access 登录」的提示上。要看真实数据请在浏览器里完成 Access 登录后打开线上页面。
+`nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；Cloudflare 模拟会把 `[vars]` 带进开发环境，但 127.0.0.1 不是 Access 的 destination，所以 `/admin` 不会跳转，只渲染后台外壳并提示本地不读取真实反馈。要看真实数据请在浏览器里完成 Access 登录后打开线上页面。
 
 ### `data/song-variants.json`
 
@@ -353,9 +364,9 @@ pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-反馈收件箱不再使用 secret，改由 Cloudflare Access 登录。2026-11-04 已创建应用 `miku-concert-stats feedback admin`（destinations：`/ops`、`/ops/*`、`/api/feedback/list`、`/api/feedback/status`、`/api/feedback/*`，策略 `my-cloudflare-account`），两项 `[vars]` 已填好。重建或换账号时的步骤：
+后台不再使用 secret，改由 Cloudflare Access 登录。2026-11-04 已创建应用 `miku-concert-stats feedback admin`（destinations：`/admin`、`/admin/*`、`/api/admin/*`、`/api/feedback/*`，策略 `my-cloudflare-account`），两项 `[vars]` 已填好。重建或换账号时的步骤：
 
-1. 在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/ops`、`/ops/*` 与 `/api/feedback/*`（不要用 `/api/feedback*`，否则会拦住公开的 `POST /api/feedback`）。
+1. 在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/admin`、`/admin/*`、`/api/admin/*` 与 `/api/feedback/*`（不要用 `/api/feedback*`，否则会拦住公开的 `POST /api/feedback`）。
 2. 加一条 Allow 策略，只放行维护者邮箱（需要的话再加 MFA）。
 3. 复制应用的 Audience（AUD）标签与团队域名，填进 `wrangler.toml` 的 `[vars]`，再重新部署。
 
@@ -365,7 +376,7 @@ ACCESS_TEAM_DOMAIN = "summer-thunder-62e1.cloudflareaccess.com"
 ACCESS_AUD = "87de2159d583fb4b7536e98227178ba3150fc953ef3a3f817e2f8334cdd00e4b"
 ```
 
-任意一项为空时后台整体 401，不会返回任何反馈数据。之后在浏览器打开 <https://miku-concert-stats.rjiazhen.top/ops/feedback-inbox>，先完成 Cloudflare 账号登录；页面本身没有密码框。命令行要拿 JSON 时可以交给 `cloudflared` 带上 Access 头：
+任意一项为空时后台整体 401，不会返回任何反馈数据。之后在浏览器打开 <https://miku-concert-stats.rjiazhen.top/admin>，未登录会先 302 到团队 Access 登录页（页面本身没有密码框），登录后回到 `/admin/feedback`。命令行要拿 JSON 时可以交给 `cloudflared` 带上 Access 头：
 
 ```bash
 cloudflared access curl "https://miku-concert-stats.rjiazhen.top/api/feedback/list?limit=200" | jq

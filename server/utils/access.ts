@@ -1,5 +1,5 @@
 /**
- * Cloudflare Access identity checks for the hidden ops backend.
+ * Cloudflare Access identity checks for the hidden `/admin` backend.
  *
  * Only WebCrypto and `fetch` are used, so the same code runs in workerd and in Node tests
  * (no `jose` and no Node-only crypto). Every failure resolves to `null`; callers turn that into a

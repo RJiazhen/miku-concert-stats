@@ -97,8 +97,6 @@ pnpm exec wrangler --cwd .output deploy
 
 线上地址：<https://miku-concert-stats.rjiazhen.top>
 
-`https://miku-concert-stats.zc791.workers.dev` 仍可访问，是同一个 Worker 的 workers.dev alias；文档、技能与示例统一用上面的自定义域名。
-
 Workers Builds（Git 集成）监听 `main`，push 后自动构建并部署。面板里的配置：
 
 - Build command `pnpm build`（依赖由 Workers Builds 先跑 `pnpm install --frozen-lockfile`）。
@@ -109,13 +107,21 @@ Previews（非 `main` 分支）用同一套 Build command，deploy 换成 `npx w
 
 `catalog.sqlite` 是构建产物。构建同时写出 `catalog.sqlite.gz`：Cloudflare 不压缩 sqlite 类型，浏览器改为下载 gzip 副本（约 200 KB，未压缩时 676 KB）并在本地解压，URL 带构建时的内容哈希，可以长期缓存。每周工作流只提交 `data/increments/*.sql` 与 `docs/reports/`，因此数据更新后要再触发一次部署才会出现在线上。
 
-## 反馈收件箱（维护者）
+## 后台（维护者）
 
 站点的任何页面都不链接这个地址，只能直接输入 URL：
 
-<https://miku-concert-stats.rjiazhen.top/ops/feedback-inbox>
+<https://miku-concert-stats.rjiazhen.top/admin>
 
-它由 Cloudflare Access 保护，访问者必须先用维护者的 Cloudflare 账号登录，页面本身没有密码框。Worker 会在每个 `/api/feedback` 管理接口上自行校验 `Cf-Access-Jwt-Assertion`（RS256 签名、`aud`、`iss`、`exp`/`nbf`），校验失败一律返回 401 且不返回任何反馈数据；`wrangler.toml` 里 `ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样全部 401。收件箱按「全部 / 未解决 / 已解决」筛选并显示计数，可以手动标记已解决。不提供删除或归档：记录在提交 180 天后自动过期。Access 应用与两项 `[vars]` 的配置步骤见 [docs/architecture.md](docs/architecture.md#wranglertoml)。
+`/admin` 默认 302 到反馈收件箱 `/admin/feedback`。后台由 Cloudflare Access 保护：未登录的页面请求会被 Worker 302 到团队 Access 登录页，并把原路径作为 `redirect_url` 带回，页面本身没有密码框。Worker 还会在每个 `/api/feedback` 与 `/api/admin` 管理接口上自行校验 `Cf-Access-Jwt-Assertion`（RS256 签名、`aud`、`iss`、`exp`/`nbf`），校验失败一律返回 401 且不返回任何数据；`wrangler.toml` 里 `ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样全部 401。
+
+后台使用 Nuxt UI 的 Dashboard 布局，包含：
+
+- `/admin/feedback`：反馈收件箱，按「全部 / 未解决 / 已解决」筛选、搜索描述与链接，并可手动标记状态。不提供删除或归档：记录在提交 180 天后自动过期。
+- `/admin/data`：从公开站点的 `catalog.sqlite` 读取目录规模、歌单来源、视频平台分布与数据新鲜度。
+- `/admin/system`：Access、登录身份、FEEDBACK 绑定、目录版本与运行环境；不展示任何密钥或 JWT。
+
+Access 应用必须把 `/admin`、`/admin/*`、`/api/admin/*`、`/api/feedback/*` 加进 destinations（不要用 `/api/feedback*`，否则会拦住公开的提交接口）。完整步骤见 [docs/architecture.md](docs/architecture.md#wranglertoml)。
 
 `POST /api/feedback` 保持公开，站点访客无需登录。
 

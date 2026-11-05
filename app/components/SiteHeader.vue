@@ -3,8 +3,8 @@ const { showChinese } = useSongLanguage()
 
 /**
  * Primary navigation; retired sections stay out until they have data.
- * The ops backend (`/ops/...`) is intentionally absent: it is a hidden entry point reached only by
- * direct URL and protected by Cloudflare Access, so never add it here or to the footer.
+ * The admin backend (`/admin/...`) is intentionally absent: it is a hidden entry point reached
+ * only by direct URL and protected by Cloudflare Access, so never add it here or to the footer.
  */
 const links = [
   { label: '歌曲', to: '/', icon: 'i-lucide-music' },
