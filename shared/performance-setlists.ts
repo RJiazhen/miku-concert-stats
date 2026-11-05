@@ -1,4 +1,5 @@
 import {
+  dayNightDatesFor,
   performanceSchedules,
   showsForNotes,
   type CuratedDayNight,
@@ -43,6 +44,8 @@ export type PerformanceCuration = {
   dayNight?: string[]
   /** Dates inside the run that had no live show, e.g. an exhibition-only day. */
   noShowDates?: string[]
+  /** Dates verified to have exactly one show, so "one a day" is settled rather than assumed. */
+  singleShowDates?: string[]
   /**
    * Per-date halves when a day did not have both a day and a night show, e.g.
    * `{ "2025-08-01": ["night"] }` for a first day with only a night show.
@@ -179,6 +182,12 @@ const parsePerformanceCuration = (value: unknown, performanceId: number): Perfor
       throw new Error(`Curation for ${performanceId} noShowDates must be a list of YYYY-MM-DD days`)
     }
     parsed.noShowDates = [...new Set(record.noShowDates as string[])].sort()
+  }
+  if (record.singleShowDates !== undefined) {
+    if (!Array.isArray(record.singleShowDates) || !record.singleShowDates.every(isDay)) {
+      throw new Error(`Curation for ${performanceId} singleShowDates must be a list of YYYY-MM-DD days`)
+    }
+    parsed.singleShowDates = [...new Set(record.singleShowDates as string[])].sort()
   }
   if (record.halves !== undefined) {
     if (record.halves === null || typeof record.halves !== 'object' || Array.isArray(record.halves)) {
@@ -380,6 +389,16 @@ export const validateCurationAgainstCatalog = (
         throw new Error(`Curation for ${performanceId} lists ${date} as both day/night and no-show`)
       }
     }
+    for (const date of entry.singleShowDates ?? []) {
+      const start = performance.start_date
+      const end = performance.end_date ?? start
+      if (start === null || date < start || date > (end ?? start)) {
+        throw new Error(`Curation for ${performanceId} lists single-show ${date} outside ${start ?? 'no range'}`)
+      }
+      if ((entry.dayNight ?? []).includes(date)) {
+        throw new Error(`Curation for ${performanceId} lists ${date} as both day/night and single-show`)
+      }
+    }
   }
   const showKeysByPerformance = performanceShowKeys(catalog, review, curation.dayNight, curation.noShowDates)
   for (const [songListId, entry] of curation.lists) {
@@ -550,8 +569,15 @@ export const buildPerformanceSetlists = (
     if (ownLines.length === 0) continue
 
     let curated = false
-    /** Whether this 演出's halves are known, so a half-naming note is exact. */
-    const halvesKnown = curation.dayNight.has(performance.id) || curation.halves.has(performance.id)
+    // Whether this 演出's halves are known, so a half-naming note is exact: a curated
+    // schedule says so, or the notes themselves both split a day and name the half.
+    const halvesKnown =
+      curation.dayNight.has(performance.id) ||
+      curation.halves.has(performance.id) ||
+      dayNightDatesFor(
+        performance,
+        ownLines.map((line) => line.notes),
+      ).length > 0
     const excluded = new Set(listCuration?.exclude ?? [])
     const pendingByShow = new Map<string, PendingItem[]>()
     const addItem = (showKey: string, item: PendingItem): void => {
@@ -630,13 +656,14 @@ export const buildPerformanceSetlists = (
       }
     }
 
-    const resolution = resolveAttribution(performanceCuration, ownLines, catalog, listId)
+    const resolution = resolveAttribution(performanceCuration, ownLines, catalog, listId, halvesKnown)
     const citedSources = performanceCuration?.sources ?? []
-    // Any non-high-confidence source means a maintainer should still glance at the entry,
-    // whether it only supplied the schedule or the whole attribution.
-    const pendingReview = citedSources.some((source) => source.confidence !== 'high')
     const conflict =
       performanceCuration?.conflict === true || citedSources.some((source) => source.conflict === true) ? 1 : 0
+    // A cited source, official or not, settles the question: the row keeps the URL and the
+    // confidence so a reader can judge it, but nobody has to confirm it again. What still
+    // needs a human is a 演出 nothing could locate, or one whose sources disagree.
+    const pendingReview = conflict === 1 || (resolution === 'unresolved' && citedSources.length === 0)
     const anyUncertain = ownLines.some((line) => line.uncertain)
     const everyShared = ownLines.every((line) => isSharedLine(line))
     const change: PerformanceSetlistRow['change'] = curated ? 'curated' : ownLines.length < lines.length ? 'filtered' : 'none'
@@ -658,6 +685,7 @@ export const buildPerformanceSetlists = (
       source_row_count: lines.length,
       day_night_dates: curation.dayNight.has(performance.id) ? JSON.stringify(curation.dayNight.get(performance.id)) : null,
       no_show_dates: curation.noShowDates.has(performance.id) ? JSON.stringify(curation.noShowDates.get(performance.id)) : null,
+      single_show_dates: performanceCuration?.singleShowDates === undefined ? null : JSON.stringify(performanceCuration.singleShowDates),
       conflict,
       pending_review: pendingReview ? 1 : 0,
       note: performanceCuration?.note ?? listCuration?.note ?? null,
@@ -765,6 +793,19 @@ export const buildPerformanceSetlists = (
 }
 
 /**
+ * Whether a line's attribution is really open.
+ * A length warning says the row count looks unusual, not that the row belongs to the wrong
+ * 場次, so it must not make an otherwise exact attribution look unresolved.
+ */
+const attributionOpen = (line: ResolvedRotationLine, halvesKnown: boolean): boolean => {
+  if (!line.uncertain) return false
+  return line.reasons.some(
+    (reason) =>
+      !reason.startsWith('setlist length mismatch') && !(halvesKnown && reason === 'day with day/night shows'),
+  )
+}
+
+/**
  * Attribution method for one 演出, preferring the hand-checked value.
  * An album tracklist applies to every 场次 of its 演出 as one release, so it counts as
  * `vocadb-shared`: `source_kind = 'album'` already tells the page where the rows came from.
@@ -776,13 +817,14 @@ const resolveAttribution = (
   lines: readonly ResolvedRotationLine[],
   catalog: Catalog,
   songListId: number,
+  halvesKnown: boolean,
 ): SetlistResolution => {
   if (curation?.resolution !== undefined) return curation.resolution
   const songList = catalog.songLists.find((row) => row.id === songListId)
   if (songList?.source === 'album') return 'vocadb-shared'
   if (lines.length === 0) return 'unresolved'
   if (lines.every((line) => isSharedLine(line))) return 'vocadb-shared'
-  if (lines.some((line) => !isSharedLine(line) && !line.uncertain)) return 'vocadb-note'
+  if (lines.some((line) => !isSharedLine(line) && !attributionOpen(line, halvesKnown))) return 'vocadb-note'
   return curation?.sources !== undefined && curation.sources.length > 0 ? 'external' : 'unresolved'
 }
 

@@ -239,27 +239,29 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
     }
   })
 
-  // F: attributes adopted from a non-high-confidence source, which a reader should scan.
-  const pending = catalog.performanceSetlists.filter((row) => row.pending_review === 1)
-  const sourcesByPerformance = groupBy(catalog.performanceSetlistSources, (row) => String(row.performance_id))
-  const sectionF: ReviewEntry[] = pending.map((row, index) => {
-    const performance = performanceById.get(row.performance_id)
-    const shows = showsByPerformance.get(String(row.performance_id)) ?? []
-    const sources = sourcesByPerformance.get(String(row.performance_id)) ?? []
-    const facts = [
-      `演出：${performance?.name ?? String(row.performance_id)}`,
-      `已采用：${shows.length} 个场次 / 每场 ${shows[0]?.item_count ?? 0} 首`,
-      `VocaDB 现状：${row.resolution === 'external' ? '未定位到该场，已由外部来源补足' : row.resolution}`,
-      ...sources.map((source) => `来源：${source.title}（${source.confidence}，${source.accessed_at}）${source.url}`),
-      `说明：${row.note ?? '（无）'}`,
-    ]
-    return {
-      id: `F-${index + 1}`,
-      title: `${performance?.name ?? String(row.performance_id)}（演出 ${row.performance_id}）`,
-      facts,
-      options: ['认可', '需要修正（写在下方补充说明）', '撤回，改回 VocaDB 只有日期的口径'],
-    }
-  })
+  // F: the source log. Every 演出 whose rows rest on an outside page is listed here so the
+  // evidence stays auditable; nothing in this section needs a decision any more.
+  const cited = [...groupBy(catalog.performanceSetlistSources, (row) => String(row.performance_id))]
+  const sectionF: ReviewEntry[] = cited
+    .sort((left, right) => Number(left[0]) - Number(right[0]))
+    .map(([performanceId, sources], index) => {
+      const row = setlistByPerformance.get(Number(performanceId))
+      const performance = performanceById.get(Number(performanceId))
+      const shows = showsByPerformance.get(performanceId) ?? []
+      const facts = [
+        `演出：${performance?.name ?? performanceId}`,
+        `已采用：${shows.length} 个场次 / 每场 ${shows[0]?.item_count ?? 0} 首`,
+        `归属方式：${row?.resolution ?? 'unknown'}${row?.pending_review === 1 ? '（仍待核实，见对应小节）' : ''}`,
+        ...sources.map((source) => `来源：${source.title}（${source.confidence}，访问于 ${source.accessed_at}）${source.url}`),
+        `说明：${row?.note ?? '（无）'}`,
+      ]
+      return {
+        id: `F-${index + 1}`,
+        title: `${performance?.name ?? performanceId}（演出 ${performanceId}）`,
+        facts,
+        options: [],
+      }
+    })
 
   const sections: ReviewSection[] = [
     {
@@ -294,8 +296,8 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
     },
     {
       key: 'F',
-      title: '已采用非高置信度来源的数据（待过目）',
-      description: '官方页没有对应信息、而粉丝 wiki 有，数据已直接采用进 catalog；这里集中列出供扫读。',
+      title: '数据来源记录（已采用，无需确认）',
+      description: '每个采用外部来源的演出都在这里留档：URL、访问日期与置信度。这一节只供核对来源，不必逐条回复。',
       entries: sectionF,
     },
   ]
@@ -318,6 +320,11 @@ const renderEntry = (entry: ReviewEntry): string[] => {
   const lines: string[] = [`### ${entry.id} · ${entry.title}`, '']
   for (const fact of entry.facts) lines.push(`- ${fact}`)
   lines.push('')
+  // A reference entry has no decision to make, so it gets no checkbox and no fill-in block.
+  if (entry.options.length === 0) {
+    lines.push('---', '')
+    return lines
+  }
   for (const option of entry.options) lines.push(`- [ ] ${option}`)
   lines.push('', '**补充说明**', '', '> ', '> ', '', '---', '')
   return lines

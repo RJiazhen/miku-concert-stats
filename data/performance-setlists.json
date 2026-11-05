@@ -554,6 +554,147 @@
           "note": "5/28 1st Show 19:30；5/29 2nd Show 13:00、3rd Show 19:30"
         }
       ]
+    },
+    "1937": {
+      "note": "Fandom：洛杉矶 10/11（19:00）与 10/12（12:30）各一场，每天一场",
+      "singleShowDates": [
+        "2014-10-11",
+        "2014-10-12"
+      ],
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2014_in_LOS_ANGELES_and_NEW_YORK",
+          "title": "VocaDB Fandom: HATSUNE MIKU EXPO 2014 in LOS ANGELES and NEW YORK",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "LA：10/11 19:00、10/12 12:30，各一场"
+        }
+      ]
+    },
+    "1938": {
+      "note": "Fandom：纽约 10/17（20:30）与 10/18（18:30）各一场，每天一场",
+      "singleShowDates": [
+        "2014-10-17",
+        "2014-10-18"
+      ],
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2014_in_LOS_ANGELES_and_NEW_YORK",
+          "title": "VocaDB Fandom: HATSUNE MIKU EXPO 2014 in LOS ANGELES and NEW YORK",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "NY：10/17 20:30、10/18 18:30，各一场"
+        }
+      ]
+    },
+    "1940": {
+      "note": "Fandom 记为 6/26–6/27，VocaDB 记为 6/27–6/28，日期区间不一致，标冲突等裁决",
+      "conflict": true,
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2015_in_SHANGHAI",
+          "title": "VocaDB Fandom: HATSUNE MIKU EXPO 2015 in SHANGHAI",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "写 6/26–6/27；VocaDB 的区间是 6/27–6/28"
+        }
+      ]
+    },
+    "1618": {
+      "note": "Fandom：票种区分昼场（18 岁以下票）与夜场（2 楼团体席），按每天昼 + 夜各一场处理，共 4 场",
+      "dayNight": [
+        "2018-02-09",
+        "2018-02-10"
+      ],
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2018",
+          "title": "VocaDB Fandom: SNOW MIKU LIVE! 2018",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "2/9–2/10；票种分「18 歳以下＝昼场」「2 階グループ席＝夜场」，说明每天有昼、夜两场"
+        }
+      ]
+    },
+    "2422": {
+      "note": "Fandom 只有日期区间 2/9–2/10，没有逐日时刻；按每天一场处理",
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2019",
+          "title": "VocaDB Fandom: SNOW MIKU LIVE! 2019",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "仅给出 2/9–2/10，未写逐日时刻"
+        }
+      ]
+    },
+    "3792": {
+      "note": "Fandom 只有日期区间 2/7–2/8，没有逐日时刻；按每天一场处理",
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2015_Presents_MIKU_EXPO_Live_Set",
+          "title": "VocaDB Fandom: SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "仅给出 2/7–2/8，未写逐日时刻"
+        }
+      ]
+    },
+    "2948": {
+      "note": "Fandom 只有日期区间 6/2–6/3，没有逐日时刻；按每天一场处理",
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2018",
+          "title": "VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2018",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "仅给出 6/2–6/3，未写逐日时刻"
+        }
+      ]
+    },
+    "5910": {
+      "note": "Fandom 只有日期区间 6/3–6/4，没有逐日时刻；按每天一场处理",
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2023",
+          "title": "VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2023",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "仅给出 6/3–6/4，未写逐日时刻"
+        }
+      ]
+    },
+    "2510": {
+      "note": "Fandom：2/9（13:00、18:00）与 2/10（12:00、17:00）各有两场，共 4 场",
+      "dayNight": [
+        "2013-02-09",
+        "2013-02-10"
+      ],
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2013_(MikuPa)/Sapporo",
+          "title": "VocaDB Fandom: Hatsune Miku Live Party 2013 (MikuPa)/Sapporo",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "2/9 13:00 与 18:00；2/10 12:00 与 17:00"
+        }
+      ]
+    },
+    "2526": {
+      "note": "Fandom 只写 8/17 一天；VocaDB 记为 8/16–8/17。日期区间存疑，标冲突等裁决",
+      "singleShowDates": [
+        "2011-08-17"
+      ],
+      "conflict": true,
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2011_(Mikupa)/Sapporo",
+          "title": "VocaDB Fandom: Hatsune Miku Live Party 2011 (Mikupa)/Sapporo",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "演出日只写 8/17；VocaDB 的区间是 8/16–8/17"
+        }
+      ]
     }
   },
   "lists": {}

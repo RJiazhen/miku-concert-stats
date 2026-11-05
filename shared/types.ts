@@ -183,7 +183,10 @@ export type PerformanceSetlistRow = {
   day_night_dates: string | null
   /** JSON array of dates inside the run that had no live show. */
   no_show_dates: string | null
+  /** JSON array of dates verified to have exactly one show. */
+  single_show_dates: string | null
   conflict: number
+  /** 1 when the attribution is still open: no source located it, or its sources disagree. */
   pending_review: number
   note: string | null
 }

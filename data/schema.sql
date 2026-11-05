@@ -157,9 +157,11 @@ CREATE TABLE performance_setlists (
   day_night_dates TEXT,
   -- JSON array of dates inside the run that had no live show (exhibition-only days).
   no_show_dates TEXT,
+  -- JSON array of dates verified to have exactly one show, so "no day/night split" is settled.
+  single_show_dates TEXT,
   -- 1 when an outside source disagrees with VocaDB or with docs/data-issues.md and nobody ruled yet.
   conflict INTEGER NOT NULL,
-  -- 1 when the attribution rests only on non-high-confidence sources, so a human should review it.
+  -- 1 when the attribution is still open: no source located this 演出, or its sources disagree.
   pending_review INTEGER NOT NULL,
   note TEXT
 );

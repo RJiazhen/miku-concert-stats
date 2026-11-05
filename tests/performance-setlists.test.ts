@@ -212,6 +212,28 @@ describe('performance setlist derivation', () => {
     ])
   })
 
+  it('settles a run whose single-show days a source confirms', () => {
+    const base = mikuWithYou2019()
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      performances: { 3752: { singleShowDates: ['2019-11-02', '2019-11-03'] } },
+    })
+    const build = buildPerformanceSetlists(base, reviewRotations(base), curation)
+    const shows = build.shows.filter((row) => row.performance_id === 3752)
+    // A confirmed "one show a day" keeps the plain day keys and records the evidence.
+    expect(shows.map((row) => row.show_key)).toEqual(['3752:2019-11-02', '3752:2019-11-03'])
+    expect(build.setlists.find((row) => row.performance_id === 3752)?.single_show_dates).toBe('["2019-11-02","2019-11-03"]')
+  })
+
+  it('rejects a single-show date outside the run', () => {
+    const base = mikuWithYou2019()
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      performances: { 3753: { singleShowDates: ['2019-11-10'] } },
+    })
+    expect(() => validateCurationAgainstCatalog(curation, base, reviewRotations(base))).toThrow(/outside/)
+  })
+
   it('marks a fully shared list as inherited', () => {
     const base = catalog()
     base.songLists = [songList(6571)]
@@ -245,7 +267,7 @@ describe('performance setlist derivation', () => {
     expect(build.setlists[0]?.pending_review).toBe(0)
   })
 
-  it('flags an external attribution from a medium-confidence source for review', () => {
+  it('adopts a medium-confidence wiki source without asking for review again', () => {
     const base = mikuWithYou2019()
     const curation = parsePerformanceSetlistCuration({
       version: 1,
@@ -267,9 +289,20 @@ describe('performance setlist derivation', () => {
     const build = buildPerformanceSetlists(base, reviewRotations(base), curation)
     const row = build.setlists.find((entry) => entry.performance_id === 3752)
     expect(row?.resolution).toBe('external')
-    expect(row?.pending_review).toBe(1)
-    expect(row?.status).toBe('partial')
+    // The source is kept for the audit trail, but nobody has to confirm it a second time.
+    expect(row?.pending_review).toBe(0)
     expect(build.sources).toHaveLength(1)
+    expect(build.sources[0]?.confidence).toBe('medium')
+    expect(build.sources[0]?.accessed_at).toBe('2026-11-05')
+  })
+
+  it('keeps an unresolved attribution open for review', () => {
+    const base = mikuWithYou2019()
+    // Neither a note nor a source places the rows, so a human still has to look.
+    for (const row of base.setlistItems) row.notes = 'Mystery Day 9'
+    const build = buildPerformanceSetlists(base, reviewRotations(base))
+    expect(build.setlists.every((row) => row.resolution === 'unresolved')).toBe(true)
+    expect(build.setlists.every((row) => row.pending_review === 1)).toBe(true)
   })
 
   it('does not flag a high-confidence source for review', () => {

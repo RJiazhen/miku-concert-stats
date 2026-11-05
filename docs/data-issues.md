@@ -106,7 +106,9 @@
 
 **已实现（2026-11-05，B 方案）**：人工清单落在 `data/performance-setlists.json` 的 `performances.<id>`，支持 `dayNight`（昼 + 夜两场）、`noShowDates`（只有企划展）与 `halves`（只有昼场或只有夜场），校验器是 `shared/performance-setlists.ts`，场次推导通过 `performanceSchedules` 的第二到第四个参数接入，并物化到 `performance_setlists`。日夜场核实来源记在演出层（`performance_setlist_sources`），待核实项列在 `docs/reports/setlist-review.md` 的 A 节。
 
-已按官方票务页核实的范围：魔法未来 2015–2026 的东京 / 大阪 / 札幌 / 福冈 / 仙台 / 滨松全部场次；未来有你 2018、2019 四站（萌娘百科）；MIKU EXPO 2014 印尼（VocaDB Fandom）。2019 大阪 8/09、2020 大阪 11/27、2018 东京 8/31、2015 东京 9/06、2016 东京 9/09 经核实为企划展日，已从场次中剔除。
+**已知冲突（需裁决，见 `docs/setlist-confirmation.md` 第 3 节）**：MIKU EXPO 2015 上海（Fandom 记 6/26–6/27，VocaDB 记 6/27–6/28）与 Live Party 2011 札幌（Fandom 只写 8/17，VocaDB 记 8/16–8/17）。两处都保留 VocaDB 的日期并标 `conflict`，等维护者确认后再改。
+
+已按官方票务页核实的范围：魔法未来 2015–2026 的东京 / 大阪 / 札幌 / 福冈 / 仙台 / 滨松全部场次；未来有你 2018、2019 四站（萌娘百科）；MIKU EXPO 2014 印尼 / 洛杉矶 / 纽约、SNOW MIKU 2018、Live Party 2013 札幌（VocaDB Fandom）。2019 大阪 8/09、2020 大阪 11/27、2018 东京 8/31、2015 东京 9/06、2016 东京 9/09 经核实为企划展日，已从场次中剔除。
 
 ```json
 {
