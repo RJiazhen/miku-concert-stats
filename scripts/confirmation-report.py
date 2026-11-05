@@ -34,6 +34,33 @@ def rows(sql: str, params: tuple = ()) -> list[sqlite3.Row]:
 
 
 # 用户在确认清单里已裁决的两条日期冲突，各自记下「百科怎么说、最终按什么」。
+# 第 2 节逐条记下查过哪个百科页面；没有独立条目的写明「没有条目」。
+CHECKED_PAGES = {
+    1399: ("HATSUNE MIKU EXPO 2016 Japan Tour", "only range"),
+    1403: ("HATSUNE MIKU EXPO 2016 Japan Tour", "only range"),
+    1924: ("HATSUNE MIKU EXPO 2016 NORTH AMERICA", "only range"),
+    1941: ("HATSUNE MIKU EXPO 2016 NORTH AMERICA", "only range"),
+    1943: ("HATSUNE MIKU EXPO 2016 China", "missing"),
+    1942: ("HATSUNE MIKU EXPO 2016 China", "missing"),
+    6518: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
+    6519: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
+    6520: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
+    6521: ("HATSUNE MIKU EXPO 2024 North America", "only range"),
+    9353: ("HATSUNE MIKU EXPO 2025 ASIA", "only range"),
+    9811: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
+    9815: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
+    9816: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
+    9823: ("HATSUNE MIKU EXPO 2026 North America", "only range"),
+    7673: ("MIKU WITH YOU 2024", "only range"),
+    7674: ("MIKU WITH YOU 2024", "only range"),
+    7675: ("MIKU WITH YOU 2024", "only range"),
+    9644: ("MIKU WITH YOU 2025", "only range"),
+    3792: ("SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set", "only range"),
+    2422: ("SNOW MIKU LIVE! 2019", "only range"),
+    2947: ("Hatsune Miku × Kodo Taiko Performing Arts Ensemble", "only range"),
+    5910: ("Hatsune Miku × Kodo Taiko Special Live 2023", "only range"),
+}
+
 RESOLVED_DATE_CONFLICTS = [
     (
         "MIKU EXPO 2015 in Shanghai（演出 1940）",
@@ -150,12 +177,18 @@ for index, row in enumerate(pending_schedule, start=1):
         current_series = series
         out.append(f"### {series}")
         out.append("")
-    detail = f"已查：{row['source_titles']}" if row["source_titles"] else "已查：官网与百科都没有这场的时间表"
+    page, state = CHECKED_PAGES.get(row["id"], ("", "unknown"))
+    if state == "missing":
+        detail = f"已查：百科没有「{page}」这一条目（该年只有日本 / 北美页），也没有逐日时刻"
+        link = ""
+    else:
+        detail = f"已查：VocaDB Fandom「{page}」，只写日期区间，没有逐日时刻"
+        link = f"https://vocaloid.fandom.com/wiki/{page.replace(' ', '_')}"
     out.append(f"**2.{index} · {row['name']}**（演出 {row['id']}，{row['start_date']} – {row['end_date']}，当前 {row['shows']} 场 × {row['items']} 首）")
     out.append("")
     out.append(f"- {detail}")
-    if row["source_url"]:
-        out.append(f"  - {row['source_url']}")
+    if link:
+        out.append(f"  - {link}")
     out.append("")
     out.append("- [ ] 每天只有一场，保持现状即可")
     out.append("- [ ] 有昼夜两场（写在补充说明：站名 + 来源）")

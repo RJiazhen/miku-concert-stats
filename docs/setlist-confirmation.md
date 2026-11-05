@@ -77,7 +77,8 @@
 
 **2.1 · MIKU EXPO 2016 Fukuoka**（演出 1399，2016-03-23 – 2016-03-24，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 Japan Tour」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_Japan_Tour
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -86,7 +87,8 @@
 
 **2.2 · MIKU EXPO 2016 Tokyo**（演出 1403，2016-04-09 – 2016-04-10，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 Japan Tour」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_Japan_Tour
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -95,7 +97,8 @@
 
 **2.3 · MIKU EXPO 2016 Mexico City**（演出 1924，2016-06-04 – 2016-06-05，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 NORTH AMERICA」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_NORTH_AMERICA
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -104,7 +107,8 @@
 
 **2.4 · MIKU EXPO 2016 New Taipei City**（演出 1941，2016-06-25 – 2016-06-26，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2016 NORTH AMERICA」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2016_NORTH_AMERICA
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -113,7 +117,7 @@
 
 **2.5 · MIKU EXPO 2016 Shanghai**（演出 1943，2016-12-03 – 2016-12-04，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：百科没有「HATSUNE MIKU EXPO 2016 China」这一条目（该年只有日本 / 北美页），也没有逐日时刻
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -122,7 +126,7 @@
 
 **2.6 · MIKU EXPO 2016 Beijing**（演出 1942，2016-12-10 – 2016-12-11，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：百科没有「HATSUNE MIKU EXPO 2016 China」这一条目（该年只有日本 / 北美页），也没有逐日时刻
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -131,7 +135,8 @@
 
 **2.7 · MIKU EXPO 2024 San Jose**（演出 6518，2024-04-08 – 2024-04-09，当前 2 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -140,7 +145,8 @@
 
 **2.8 · MIKU EXPO 2024 Phoenix**（演出 6519，2024-04-14 – 2024-04-15，当前 2 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -149,7 +155,8 @@
 
 **2.9 · MIKU EXPO 2024 Denver**（演出 6520，2024-04-21 – 2024-04-22，当前 2 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -158,7 +165,8 @@
 
 **2.10 · MIKU EXPO 2024 Dallas**（演出 6521，2024-04-24 – 2024-04-25，当前 2 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2024 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -167,7 +175,8 @@
 
 **2.11 · MIKU EXPO 2025 Seoul**（演出 9353，2025-11-29 – 2025-11-30，当前 2 场 × 24 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2025 ASIA」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2025_ASIA
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -176,7 +185,8 @@
 
 **2.12 · MIKU EXPO 2026 Chicago**（演出 9811，2026-04-12 – 2026-04-13，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -185,7 +195,8 @@
 
 **2.13 · MIKU EXPO 2026 San Jose**（演出 9815，2026-04-22 – 2026-04-23，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -194,7 +205,8 @@
 
 **2.14 · MIKU EXPO 2026 Los Angeles**（演出 9816，2026-04-25 – 2026-04-26，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -203,7 +215,8 @@
 
 **2.15 · MIKU EXPO 2026 Boston**（演出 9823，2026-05-10 – 2026-05-11，当前 2 场 × 26 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「HATSUNE MIKU EXPO 2026 North America」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2026_North_America
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -214,7 +227,8 @@
 
 **2.16 · MIKU WITH YOU 2024 in Shanghai**（演出 7673，2024-07-13 – 2024-07-14，当前 2 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「MIKU WITH YOU 2024」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2024
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -223,7 +237,8 @@
 
 **2.17 · MIKU WITH YOU 2024 in Beijing**（演出 7675，2024-07-20 – 2024-07-21，当前 2 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「MIKU WITH YOU 2024」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2024
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -232,7 +247,8 @@
 
 **2.18 · MIKU WITH YOU 2024 in Guangzhou**（演出 7674，2024-07-27 – 2024-07-28，当前 2 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「MIKU WITH YOU 2024」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2024
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -241,7 +257,8 @@
 
 **2.19 · MIKU WITH YOU 2025**（演出 9644，2025-12-20 – 2025-12-21，当前 4 场 × 23 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「MIKU WITH YOU 2025」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2025
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -252,7 +269,7 @@
 
 **2.20 · SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set**（演出 3792，2015-02-07 – 2015-02-08，当前 2 场 × 27 首）
 
-- 已查：VocaDB Fandom: SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set
+- 已查：VocaDB Fandom「SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set」，只写日期区间，没有逐日时刻
   - https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2015_Presents_MIKU_EXPO_Live_Set
 
 - [ ] 每天只有一场，保持现状即可
@@ -262,7 +279,7 @@
 
 **2.21 · SNOW MIKU LIVE! 2019**（演出 2422，2019-02-09 – 2019-02-10，当前 2 场 × 26 首）
 
-- 已查：VocaDB Fandom: SNOW MIKU LIVE! 2019
+- 已查：VocaDB Fandom「SNOW MIKU LIVE! 2019」，只写日期区间，没有逐日时刻
   - https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2019
 
 - [ ] 每天只有一场，保持现状即可
@@ -274,7 +291,8 @@
 
 **2.22 · 初音ミク×鼓童スペシャルライブ**（演出 2947，2017-03-04 – 2017-03-05，当前 2 场 × 19 首）
 
-- 已查：官网与百科都没有这场的时间表
+- 已查：VocaDB Fandom「Hatsune Miku × Kodo Taiko Performing Arts Ensemble」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/Hatsune_Miku_×_Kodo_Taiko_Performing_Arts_Ensemble
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
@@ -283,8 +301,8 @@
 
 **2.23 · 初音ミク×鼓童スペシャルライブ２０２３ ～結～**（演出 5910，2023-06-03 – 2023-06-04，当前 2 场 × 20 首）
 
-- 已查：VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2023
-  - https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2023
+- 已查：VocaDB Fandom「Hatsune Miku × Kodo Taiko Special Live 2023」，只写日期区间，没有逐日时刻
+  - https://vocaloid.fandom.com/wiki/Hatsune_Miku_×_Kodo_Taiko_Special_Live_2023
 
 - [ ] 每天只有一场，保持现状即可
 - [ ] 有昼夜两场（写在补充说明：站名 + 来源）
