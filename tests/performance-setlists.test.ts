@@ -37,6 +37,7 @@ const catalog = (): Catalog => ({
   performanceShowSetlistItems: [],
   medleys: [],
   medleySongs: [],
+  performanceStatus: [],
 })
 
 /** Series row with only the fields the derivation reads. */
@@ -388,6 +389,85 @@ describe('performance setlist derivation', () => {
     const second = buildPerformanceSetlists(base, reviewRotations(base))
     expect(second.items).toEqual(first.items)
     expect(second.shows).toEqual(first.shows)
+  })
+})
+
+describe('wiki-sourced setlists and statuses', () => {
+  it('replaces the VocaDB rows with a complete outside setlist', () => {
+    const base = mikuWithYou2019()
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      performances: {
+        3752: {
+          setlist: {
+            source: 'https://w.atwiki.jp/hmiku/pages/1.html',
+            title: 'Wiki list',
+            accessedAt: '2026-11-05',
+            confidence: 'medium',
+            label: '上海公演',
+            songs: [
+              { id: 100, title: 'common' },
+              { id: 300, title: 'encore', note: 'アンコール' },
+            ],
+          },
+        },
+      },
+    })
+    const build = buildPerformanceSetlists(base, reviewRotations(base), curation)
+    const rows = build.items.filter((row) => row.performance_id === 3752)
+    // Two shows, two rows each; the VocaDB rows are gone.
+    expect(rows).toHaveLength(4)
+    expect(rows.every((row) => row.evidence === 'wiki')).toBe(true)
+    expect(rows.map((row) => row.song_id)).toEqual([100, 300, 100, 300])
+    const setlist = build.setlists.find((row) => row.performance_id === 3752)
+    expect(setlist?.resolution).toBe('external')
+    expect(setlist?.pending_review).toBe(0)
+    expect(setlist?.change).toBe('curated')
+  })
+
+  it('rejects a wiki setlist that cites an unknown song', () => {
+    const base = mikuWithYou2019()
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      performances: {
+        3752: {
+          setlist: {
+            source: 'https://example.com',
+            title: 'Wiki list',
+            accessedAt: '2026-11-05',
+            confidence: 'medium',
+            songs: [{ id: 999999, title: 'not in catalog' }],
+          },
+        },
+      },
+    })
+    expect(() => validateCurationAgainstCatalog(curation, base, reviewRotations(base))).toThrow(/unknown song/)
+  })
+
+  it('records a cancelled show without a setlist row', () => {
+    const base = mikuWithYou2019()
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      statuses: {
+        9999: {
+          status: 'cancelled',
+          note: '2020 疫情取消',
+          source: 'https://twitter.com/mikuexpo/status/1',
+          accessedAt: '2026-11-05',
+        },
+      },
+    })
+    // 9999 is not in this fixture, so validation rejects it rather than storing a dangling row.
+    expect(() => validateCurationAgainstCatalog(curation, base, reviewRotations(base))).toThrow(/unknown performance/)
+    const ok = parsePerformanceSetlistCuration({
+      version: 1,
+      statuses: { 3753: { status: 'cancelled', source: 'https://example.com', accessedAt: '2026-11-05' } },
+    })
+    expect(() => validateCurationAgainstCatalog(ok, base, reviewRotations(base))).not.toThrow()
+    const build = buildPerformanceSetlists(base, reviewRotations(base), ok)
+    expect(build.statuses).toEqual([
+      { performance_id: 3753, status: 'cancelled', note: null, source_url: 'https://example.com', accessed_at: '2026-11-05' },
+    ])
   })
 })
 

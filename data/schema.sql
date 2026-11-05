@@ -206,6 +206,18 @@ CREATE TABLE performance_show_setlist_items (
   CHECK ((song_id IS NULL) <> (medley_id IS NULL))
 );
 
+-- Hand-checked status of a 演出 that has no setlist row, e.g. a cancelled or postponed show.
+-- Cancelled stops keep their VocaDB row (which says `Finished` with no date), so this table is
+-- the only place the real outcome is recorded.
+CREATE TABLE performance_status (
+  performance_id INTEGER PRIMARY KEY,
+  -- 'cancelled' | 'postponed' | 'upcoming'
+  status TEXT NOT NULL,
+  note TEXT,
+  source_url TEXT NOT NULL,
+  accessed_at TEXT NOT NULL
+);
+
 -- One complete medley entry. Empty until a source line splits into several verifiable songs.
 CREATE TABLE medleys (
   id INTEGER PRIMARY KEY,

@@ -80,6 +80,12 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `performances.<id>` 的 `dayNight` / `singleShowDates` / `halves` 也接受字符串 `all`，表示按演出的日期区间展开，用于「该城每天都有一场」或「每天昼夜各一场」这类整段结论。
 
+**数据来源不再以 VocaDB 为主。** 实测 VocaDB 的场次与歌单缺漏较多（没有日夜场字段、共享歌单只靠行内备注、交响乐整年没有歌单），因此核实时按「官网 → 萌娘百科 → 初音ミク Wiki（atwiki）→ VocaDB Fandom」的顺序取数，冲突时优先采用官网与百科，我们自己的派生层承担合并，不改上游。
+
+`performances.<id>.setlist` 用一份外部逐曲表**整体替换**该演出的 VocaDB 行：每首歌写 `id` / `title` / 可选 `note`（如 `メドレー：悪ノ交響曲 第2楽章`），并要求 `source` / `title` / `accessedAt` / `confidence`。派生时该演出的每个场次都用这份表，行级 `evidence = 'wiki'`，演出级 `resolution = 'external'`。id 必须存在于 catalog，构建期会校验；标题到 id 的映射由 `scripts/build-setlist-curation.py` 按归一化标题解析，解析失败直接报错而不是猜。
+
+`statuses.<id>` 记录没有歌单行的演出结果（`cancelled` / `postponed` / `upcoming`），写入 `performance_status` 表。VocaDB 的状态字段没有「已取消」，取消场次在上游仍是 `Finished` 且没有日期，所以这是唯一能表达真实结果的地方；演出页据此显示「这场演出已取消」并给出公告链接。
+
 `lists.<songListId>` 是逐行更正，全部要求带 `source` 与 `accessedAt`：`notes`（用百科的逐日歌单改写 VocaDB 写错的城市 / 日 / 半场的备注）、`dropShows`（备注写了某场但该场其实没演，按场次 key 剔除）、`explainedLengths`（该场曲目数不同是有意为之，例如香港 23+1 安可、台湾 23+2，记下原因后不再报长度警告）、`assign` / `exclude` / `extra`（人工指定、丢弃、追加曲目）。`citiesPlayOneSetlist` 表示来源确认「每个城市只演一套节目」，此时只写城市的备注是准确的，不再标 `city-only when city has several shows`。
 
 来源查证顺序是「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」。**查到就直接采用，不再要求二次确认**：`pending_review` 只表示归属仍然悬空（没有任何来源定位到这一场，或来源之间互相矛盾），不是「来源置信度不高」。每条来源的 `url` / `accessed_at` / `confidence` / `note` 都留在 `performance_setlist_sources`，`/shows` 页脚按演出展示，`docs/setlist-confirmation.md` 第 1 节与 `docs/reports/setlist-review.md` 的 F 节各有一份汇总，只供核对来源、不需要逐条回复。

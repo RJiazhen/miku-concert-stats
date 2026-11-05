@@ -223,8 +223,20 @@ export type PerformanceShowSetlistItemRow = {
   source_position: number | null
   song_id: number | null
   medley_id: number | null
-  evidence: 'note' | 'shared' | 'curated'
+  evidence: 'note' | 'shared' | 'curated' | 'wiki'
   notes: string | null
+}
+
+/** Hand-checked outcome of a 演出 that has no setlist row. */
+export type PerformanceStatusValue = 'cancelled' | 'postponed' | 'upcoming'
+
+/** Stored status row from `performance_status`. */
+export type PerformanceStatusRow = {
+  performance_id: number
+  status: PerformanceStatusValue
+  note: string | null
+  source_url: string
+  accessed_at: string
 }
 
 /** One complete medley entry referenced by a setlist line. */
@@ -316,4 +328,6 @@ export type Catalog = {
   performanceShowSetlistItems: PerformanceShowSetlistItemRow[]
   medleys: MedleyRow[]
   medleySongs: MedleySongRow[]
+  /** Hand-checked outcome for 演出 that have no setlist row (cancelled, postponed, upcoming). */
+  performanceStatus: PerformanceStatusRow[]
 }

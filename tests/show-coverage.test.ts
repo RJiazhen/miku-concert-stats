@@ -68,6 +68,7 @@ const catalogOf = (
   performanceShowSetlistItems: [],
   medleys: [],
   medleySongs: [],
+  performanceStatus: [],
 })
 
 describe('演出 coverage', () => {

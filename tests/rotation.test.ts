@@ -262,5 +262,6 @@ const lengthCatalog = (): Catalog => {
   performanceShowSetlistItems: [],
   medleys: [],
   medleySongs: [],
+  performanceStatus: [],
   }
 }

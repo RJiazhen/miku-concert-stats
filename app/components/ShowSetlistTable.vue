@@ -39,6 +39,7 @@ const EVIDENCE_LABEL: Record<PerformanceShowSetlistItemRow['evidence'], string> 
   note: '按歌单备注定位到本场',
   shared: '整份歌单共用',
   curated: '人工校正',
+  wiki: '来自百科的逐曲表',
 }
 
 /** Explanation cell: the evidence kind, plus the raw note when there is one. */

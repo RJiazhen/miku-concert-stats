@@ -643,14 +643,18 @@
       ]
     },
     "3792": {
-      "note": "Fandom 只有日期区间 2/7–2/8，没有逐日时刻；按每天一场处理",
+      "note": "官方页：2/7、2/8 每天昼场 + 夜场，共 4 场",
+      "dayNight": [
+        "2015-02-07",
+        "2015-02-08"
+      ],
       "sources": [
         {
-          "url": "https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2015_Presents_MIKU_EXPO_Live_Set",
-          "title": "VocaDB Fandom: SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set",
+          "url": "https://snowmiku.com/2015/live_ticket.html",
+          "title": "SNOW MIKU LIVE! 2015 公式チケット页",
           "accessedAt": "2026-11-05",
-          "confidence": "medium",
-          "note": "仅给出 2/7–2/8，未写逐日时刻"
+          "confidence": "high",
+          "note": "2/7、2/8 それぞれ昼夜公演の1日2回、全4公演"
         }
       ]
     },
@@ -675,14 +679,22 @@
       ]
     },
     "5910": {
-      "note": "Fandom 只有日期区间 6/3–6/4，没有逐日时刻；按每天一场处理",
+      "note": "官方页：6/3 有 13:00 与 19:00 两场，6/4 只有 13:00 一场，共 3 场",
+      "dayNight": [
+        "2023-06-03"
+      ],
+      "halves": {
+        "2023-06-04": [
+          "day"
+        ]
+      },
       "sources": [
         {
-          "url": "https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2023",
-          "title": "VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2023",
+          "url": "https://www.kodo.or.jp/performance/performance_kodo/42586",
+          "title": "鼓童 公式サイト：初音ミク×鼓童スペシャルライブ2023 ～結～",
           "accessedAt": "2026-11-05",
-          "confidence": "medium",
-          "note": "仅给出 6/3–6/4，未写逐日时刻"
+          "confidence": "high",
+          "note": "開演 06.03 13:00 / 19:00、06.04 13:00"
         }
       ]
     },
@@ -1452,6 +1464,415 @@
           "note": "3/4 开演 19:00；3/5 开演 13:00"
         }
       ]
+    },
+    "4877": {
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/80537.html",
+        "title": "初音ミク Wiki：初音ミクシンフォニー 2023（東京公演）",
+        "accessedAt": "2026-11-05",
+        "confidence": "medium",
+        "label": "東京公演",
+        "songs": [
+          {
+            "id": 399060,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 411304,
+            "title": "転生林檎"
+          },
+          {
+            "id": 11593,
+            "title": "shake it！"
+          },
+          {
+            "id": 75939,
+            "title": "七つの罪と罰",
+            "note": "メドレー：悪ノ交響曲 第1楽章"
+          },
+          {
+            "id": 1277,
+            "title": "ヴェノマニア公の狂気",
+            "note": "メドレー：悪ノ交響曲 第2楽章"
+          },
+          {
+            "id": 1588,
+            "title": "悪食娘コンチータ",
+            "note": "メドレー：悪ノ交響曲 第2楽章"
+          },
+          {
+            "id": 1590,
+            "title": "悪ノ娘",
+            "note": "メドレー：悪ノ交響曲 第3楽章"
+          },
+          {
+            "id": 1358,
+            "title": "悪ノ召使",
+            "note": "メドレー：悪ノ交響曲 第3楽章"
+          },
+          {
+            "id": 1612,
+            "title": "眠らせ姫からの贈り物",
+            "note": "メドレー：悪ノ交響曲 第4楽章"
+          },
+          {
+            "id": 2808,
+            "title": "円尾坂の仕立屋",
+            "note": "メドレー：悪ノ交響曲 第4楽章"
+          },
+          {
+            "id": 1598,
+            "title": "悪徳のジャッジメント",
+            "note": "メドレー：悪ノ交響曲 第5楽章"
+          },
+          {
+            "id": 62774,
+            "title": "ネメシスの銃口",
+            "note": "メドレー：悪ノ交響曲 第5楽章"
+          },
+          {
+            "id": 315565,
+            "title": "FLASH",
+            "note": "メドレー"
+          },
+          {
+            "id": 486770,
+            "title": "黄昏を生きる",
+            "note": "メドレー"
+          },
+          {
+            "id": 173702,
+            "title": "抜錨"
+          },
+          {
+            "id": 232494,
+            "title": "アトラクトライト"
+          },
+          {
+            "id": 389595,
+            "title": "ハジメテノオト"
+          },
+          {
+            "id": 14339,
+            "title": "Birthday Song for ミク"
+          },
+          {
+            "id": 3019,
+            "title": "愛言葉",
+            "note": "アンコール"
+          },
+          {
+            "id": 8521,
+            "title": "rain stops, good-bye",
+            "note": "アンコール・メドレー"
+          },
+          {
+            "id": 2532,
+            "title": "よつばのクローバー",
+            "note": "アンコール・メドレー"
+          },
+          {
+            "id": 1322,
+            "title": "メルト",
+            "note": "アンコール"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/80537.html",
+          "title": "初音ミク Wiki：初音ミクシンフォニー 2023（東京公演）",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "逐曲表：22 行（含メドレー 拆分）"
+        }
+      ],
+      "note": "歌单来自初音ミク Wiki 的逐曲表（東京公演），不用专辑 tracklist"
+    },
+    "4878": {
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/80537.html",
+        "title": "初音ミク Wiki：初音ミクシンフォニー 2023（横浜公演）",
+        "accessedAt": "2026-11-05",
+        "confidence": "medium",
+        "label": "横浜公演",
+        "songs": [
+          {
+            "id": 293286,
+            "title": "ダーリンダンス"
+          },
+          {
+            "id": 295872,
+            "title": "初音ミクの消失",
+            "note": "メドレー"
+          },
+          {
+            "id": 8215,
+            "title": "初音ミクの激唱",
+            "note": "メドレー"
+          },
+          {
+            "id": 411304,
+            "title": "転生林檎"
+          },
+          {
+            "id": 495802,
+            "title": "天樂 -双響-"
+          },
+          {
+            "id": 11593,
+            "title": "shake it！"
+          },
+          {
+            "id": 173702,
+            "title": "抜錨"
+          },
+          {
+            "id": 315565,
+            "title": "FLASH",
+            "note": "メドレー"
+          },
+          {
+            "id": 486770,
+            "title": "黄昏を生きる",
+            "note": "メドレー"
+          },
+          {
+            "id": 1355,
+            "title": "みくみくにしてあげる♪【してやんよ】",
+            "note": "メドレー：初音ミク 16th Anniversary Special Medley"
+          },
+          {
+            "id": 7235,
+            "title": "私の時間",
+            "note": "メドレー：初音ミク 16th Anniversary Special Medley"
+          },
+          {
+            "id": 2913,
+            "title": "Starduster",
+            "note": "メドレー：初音ミク 16th Anniversary Special Medley"
+          },
+          {
+            "id": 75939,
+            "title": "七つの罪と罰",
+            "note": "メドレー：悪ノ交響曲 第1楽章"
+          },
+          {
+            "id": 1277,
+            "title": "ヴェノマニア公の狂気",
+            "note": "メドレー：悪ノ交響曲 第2楽章"
+          },
+          {
+            "id": 1588,
+            "title": "悪食娘コンチータ",
+            "note": "メドレー：悪ノ交響曲 第2楽章"
+          },
+          {
+            "id": 1590,
+            "title": "悪ノ娘",
+            "note": "メドレー：悪ノ交響曲 第3楽章"
+          },
+          {
+            "id": 1358,
+            "title": "悪ノ召使",
+            "note": "メドレー：悪ノ交響曲 第3楽章"
+          },
+          {
+            "id": 1612,
+            "title": "眠らせ姫からの贈り物",
+            "note": "メドレー：悪ノ交響曲 第4楽章"
+          },
+          {
+            "id": 2808,
+            "title": "円尾坂の仕立屋",
+            "note": "メドレー：悪ノ交響曲 第4楽章"
+          },
+          {
+            "id": 1598,
+            "title": "悪徳のジャッジメント",
+            "note": "メドレー：悪ノ交響曲 第5楽章"
+          },
+          {
+            "id": 62774,
+            "title": "ネメシスの銃口",
+            "note": "メドレー：悪ノ交響曲 第5楽章"
+          },
+          {
+            "id": 100671,
+            "title": "Packaged"
+          },
+          {
+            "id": 730922,
+            "title": "星のカケラ",
+            "note": "アンコール"
+          },
+          {
+            "id": 14480,
+            "title": "39",
+            "note": "アンコール"
+          },
+          {
+            "id": 525396,
+            "title": "ブループラネット",
+            "note": "アンコール"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/80537.html",
+          "title": "初音ミク Wiki：初音ミクシンフォニー 2023（横浜公演）",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "逐曲表：25 行（含メドレー 拆分）"
+        }
+      ],
+      "note": "歌单来自初音ミク Wiki 的逐曲表（横浜公演），不用专辑 tracklist"
+    },
+    "4879": {
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/80537.html",
+        "title": "初音ミク Wiki：初音ミクシンフォニー 2023（神戸公演）",
+        "accessedAt": "2026-11-05",
+        "confidence": "medium",
+        "label": "神戸公演",
+        "songs": [
+          {
+            "id": 293286,
+            "title": "ダーリンダンス"
+          },
+          {
+            "id": 295872,
+            "title": "初音ミクの消失",
+            "note": "メドレー"
+          },
+          {
+            "id": 8215,
+            "title": "初音ミクの激唱",
+            "note": "メドレー"
+          },
+          {
+            "id": 411304,
+            "title": "転生林檎"
+          },
+          {
+            "id": 495802,
+            "title": "天樂 -双響-"
+          },
+          {
+            "id": 11593,
+            "title": "shake it！"
+          },
+          {
+            "id": 173702,
+            "title": "抜錨"
+          },
+          {
+            "id": 315565,
+            "title": "FLASH",
+            "note": "メドレー"
+          },
+          {
+            "id": 486770,
+            "title": "黄昏を生きる",
+            "note": "メドレー"
+          },
+          {
+            "id": 1355,
+            "title": "みくみくにしてあげる♪【してやんよ】",
+            "note": "メドレー：初音ミク 16th Anniversary Special Medley"
+          },
+          {
+            "id": 7235,
+            "title": "私の時間",
+            "note": "メドレー：初音ミク 16th Anniversary Special Medley"
+          },
+          {
+            "id": 2913,
+            "title": "Starduster",
+            "note": "メドレー：初音ミク 16th Anniversary Special Medley"
+          },
+          {
+            "id": 75939,
+            "title": "七つの罪と罰",
+            "note": "メドレー：悪ノ交響曲 第1楽章"
+          },
+          {
+            "id": 1277,
+            "title": "ヴェノマニア公の狂気",
+            "note": "メドレー：悪ノ交響曲 第2楽章"
+          },
+          {
+            "id": 1588,
+            "title": "悪食娘コンチータ",
+            "note": "メドレー：悪ノ交響曲 第2楽章"
+          },
+          {
+            "id": 1590,
+            "title": "悪ノ娘",
+            "note": "メドレー：悪ノ交響曲 第3楽章"
+          },
+          {
+            "id": 1358,
+            "title": "悪ノ召使",
+            "note": "メドレー：悪ノ交響曲 第3楽章"
+          },
+          {
+            "id": 1612,
+            "title": "眠らせ姫からの贈り物",
+            "note": "メドレー：悪ノ交響曲 第4楽章"
+          },
+          {
+            "id": 2808,
+            "title": "円尾坂の仕立屋",
+            "note": "メドレー：悪ノ交響曲 第4楽章"
+          },
+          {
+            "id": 1598,
+            "title": "悪徳のジャッジメント",
+            "note": "メドレー：悪ノ交響曲 第5楽章"
+          },
+          {
+            "id": 62774,
+            "title": "ネメシスの銃口",
+            "note": "メドレー：悪ノ交響曲 第5楽章"
+          },
+          {
+            "id": 100671,
+            "title": "Packaged"
+          },
+          {
+            "id": 730922,
+            "title": "星のカケラ",
+            "note": "アンコール"
+          },
+          {
+            "id": 14480,
+            "title": "39",
+            "note": "アンコール"
+          },
+          {
+            "id": 525396,
+            "title": "ブループラネット",
+            "note": "アンコール"
+          },
+          {
+            "id": 3312,
+            "title": "白い雪のプリンセスは",
+            "note": "ダブルアンコール（神戸のみ）"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/80537.html",
+          "title": "初音ミク Wiki：初音ミクシンフォニー 2023（神戸公演）",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "逐曲表：26 行（含メドレー 拆分）"
+        }
+      ],
+      "note": "歌单来自初音ミク Wiki 的逐曲表（神戸公演），不用专辑 tracklist"
     }
   },
   "lists": {
@@ -1533,6 +1954,96 @@
       "confidence": "medium",
       "note": "滨松 / 大阪 / 东京各自的场次共用一套",
       "citiesPlayOneSetlist": true
+    },
+    "1000040398": {
+      "source": "https://w.atwiki.jp/hmiku/pages/80537.html",
+      "accessedAt": "2026-11-05",
+      "confidence": "medium",
+      "note": "百科逐曲表：横浜 25 行；神戸多一首神戸限定的ダブルアンコール",
+      "explainedLengths": {
+        "4878:2023-10-14": "横浜 25 行（神戸比少一首神戸限定ダブルアンコール）",
+        "4879:2023-12-23": "神戸限定ダブルアンコール「白い雪のプリンセスは」"
+      }
+    }
+  },
+  "statuses": {
+    "2853": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Vancouver 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2854": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 San Jose 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2855": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Dallas 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2856": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Atlanta 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2857": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Washington D.C. 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2858": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Asbury Park 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2859": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Boston 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2860": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Chicago 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2861": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Toronto 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2878": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Los Angeles 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2879": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Orlando 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2880": {
+      "status": "cancelled",
+      "note": "MIKU EXPO 2020 Montreal 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/mikuexpo/status/1310762426975936512",
+      "accessedAt": "2026-11-05"
+    },
+    "2886": {
+      "status": "cancelled",
+      "note": "初音ミク×鼓童スペシャルライブ２０２０～結～ 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+      "source": "https://twitter.com/kodo_miku/status/1353583380097507333",
+      "accessedAt": "2026-11-05"
     }
   }
 }

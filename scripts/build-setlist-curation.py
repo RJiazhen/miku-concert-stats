@@ -9,7 +9,9 @@ Run: uv run scripts/build-setlist-curation.py
 """
 import datetime
 import json
+import re
 import sqlite3
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -407,8 +409,15 @@ add(
 )
 add(
     3792,
-    sources=[wiki(FANDOM_SNOW_2015, "VocaDB Fandom: SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set", "仅给出 2/7–2/8，未写逐日时刻")],
-    note="Fandom 只有日期区间 2/7–2/8，没有逐日时刻；按每天一场处理",
+    day_night="all",
+    sources=[
+        official_page(
+            "https://snowmiku.com/2015/live_ticket.html",
+            "SNOW MIKU LIVE! 2015 公式チケット页",
+            "2/7、2/8 それぞれ昼夜公演の1日2回、全4公演",
+        )
+    ],
+    note="官方页：2/7、2/8 每天昼场 + 夜场，共 4 场",
 )
 add(
     2948,
@@ -425,8 +434,16 @@ add(
 )
 add(
     5910,
-    sources=[wiki(FANDOM_KODO_2023, "VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2023", "仅给出 6/3–6/4，未写逐日时刻")],
-    note="Fandom 只有日期区间 6/3–6/4，没有逐日时刻；按每天一场处理",
+    day_night=["2023-06-03"],
+    halves={"2023-06-04": ["day"]},
+    sources=[
+        official_page(
+            "https://www.kodo.or.jp/performance/performance_kodo/42586",
+            "鼓童 公式サイト：初音ミク×鼓童スペシャルライブ2023 ～結～",
+            "開演 06.03 13:00 / 19:00、06.04 13:00",
+        )
+    ],
+    note="官方页：6/3 有 13:00 与 19:00 两场，6/4 只有 13:00 一场，共 3 场",
 )
 add(
     2510,
@@ -606,7 +623,208 @@ add(2947, halves={"2017-03-04": ["night"], "2017-03-05": ["day"]},
     sources=[wiki(MOE_KODO, "萌娘百科：初音未来×鼓童特别演唱会", "3/4 开演 19:00；3/5 开演 13:00")],
     note="萌娘百科：3/4 只有夜场 19:00，3/5 只有昼场 13:00，共 2 场")
 
-curation = {"version": 1, "performances": performances, "lists": lists}
+# ---------------------------------------------------------------- 演出状态（取消 / 延期）
+# VocaDB 只有 Finished / Approved / Draft，没有「已取消」，所以这 13 场在索引里只显示「日期未知」。
+# 来源取该演出 performance_links 里的取消公告，原文写得很清楚。
+def link_of(pid: int, want: str) -> str:
+    """Returns the first web link of a 演出 whose description contains `want`, else its Website link."""
+    db = sqlite3.connect(DB)
+    try:
+        rows = db.execute(
+            "SELECT url, description FROM performance_links WHERE performance_id = ? ORDER BY url", (pid,)
+        ).fetchall()
+    finally:
+        db.close()
+    for url, description in rows:
+        if description and want.lower() in description.lower():
+            return url
+    for url, description in rows:
+        if description and description.strip().lower() == "website":
+            return url
+    return "https://mikuexpo.com/usaca2020/"
+
+
+statuses: dict[str, dict] = {}
+CANCELLED = {
+    2853: "MIKU EXPO 2020 Vancouver",
+    2854: "MIKU EXPO 2020 San Jose",
+    2855: "MIKU EXPO 2020 Dallas",
+    2856: "MIKU EXPO 2020 Atlanta",
+    2857: "MIKU EXPO 2020 Washington D.C.",
+    2858: "MIKU EXPO 2020 Asbury Park",
+    2859: "MIKU EXPO 2020 Boston",
+    2860: "MIKU EXPO 2020 Chicago",
+    2861: "MIKU EXPO 2020 Toronto",
+    2878: "MIKU EXPO 2020 Los Angeles",
+    2879: "MIKU EXPO 2020 Orlando",
+    2880: "MIKU EXPO 2020 Montreal",
+    2886: "初音ミク×鼓童スペシャルライブ２０２０～結～",
+}
+for pid, name in CANCELLED.items():
+    statuses[str(pid)] = {
+        "status": "cancelled",
+        "note": f"{name} 因 2020 年疫情取消，VocaDB 仍记为 Finished 且没有日期",
+        "source": link_of(pid, "Cancellation"),
+        "accessedAt": ACCESSED,
+    }
+
+# ---------------------------------------------------------------- 百科歌单：初音ミクシンフォニー 2023
+# atwiki 的「初音ミク Wiki」按城市给出完整曲目表（含メドレー 拆分、安可、双安可），
+# 比专辑 tracklist 精确：东京与横滨/神戸 是两套不同节目。
+SYMPHONY_2023 = "https://w.atwiki.jp/hmiku/pages/80537.html"
+
+TOKYO_2023 = [
+    ("Tell Your World", None),
+    ("転生林檎", None),
+    ("shake it！", None),
+    ("七つの罪と罰", "メドレー：悪ノ交響曲 第1楽章"),
+    ("ヴェノマニア公の狂気", "メドレー：悪ノ交響曲 第2楽章"),
+    ("悪食娘コンチータ", "メドレー：悪ノ交響曲 第2楽章"),
+    ("悪ノ娘", "メドレー：悪ノ交響曲 第3楽章"),
+    ("悪ノ召使", "メドレー：悪ノ交響曲 第3楽章"),
+    ("眠らせ姫からの贈り物", "メドレー：悪ノ交響曲 第4楽章"),
+    ("円尾坂の仕立屋", "メドレー：悪ノ交響曲 第4楽章"),
+    ("悪徳のジャッジメント", "メドレー：悪ノ交響曲 第5楽章"),
+    ("ネメシスの銃口", "メドレー：悪ノ交響曲 第5楽章"),
+    ("FLASH", "メドレー"),
+    ("黄昏を生きる", "メドレー"),
+    ("抜錨", None),
+    ("アトラクトライト", None),
+    ("ハジメテノオト", None),
+    ("Birthday Song for ミク", None),
+    ("愛言葉", "アンコール"),
+    ("rain stops, good-bye", "アンコール・メドレー"),
+    ("よつばのクローバー", "アンコール・メドレー"),
+    ("メルト", "アンコール"),
+]
+
+CITY_2023 = [
+    ("ダーリンダンス", None),
+    ("初音ミクの消失", "メドレー"),
+    ("初音ミクの激唱", "メドレー"),
+    ("転生林檎", None),
+    ("天樂 -双響-", None),
+    ("shake it！", None),
+    ("抜錨", None),
+    ("FLASH", "メドレー"),
+    ("黄昏を生きる", "メドレー"),
+    ("みくみくにしてあげる♪【してやんよ】", "メドレー：初音ミク 16th Anniversary Special Medley"),
+    ("私の時間", "メドレー：初音ミク 16th Anniversary Special Medley"),
+    ("Starduster", "メドレー：初音ミク 16th Anniversary Special Medley"),
+    ("七つの罪と罰", "メドレー：悪ノ交響曲 第1楽章"),
+    ("ヴェノマニア公の狂気", "メドレー：悪ノ交響曲 第2楽章"),
+    ("悪食娘コンチータ", "メドレー：悪ノ交響曲 第2楽章"),
+    ("悪ノ娘", "メドレー：悪ノ交響曲 第3楽章"),
+    ("悪ノ召使", "メドレー：悪ノ交響曲 第3楽章"),
+    ("眠らせ姫からの贈り物", "メドレー：悪ノ交響曲 第4楽章"),
+    ("円尾坂の仕立屋", "メドレー：悪ノ交響曲 第4楽章"),
+    ("悪徳のジャッジメント", "メドレー：悪ノ交響曲 第5楽章"),
+    ("ネメシスの銃口", "メドレー：悪ノ交響曲 第5楽章"),
+    ("Packaged", None),
+    ("星のカケラ", "アンコール"),
+    ("39", "アンコール"),
+    ("ブループラネット", "アンコール"),
+]
+
+KOBE_2023 = CITY_2023 + [("白い雪のプリンセスは", "ダブルアンコール（神戸のみ）")]
+
+
+def song_ids_by_title() -> dict[str, list[int]]:
+    """Indexes catalog songs by a normalized title, so wiki titles map onto VocaDB ids."""
+    db = sqlite3.connect(DB)
+    try:
+        rows = db.execute("SELECT id, name, name_ja, name_en FROM songs").fetchall()
+    finally:
+        db.close()
+    index: dict[str, list[int]] = {}
+    for song_id, name, name_ja, name_en in rows:
+        for candidate in (name, name_ja, name_en):
+            key = normalize_title(candidate or "")
+            if key:
+                index.setdefault(key, []).append(song_id)
+    return index
+
+
+def normalize_title(title: str) -> str:
+    """Strips parentheses, spaces, and punctuation so titles from different sites compare equal."""
+    title = unicodedata.normalize("NFKC", title)
+    title = re.sub(r"[\(（].*?[\)）]", "", title)
+    title = re.sub(r"[\s・,，、。．.~〜\-–—'\"\u2019]", "", title)
+    return title.lower()
+
+
+TITLE_INDEX = song_ids_by_title()
+
+
+def resolve_song(title: str, prefer: set[int]) -> tuple[int, str]:
+    """Maps a wiki song title to a catalog id, preferring an id the 演出 already used."""
+    hits = TITLE_INDEX.get(normalize_title(title), [])
+    if not hits:
+        raise SystemExit(f"unknown song title: {title}")
+    for hit in hits:
+        if hit in prefer:
+            return hit, title
+    return min(hits), title
+
+
+def setlist_of(pid: int, songs: list[tuple[str, str | None]], label: str) -> dict:
+    """Builds one curated wiki setlist entry, resolving titles against the catalog."""
+    db = sqlite3.connect(DB)
+    try:
+        prefer = {
+            row[0]
+            for row in db.execute(
+                "SELECT song_id FROM performance_show_setlist_items WHERE performance_id = ?", (pid,)
+            ).fetchall()
+        }
+    finally:
+        db.close()
+    resolved = []
+    for title, note in songs:
+        song_id, shown = resolve_song(title, prefer)
+        entry = {"id": song_id, "title": shown}
+        if note:
+            entry["note"] = note
+        resolved.append(entry)
+    return {
+        "setlist": {
+            "source": SYMPHONY_2023,
+            "title": f"初音ミク Wiki：初音ミクシンフォニー 2023（{label}）",
+            "accessedAt": ACCESSED,
+            "confidence": "medium",
+            "label": label,
+            "songs": resolved,
+        },
+        "sources": [
+            wiki(SYMPHONY_2023, f"初音ミク Wiki：初音ミクシンフォニー 2023（{label}）", f"逐曲表：{len(resolved)} 行（含メドレー 拆分）")
+        ],
+        "note": f"歌单来自初音ミク Wiki 的逐曲表（{label}），不用专辑 tracklist",
+    }
+
+
+for pid, songs, label in (
+    (4877, TOKYO_2023, "東京公演"),
+    (4878, CITY_2023, "横浜公演"),
+    (4879, KOBE_2023, "神戸公演"),
+):
+    entry = setlist_of(pid, songs, label)
+    existing = performances.setdefault(str(pid), {})
+    existing.update(entry)
+
+# 神戸 2023 比横浜多一首「白い雪のプリンセスは」（ダブルアンコール，神戸限定），
+# 所以两地的曲目数本来就不同；记下原因后不再报长度警告。
+lists.setdefault("1000040398", {}).update({
+    "source": SYMPHONY_2023,
+    "accessedAt": ACCESSED,
+    "confidence": "medium",
+    "note": "百科逐曲表：横浜 25 行；神戸多一首神戸限定的ダブルアンコール",
+    "explainedLengths": {
+        "4878:2023-10-14": "横浜 25 行（神戸比少一首神戸限定ダブルアンコール）",
+        "4879:2023-12-23": "神戸限定ダブルアンコール「白い雪のプリンセスは」",
+    },
+})
+
+curation = {"version": 1, "performances": performances, "lists": lists, "statuses": statuses}
 target = ROOT / "data" / "performance-setlists.json"
 target.write_text(json.dumps(curation, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(f"Wrote {target} with {len(performances)} performances")

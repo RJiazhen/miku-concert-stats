@@ -53,6 +53,38 @@ export type PerformanceCuration = {
   halves?: Record<string, SetlistHalf[]>
   note?: string
   sources?: SetlistSourceEntry[]
+  /**
+   * A complete ordered setlist from an outside source, used instead of the VocaDB rows.
+   * Symphony performances give one list per city, so the list applies to every 場次 of the 演出.
+   */
+  setlist?: CuratedSetlist
+}
+
+/** One song of a wiki-sourced setlist, already resolved to a catalog song id. */
+export type CuratedSetlistSong = {
+  id: number
+  title: string
+  /** Free-text note from the source, e.g. `メドレー：悪ノ交響曲 第2楽章`. */
+  note?: string
+}
+
+/** A complete setlist taken from an outside source. */
+export type CuratedSetlist = {
+  source: string
+  title: string
+  accessedAt: string
+  confidence: SetlistConfidence
+  /** Which city or slot block the list covers, for the page and the docs. */
+  label?: string
+  songs: CuratedSetlistSong[]
+}
+
+/** Hand-checked outcome of a 演出 with no setlist row. */
+export type PerformanceStatusCuration = {
+  status: 'cancelled' | 'postponed' | 'upcoming'
+  note?: string
+  source: string
+  accessedAt: string
 }
 
 /** Hand-checked override for one source song list. */
@@ -101,6 +133,8 @@ export type ListCuration = {
 export type PerformanceSetlistCuration = {
   performances?: Record<string, PerformanceCuration>
   lists?: Record<string, ListCuration>
+  /** Hand-checked outcome for 演出 without a setlist row. */
+  statuses?: Record<string, PerformanceStatusCuration>
 }
 
 /** Validated curation with numeric keys and lookup helpers. */
@@ -113,6 +147,8 @@ export type PerformanceSetlistCurationIndex = {
   noShowDates: CuratedNoShowDates
   /** Per-date half overrides, ready for `performanceSchedules`. */
   halves: CuratedHalves
+  /** Hand-checked outcome per performance id. */
+  statuses: ReadonlyMap<number, PerformanceStatusCuration>
   /** Count of hand-checked entries, for reports. */
   size: number
 }
@@ -124,6 +160,7 @@ export const emptyCurationIndex = (): PerformanceSetlistCurationIndex => ({
   dayNight: new Map(),
   noShowDates: new Map(),
   halves: new Map(),
+  statuses: new Map(),
   size: 0,
 })
 
@@ -227,6 +264,55 @@ const parsePerformanceCuration = (value: unknown, performanceId: number): Perfor
       halves[date] = [...new Set(value as SetlistHalf[])]
     }
     parsed.halves = halves
+  }
+  if (record.setlist !== undefined) {
+    const raw = record.setlist
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new Error(`Curation for ${performanceId} setlist is not an object`)
+    }
+    const list = raw as Record<string, unknown>
+    if (typeof list.source !== 'string' || !/^https?:\/\//.test(list.source)) {
+      throw new Error(`Curation for ${performanceId} setlist has no http(s) source`)
+    }
+    if (typeof list.title !== 'string' || list.title.trim() === '') {
+      throw new Error(`Curation for ${performanceId} setlist has no title`)
+    }
+    if (!isDay(list.accessedAt)) throw new Error(`Curation for ${performanceId} setlist has no accessedAt`)
+    if (list.confidence !== 'high' && list.confidence !== 'medium' && list.confidence !== 'low') {
+      throw new Error(`Curation for ${performanceId} setlist has an unknown confidence`)
+    }
+    if (!Array.isArray(list.songs) || list.songs.length === 0) {
+      throw new Error(`Curation for ${performanceId} setlist has no songs`)
+    }
+    const songs = list.songs.map((song) => {
+      if (song === null || typeof song !== 'object' || Array.isArray(song)) {
+        throw new Error(`Curation for ${performanceId} setlist has a non-object song`)
+      }
+      const entry = song as Record<string, unknown>
+      if (!Number.isInteger(entry.id) || (entry.id as number) <= 0) {
+        throw new Error(`Curation for ${performanceId} setlist song has no id`)
+      }
+      if (typeof entry.title !== 'string' || entry.title.trim() === '') {
+        throw new Error(`Curation for ${performanceId} setlist song has no title`)
+      }
+      const parsedSong: CuratedSetlistSong = { id: entry.id as number, title: (entry.title as string).trim() }
+      if (entry.note !== undefined) {
+        if (typeof entry.note !== 'string') {
+          throw new Error(`Curation for ${performanceId} setlist song note is not text`)
+        }
+        parsedSong.note = entry.note
+      }
+      return parsedSong
+    })
+    const setlist: CuratedSetlist = {
+      source: list.source,
+      title: list.title.trim(),
+      accessedAt: list.accessedAt,
+      confidence: list.confidence,
+      songs,
+    }
+    if (typeof list.label === 'string' && list.label.trim() !== '') setlist.label = list.label.trim()
+    parsed.setlist = setlist
   }
   if (record.sources !== undefined) {
     if (!Array.isArray(record.sources)) throw new Error(`Curation for ${performanceId} sources is not a list`)
@@ -421,7 +507,45 @@ export const parsePerformanceSetlistCuration = (value: unknown): PerformanceSetl
       lists.set(songListId, parseListCuration(entry, songListId))
     }
   }
-  return { performances, lists, dayNight, noShowDates, halves, size: performances.size + lists.size }
+  const statuses = new Map<number, PerformanceStatusCuration>()
+  if (file.statuses !== undefined) {
+    if (file.statuses === null || typeof file.statuses !== 'object' || Array.isArray(file.statuses)) {
+      throw new Error('Setlist curation statuses is not an object')
+    }
+    for (const [key, entry] of Object.entries(file.statuses as Record<string, unknown>)) {
+      const performanceId = readId(key, 'Performance')
+      if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
+        throw new Error(`Status for ${performanceId} is not an object`)
+      }
+      const record = entry as Record<string, unknown>
+      if (record.status !== 'cancelled' && record.status !== 'postponed' && record.status !== 'upcoming') {
+        throw new Error(`Status for ${performanceId} is unknown`)
+      }
+      if (typeof record.source !== 'string' || !/^https?:\/\//.test(record.source)) {
+        throw new Error(`Status for ${performanceId} has no http(s) source`)
+      }
+      if (!isDay(record.accessedAt)) throw new Error(`Status for ${performanceId} has no accessedAt`)
+      const parsedStatus: PerformanceStatusCuration = {
+        status: record.status,
+        source: record.source,
+        accessedAt: record.accessedAt,
+      }
+      if (record.note !== undefined) {
+        if (typeof record.note !== 'string') throw new Error(`Status for ${performanceId} note is not text`)
+        parsedStatus.note = record.note
+      }
+      statuses.set(performanceId, parsedStatus)
+    }
+  }
+  return {
+    performances,
+    lists,
+    dayNight,
+    noShowDates,
+    halves,
+    statuses,
+    size: performances.size + lists.size + statuses.size,
+  }
 }
 
 /**
@@ -467,6 +591,16 @@ export const validateCurationAgainstCatalog = (
       }
       if ((entry.dayNight ?? []).includes(date)) {
         throw new Error(`Curation for ${performanceId} lists ${date} as both day/night and single-show`)
+      }
+    }
+  }
+  for (const performanceId of curation.statuses.keys()) {
+    if (!performances.has(performanceId)) throw new Error(`Status cites unknown performance ${performanceId}`)
+  }
+  for (const [performanceId, entry] of curation.performances) {
+    for (const song of entry.setlist?.songs ?? []) {
+      if (!songs.has(song.id)) {
+        throw new Error(`Curation for ${performanceId} setlist cites unknown song ${song.id}`)
       }
     }
   }
@@ -532,7 +666,7 @@ type PendingItem = {
   sourcePosition: number | null
   songId: number | null
   medleyId: number | null
-  evidence: 'note' | 'shared' | 'curated'
+  evidence: 'note' | 'shared' | 'curated' | 'wiki'
   notes: string | null
 }
 
@@ -570,6 +704,7 @@ export type PerformanceSetlistBuild = {
   items: PerformanceShowSetlistItemRow[]
   medleys: MedleyRow[]
   medleySongs: MedleySongRow[]
+  statuses: { performance_id: number; status: string; note: string | null; source_url: string; accessed_at: string }[]
   /** Deterministic diagnostics for the report, not stored in the catalog. */
   stats: {
     performances: number
@@ -649,6 +784,9 @@ export const buildPerformanceSetlists = (
     const ownLines = lines.filter((line) => line.performanceIds.includes(performance.id) || assignedHere.has(line.position))
     if (ownLines.length === 0) continue
 
+    /** A wiki setlist replaces the whole row set for this 演出. */
+    const curatedSetlist = performanceCuration?.setlist
+
     let curated = false
     // Whether this 演出's halves are known, so a half-naming note is exact: a curated
     // schedule says so, or the notes themselves both split a day and name the half.
@@ -667,7 +805,23 @@ export const buildPerformanceSetlists = (
       pendingByShow.set(showKey, bucket)
     }
 
-    for (const line of ownLines) {
+    if (curatedSetlist !== undefined) {
+      // The outside list already says what each 場次 played, so the VocaDB rows are ignored.
+      curated = true
+      for (const show of showsOfRun) {
+        for (const song of curatedSetlist.songs) {
+          addItem(show.key, {
+            sourcePosition: null,
+            songId: song.id,
+            medleyId: null,
+            evidence: 'wiki',
+            notes: song.note ?? null,
+          })
+        }
+      }
+    }
+
+    for (const line of curatedSetlist === undefined ? ownLines : []) {
       if (excluded.has(line.position)) {
         curated = true
         continue
@@ -749,27 +903,35 @@ export const buildPerformanceSetlists = (
       }
     }
 
-    const resolution = resolveAttribution(performanceCuration, ownLines, catalog, listId, halvesKnown)
+    // A wiki setlist is an outside attribution even when the notes alone would stay unresolved.
+    const resolution =
+      curatedSetlist !== undefined ? 'external' : resolveAttribution(performanceCuration, ownLines, catalog, listId, halvesKnown)
     const citedSources = performanceCuration?.sources ?? []
     const conflict =
       performanceCuration?.conflict === true || citedSources.some((source) => source.conflict === true) ? 1 : 0
     // A cited source, official or not, settles the question: the row keeps the URL and the
     // confidence so a reader can judge it, but nobody has to confirm it again. What still
     // needs a human is a 演出 nothing could locate, or one whose sources disagree.
-    const pendingReview = conflict === 1 || (resolution === 'unresolved' && citedSources.length === 0)
+    const pendingReview =
+      conflict === 1 || (resolution === 'unresolved' && citedSources.length === 0 && curatedSetlist === undefined)
     const anyUncertain = ownLines.some((line) => line.uncertain)
     const everyShared = ownLines.every((line) => isSharedLine(line))
     const change: PerformanceSetlistRow['change'] = curated ? 'curated' : ownLines.length < lines.length ? 'filtered' : 'none'
     // `inherited` describes the rows: every line applies to every 場次 of the run, so the whole
     // source list stands in for the setlist. It is independent of whether a source confirmed the
     // schedule, which `resolution` and `performance_setlist_sources` already record.
+    // A wiki setlist is a full per-演出 programme, so it is never "inherited" as a whole list.
     const status: PerformanceSetlistRow['status'] = conflict
       ? 'conflict'
-      : everyShared
-        ? 'inherited'
-        : anyUncertain || pendingReview
+      : curatedSetlist !== undefined
+        ? pendingReview
           ? 'partial'
           : 'complete'
+        : everyShared
+          ? 'inherited'
+          : anyUncertain || pendingReview
+            ? 'partial'
+            : 'complete'
 
     setlists.push({
       performance_id: performance.id,
@@ -902,7 +1064,17 @@ export const buildPerformanceSetlists = (
     .sort((left, right) => left.id - right.id)
     .flatMap((entry) => entry.songIds.map((songId, index) => ({ medley_id: entry.id, position: index + 1, song_id: songId })))
 
-  return { setlists, sources, shows, items, medleys, medleySongs, stats }
+  const statusRows = [...curation.statuses.entries()]
+    .sort((left, right) => left[0] - right[0])
+    .map(([performanceId, entry]) => ({
+      performance_id: performanceId,
+      status: entry.status,
+      note: entry.note ?? null,
+      source_url: entry.source,
+      accessed_at: entry.accessedAt,
+    }))
+
+  return { setlists, sources, shows, items, medleys, medleySongs, statuses: statusRows, stats }
 }
 
 /**

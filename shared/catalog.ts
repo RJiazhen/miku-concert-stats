@@ -13,6 +13,8 @@ import type {
   PerformanceSetlistSourceRow,
   PerformanceShowSetlistItemRow,
   PerformanceShowSetlistRow,
+  PerformanceStatusRow,
+  PerformanceStatusValue,
   Platform,
   Queryable,
   ReleaseMedium,
@@ -107,6 +109,13 @@ const derivedSourceKind = (row: SqlRow): SetlistSource => {
   throw new Error(`Unknown derived source kind ${value}`)
 }
 
+/** Narrows a stored 演出 status value. */
+const performanceStatus = (row: SqlRow): PerformanceStatusValue => {
+  const value = text(row, 'status')
+  if (value === 'cancelled' || value === 'postponed' || value === 'upcoming') return value
+  throw new Error(`Unknown performance status ${value}`)
+}
+
 /** Narrows an attribution method column. */
 const setlistResolution = (row: SqlRow): SetlistResolution => {
   const value = text(row, 'resolution')
@@ -122,9 +131,9 @@ const setlistConfidence = (row: SqlRow): SetlistConfidence => {
 }
 
 /** Narrows the derived-row evidence column. */
-const derivedEvidence = (row: SqlRow): 'note' | 'shared' | 'curated' => {
+const derivedEvidence = (row: SqlRow): 'note' | 'shared' | 'curated' | 'wiki' => {
   const value = text(row, 'evidence')
-  if (value === 'note' || value === 'shared' || value === 'curated') return value
+  if (value === 'note' || value === 'shared' || value === 'curated' || value === 'wiki') return value
   throw new Error(`Unknown derived evidence ${value}`)
 }
 
@@ -359,6 +368,15 @@ export const loadCatalog = (db: Queryable): Catalog => {
     position: int(row, 'position'),
     song_id: int(row, 'song_id'),
   }))
+  const performanceStatusRows = db
+    .all('SELECT * FROM performance_status ORDER BY performance_id')
+    .map((row): PerformanceStatusRow => ({
+      performance_id: int(row, 'performance_id'),
+      status: performanceStatus(row),
+      note: textOrNull(row, 'note'),
+      source_url: text(row, 'source_url'),
+      accessed_at: text(row, 'accessed_at'),
+    }))
   return {
     sources,
     series,
@@ -380,5 +398,6 @@ export const loadCatalog = (db: Queryable): Catalog => {
     performanceShowSetlistItems,
     medleys,
     medleySongs,
+    performanceStatus: performanceStatusRows,
   }
 }

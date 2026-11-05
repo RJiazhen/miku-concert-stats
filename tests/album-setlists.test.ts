@@ -41,6 +41,7 @@ const baseCatalog = (): Catalog => ({
   performanceShowSetlistItems: [],
   medleys: [],
   medleySongs: [],
+  performanceStatus: [],
 })
 
 /** One song list row for provenance tests. */

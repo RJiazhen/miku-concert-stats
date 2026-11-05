@@ -55,8 +55,9 @@ export const renderPerformanceSetlists = (build: PerformanceSetlistBuild, retrie
     'DELETE FROM medleys;',
     'DELETE FROM performance_show_setlist_items;',
     'DELETE FROM performance_show_setlists;',
-    'DELETE FROM performance_setlist_sources;',
     'DELETE FROM performance_setlists;',
+    'DELETE FROM performance_setlist_sources;',
+    'DELETE FROM performance_status;',
   ]
   const append = (sql: string): void => {
     if (sql) parts.push(sql)
@@ -155,6 +156,13 @@ export const renderPerformanceSetlists = (build: PerformanceSetlistBuild, retrie
       'medley_songs',
       ['medley_id', 'position', 'song_id'],
       build.medleySongs.map((row) => [row.medley_id, row.position, row.song_id]),
+    ),
+  )
+  append(
+    chunkInserts(
+      'performance_status',
+      ['performance_id', 'status', 'note', 'source_url', 'accessed_at'],
+      build.statuses.map((row) => [row.performance_id, row.status, row.note, row.source_url, row.accessed_at]),
     ),
   )
   parts.push('')

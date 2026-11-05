@@ -6,10 +6,10 @@
 
 ## 0. 一句话现状
 
-- 目录里 177 个演出已展开成 **353 个场次**、8680 条曲目。
-- 来源记录 87 个演出：官方页 33 条、百科 61 条，全部已直接采用。
+- 目录里 177 个演出已展开成 **356 个场次**、8753 条曲目。
+- 来源记录 90 个演出：官方页 35 条、百科 62 条，全部已直接采用。
 - 待核实归属 0 个、冲突 0 个、带不确定标记的场次 0 个。
-- 还剩 **2 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
+- 还剩 **0 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
 
 ---
 
@@ -99,47 +99,25 @@
 | MIKU WITH YOU 2024 in Shanghai（7673） | 未来有你 | 2024-07-13 | 4 × 23 | vocadb-note | medium | [萌娘百科：初音未来·未来有你2024演唱会](https://zh.moegirl.org.cn/初音未来·未来有你2024演唱会)（2026-11-05） |
 | MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 2024-07-20 | 4 × 23 | vocadb-note | medium | [萌娘百科：初音未来·未来有你2024演唱会](https://zh.moegirl.org.cn/初音未来·未来有你2024演唱会)（2026-11-05） |
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 2024-07-27 | 4 × 23 | vocadb-note | medium | [萌娘百科：初音未来·未来有你2024演唱会](https://zh.moegirl.org.cn/初音未来·未来有你2024演唱会)（2026-11-05） |
-| SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set（3792） | SNOW MIKU | 2015-02-07 | 2 × 27 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2015_Presents_MIKU_EXPO_Live_Set)（2026-11-05） |
+| SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set（3792） | SNOW MIKU | 2015-02-07 | 4 × 27 | vocadb-note | high | [SNOW MIKU LIVE! 2015 公式チケット页](https://snowmiku.com/2015/live_ticket.html)（2026-11-05） |
 | SNOW MIKU LIVE! 2018（1618） | SNOW MIKU | 2018-02-09 | 4 × 26 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2018](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2018)（2026-11-05） |
 | SNOW MIKU LIVE! 2019（2422） | SNOW MIKU | 2019-02-09 | 4 × 26 | vocadb-note | medium | [萌娘百科：SNOW MIKU LIVE! 2019](https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019)（2026-11-05） |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2011-08-16 | 2 × 26 | vocadb-shared | high | [5pb. 官方页（2012-05-12 存档）：ミクパ♪ 札幌](https://web.archive.org/web/20120512094239/http://5pb.jp/mikupa/index_sapporo.html)（2026-11-05） |
 | 初音ミクライブパーティー 2013 Sapporo（2510） | Live Party | 2013-02-09 | 4 × 26 | vocadb-shared | medium | [VocaDB Fandom: Hatsune Miku Live Party 2013 (MikuPa)/Sapporo](https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2013_(MikuPa)/Sapporo)（2026-11-05） |
 | 初音ミク×鼓童スペシャルライブ（2947） | 鼓童 | 2017-03-04 | 2 × 19 | vocadb-shared | medium | [萌娘百科：初音未来×鼓童特别演唱会](https://zh.moegirl.org.cn/初音未来×鼓童特别演唱会)（2026-11-05） |
 | 初音ミク×鼓童スペシャルライブ２０１８（2948） | 鼓童 | 2018-06-02 | 3 × 21 | vocadb-shared | medium | [VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2018](https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2018)（2026-11-05） |
-| 初音ミク×鼓童スペシャルライブ２０２３ ～結～（5910） | 鼓童 | 2023-06-03 | 2 × 20 | vocadb-shared | medium | [VocaDB Fandom: Hatsune Miku × Kodo Taiko Special Live 2023](https://vocaloid.fandom.com/wiki/Hatsune_Miku_%C3%97_Kodo_Taiko_Special_Live_2023)（2026-11-05） |
+| 初音ミク×鼓童スペシャルライブ２０２３ ～結～（5910） | 鼓童 | 2023-06-03 | 3 × 20 | vocadb-shared | high | [鼓童 公式サイト：初音ミク×鼓童スペシャルライブ2023 ～結～](https://www.kodo.or.jp/performance/performance_kodo/42586)（2026-11-05） |
+| 初音ミクシンフォニー 2023 東京（4877） | 交响乐 | 2023-08-29 | 1 × 22 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2023（東京公演）](https://w.atwiki.jp/hmiku/pages/80537.html)（2026-11-05） |
+| 初音ミクシンフォニー 2023 横浜（4878） | 交响乐 | 2023-10-14 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2023（横浜公演）](https://w.atwiki.jp/hmiku/pages/80537.html)（2026-11-05） |
+| 初音ミクシンフォニー 2023 神戸（4879） | 交响乐 | 2023-12-13 | 1 × 26 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2023（神戸公演）](https://w.atwiki.jp/hmiku/pages/80537.html)（2026-11-05） |
 
-共 87 个演出、94 条来源记录。
+共 90 个演出、97 条来源记录。
 
 ---
 
-## 2. 百科与官网都没写逐日时刻（2 个演出）
+## 2. 百科与官网都没写逐日时刻（0 个演出）
 
-这些演出跨多天，但我查过的来源都只给日期区间：既没写每天几场，也没写开演时间。
-当前按「每个日历天 = 一个场次」计算。**如果你知道其中哪一站有昼夜两场，告诉我站名即可**，我按同样格式补进去。
-
-### SNOW MIKU
-
-**2.1 · SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set**（演出 3792，2015-02-07 – 2015-02-08，当前 2 场 × 27 首）
-
-- 已查：VocaDB Fandom「SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2015_Presents_MIKU_EXPO_Live_Set
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
-
-### 鼓童
-
-**2.2 · 初音ミク×鼓童スペシャルライブ２０２３ ～結～**（演出 5910，2023-06-03 – 2023-06-04，当前 2 场 × 20 首）
-
-- 已查：VocaDB Fandom「Hatsune Miku × Kodo Taiko Special Live 2023」，只写日期区间，没有逐日时刻
-  - https://vocaloid.fandom.com/wiki/Hatsune_Miku_×_Kodo_Taiko_Special_Live_2023
-
-- [ ] 每天只有一场，保持现状即可
-- [ ] 有昼夜两场（写在补充说明：站名 + 来源）
-
-> 补充：
+**已经清零**：所有跨天演出的逐日场次都已由官网或百科核实并写入目录。
 
 ---
 
@@ -229,6 +207,7 @@
 | [17933](https://vocadb.net/L/17933) | 4, 6, 21, 23, 25, 27 | 改写备注 6 行（Fandom：大阪分「Day 1 & 3」与「Day 2」两套；VocaDB 少了 Day 3；福冈 / 东京 / 大阪各自的场次共用一套；大阪 Day 1 & 3 相同） | https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2024 |
 | [16544](https://vocadb.net/L/16544) | 13, 17, 20 | 改写备注 3 行（Fandom 的三套歌单把第三套归给 San Jose Day 1；VocaDB 写成 Day 2） | https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America |
 | [31](https://vocadb.net/L/31) | — | 已解释长度差 1 处（Fandom：23 首固定 + 香港 1 首安可、台湾 2 首安可） | https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2012_(Mikupa)/Hong_Kong_and_Taiwan |
+| [1000040398](https://vocadb.net/L/1000040398) | — | 已解释长度差 2 处（百科逐曲表：横浜 25 行；神戸多一首神戸限定的ダブルアンコール） | https://w.atwiki.jp/hmiku/pages/80537.html |
 
 ---
 
@@ -245,6 +224,19 @@
 | [9359](https://vocadb.net/L/9359) | A 版（上海、北京）与 B 版（成都、广州），同城各场相同 | [来源](https://vocaloid.fandom.com/wiki/MIKU_WITH_YOU_2019) |
 | [20912](https://vocadb.net/L/20912) | 仙台 / 大阪 / 东京各自的场次共用一套 | [来源](https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2025) |
 | [27886](https://vocadb.net/L/27886) | 滨松 / 大阪 / 东京各自的场次共用一套 | [来源](https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2026) |
+
+---
+
+## 4b. 歌单改由百科提供（3 个演出）
+
+这些演出原来的曲目来自专辑 tracklist，与逐曲表对不上。现在改用百科的逐曲表，
+每行都带来源（含メドレー 的段落标注），可以逐条核对。
+
+| 演出 | 系列 | 场次 × 曲目 | 说明 | 来源 |
+| --- | --- | --- | --- | --- |
+| 初音ミクシンフォニー 2023 東京（4877） | 交响乐 | 1 × 22 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），不用专辑 tracklist | [初音ミク Wiki：初音ミクシンフォニー 2023（東京公演）](https://w.atwiki.jp/hmiku/pages/80537.html) |
+| 初音ミクシンフォニー 2023 横浜（4878） | 交响乐 | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（横浜公演），不用专辑 tracklist | [初音ミク Wiki：初音ミクシンフォニー 2023（横浜公演）](https://w.atwiki.jp/hmiku/pages/80537.html) |
+| 初音ミクシンフォニー 2023 神戸（4879） | 交响乐 | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（神戸公演），不用专辑 tracklist | [初音ミク Wiki：初音ミクシンフォニー 2023（神戸公演）](https://w.atwiki.jp/hmiku/pages/80537.html) |
 
 ---
 
@@ -268,7 +260,6 @@
 | [1000027432](https://vocadb.net/L/1000027432) | 初音ミクシンフォニー ~Miku Symphony 2019~ オーケストラ… | album | 2 | 2 | 21 |
 | [1000030905](https://vocadb.net/L/1000030905) | 初音ミクシンフォニー ~Miku Symphony 2021~ オーケストラ… | album | 2 | 2 | 17 |
 | [1000030961](https://vocadb.net/L/1000030961) | 初音ミクシンフォニー ~Miku Symphony 2017~ オーケストラ… | album | 2 | 2 | 15 |
-| [1000040398](https://vocadb.net/L/1000040398) | 初音ミクシンフォニー ~Miku Symphony 2023~ オーケストラ… | album | 2 | 2 | 25 |
 | [12](https://vocadb.net/L/12) | Hatsune Miku Live Party 2011 Mikupa♪ S… | vocadb | 1 | 2 | 26 |
 | [31](https://vocadb.net/L/31) | Hatsune Miku Live Party 2012 Mikupa♪ H… | vocadb | 1 | 1 | 25 |
 | [82](https://vocadb.net/L/82) | Hatsune Miku Live Party 2013 Mikupa♪ S… | vocadb | 1 | 4 | 26 |
@@ -289,10 +280,9 @@
 | [8961](https://vocadb.net/L/8961) | Hatsune Miku × Kodō Special Live 2018 | vocadb | 1 | 3 | 21 |
 | [9192](https://vocadb.net/L/9192) | MIKU WITH YOU 2020 | vocadb | 1 | 1 | 18 |
 | [10011](https://vocadb.net/L/10011) | MIKU WITH YOU 2021 | vocadb | 1 | 1 | 17 |
-| [13030](https://vocadb.net/L/13030) | Hatsune Miku × Kodō Special Live 2023 … | vocadb | 1 | 2 | 20 |
+| [13030](https://vocadb.net/L/13030) | Hatsune Miku × Kodō Special Live 2023 … | vocadb | 1 | 3 | 20 |
 | [14426](https://vocadb.net/L/14426) | HATSUNE MIKU EXPO 2023 VR Setlist | vocadb | 1 | 1 | 14 |
 | [1000019737](https://vocadb.net/L/1000019737) | 初音ミクシンフォニー ~Miku Symphony 2016~ オーケストラ… | album | 1 | 1 | 18 |
-| [1000039621](https://vocadb.net/L/1000039621) | 初音ミクシンフォニー ~Miku Symphony 2023~ Live a… | album | 1 | 1 | 24 |
 
 - [ ] 这些歌单确实只有一套曲目，整份沿用正确
 - [ ] 其中有分站替换曲（写在补充说明：源歌单 id + 城市 + 曲目）
@@ -303,42 +293,43 @@
 
 ---
 
-## 6. 上游没有歌单的演出（30 个）
+## 6. 上游没有歌单的演出（30 个，已按你的要求标注取消）
 
-多数是已取消或尚未举行。等实体发行或官方歌单出现再补。
+VocaDB 的状态字段没有「已取消」，所以取消场次在上游仍记为 `Finished`。
+现在 `performance_status` 表按取消公告单独记录，演出页会显示「这场演出已取消」并给出公告链接：
 
-| 演出 | 系列 | 日期 | VocaDB 状态 |
-| --- | --- | --- | --- |
-| [2853](https://vocadb.net/E/2853) MIKU EXPO 2020 Vancouver | MIKU EXPO | 无 | Finished |
-| [2854](https://vocadb.net/E/2854) MIKU EXPO 2020 San Jose | MIKU EXPO | 无 | Finished |
-| [2855](https://vocadb.net/E/2855) MIKU EXPO 2020 Dallas | MIKU EXPO | 无 | Finished |
-| [2856](https://vocadb.net/E/2856) MIKU EXPO 2020 Atlanta | MIKU EXPO | 无 | Finished |
-| [2857](https://vocadb.net/E/2857) MIKU EXPO 2020 Washington D.C. | MIKU EXPO | 无 | Finished |
-| [2858](https://vocadb.net/E/2858) MIKU EXPO 2020 Asbury Park (New Jersey) | MIKU EXPO | 无 | Finished |
-| [2859](https://vocadb.net/E/2859) MIKU EXPO 2020 Boston | MIKU EXPO | 无 | Finished |
-| [2860](https://vocadb.net/E/2860) MIKU EXPO 2020 Chicago | MIKU EXPO | 无 | Finished |
-| [2861](https://vocadb.net/E/2861) MIKU EXPO 2020 Toronto | MIKU EXPO | 无 | Finished |
-| [2878](https://vocadb.net/E/2878) MIKU EXPO 2020 Los Angeles | MIKU EXPO | 无 | Finished |
-| [2879](https://vocadb.net/E/2879) MIKU EXPO 2020 Orlando | MIKU EXPO | 无 | Finished |
-| [2880](https://vocadb.net/E/2880) MIKU EXPO 2020 Montreal | MIKU EXPO | 无 | Finished |
-| [2790](https://vocadb.net/E/2790) MIKU EXPO 2020 Barcelona | MIKU EXPO | 2020-01-28 | Finished |
-| [12222](https://vocadb.net/E/12222) MIKU EXPO 2026 London | MIKU EXPO | 2026-11-12 | Draft |
-| [12223](https://vocadb.net/E/12223) MIKU EXPO 2026 Brussels | MIKU EXPO | 2026-11-14 | Draft |
-| [12224](https://vocadb.net/E/12224) MIKU EXPO 2026 Amsterdam | MIKU EXPO | 2026-11-15 | Draft |
-| [12225](https://vocadb.net/E/12225) MIKU EXPO 2026 Berlin | MIKU EXPO | 2026-11-17 | Draft |
-| [12226](https://vocadb.net/E/12226) MIKU EXPO 2026 Düsseldorf | MIKU EXPO | 2026-11-20 | Draft |
-| [12227](https://vocadb.net/E/12227) MIKU EXPO 2026 Paris | MIKU EXPO | 2026-11-22 | Draft |
-| [12228](https://vocadb.net/E/12228) MIKU EXPO 2026 Madrid | MIKU EXPO | 2026-11-24 | Draft |
-| [12449](https://vocadb.net/E/12449) MIKU EXPO 2026 Lisbon | MIKU EXPO | 2026-11-27 | Draft |
-| [13120](https://vocadb.net/E/13120) MIKU WITH YOU 2026 | 未来有你 | 2026-10-31 | Draft |
-| [2886](https://vocadb.net/E/2886) 初音ミク×鼓童スペシャルライブ２０２０～結～ | 鼓童 | 无 | Finished |
-| [12940](https://vocadb.net/E/12940) 初音ミク×鼓童スペシャルライブ～響演～ | 鼓童 | 2026-11-20 | Finished |
-| [13210](https://vocadb.net/E/13210) 初音ミクシンフォニー 2027 東京 | 交响乐 | 无 | Draft |
-| [12713](https://vocadb.net/E/12713) 初音ミクシンフォニー 2026 札幌 | 交响乐 | 2026-06-20 | Finished |
-| [12714](https://vocadb.net/E/12714) 初音ミクシンフォニー 2026 東京 | 交响乐 | 2026-07-05 | Finished |
-| [12739](https://vocadb.net/E/12739) 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜 | 交响乐 | 2026-10-10 | Finished |
-| [12740](https://vocadb.net/E/12740) 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 大阪 | 交响乐 | 2027-01-10 | Finished |
-| [13209](https://vocadb.net/E/13209) 初音ミクシンフォニー 2027 横浜 | 交响乐 | 2027-03-13 | Draft |
+| 演出 | 系列 | 日期 | 状态 | VocaDB | 来源 |
+| --- | --- | --- | --- | --- | --- |
+| [2853](https://vocadb.net/E/2853) MIKU EXPO 2020 Vancouver | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2854](https://vocadb.net/E/2854) MIKU EXPO 2020 San Jose | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2855](https://vocadb.net/E/2855) MIKU EXPO 2020 Dallas | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2856](https://vocadb.net/E/2856) MIKU EXPO 2020 Atlanta | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2857](https://vocadb.net/E/2857) MIKU EXPO 2020 Washington D.C. | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2858](https://vocadb.net/E/2858) MIKU EXPO 2020 Asbury Park (New Jersey) | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2859](https://vocadb.net/E/2859) MIKU EXPO 2020 Boston | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2860](https://vocadb.net/E/2860) MIKU EXPO 2020 Chicago | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2861](https://vocadb.net/E/2861) MIKU EXPO 2020 Toronto | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2878](https://vocadb.net/E/2878) MIKU EXPO 2020 Los Angeles | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2879](https://vocadb.net/E/2879) MIKU EXPO 2020 Orlando | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2880](https://vocadb.net/E/2880) MIKU EXPO 2020 Montreal | MIKU EXPO | 无 | **已取消** | Finished | [公告](https://twitter.com/mikuexpo/status/1310762426975936512) |
+| [2790](https://vocadb.net/E/2790) MIKU EXPO 2020 Barcelona | MIKU EXPO | 2020-01-28 | 未标注 | Finished | — |
+| [12222](https://vocadb.net/E/12222) MIKU EXPO 2026 London | MIKU EXPO | 2026-11-12 | 未标注 | Draft | — |
+| [12223](https://vocadb.net/E/12223) MIKU EXPO 2026 Brussels | MIKU EXPO | 2026-11-14 | 未标注 | Draft | — |
+| [12224](https://vocadb.net/E/12224) MIKU EXPO 2026 Amsterdam | MIKU EXPO | 2026-11-15 | 未标注 | Draft | — |
+| [12225](https://vocadb.net/E/12225) MIKU EXPO 2026 Berlin | MIKU EXPO | 2026-11-17 | 未标注 | Draft | — |
+| [12226](https://vocadb.net/E/12226) MIKU EXPO 2026 Düsseldorf | MIKU EXPO | 2026-11-20 | 未标注 | Draft | — |
+| [12227](https://vocadb.net/E/12227) MIKU EXPO 2026 Paris | MIKU EXPO | 2026-11-22 | 未标注 | Draft | — |
+| [12228](https://vocadb.net/E/12228) MIKU EXPO 2026 Madrid | MIKU EXPO | 2026-11-24 | 未标注 | Draft | — |
+| [12449](https://vocadb.net/E/12449) MIKU EXPO 2026 Lisbon | MIKU EXPO | 2026-11-27 | 未标注 | Draft | — |
+| [13120](https://vocadb.net/E/13120) MIKU WITH YOU 2026 | 未来有你 | 2026-10-31 | 未标注 | Draft | — |
+| [2886](https://vocadb.net/E/2886) 初音ミク×鼓童スペシャルライブ２０２０～結～ | 鼓童 | 无 | **已取消** | Finished | [公告](https://twitter.com/kodo_miku/status/1353583380097507333) |
+| [12940](https://vocadb.net/E/12940) 初音ミク×鼓童スペシャルライブ～響演～ | 鼓童 | 2026-11-20 | 未标注 | Finished | — |
+| [13210](https://vocadb.net/E/13210) 初音ミクシンフォニー 2027 東京 | 交响乐 | 无 | 未标注 | Draft | — |
+| [12713](https://vocadb.net/E/12713) 初音ミクシンフォニー 2026 札幌 | 交响乐 | 2026-06-20 | 未标注 | Finished | — |
+| [12714](https://vocadb.net/E/12714) 初音ミクシンフォニー 2026 東京 | 交响乐 | 2026-07-05 | 未标注 | Finished | — |
+| [12739](https://vocadb.net/E/12739) 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜 | 交响乐 | 2026-10-10 | 未标注 | Finished | — |
+| [12740](https://vocadb.net/E/12740) 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 大阪 | 交响乐 | 2027-01-10 | 未标注 | Finished | — |
+| [13209](https://vocadb.net/E/13209) 初音ミクシンフォニー 2027 横浜 | 交响乐 | 2027-03-13 | 未标注 | Draft | — |
 
 - [ ] 都先留空，等实体发行或官方歌单
 - [ ] 其中有已举行的场次需要补录（写在补充说明）

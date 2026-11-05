@@ -24,6 +24,7 @@ const catalog = (): Catalog => ({
   performanceShowSetlistItems: [],
   medleys: [],
   medleySongs: [],
+  performanceStatus: [],
 })
 
 /** Series row with only the fields the ranking reads. */

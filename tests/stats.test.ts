@@ -25,6 +25,7 @@ const baseCatalog = (): Catalog => ({
   performanceShowSetlistItems: [],
   medleys: [],
   medleySongs: [],
+  performanceStatus: [],
 })
 
 describe('representative videos and bands', () => {

@@ -35,6 +35,13 @@ const shows = computed(() => {
   return catalogSchedules(catalog.value, review.value).get(current.id) ?? []
 })
 
+/** Hand-checked outcome when the catalog has one, e.g. a cancelled show. */
+const statusNote = computed(() => {
+  const current = performance.value
+  if (!catalog.value || !current) return null
+  return catalog.value.performanceStatus.find((row) => row.performance_id === current.id) ?? null
+})
+
 /** Series behind this show, needed to translate the label inside the performance name. */
 const series = computed(() => {
   const current = performance.value
@@ -42,10 +49,15 @@ const series = computed(() => {
   return catalog.value.series.find((row) => row.id === current.series_id) ?? null
 })
 
-/** Album behind this performance's setlist, empty when the list is VocaDB's own. */
+/** Album behind this performance's setlist, empty when the list is VocaDB's own or a wiki table. */
 const albumSources = computed(() => {
   const listId = performance.value?.song_list_id
   if (!catalog.value || listId === null || listId === undefined) return []
+  // A wiki-sourced setlist replaces the album tracklist, so the album notice would be wrong.
+  const fromWiki = catalog.value.performanceShowSetlistItems.some(
+    (row) => row.performance_id === performanceId.value && row.evidence === 'wiki',
+  )
+  if (fromWiki) return []
   return albumSetlistSources(catalog.value, [listId])
 })
 
@@ -134,7 +146,21 @@ const headerLine = computed(() => {
       </header>
 
       <UAlert
-        v-if="performance.song_list_id === null"
+        v-if="statusNote"
+        :color="statusNote.status === 'cancelled' ? 'error' : 'warning'"
+        variant="subtle"
+        icon="i-lucide-calendar-x"
+        :title="statusNote.status === 'cancelled' ? '这场演出已取消' : statusNote.status === 'postponed' ? '这场演出已延期' : '这场演出尚未举行'"
+        :description="statusNote.note ?? undefined"
+      >
+        <template #actions>
+          <UButton :to="statusNote.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
+            来源
+          </UButton>
+        </template>
+      </UAlert>
+      <UAlert
+        v-if="performance.song_list_id === null && !statusNote"
         color="warning"
         variant="subtle"
         icon="i-lucide-info"

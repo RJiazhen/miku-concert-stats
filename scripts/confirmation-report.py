@@ -154,8 +154,11 @@ out.append("")
 # ---------------------------------------------------------------- 2. 无逐日时刻
 out.append(f"## 2. 百科与官网都没写逐日时刻（{len(pending_schedule)} 个演出）")
 out.append("")
-out.append("这些演出跨多天，但我查过的来源都只给日期区间：既没写每天几场，也没写开演时间。")
-out.append("当前按「每个日历天 = 一个场次」计算。**如果你知道其中哪一站有昼夜两场，告诉我站名即可**，我按同样格式补进去。")
+if pending_schedule:
+    out.append("这些演出跨多天，但我查过的来源都只给日期区间：既没写每天几场，也没写开演时间。")
+    out.append("当前按「每个日历天 = 一个场次」计算。**如果你知道其中哪一站有昼夜两场，告诉我站名即可**。")
+else:
+    out.append("**已经清零**：所有跨天演出的逐日场次都已由官网或百科核实并写入目录。")
 out.append("")
 current_series = None
 for index, row in enumerate(pending_schedule, start=1):
@@ -323,6 +326,42 @@ out.append("")
 out.append("---")
 out.append("")
 
+# ---------------------------------------------------------------- 4b. 百科逐曲表
+wiki_lists = rows(
+    """
+    SELECT ps.performance_id, p.name, p.series_id, ps.note,
+           (SELECT COUNT(*) FROM performance_show_setlist_items i WHERE i.performance_id = ps.performance_id) AS items,
+           (SELECT COUNT(*) FROM performance_show_setlists s WHERE s.performance_id = ps.performance_id) AS shows,
+           (SELECT GROUP_CONCAT(DISTINCT src.title) FROM performance_setlist_sources src
+             WHERE src.performance_id = ps.performance_id) AS titles,
+           (SELECT MIN(src.url) FROM performance_setlist_sources src
+             WHERE src.performance_id = ps.performance_id) AS url
+    FROM performance_setlists ps JOIN performances p ON p.id = ps.performance_id
+    WHERE EXISTS (
+      SELECT 1 FROM performance_show_setlist_items i
+      WHERE i.performance_id = ps.performance_id AND i.evidence = 'wiki'
+    )
+    ORDER BY p.series_id, p.start_date
+    """
+)
+out.append(f"## 4b. 歌单改由百科提供（{len(wiki_lists)} 个演出）")
+out.append("")
+out.append("这些演出原来的曲目来自专辑 tracklist，与逐曲表对不上。现在改用百科的逐曲表，")
+out.append("每行都带来源（含メドレー 的段落标注），可以逐条核对。")
+out.append("")
+out.append("| 演出 | 系列 | 场次 × 曲目 | 说明 | 来源 |")
+out.append("| --- | --- | --- | --- | --- |")
+for row in wiki_lists:
+    title = (row["titles"] or "").replace("|", "\\|")
+    series = SERIES.get(row["series_id"], str(row["series_id"]))
+    out.append(
+        f"| {row['name']}（{row['performance_id']}） | {series} | {row['shows']} × {row['items']} | "
+        f"{row['note'] or ''} | [{title}]({row['url']}) |"
+    )
+out.append("")
+out.append("---")
+out.append("")
+
 # ---------------------------------------------------------------- 5. 整份无备注
 out.append("## 5. 整份歌单没有任何备注（整份沿用）")
 out.append("")
@@ -364,22 +403,36 @@ out.append("")
 # ---------------------------------------------------------------- 6. 无歌单
 missing = rows(
     """
-    SELECT p.id, p.series_id, p.name, p.start_date, p.vocadb_status
-    FROM performances p WHERE p.song_list_id IS NULL
+    SELECT p.id, p.series_id, p.name, p.start_date, p.vocadb_status,
+           st.status AS status, st.note AS status_note, st.source_url AS status_source,
+           st.accessed_at AS status_accessed
+    FROM performances p
+    LEFT JOIN performance_status st ON st.performance_id = p.id
+    WHERE p.song_list_id IS NULL
     ORDER BY p.series_id, p.start_date
     """
 )
-out.append(f"## 6. 上游没有歌单的演出（{len(missing)} 个）")
+out.append(f"## 6. 上游没有歌单的演出（{len(missing)} 个，已按你的要求标注取消）")
 out.append("")
-out.append("多数是已取消或尚未举行。等实体发行或官方歌单出现再补。")
+out.append("VocaDB 的状态字段没有「已取消」，所以取消场次在上游仍记为 `Finished`。")
+out.append("现在 `performance_status` 表按取消公告单独记录，演出页会显示「这场演出已取消」并给出公告链接：")
 out.append("")
-out.append("| 演出 | 系列 | 日期 | VocaDB 状态 |")
-out.append("| --- | --- | --- | --- |")
+out.append("| 演出 | 系列 | 日期 | 状态 | VocaDB | 来源 |")
+out.append("| --- | --- | --- | --- | --- | --- |")
 for row in missing:
     series = SERIES.get(row["series_id"], str(row["series_id"]))
+    if row["status"] == "cancelled":
+        state = "**已取消**"
+    elif row["status"] == "postponed":
+        state = "已延期"
+    elif row["status"] == "upcoming":
+        state = "尚未举行"
+    else:
+        state = "未标注"
+    source = f"[公告]({row['status_source']})" if row["status_source"] else "—"
     out.append(
         f"| [{row['id']}](https://vocadb.net/E/{row['id']}) {row['name']} | {series} | "
-        f"{row['start_date'] or '无'} | {row['vocadb_status']} |"
+        f"{row['start_date'] or '无'} | {state} | {row['vocadb_status']} | {source} |"
     )
 out.append("")
 out.append("- [ ] 都先留空，等实体发行或官方歌单")
