@@ -186,6 +186,32 @@ describe('performance setlist derivation', () => {
     expect(build.setlists.find((row) => row.performance_id === 3752)?.day_night_dates).toBe('["2019-11-02","2019-11-03"]')
   })
 
+  it('drops an exhibition-only day from the run', () => {
+    const base = mikuWithYou2019()
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      performances: { 3752: { noShowDates: ['2019-11-02'] } },
+    })
+    const build = buildPerformanceSetlists(base, reviewRotations(base), curation)
+    const shows = build.shows.filter((row) => row.performance_id === 3752)
+    expect(shows.map((row) => row.show_key)).toEqual(['3752:2019-11-03'])
+  })
+
+  it('keeps a first day with only a night show as one half', () => {
+    const base = mikuWithYou2019()
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      performances: { 3752: { dayNight: ['2019-11-03'], halves: { '2019-11-02': ['night'] } } },
+    })
+    const build = buildPerformanceSetlists(base, reviewRotations(base), curation)
+    const shows = build.shows.filter((row) => row.performance_id === 3752)
+    expect(shows.map((row) => row.show_key)).toEqual([
+      '3752:2019-11-02:night',
+      '3752:2019-11-03:day',
+      '3752:2019-11-03:night',
+    ])
+  })
+
   it('marks a fully shared list as inherited', () => {
     const base = catalog()
     base.songLists = [songList(6571)]

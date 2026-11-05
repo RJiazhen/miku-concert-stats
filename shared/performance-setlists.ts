@@ -1,4 +1,12 @@
-import { performanceSchedules, showsForNotes, type CuratedDayNight, type PerformanceShow } from './event-schedule.ts'
+import {
+  performanceSchedules,
+  showsForNotes,
+  type CuratedDayNight,
+  type CuratedHalves,
+  type CuratedNoShowDates,
+  type PerformanceShow,
+  type ShowHalf,
+} from './event-schedule.ts'
 import { reviewRotations, type ResolvedRotationLine, type RotationReview } from './rotation.ts'
 import { emptySongVariantIndex, type SongVariantIndex } from './song-variants.ts'
 import type {
@@ -12,6 +20,9 @@ import type {
   SetlistConfidence,
   SetlistResolution,
 } from './types.ts'
+
+/** One half of a show day, as stored in a curated schedule. */
+export type SetlistHalf = 'day' | 'night'
 
 /** One outside source cited by a 演出. Dates are plain calendar days. */
 export type SetlistSourceEntry = {
@@ -30,6 +41,13 @@ export type PerformanceCuration = {
   conflict?: boolean
   /** Dates this 演出 was verified to have a daytime and a night-time show. */
   dayNight?: string[]
+  /** Dates inside the run that had no live show, e.g. an exhibition-only day. */
+  noShowDates?: string[]
+  /**
+   * Per-date halves when a day did not have both a day and a night show, e.g.
+   * `{ "2025-08-01": ["night"] }` for a first day with only a night show.
+   */
+  halves?: Record<string, SetlistHalf[]>
   note?: string
   sources?: SetlistSourceEntry[]
 }
@@ -68,6 +86,10 @@ export type PerformanceSetlistCurationIndex = {
   lists: ReadonlyMap<number, ListCuration>
   /** Day/night dates per performance id, ready for `performanceSchedules`. */
   dayNight: CuratedDayNight
+  /** Dates per performance id that had no live show, ready for `performanceSchedules`. */
+  noShowDates: CuratedNoShowDates
+  /** Per-date half overrides, ready for `performanceSchedules`. */
+  halves: CuratedHalves
   /** Count of hand-checked entries, for reports. */
   size: number
 }
@@ -77,6 +99,8 @@ export const emptyCurationIndex = (): PerformanceSetlistCurationIndex => ({
   performances: new Map(),
   lists: new Map(),
   dayNight: new Map(),
+  noShowDates: new Map(),
+  halves: new Map(),
   size: 0,
 })
 
@@ -149,6 +173,31 @@ const parsePerformanceCuration = (value: unknown, performanceId: number): Perfor
       throw new Error(`Curation for ${performanceId} dayNight must be a list of YYYY-MM-DD days`)
     }
     parsed.dayNight = [...new Set(record.dayNight as string[])].sort()
+  }
+  if (record.noShowDates !== undefined) {
+    if (!Array.isArray(record.noShowDates) || !record.noShowDates.every(isDay)) {
+      throw new Error(`Curation for ${performanceId} noShowDates must be a list of YYYY-MM-DD days`)
+    }
+    parsed.noShowDates = [...new Set(record.noShowDates as string[])].sort()
+  }
+  if (record.halves !== undefined) {
+    if (record.halves === null || typeof record.halves !== 'object' || Array.isArray(record.halves)) {
+      throw new Error(`Curation for ${performanceId} halves is not an object`)
+    }
+    const halves: Record<string, SetlistHalf[]> = {}
+    for (const [date, value] of Object.entries(record.halves as Record<string, unknown>)) {
+      if (!isDay(date)) throw new Error(`Curation for ${performanceId} halves key ${date} is not a date`)
+      if (!Array.isArray(value) || value.length === 0) {
+        throw new Error(`Curation for ${performanceId} halves ${date} is not a non-empty list`)
+      }
+      for (const half of value) {
+        if (half !== 'day' && half !== 'night') {
+          throw new Error(`Curation for ${performanceId} halves ${date} has an unknown half`)
+        }
+      }
+      halves[date] = [...new Set(value as SetlistHalf[])]
+    }
+    parsed.halves = halves
   }
   if (record.sources !== undefined) {
     if (!Array.isArray(record.sources)) throw new Error(`Curation for ${performanceId} sources is not a list`)
@@ -269,6 +318,8 @@ export const parsePerformanceSetlistCuration = (value: unknown): PerformanceSetl
   const performances = new Map<number, PerformanceCuration>()
   const lists = new Map<number, ListCuration>()
   const dayNight = new Map<number, string[]>()
+  const noShowDates = new Map<number, string[]>()
+  const halves = new Map<number, Map<string, readonly ShowHalf[]>>()
   if (file.performances !== undefined) {
     if (file.performances === null || typeof file.performances !== 'object' || Array.isArray(file.performances)) {
       throw new Error('Setlist curation performances is not an object')
@@ -278,6 +329,8 @@ export const parsePerformanceSetlistCuration = (value: unknown): PerformanceSetl
       const parsed = parsePerformanceCuration(entry, performanceId)
       performances.set(performanceId, parsed)
       if (parsed.dayNight !== undefined) dayNight.set(performanceId, parsed.dayNight)
+      if (parsed.noShowDates !== undefined) noShowDates.set(performanceId, parsed.noShowDates)
+      if (parsed.halves !== undefined) halves.set(performanceId, new Map(Object.entries(parsed.halves)))
     }
   }
   if (file.lists !== undefined) {
@@ -289,7 +342,7 @@ export const parsePerformanceSetlistCuration = (value: unknown): PerformanceSetl
       lists.set(songListId, parseListCuration(entry, songListId))
     }
   }
-  return { performances, lists, dayNight, size: performances.size + lists.size }
+  return { performances, lists, dayNight, noShowDates, halves, size: performances.size + lists.size }
 }
 
 /**
@@ -315,8 +368,20 @@ export const validateCurationAgainstCatalog = (
         throw new Error(`Curation for ${performanceId} lists day/night ${date} outside ${start ?? 'no range'}`)
       }
     }
+    for (const date of entry.noShowDates ?? []) {
+      const start = performance.start_date
+      const end = performance.end_date ?? start
+      if (start === null || date < start || date > (end ?? start)) {
+        throw new Error(`Curation for ${performanceId} lists no-show ${date} outside ${start ?? 'no range'}`)
+      }
+    }
+    for (const date of entry.noShowDates ?? []) {
+      if ((entry.dayNight ?? []).includes(date)) {
+        throw new Error(`Curation for ${performanceId} lists ${date} as both day/night and no-show`)
+      }
+    }
   }
-  const showKeysByPerformance = performanceShowKeys(catalog, review, curation.dayNight)
+  const showKeysByPerformance = performanceShowKeys(catalog, review, curation.dayNight, curation.noShowDates)
   for (const [songListId, entry] of curation.lists) {
     if (!songLists.has(songListId)) throw new Error(`Curation cites unknown song list ${songListId}`)
     const positions = new Set(
@@ -349,13 +414,14 @@ export const validateCurationAgainstCatalog = (
   }
 }
 
-/** Every show key the catalog produces, with the curated day/night dates applied. */
+/** Every show key the catalog produces, with the curated day/night and no-show dates applied. */
 export const performanceShowKeys = (
   catalog: Catalog,
   review: RotationReview,
   curatedDayNight?: CuratedDayNight,
+  curatedNoShowDates?: CuratedNoShowDates,
 ): Set<string> => {
-  const schedules = performanceSchedules(catalog, review, curatedDayNight)
+  const schedules = performanceSchedules(catalog, review, curatedDayNight, curatedNoShowDates)
   const keys = new Set<string>()
   for (const shows of schedules.values()) for (const show of shows) keys.add(show.key)
   return keys
@@ -432,7 +498,7 @@ export const buildPerformanceSetlists = (
   review: RotationReview = reviewRotations(catalog),
   curation: PerformanceSetlistCurationIndex = emptyCurationIndex(),
 ): PerformanceSetlistBuild => {
-  const schedules = performanceSchedules(catalog, review, curation.dayNight)
+  const schedules = performanceSchedules(catalog, review, curation.dayNight, curation.noShowDates, curation.halves)
   const setlists: PerformanceSetlistRow[] = []
   const sources: PerformanceSetlistSourceRow[] = []
   const shows: PerformanceShowSetlistRow[] = []
@@ -564,9 +630,9 @@ export const buildPerformanceSetlists = (
 
     const resolution = resolveAttribution(performanceCuration, ownLines, catalog, listId)
     const citedSources = performanceCuration?.sources ?? []
-    // A 演出 attributed only through non-high-confidence sources needs a human pass.
-    const pendingReview =
-      resolution === 'external' && citedSources.length > 0 && citedSources.every((source) => source.confidence !== 'high')
+    // Any non-high-confidence source means a maintainer should still glance at the entry,
+    // whether it only supplied the schedule or the whole attribution.
+    const pendingReview = citedSources.some((source) => source.confidence !== 'high')
     const conflict =
       performanceCuration?.conflict === true || citedSources.some((source) => source.conflict === true) ? 1 : 0
     const anyUncertain = ownLines.some((line) => line.uncertain)
@@ -589,6 +655,7 @@ export const buildPerformanceSetlists = (
       resolution,
       source_row_count: lines.length,
       day_night_dates: curation.dayNight.has(performance.id) ? JSON.stringify(curation.dayNight.get(performance.id)) : null,
+      no_show_dates: curation.noShowDates.has(performance.id) ? JSON.stringify(curation.noShowDates.get(performance.id)) : null,
       conflict,
       pending_review: pendingReview ? 1 : 0,
       note: performanceCuration?.note ?? listCuration?.note ?? null,
@@ -680,30 +747,29 @@ const resolveAttribution = (
 }
 
 /**
- * Day/night dates already materialized in the catalog, ready for `performanceSchedules`.
- * Pages and statistics read the same dates the derivation used, so counts agree.
+ * 场次 of every 演出, read from the materialized derived layer.
+ *
+ * The rows already applied the curated schedule, so pages and statistics simply read them
+ * instead of recomputing the schedule; that keeps the show keys and counts identical
+ * everywhere.
  */
-export const catalogDayNight = (catalog: Catalog): CuratedDayNight => {
-  const map = new Map<number, string[]>()
-  for (const row of catalog.performanceSetlists) {
-    if (row.day_night_dates === null) continue
-    let parsed: unknown
-    try {
-      parsed = JSON.parse(row.day_night_dates)
-    } catch {
-      continue
-    }
-    if (!Array.isArray(parsed)) continue
-    const days = parsed.filter((value): value is string => typeof value === 'string')
-    if (days.length > 0) map.set(row.performance_id, days)
+export const catalogSchedules = (catalog: Catalog): Map<number, PerformanceShow[]> => {
+  const map = new Map<number, PerformanceShow[]>()
+  for (const row of catalog.performanceShowSetlists) {
+    const bucket = map.get(row.performance_id) ?? []
+    bucket.push({
+      key: row.show_key,
+      performanceId: row.performance_id,
+      date: row.date ?? '',
+      half: row.half,
+      label: row.half === null ? (row.date ?? '日期未知') : `${row.date} ${row.half === 'day' ? '日场' : '夜场'}`,
+    })
+    map.set(row.performance_id, bucket)
+  }
+  for (const bucket of map.values()) {
+    bucket.sort((left, right) => left.date.localeCompare(right.date) || (left.half ?? '').localeCompare(right.half ?? ''))
   }
   return map
-}
-
-/** 场次 of every 演出, using the day/night dates stored in the catalog. */
-export const catalogSchedules = (catalog: Catalog, review?: RotationReview): Map<number, PerformanceShow[]> => {
-  const parsed = review ?? reviewRotations(catalog)
-  return performanceSchedules(catalog, parsed, catalogDayNight(catalog))
 }
 
 /** Songs one derived row contributes; a medley row expands to its parts. */

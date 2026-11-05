@@ -104,24 +104,30 @@
 
 **建议方向**：新建 `data/show-schedules.json`（人工维护）+ `shared/show-schedules.ts`（校验加载器），结构建议按 VocaDB performance id 存逐日数据：
 
-**已实现（2026-11-05，B 方案）**：人工清单落在 `data/performance-setlists.json` 的 `performances.<id>.dayNight`，校验器是 `shared/performance-setlists.ts`，场次推导通过 `performanceSchedules` 的第三参数接入，并物化到 `performance_setlists.day_night_dates`。日夜场核实来源记在演出层（`performance_setlist_sources`），待核实项列在 `docs/reports/setlist-review.md` 的 A 节。字段形状与下面的示例一致，只是多了 `sources`、`resolution` 与 `conflict`：
+**已实现（2026-11-05，B 方案）**：人工清单落在 `data/performance-setlists.json` 的 `performances.<id>`，支持 `dayNight`（昼 + 夜两场）、`noShowDates`（只有企划展）与 `halves`（只有昼场或只有夜场），校验器是 `shared/performance-setlists.ts`，场次推导通过 `performanceSchedules` 的第二到第四个参数接入，并物化到 `performance_setlists`。日夜场核实来源记在演出层（`performance_setlist_sources`），待核实项列在 `docs/reports/setlist-review.md` 的 A 节。
+
+已按官方票务页核实的范围：魔法未来 2015–2026 的东京 / 大阪 / 札幌 / 福冈 / 仙台 / 滨松全部场次；未来有你 2018、2019 四站（萌娘百科）；MIKU EXPO 2014 印尼（VocaDB Fandom）。2019 大阪 8/09、2020 大阪 11/27、2018 东京 8/31、2015 东京 9/06、2016 东京 9/09 经核实为企划展日，已从场次中剔除。
 
 ```json
 {
-  "6045": {
-    "timezone": "Asia/Tokyo",
-    "dates": [
-      { "date": "2023-08-11", "dayShows": ["13:30"], "nightShows": ["18:30"],
-        "note": "昼场于 2023-04-06 追加；VocaDB 简介仍只列夜场" }
-    ],
-    "source": "https://magicalmirai.com/2023/osaka_ticket.html",
-    "accessedAt": "2026-11-04",
-    "confidence": "high"
+  "performances": {
+    "6045": {
+      "dayNight": ["2023-08-11", "2023-08-12", "2023-08-13"],
+      "note": "官方票务页：8/11–8/13 每天昼 + 夜，共 6 场",
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2023/osaka_ticket.html",
+          "title": "マジカルミライ 2023 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    }
   }
 }
 ```
 
-代码侧的接缝已经留好：`performanceSchedules(catalog, review, curatedDayNight?)` 接受一个「要按日夜拆分的日期」映射，并与人手识别出的备注日期取并集。接入时**不需要**改排行、覆盖数或页面。读取优先级建议：人工清单 → `showtime_local` → 只显示日期，不猜场次。
+代码侧的接缝：`performanceSchedules(catalog, review, curatedDayNight, curatedNoShowDates, curatedHalves)` 接受三张映射——要按日夜拆分的日期、只有企划展的日期、只有昼/夜场的日期。页面与统计读 `performance_show_setlists`，因此不需要各自再解析。
 
 ### 2.4 多城市共用一份歌单，无法证明某首歌在哪一站演过
 

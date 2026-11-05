@@ -307,6 +307,7 @@ export const loadCatalog = (db: Queryable): Catalog => {
     resolution: setlistResolution(row),
     source_row_count: int(row, 'source_row_count'),
     day_night_dates: textOrNull(row, 'day_night_dates'),
+    no_show_dates: textOrNull(row, 'no_show_dates'),
     conflict: int(row, 'conflict'),
     pending_review: int(row, 'pending_review'),
     note: textOrNull(row, 'note'),

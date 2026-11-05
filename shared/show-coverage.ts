@@ -1,5 +1,5 @@
-import { performanceSchedules, showsForNotes } from './event-schedule.ts'
-import { catalogDayNight, derivedItemSongIds } from './performance-setlists.ts'
+import { performanceSchedules, showsForNotes, type PerformanceShow } from './event-schedule.ts'
+import { catalogSchedules, derivedItemSongIds } from './performance-setlists.ts'
 import type { RotationReview } from './rotation.ts'
 import type { Catalog } from './types.ts'
 
@@ -40,7 +40,15 @@ export const showCoverage = (
   const wanted = new Set(songIds)
   if (wanted.size === 0) return result
 
-  const schedules = performanceSchedules(catalog, review, catalogDayNight(catalog))
+  // The derived rows already carry the curated schedule. A catalog without them (tests,
+  // older builds) falls back to deriving the 場次 from the rotation review.
+  const schedules = catalogSchedules(catalog)
+  const fallback = performanceSchedules(catalog, review)
+  const schedulesOf = (performanceId: number): readonly PerformanceShow[] => {
+    const derived = schedules.get(performanceId)
+    if (derived !== undefined && derived.length > 0) return derived
+    return fallback.get(performanceId) ?? []
+  }
 
   /** 場次 of each 演出 where the song appears. */
   const coveredByPerformance = new Map<number, Set<string>>()
@@ -69,7 +77,7 @@ export const showCoverage = (
       if (derivedPerformances.has(performanceId)) continue
       const performance = performanceById.get(performanceId)
       if (!performance) continue
-      const shows = schedules.get(performanceId) ?? []
+      const shows = schedulesOf(performanceId)
       const covered = coveredByPerformance.get(performanceId) ?? new Set<string>()
       for (const show of showsForNotes(line.notes, performance, shows)) covered.add(show.key)
       coveredByPerformance.set(performanceId, covered)
@@ -78,7 +86,7 @@ export const showCoverage = (
 
   for (const performance of catalog.performances) {
     if (performance.song_list_id === null) continue
-    const shows = schedules.get(performance.id) ?? []
+    const shows = schedulesOf(performance.id)
     if (shows.length === 0) continue
     const covered = coveredByPerformance.get(performance.id) ?? new Set<string>()
     result.set(performance.id, {

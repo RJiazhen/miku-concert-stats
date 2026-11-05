@@ -74,9 +74,11 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 **源歌单层与场次层。** VocaDB 只为每个 release event 存**一个** `songList` 引用，同一份歌单会被多个演出共用（本目录最多 17 个），地区与场次差异只能写进行内备注。因此目录额外物化一层场次歌单：`scripts/derive-performance-setlists.ts`（`pnpm derive:setlists`）读已提交的 `0001`/`0004` 与 `data/performance-setlists.json`，用 `shared/performance-setlists.ts` 把每个源行展开到它覆盖的场次，写出 `data/increments/0008-performance-setlists.sql`。源层（`song_lists` / `setlist_items` / `setlist_item_songs`）保持 VocaDB 原样，继续供 `/raw` 跨演出对照与 `/report` 使用；场次层供 `/shows`、排行与公开 skill 使用。两者都有 `source_list_id` / `source_position` 可对回。
 
-场次层六张表：`performance_setlists`（每演出一行：源歌单、`change`、`status`、`resolution`、`source_row_count`、`day_night_dates`、`conflict`、`pending_review`、`note`）、`performance_setlist_sources`（外部来源）、`performance_show_setlists`（每场次一行）、`performance_show_setlist_items`（每场次一整串有序曲目，`song_id` 与 `medley_id` 二选一）、`medleys` / `medley_songs`（串烧，当前为空表）。外部来源只记在演出层：检索都以 performance 为基准，逐场次的特殊情况写进 `performance_setlists.note`。
+场次层六张表：`performance_setlists`（每演出一行：源歌单、`change`、`status`、`resolution`、`source_row_count`、`day_night_dates`、`no_show_dates`、`conflict`、`pending_review`、`note`）、`performance_setlist_sources`（外部来源）、`performance_show_setlists`（每场次一行）、`performance_show_setlist_items`（每场次一整串有序曲目，`song_id` 与 `medley_id` 二选一）、`medleys` / `medley_songs`（串烧，当前为空表）。外部来源只记在演出层：检索都以 performance 为基准，逐场次的特殊情况写进 `performance_setlists.note`。
 
-来源查证顺序是「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」。官方页没有对应信息时**直接采用 wiki 数据继续开发**，标 `pending_review = 1`，交付时汇总进 `docs/reports/setlist-review.md` 的 F 节；只有所有来源都没有才留 `resolution = 'unresolved'`。
+`data/performance-setlists.json` 的 `performances.<id>` 支持三组时间修正：`dayNight`（该日昼 + 夜两场，来自官方票务页）、`noShowDates`（该日只有企划展、没有 live）、`halves`（该日只有昼场或只有夜场，例如首日仅夜场）。三者都会写进 manifest 并物化为 `day_night_dates` / `no_show_dates`，场次由 `performanceSchedules` 一次算好，页面与统计直接读 `performance_show_setlists`。
+
+来源查证顺序是「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」。官方页没有对应信息时**直接采用 wiki 数据继续开发**，`pending_review = 1`，交付时汇总进 `docs/reports/setlist-review.md` 的 F 节；只有所有来源都没有才留 `resolution = 'unresolved'`。`pending_review` 的规则是「该演出引用了任何非 `high` 置信度来源」。
 
 `shared/stats.ts`：
 
@@ -125,7 +127,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `showsForPerformance` 每个日期一个场次；`dayNightDates` 里的日期拆成 `日场` / `夜场`。key 为 `{performanceId}:{date}` 或 `{performanceId}:{date}:day|night`，label 为 `2020-11-28` / `2023-08-11 日场`。
 - `dayNightDatesFor` 从备注读日夜证据：`Daytime` / `Nighttime` / `Afternoon` / `Evening` / 昼夜 / 昼公演 / 夜公演 / `1st Show` / `2nd Show`。备注写了 `Day N` 或裸日期时只标那一天，没写则标整个演出。VocaDB 没有结构化的日夜字段（`showtime_local`、`time_evidence` 均为空），所以一天默认就是一场，只有备注证明当天有日场 + 夜场时才拆开。
 - `showsForNotes` 把一行分到场次：备注写了天、半天、场次号或裸日期时收窄到对应场次；否则计入该演出的全部场次。VocaDB 一份歌单对应整个 run，这是对「同一份歌单在每一场都演」的诚实读法。
-- `performanceSchedules` 为整个目录算出场次表，排行、歌曲页覆盖数和 `/shows` 页头共用。第三参数 `curatedDayNight` 接收人工核实的日期，与备注证据取并集；`data/performance-setlists.json` 的 `performances.<id>.dayNight` 经 `shared/performance-setlists.ts` 转成这个映射，并物化到 `performance_setlists.day_night_dates`，页面与统计都用 `catalogDayNight` 读同一份。一个演出只存一对起止日期、没有逐日节目单，因此区间内「只办展、没有 live」的日子仍无法与演出日区分，会以「某场曲目明显少」的形式暴露在待确认清单的 C 节。
+- `performanceSchedules` 为整个目录算出场次表，排行、歌曲页覆盖数和 `/shows` 页头共用。第三到第五参数 `curatedDayNight` / `curatedNoShowDates` / `curatedHalves` 接收人工核实结果：`dayNight` 把一天拆成日场 + 夜场，`noShowDates` 去掉只有企划展的日子，`halves` 指定某天只有昼场或只有夜场。`data/performance-setlists.json` 的 `performances.<id>` 经 `shared/performance-setlists.ts` 转成这三张映射，并物化到 `performance_setlists`，页面与统计都读 `performance_show_setlists`，所以口径一致。
 
 `shared/performance-setlists.ts` 是场次层的核心：
 

@@ -181,6 +181,8 @@ export type PerformanceSetlistRow = {
   source_row_count: number
   /** JSON array of dates verified to have a daytime and a night-time show. */
   day_night_dates: string | null
+  /** JSON array of dates inside the run that had no live show. */
+  no_show_dates: string | null
   conflict: number
   pending_review: number
   note: string | null

@@ -82,18 +82,35 @@ export const performanceDates = (performance: Pick<PerformanceRow, 'start_date' 
 /**
  * Lists the 场次 of one 演出.
  * Each covered day is one 场次; a day named in `dayNightDates` is split into 日场 and 夜场,
- * because the setlist notes prove that day had two shows. Dates not covered by the
- * performance are ignored. A performance without a start date has no 场次.
- * `dayNightDates` is also the injection point for a curated schedule file, so the note-based
- * evidence can later be replaced without touching this function.
+ * because the setlist notes prove that day had two shows. `halfOverrides` wins over that:
+ * a curated source can say a specific day had only a night show, which the note evidence
+ * cannot express. Dates not covered by the performance are ignored. A performance without a
+ * start date has no 场次.
+ *
+ * Both arguments are also the injection point for the curated schedule file, so the
+ * note-based evidence can be corrected without touching this function's callers.
  */
 export const showsForPerformance = (
   performance: SchedulePerformance,
   dayNightDates: readonly string[] = [],
+  halfOverrides?: ReadonlyMap<string, readonly ShowHalf[]>,
 ): PerformanceShow[] => {
   const halved = new Set(dayNightDates)
   const shows: PerformanceShow[] = []
   for (const date of performanceDates(performance)) {
+    const override = halfOverrides?.get(date)
+    if (override !== undefined) {
+      for (const half of override) {
+        shows.push({
+          key: `${performance.id}:${date}:${half}`,
+          performanceId: performance.id,
+          date,
+          half,
+          label: `${date} ${half === 'day' ? '日场' : '夜场'}`,
+        })
+      }
+      continue
+    }
     if (halved.has(date)) {
       shows.push({
         key: `${performance.id}:${date}:day`,
@@ -238,19 +255,28 @@ export const showsForNotes = (
 /** Performance id to the dates a curated schedule splits into 日场 / 夜场. */
 export type CuratedDayNight = ReadonlyMap<number, readonly string[]>
 
+/** Performance id to the dates inside a run that had no live show (exhibition-only days). */
+export type CuratedNoShowDates = ReadonlyMap<number, readonly string[]>
+
+/** Performance id to a date-to-halves override, e.g. a day that only had a night show. */
+export type CuratedHalves = ReadonlyMap<number, ReadonlyMap<string, readonly ShowHalf[]>>
+
 /**
  * 场次 for every performance in a catalog, keyed by performance id.
  *
  * Day/night evidence comes from the lines the rotation parser assigns to each performance,
  * so a shared setlist's note only marks the performances it actually names. `curatedDayNight`
- * is the seam for a future `data/show-schedules.json`: its dates are unioned with the note
- * evidence, so a curated source can add a split the notes missed (and is the only thing that
- * has to be built later). Omitting it keeps today's note-only behaviour.
+ * holds the dates an official schedule confirms had a daytime and a night-time show,
+ * `curatedNoShowDates` the dates inside a run that were exhibition-only, and `curatedHalves`
+ * a hand-checked override such as a first day with only a night show. Omitting all three
+ * keeps the note-only behaviour.
  */
 export const performanceSchedules = (
   catalog: Catalog,
   review: RotationReview,
   curatedDayNight?: CuratedDayNight,
+  curatedNoShowDates?: CuratedNoShowDates,
+  curatedHalves?: CuratedHalves,
 ): Map<number, PerformanceShow[]> => {
   const listByPerformance = new Map(catalog.performances.map((row) => [row.id, row.song_list_id]))
   const notesByPerformance = new Map<number, string[]>()
@@ -269,7 +295,11 @@ export const performanceSchedules = (
     for (const date of curatedDayNight?.get(performance.id) ?? []) {
       if (isDay(date)) dayNightDates.add(date)
     }
-    schedules.set(performance.id, showsForPerformance(performance, [...dayNightDates]))
+    const excluded = new Set(curatedNoShowDates?.get(performance.id) ?? [])
+    const shows = showsForPerformance(performance, [...dayNightDates], curatedHalves?.get(performance.id)).filter(
+      (show) => !excluded.has(show.date),
+    )
+    schedules.set(performance.id, shows)
   }
   return schedules
 }

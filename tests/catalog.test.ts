@@ -118,15 +118,20 @@ describe('committed catalog', () => {
       const osaka = catalog.performanceShowSetlists.filter((row) => row.performance_id === 6045)
       expect(osaka).toHaveLength(6)
       expect(osaka.every((row) => row.item_count === 24)).toBe(true)
-      // The 2019 Shanghai stop is 25 songs per day, with the four Chengdu/Guangzhou lines dropped.
+      // The 2019 Shanghai stop is 25 songs per show; the four Chengdu/Guangzhou lines are dropped,
+      // and the official schedule splits each of the two days into a day and a night show.
       const shanghai = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3752)
-      expect(shanghai).toHaveLength(2)
+      expect(shanghai).toHaveLength(4)
       expect(shanghai.every((row) => row.item_count === 25 && row.omitted_count === 4)).toBe(true)
       const shanghaiSongs = catalog.performanceShowSetlistItems
-        .filter((row) => row.show_key === '3752:2019-11-02')
+        .filter((row) => row.show_key === '3752:2019-11-02:day')
         .map((row) => row.song_id)
       expect(shanghaiSongs).toContain(1501)
       expect(shanghaiSongs).not.toContain(1500)
+      // 2019 Osaka had an exhibition-only day; the curated schedule must drop it.
+      const osaka2019 = catalog.performanceShowSetlists.filter((row) => row.performance_id === 2515)
+      expect(osaka2019).toHaveLength(4)
+      expect(osaka2019.some((row) => row.show_key.includes('2019-08-09'))).toBe(false)
       // A list without any note is inherited whole, and says so.
       const seattle = catalog.performanceSetlists.find((row) => row.performance_id === 1859)
       expect(seattle?.status).toBe('inherited')
@@ -136,7 +141,13 @@ describe('committed catalog', () => {
       const symphony = catalog.performanceSetlists.find((row) => row.performance_id === 2959)
       expect(symphony?.source_kind).toBe('album')
       expect(symphony?.pending_review).toBe(0)
-      expect(catalog.performanceSetlistSources).toHaveLength(0)
+      expect(catalog.performanceSetlistSources.length).toBeGreaterThan(0)
+      // Every cited source records the day it was read and a confidence level.
+      expect(
+        catalog.performanceSetlistSources.every(
+          (row) => /^https?:\/\//.test(row.url) && /^\d{4}-\d{2}-\d{2}$/.test(row.accessed_at),
+        ),
+      ).toBe(true)
       // Medleys stay empty until a source line splits into verifiable songs.
       expect(catalog.medleys).toHaveLength(0)
       expect(catalog.medleySongs).toHaveLength(0)

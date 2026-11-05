@@ -1,5 +1,560 @@
 {
   "version": 1,
-  "performances": {},
+  "performances": {
+    "2514": {
+      "note": "官方票务页：9/4 只有夜公演；9/5 昼 + 夜；9/6 只有科学技術館企划展，没有 live，合计 3 场",
+      "dayNight": [
+        "2015-09-05"
+      ],
+      "noShowDates": [
+        "2015-09-06"
+      ],
+      "halves": {
+        "2015-09-04": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2015/ticket.html",
+          "title": "マジカルミライ 2015 チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "1398": {
+      "note": "官方票务页：live 只有 9/10、9/11 每天昼 + 夜；9/9 只有企划展",
+      "dayNight": [
+        "2016-09-10",
+        "2016-09-11"
+      ],
+      "noShowDates": [
+        "2016-09-09"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2016/ticket.html",
+          "title": "マジカルミライ 2016 チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "1397": {
+      "note": "官方票务页：9/1 只有夜公演；9/2、9/3 昼 + 夜，合计 5 场（另有 9/1 单独夜场计入）",
+      "dayNight": [
+        "2017-09-02",
+        "2017-09-03"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2017/ticket.html",
+          "title": "マジカルミライ 2017 チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "1561": {
+      "note": "官方票务页：8/25、8/26 各有昼公演 + 夜公演，共 4 场",
+      "dayNight": [
+        "2018-08-25",
+        "2018-08-26"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2018/osaka_ticket.html",
+          "title": "マジカルミライ 2018 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "1745": {
+      "note": "官方票务页：只有 9/1、9/2 有昼 + 夜公演；8/31 未列入 live，按企划展日处理",
+      "dayNight": [
+        "2018-09-01",
+        "2018-09-02"
+      ],
+      "noShowDates": [
+        "2018-08-31"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2018/tokyo_ticket.html",
+          "title": "マジカルミライ 2018 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "2515": {
+      "note": "官方票务页：8/10、8/11 昼+夜共 4 场；8/9 只有企划展，没有 live",
+      "dayNight": [
+        "2019-08-10",
+        "2019-08-11"
+      ],
+      "noShowDates": [
+        "2019-08-09"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2019/osaka_ticket.html",
+          "title": "マジカルミライ 2019 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "2516": {
+      "note": "官方票务页：8/30 只有夜公演；8/31、9/1 昼+夜，合计 5 场",
+      "dayNight": [
+        "2019-08-31",
+        "2019-09-01"
+      ],
+      "halves": {
+        "2019-08-30": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2019/tokyo_ticket.html",
+          "title": "マジカルミライ 2019 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "2758": {
+      "note": "官方票务页：11/28、11/29 为 3 部制（11:00 / 15:00 / 19:00）；11/27 只有企划展。本目录只有日场/夜场两层，按 1 部+2 部=日场、3 部=夜场折算",
+      "dayNight": [
+        "2020-11-28",
+        "2020-11-29"
+      ],
+      "noShowDates": [
+        "2020-11-27"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2020/osaka/ticket.html",
+          "title": "マジカルミライ 2020 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "2759": {
+      "note": "官方票务页：12/18 只有 3 部（19:00）；12/19、12/20 为 3 部制，按 1 部+2 部=日场、3 部=夜场折算",
+      "dayNight": [
+        "2020-12-19",
+        "2020-12-20"
+      ],
+      "halves": {
+        "2020-12-18": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2020/tokyo/ticket.html",
+          "title": "マジカルミライ 2020 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "3305": {
+      "note": "官方票务页：10/22 只有夜公演；10/23、10/24 昼+夜，合计 5 场",
+      "dayNight": [
+        "2021-10-23",
+        "2021-10-24"
+      ],
+      "halves": {
+        "2021-10-22": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2021/osaka_ticket.html",
+          "title": "マジカルミライ 2021 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "3306": {
+      "note": "官方票务页：11/5–11/7 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2021-11-05",
+        "2021-11-06",
+        "2021-11-07"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2021/tokyo_ticket.html",
+          "title": "マジカルミライ 2021 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "4233": {
+      "note": "官方票务页：8/12 只有夜公演；8/13、8/14 昼+夜，合计 5 场",
+      "dayNight": [
+        "2022-08-13",
+        "2022-08-14"
+      ],
+      "halves": {
+        "2022-08-12": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/10th/osaka_ticket.html",
+          "title": "マジカルミライ 10th Anniversary OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "4234": {
+      "note": "官方票务页：9/2–9/4 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2022-09-02",
+        "2022-09-03",
+        "2022-09-04"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/10th/tokyo_ticket.html",
+          "title": "マジカルミライ 10th Anniversary TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "4235": {
+      "note": "官方票务页：2/4、2/5 昼 + 夜，共 4 场",
+      "dayNight": [
+        "2023-02-04",
+        "2023-02-05"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/10th/sapporo_ticket.html",
+          "title": "マジカルミライ 10th Anniversary SAPPORO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "6045": {
+      "note": "官方票务页：8/11–8/13 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2023-08-11",
+        "2023-08-12",
+        "2023-08-13"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2023/osaka_ticket.html",
+          "title": "マジカルミライ 2023 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "6046": {
+      "note": "官方票务页：9/1–9/3 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2023-09-01",
+        "2023-09-02",
+        "2023-09-03"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2023/tokyo_ticket.html",
+          "title": "マジカルミライ 2023 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "7214": {
+      "note": "官方票务页：8/17、8/18 昼 + 夜，共 4 场",
+      "dayNight": [
+        "2024-08-17",
+        "2024-08-18"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2024/fukuoka_ticket.html",
+          "title": "マジカルミライ 2024 FUKUOKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "7215": {
+      "note": "官方票务页：8/30–9/1 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2024-08-30",
+        "2024-08-31",
+        "2024-09-01"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2024/tokyo_ticket.html",
+          "title": "マジカルミライ 2024 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "7217": {
+      "note": "官方票务页：10/12–10/14 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2024-10-12",
+        "2024-10-13",
+        "2024-10-14"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2024/osaka_ticket.html",
+          "title": "マジカルミライ 2024 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "8768": {
+      "note": "官方票务页：8/1 只有夜公演；8/2、8/3 昼+夜，合计 5 场",
+      "dayNight": [
+        "2025-08-02",
+        "2025-08-03"
+      ],
+      "halves": {
+        "2025-08-01": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2025/sendai_ticket.html",
+          "title": "マジカルミライ 2025 SENDAI チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "8769": {
+      "note": "官方票务页：8/9–8/11 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2025-08-09",
+        "2025-08-10",
+        "2025-08-11"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2025/osaka_ticket.html",
+          "title": "マジカルミライ 2025 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "8770": {
+      "note": "官方票务页：8/29–8/31 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2025-08-29",
+        "2025-08-30",
+        "2025-08-31"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2025/tokyo_ticket.html",
+          "title": "マジカルミライ 2025 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "12249": {
+      "note": "官方票务页：7/24–7/26 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2026-07-24",
+        "2026-07-25",
+        "2026-07-26"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2026/hamamatsu_ticket.html",
+          "title": "マジカルミライ 2026 HAMAMATSU チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "12250": {
+      "note": "官方票务页：8/14–8/16 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2026-08-14",
+        "2026-08-15",
+        "2026-08-16"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2026/osaka_ticket.html",
+          "title": "マジカルミライ 2026 OSAKA チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "12251": {
+      "note": "官方票务页：8/28–8/30 每天昼 + 夜，共 6 场",
+      "dayNight": [
+        "2026-08-28",
+        "2026-08-29",
+        "2026-08-30"
+      ],
+      "sources": [
+        {
+          "url": "https://magicalmirai.com/2026/tokyo_ticket.html",
+          "title": "マジカルミライ 2026 TOKYO チケット",
+          "accessedAt": "2026-11-05",
+          "confidence": "high"
+        }
+      ]
+    },
+    "2085": {
+      "note": "萌娘百科：北京站 10/13 昼 + 夜共 2 场；10/14 原定的两场被主办方取消",
+      "dayNight": [
+        "2018-10-13"
+      ],
+      "sources": [
+        {
+          "url": "https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会",
+          "title": "萌娘百科：未来有你·初音未来2018中国巡回演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "北京站 10/13 昼场 + 夜场；原定 10/14 两场被取消"
+        }
+      ]
+    },
+    "2086": {
+      "note": "萌娘百科：成都站 10/20 昼 + 夜共 2 场；10/21 原定的两场被取消",
+      "dayNight": [
+        "2018-10-20"
+      ],
+      "sources": [
+        {
+          "url": "https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会",
+          "title": "萌娘百科：未来有你·初音未来2018中国巡回演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "成都站 10/20 昼场 + 夜场；原定 10/21 两场被取消"
+        }
+      ]
+    },
+    "2087": {
+      "note": "萌娘百科：上海站 10/27、10/28 各昼 + 夜，共 4 场",
+      "dayNight": [
+        "2018-10-27",
+        "2018-10-28"
+      ],
+      "sources": [
+        {
+          "url": "https://zh.moegirl.org.cn/未来有你·初音未来2018中国巡回演唱会",
+          "title": "萌娘百科：未来有你·初音未来2018中国巡回演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "上海站 10/27、10/28 各昼场 + 夜场"
+        }
+      ]
+    },
+    "3752": {
+      "note": "萌娘百科：上海站 11/2、11/3 各昼 + 夜，共 4 场；A 版歌单",
+      "dayNight": [
+        "2019-11-02",
+        "2019-11-03"
+      ],
+      "sources": [
+        {
+          "url": "https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会",
+          "title": "萌娘百科：未来有你·初音未来2019中国巡回演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "上海站 11/2、11/3 各 14:00 昼场 + 19:00 夜场；歌单 A 版由上海、北京使用"
+        }
+      ]
+    },
+    "3753": {
+      "note": "萌娘百科：成都站 11/9 仅夜场 1 场；B 版歌单",
+      "sources": [
+        {
+          "url": "https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会",
+          "title": "萌娘百科：未来有你·初音未来2019中国巡回演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "成都站 11/9 仅 19:00 夜场；歌单 B 版由成都、广州使用"
+        }
+      ]
+    },
+    "3754": {
+      "note": "萌娘百科：北京站 11/16 昼 + 夜共 2 场；A 版歌单",
+      "dayNight": [
+        "2019-11-16"
+      ],
+      "sources": [
+        {
+          "url": "https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会",
+          "title": "萌娘百科：未来有你·初音未来2019中国巡回演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "北京站 11/16 14:00 昼场 + 19:00 夜场；A 版歌单"
+        }
+      ]
+    },
+    "3755": {
+      "note": "萌娘百科：广州站 11/23 昼+夜、11/24 仅夜，共 3 场（与 docs/data-issues.md §2.3 记为 2 场不一致，按萌娘展开）",
+      "dayNight": [
+        "2019-11-23"
+      ],
+      "sources": [
+        {
+          "url": "https://zh.moegirl.org.cn/未来有你·初音未来2019中国巡回演唱会",
+          "title": "萌娘百科：未来有你·初音未来2019中国巡回演唱会",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "广州站 11/23 昼+夜、11/24 仅夜场，共 3 场；B 版歌单"
+        }
+      ]
+    },
+    "1939": {
+      "note": "Fandom：5/28 只有 1 场（19:30），5/29 有 2 场（13:00、19:30），共 3 场；歌单 27 行",
+      "dayNight": [
+        "2014-05-29"
+      ],
+      "halves": {
+        "2014-05-28": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2014_in_INDONESIA",
+          "title": "VocaDB Fandom: HATSUNE MIKU EXPO 2014 in INDONESIA",
+          "accessedAt": "2026-11-05",
+          "confidence": "medium",
+          "note": "5/28 1st Show 19:30；5/29 2nd Show 13:00、3rd Show 19:30"
+        }
+      ]
+    }
+  },
   "lists": {}
 }
