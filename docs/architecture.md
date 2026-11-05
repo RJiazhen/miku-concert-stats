@@ -138,6 +138,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正、F 已采用非高置信度来源的数据。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
 
+`scripts/confirmation-report.py`（`pnpm report:confirmation`，Python + uv）写出给人看的 `docs/setlist-confirmation.md`：把同一批待确认数据按「已采用的 wiki 数据 / 缺日夜场证据 / 单场行数异常 / 备注只到城市 / 整份无备注 / 上游无歌单」重新分组，每节末尾留填写区。两份文件的分工是：`setlist-review.md` 逐条列出供程序校验格式，`setlist-confirmation.md` 按决策类型归并供人逐节回复。
+
 `shared/rotation.ts` 解析歌单备注，把一行分到共享该歌单的场次。空备注表示该歌单的全部演出且不算不确定。备注按 `/`、`／`、逗号、顿号、分号、换行切开，`8/31` 这类日期斜杠保留。城市来自 `CITY_ALIASES`，也会从演出名推导（`MIKU EXPO 2026 Glendale`、`…」in HAMAMATSU`），所以新增城市不必先改清单。识别 `day N` / `DAY 1 1st Show` / `1日目` / `第2天`、`初日`、`千秋楽` / `最終日`、`両日` / `全日`、裸日期（`2024-08-31`、`8/31`、`8月31日`）、昼夜 / 1st·2nd show。没有写城市的 `Day N` 会落到每个城市自己的第 N 天，而不是随便挑一个城市。`reviewRotations` 再做长度一致性检查，与众数不同的演出记入 `shows`。
 
 备注的最终分类：
@@ -370,6 +372,7 @@ pnpm dev --port 3001
 pnpm derive:setlists          # 重写 data/increments/0008-performance-setlists.sql
 pnpm derive:setlists --check  # CI 用，只比对不写入
 pnpm report:setlist-review    # 重写 docs/reports/setlist-review.md（已存在时需 --force）
+pnpm report:confirmation      # 重写给人看的 docs/setlist-confirmation.md
 ```
 
 开发服务器已占用 Nuxt 锁时，另开的检查要跳过锁：

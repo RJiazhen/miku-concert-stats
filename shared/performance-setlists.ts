@@ -550,6 +550,8 @@ export const buildPerformanceSetlists = (
     if (ownLines.length === 0) continue
 
     let curated = false
+    /** Whether this 演出's halves are known, so a half-naming note is exact. */
+    const halvesKnown = curation.dayNight.has(performance.id) || curation.halves.has(performance.id)
     const excluded = new Set(listCuration?.exclude ?? [])
     const pendingByShow = new Map<string, PendingItem[]>()
     const addItem = (showKey: string, item: PendingItem): void => {
@@ -681,7 +683,19 @@ export const buildPerformanceSetlists = (
       const ordered = numberItems(pendingByShow.get(show.key) ?? [])
       const reasons = new Set<string>()
       if (anyUncertain) {
-        for (const line of ownLines) if (line.uncertain) for (const reason of line.reasons) reasons.add(reason)
+        for (const line of ownLines) {
+          if (!line.uncertain) continue
+          for (const reason of line.reasons) {
+            // The derived layer resolves these two kinds, so inheriting them would report a
+            // problem that no longer exists:
+            //  - a half is known once the schedule was curated, so `day with day/night shows`
+            //    no longer means anything for this 演出;
+            //  - lengths are re-measured per 場次 at the end of the build.
+            if (reason === 'day with day/night shows' && halvesKnown) continue
+            if (reason.startsWith('setlist length mismatch')) continue
+            reasons.add(reason)
+          }
+        }
       }
       shows.push({
         performance_id: performance.id,
@@ -690,7 +704,7 @@ export const buildPerformanceSetlists = (
         half: show.half,
         item_count: ordered.length,
         omitted_count: Math.max(lines.length - ownLines.length, 0),
-        uncertain: anyUncertain || pendingReview ? 1 : 0,
+        uncertain: reasons.size > 0 || pendingReview ? 1 : 0,
         reasons: JSON.stringify([...reasons].sort()),
       })
       stats.shows += 1
@@ -708,7 +722,31 @@ export const buildPerformanceSetlists = (
         stats.items += 1
       })
     }
-    stats.omittedRows += Math.max(lines.length - ownLines.length, 0)
+    stats.omittedRows += Math.max(lines.length - ownLines.length, 0)  }
+
+  // Re-measure lengths per 場次: a 演出-level count is meaningless once the shows are split out.
+  // The mode of the source list's shows is the expectation, so a genuine short or long show
+  // still surfaces while a day that merely carried fewer rows stops looking like an error.
+  const listByPerformance = new Map(catalog.performances.map((row) => [row.id, row.song_list_id]))
+  const countsByList = new Map<number, number[]>()
+  for (const row of shows) {
+    const listId = listByPerformance.get(row.performance_id)
+    if (listId === undefined || listId === null) continue
+    const bucket = countsByList.get(listId) ?? []
+    bucket.push(row.item_count)
+    countsByList.set(listId, bucket)
+  }
+  const expectedByList = new Map<number, number>()
+  for (const [listId, counts] of countsByList) expectedByList.set(listId, modeOf(counts))
+  for (const row of shows) {
+    const listId = listByPerformance.get(row.performance_id)
+    if (listId === undefined || listId === null) continue
+    const expected = expectedByList.get(listId)
+    if (expected === undefined || row.item_count === expected) continue
+    const reasons = new Set<string>(parseReasons(row.reasons))
+    reasons.add(`setlist length mismatch: ${row.item_count} vs expected ${expected}`)
+    row.reasons = JSON.stringify([...reasons].sort())
+    row.uncertain = 1
   }
 
   const medleys = [...medleyNames.entries()]
@@ -772,6 +810,32 @@ export const catalogSchedules = (catalog: Catalog): Map<number, PerformanceShow[
     bucket.sort((left, right) => left.date.localeCompare(right.date) || (left.half ?? '').localeCompare(right.half ?? ''))
   }
   return map
+}
+
+/** Most common value. Ties keep the larger one, matching the rotation review. */
+const modeOf = (values: readonly number[]): number => {
+  const frequency = new Map<number, number>()
+  for (const value of values) frequency.set(value, (frequency.get(value) ?? 0) + 1)
+  let expected = values[0] ?? 0
+  let best = -1
+  for (const [value, times] of frequency) {
+    if (times > best || (times === best && value > expected)) {
+      best = times
+      expected = value
+    }
+  }
+  return expected
+}
+
+/** Parses a stored JSON reason array, tolerating a corrupted value. */
+const parseReasons = (raw: string): string[] => {
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((value): value is string => typeof value === 'string')
+  } catch {
+    return []
+  }
 }
 
 /** Songs one derived row contributes; a medley row expands to its parts. */
