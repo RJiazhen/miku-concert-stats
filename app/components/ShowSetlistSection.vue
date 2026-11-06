@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { derivedItemsByShow, mergeShowSetlists, type MergedShowSetlistRow, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
 import type { Catalog, PerformanceSetlistRow, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 
 const props = defineProps<{
@@ -32,6 +33,20 @@ const showLabel = (row: PerformanceShowSetlistRow): string => {
   if (row.half === 'night') return `${date} 夜场`
   return date
 }
+
+/** Label of every 场次 in calendar order, shared by the merged header and its table. */
+const showLabels = computed<string[]>(() => shows.value.map(showLabel))
+
+/** Printed rows of one 场次, used when the shows cannot share one table. */
+const rowsOf = (show: PerformanceShowSetlistRow): ShowSetlistPrintRow[] =>
+  itemsOf(show.show_key).map((item) => ({ item }))
+
+/** One merged programme for the whole 演出, or null when the shows must stay separate. */
+const mergedRows = computed<MergedShowSetlistRow[] | null>(() => {
+  if (shows.value.length < 2) return null
+  const merged = mergeShowSetlists(shows.value, derivedItemsByShow(props.catalog, props.performanceId))
+  return merged?.mergeable === true ? merged.rows : null
+})
 
 /** Song count summary of the whole 演出. */
 const lengthSummary = computed<string>(() => {
@@ -105,12 +120,22 @@ const bestConfidence = computed(() => {
         :description="setlist.note"
       />
 
-      <div v-for="show in shows" :key="show.show_key" class="space-y-2">
+      <div v-if="mergedRows" class="space-y-2">
         <header class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 class="text-base font-semibold text-highlighted">{{ showLabel(show) }}</h2>
-          <p class="text-xs text-muted">{{ show.item_count }} 首 · 省略 {{ show.omitted_count }} 行</p>
+          <h2 class="text-base font-semibold text-highlighted">合并歌单</h2>
+          <p class="text-xs text-muted">{{ showLabels.join('、') }}</p>
         </header>
-        <ShowSetlistTable :catalog="catalog" :show="show" :items="itemsOf(show.show_key)" />
+        <ShowSetlistTable :catalog="catalog" :rows="mergedRows" :show-labels="showLabels" />
+      </div>
+
+      <div v-else class="space-y-4">
+        <div v-for="show in shows" :key="show.show_key" class="space-y-2">
+          <header class="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 class="text-base font-semibold text-highlighted">{{ showLabel(show) }}</h2>
+            <p class="text-xs text-muted">{{ show.item_count }} 首 · 省略 {{ show.omitted_count }} 行</p>
+          </header>
+          <ShowSetlistTable :catalog="catalog" :rows="rowsOf(show)" :reasons="show.reasons" />
+        </div>
       </div>
 
       <div v-if="sources.length > 0" class="rounded-xl border border-default/60 p-3 text-xs text-muted">

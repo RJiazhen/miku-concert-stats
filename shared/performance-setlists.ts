@@ -1271,6 +1271,112 @@ export const derivedItemsByShow = (catalog: Catalog, performanceId: number): Map
   return map
 }
 
+/** One printed row of a 场次 table, or of a merged 演出 table. */
+export type ShowSetlistPrintRow = {
+  item: PerformanceShowSetlistItemRow
+  /** 场次 that played the row; omitted when the table prints a single 场次. */
+  shows?: PerformanceShowSetlistRow[]
+}
+
+/** One row of a merged 演出 setlist, with the 场次 that played it. */
+export type MergedShowSetlistRow = ShowSetlistPrintRow & { shows: PerformanceShowSetlistRow[] }
+
+/** Result of merging the 场次 setlists of one 演出. */
+export type MergedShowSetlist = {
+  rows: MergedShowSetlistRow[]
+  /** False when the shows are too different for one shared programme to be honest. */
+  mergeable: boolean
+}
+
+/** Identity of one printed row: a single song, or a medley that expands to its parts. */
+const setlistRowKey = (item: PerformanceShowSetlistItemRow): string =>
+  item.medley_id === null ? `song:${item.song_id}` : `medley:${item.medley_id}`
+
+/**
+ * Merges the 场次 setlists of one 演出 into one programme.
+ *
+ * The longest 场次 (earliest on a tie) gives the printed order. A row only other 场次 played
+ * is inserted after the nearest row those 场次 share, so the running order stays intact.
+ * `mergeable` is false when any 场次 shares less than half its rows with the representative:
+ * the shows were different programmes then, and the page keeps them apart instead of
+ * inventing one setlist. Returns null for a 演出 with fewer than two 场次.
+ */
+export const mergeShowSetlists = (
+  shows: readonly PerformanceShowSetlistRow[],
+  itemsByShow: ReadonlyMap<string, readonly PerformanceShowSetlistItemRow[]>,
+): MergedShowSetlist | null => {
+  const ordered = [...shows].sort(
+    (left, right) =>
+      (left.date ?? '9999').localeCompare(right.date ?? '9999') || (left.half ?? '').localeCompare(right.half ?? ''),
+  )
+  const first = ordered[0]
+  if (first === undefined || ordered.length < 2) return null
+  const representative = ordered.reduce((best, show) => (show.item_count > best.item_count ? show : best), first)
+
+  /** Printed rows of one 场次, in order. */
+  const itemsOf = (show: PerformanceShowSetlistRow): PerformanceShowSetlistItemRow[] =>
+    [...(itemsByShow.get(show.show_key) ?? [])].sort((left, right) => left.position - right.position)
+
+  /** Row keys of one 场次, de-duplicated while keeping their printed order. */
+  const keysOf = (show: PerformanceShowSetlistRow): string[] => [...new Set(itemsOf(show).map(setlistRowKey))]
+
+  const order = keysOf(representative)
+  const representativeKeys = new Set(order)
+  const mergeable = ordered.every((show) => {
+    const keys = keysOf(show)
+    return keys.filter((key) => representativeKeys.has(key)).length * 2 >= keys.length
+  })
+  /** 场次 that played each row, in calendar order. */
+  const showsByKey = new Map<string, PerformanceShowSetlistRow[]>()
+  /** Item printed for each row; the earliest 场次 carrying it wins. */
+  const itemByKey = new Map<string, PerformanceShowSetlistItemRow>()
+  for (const show of ordered) {
+    for (const item of itemsOf(show)) {
+      const key = setlistRowKey(item)
+      if (!itemByKey.has(key)) itemByKey.set(key, item)
+    }
+    for (const key of keysOf(show)) showsByKey.set(key, [...(showsByKey.get(key) ?? []), show])
+  }
+
+  for (const show of ordered) {
+    if (show.show_key === representative.show_key) continue
+    const keys = keysOf(show)
+    for (let index = 0; index < keys.length; index += 1) {
+      const key = keys[index]
+      if (key === undefined || order.includes(key)) continue
+      let insertAt = -1
+      // Prefer the nearest earlier row the merged program already has.
+      for (let before = index - 1; before >= 0; before -= 1) {
+        const position = order.indexOf(keys[before] ?? '')
+        if (position !== -1) {
+          insertAt = position + 1
+          break
+        }
+      }
+      if (insertAt === -1) {
+        // A row before every shared earlier row goes in front of the next shared row.
+        for (let after = index + 1; after < keys.length; after += 1) {
+          const position = order.indexOf(keys[after] ?? '')
+          if (position !== -1) {
+            insertAt = position
+            break
+          }
+        }
+      }
+      order.splice(insertAt === -1 ? order.length : insertAt, 0, key)
+    }
+  }
+
+  const rows: MergedShowSetlistRow[] = []
+  order.forEach((key, index) => {
+    const item = itemByKey.get(key)
+    if (item === undefined) return
+    rows.push({ item: { ...item, position: index + 1 }, shows: showsByKey.get(key) ?? [] })
+  })
+
+  return { rows, mergeable }
+}
+
 /** Canonical song ids of one 场次 of the derived layer, medleys expanded. */
 export const showSongIds = (
   catalog: Catalog,

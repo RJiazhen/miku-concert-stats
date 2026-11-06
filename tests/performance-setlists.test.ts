@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest'
 import {
   buildPerformanceSetlists,
   parsePerformanceSetlistCuration,
+  mergeShowSetlists,
   validateCurationAgainstCatalog,
 } from '../shared/performance-setlists.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import type {
   Catalog,
   PerformanceRow,
+  PerformanceShowSetlistItemRow,
+  PerformanceShowSetlistRow,
   SeriesRow,
   SetlistItemRow,
   SetlistItemSongRow,
@@ -591,5 +594,65 @@ describe('setlist curation validation', () => {
     expect(() => validateCurationAgainstCatalog(curation, base, reviewRotations(base))).not.toThrow()
     expect(curation.size).toBe(1)
     expect(curation.dayNight.get(3752)).toEqual(['2019-11-02'])
+  })
+})
+
+/** 场次 fixture with only the fields the merge reads. */
+const showRow = (key: string, date: string, half: 'day' | 'night' | null, itemCount: number): PerformanceShowSetlistRow => ({
+  performance_id: 1,
+  show_key: key,
+  date,
+  half,
+  item_count: itemCount,
+  omitted_count: 0,
+  uncertain: 0,
+  reasons: '[]',
+})
+
+/** Setlist row fixture. */
+const itemRow = (
+  showKey: string,
+  position: number,
+  songId: number,
+  evidence: PerformanceShowSetlistItemRow['evidence'] = 'note',
+): PerformanceShowSetlistItemRow => ({
+  performance_id: 1,
+  show_key: showKey,
+  position,
+  source_position: position,
+  song_id: songId,
+  medley_id: null,
+  evidence,
+  notes: null,
+})
+
+describe('mergeShowSetlists', () => {
+  it('keeps the representative order and adds rows only the other 场次 played', () => {
+    const shows = [showRow('1:2023-08-11:day', '2023-08-11', 'day', 3), showRow('1:2023-08-11:night', '2023-08-11', 'night', 3)]
+    const items = new Map([
+      ['1:2023-08-11:day', [itemRow('1:2023-08-11:day', 1, 1), itemRow('1:2023-08-11:day', 2, 2), itemRow('1:2023-08-11:day', 3, 3)]],
+      [
+        '1:2023-08-11:night',
+        [itemRow('1:2023-08-11:night', 1, 1), itemRow('1:2023-08-11:night', 2, 4), itemRow('1:2023-08-11:night', 3, 2), itemRow('1:2023-08-11:night', 4, 3)],
+      ],
+    ])
+    const merged = mergeShowSetlists(shows, items)
+    expect(merged?.mergeable).toBe(true)
+    expect(merged?.rows.map((row) => row.item.song_id)).toEqual([1, 4, 2, 3])
+    expect(merged?.rows.map((row) => row.item.position)).toEqual([1, 2, 3, 4])
+    expect(merged?.rows.map((row) => row.shows.length)).toEqual([2, 1, 2, 2])
+  })
+
+  it('refuses to merge shows that share less than half their programme', () => {
+    const shows = [showRow('1:a', '2023-08-11', null, 4), showRow('1:b', '2023-08-12', null, 2)]
+    const items = new Map([
+      ['1:a', [itemRow('1:a', 1, 1), itemRow('1:a', 2, 2), itemRow('1:a', 3, 3), itemRow('1:a', 4, 4)]],
+      ['1:b', [itemRow('1:b', 1, 5), itemRow('1:b', 2, 6)]],
+    ])
+    expect(mergeShowSetlists(shows, items)?.mergeable).toBe(false)
+  })
+
+  it('returns null for a single 场次', () => {
+    expect(mergeShowSetlists([showRow('1:a', '2023-08-11', null, 1)], new Map())).toBeNull()
   })
 })

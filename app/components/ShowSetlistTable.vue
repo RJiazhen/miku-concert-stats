@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { derivedItemSongIds } from '~~/shared/performance-setlists.ts'
+import { derivedItemSongIds, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
@@ -8,11 +8,18 @@ import { catalogBadge, catalogSourceNote, fromVocaDB } from '~~/shared/repertoir
 
 const props = defineProps<{
   catalog: Catalog
-  show: PerformanceShowSetlistRow
-  items: PerformanceShowSetlistItemRow[]
+  /** Rows to print; a merged 演出 table passes every 场次 that played each row. */
+  rows: ShowSetlistPrintRow[]
+  /** Labels of every 场次 of the 演出, in order; only printed when the rows are merged. */
+  showLabels?: string[]
+  /** Raw JSON reason list of one 场次; absent for a merged table. */
+  reasons?: string
 }>()
 
 const { songById, songName, songHref: songHrefOf, songHrefTarget } = useSongLookup()
+
+/** Whether the table prints the 场次 column, which only a merged 演出 table needs. */
+const merged = computed(() => (props.showLabels?.length ?? 0) > 1)
 
 /** Song ids of one row, with a medley expanded to its parts. */
 const songIdsOf = (item: PerformanceShowSetlistItemRow): number[] => derivedItemSongIds(props.catalog, item)
@@ -68,10 +75,26 @@ const songHref = songHrefOf
 /** Whether a title is an outside entry that the badge should mark. */
 const outsideEntry = (songId: number): boolean => !fromVocaDB(songById(songId))
 
-/** Parsed reason codes, shown once under the table. */
+/** Compact 场次 label for a cell, e.g. `8/11 日场`; the year is already on the page. */
+const shortShowLabel = (show: PerformanceShowSetlistRow): string => {
+  const date = show.date
+  const monthDay = date === null ? '日期未知' : `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
+  if (show.half === 'day') return `${monthDay} 日场`
+  if (show.half === 'night') return `${monthDay} 夜场`
+  return monthDay
+}
+
+/** 场次 cell of a merged row: every 场次 when shared, otherwise the ones that played it. */
+const showCellOf = (row: ShowSetlistPrintRow): string => {
+  const shows = row.shows ?? []
+  if (shows.length === 0 || shows.length >= (props.showLabels?.length ?? 0)) return '—'
+  return `仅 ${shows.map(shortShowLabel).join('、')}`
+}
+
+/** Parsed reason codes of the printed 场次, shown once under a per-show table. */
 const reasons = computed<string[]>(() => {
   try {
-    const parsed: unknown = JSON.parse(props.show.reasons)
+    const parsed: unknown = JSON.parse(props.reasons ?? '[]')
     return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : []
   } catch {
     return []
@@ -88,25 +111,26 @@ const reasons = computed<string[]>(() => {
             <th class="w-14 px-3 py-2 font-medium">序号</th>
             <th class="px-3 py-2 font-medium">歌曲</th>
             <th class="px-3 py-2 font-medium">歌手</th>
+            <th v-if="merged" class="px-3 py-2 font-medium">场次</th>
             <th class="px-3 py-2 font-medium">数据说明</th>
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="item in items"
-            :key="item.position"
+            v-for="row in rows"
+            :key="`${row.item.position}-${row.item.song_id ?? row.item.medley_id}`"
             class="border-t border-default/40 align-top odd:bg-elevated/20"
           >
-            <td class="px-3 py-2 font-mono text-muted" :title="item.source_position === null ? '人工补充' : `源歌单第 ${item.source_position} 行`">
-              {{ item.position }}
+            <td class="px-3 py-2 font-mono text-muted" :title="row.item.source_position === null ? '人工补充' : `源歌单第 ${row.item.source_position} 行`">
+              {{ row.item.position }}
             </td>
             <td class="px-3 py-2">
-              <template v-if="item.medley_id !== null">
-                <span class="text-highlighted">{{ medleyName(item) }}</span>
-                <span class="text-muted">（串烧：{{ songIdsOf(item).map((id) => songName(id)).join(' / ') }}）</span>
+              <template v-if="row.item.medley_id !== null">
+                <span class="text-highlighted">{{ medleyName(row.item) }}</span>
+                <span class="text-muted">（串烧：{{ songIdsOf(row.item).map((id) => songName(id)).join(' / ') }}）</span>
               </template>
               <span v-else class="flex flex-wrap items-baseline gap-x-1">
-                <template v-for="(songId, index) in songIdsOf(item)" :key="songId">
+                <template v-for="(songId, index) in songIdsOf(row.item)" :key="songId">
                   <span v-if="index > 0" class="text-muted">/</span>
                   <ULink :to="songHref(songId)" :target="songHrefTarget(songId)" class="text-highlighted hover:text-primary">
                     <SongTitle :song-id="songId" :original="songName(songId)" />
@@ -123,8 +147,9 @@ const reasons = computed<string[]>(() => {
                 </template>
               </span>
             </td>
-            <td class="px-3 py-2 text-muted">{{ charactersOf(item) }}</td>
-            <td class="px-3 py-2 text-xs text-muted">{{ explanationOf(item) }}</td>
+            <td class="px-3 py-2 text-muted">{{ charactersOf(row.item) }}</td>
+            <td v-if="merged" class="px-3 py-2 text-xs text-muted">{{ showCellOf(row) }}</td>
+            <td class="px-3 py-2 text-xs text-muted">{{ explanationOf(row.item) }}</td>
           </tr>
         </tbody>
       </table>
