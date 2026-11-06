@@ -7,9 +7,7 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 import {
   buildProducerIndex,
   producerPath,
-  producerRoleLabels,
   rankProducers,
-  rolesPresent,
   type ProducerRow,
 } from '~~/shared/producers.ts'
 
@@ -39,8 +37,6 @@ type RankedProducer = {
   showCount: number
   firstYear: number | null
   lastYear: number | null
-  /** Chinese role labels, each printed as a badge in the 主要角色 column. */
-  roles: string[]
   topSongs: { id: number; name: string }[]
 }
 
@@ -60,7 +56,6 @@ const rows = computed<RankedProducer[]>(() => {
     showCount: row.showCount,
     firstYear: row.firstYear,
     lastYear: row.lastYear,
-    roles: rolesPresent(row.roles).map((role) => producerRoleLabels[role]),
     topSongs: topSongsOf(row),
   }))
 })
@@ -100,7 +95,6 @@ const columns: TableColumn<RankedProducer>[] = [
   { accessorKey: 'showCount', header: sortableHeader('场次'), enableSorting: true },
   { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
-  { id: 'roles', accessorFn: (row) => row.roles.join('、'), header: '主要角色', enableSorting: false },
   { accessorKey: 'topSongs', header: '代表作', enableSorting: false },
 ]
 
@@ -184,12 +178,6 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
       </template>
       <template #lastYear-cell="{ row }">
         <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
-      </template>
-      <template #roles-cell="{ row }">
-        <div v-if="row.original.roles.length > 0" class="flex flex-wrap gap-1">
-          <UBadge v-for="role in row.original.roles" :key="role" color="neutral" variant="subtle" size="sm">{{ role }}</UBadge>
-        </div>
-        <span v-else class="text-muted">—</span>
       </template>
       <template #topSongs-cell="{ row }">
         <ul v-if="row.original.topSongs.length > 0" class="space-y-0.5">
