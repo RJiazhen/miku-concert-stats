@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { FEEDBACK_DESCRIPTION_MAX, FEEDBACK_URL_MAX, isHttpUrl } from '~~/shared/feedback.ts'
 
 /** Response body of `POST /api/feedback`. */
@@ -20,6 +20,15 @@ const pageTitle = ref('')
 const readonlyFieldUi = { base: 'bg-elevated/50 text-muted ring-default/50' }
 
 let closeTimer: ReturnType<typeof setTimeout> | undefined
+
+/** Whether 问题描述 may autofocus; false on touch devices so the soft keyboard stays closed. */
+const autofocusDescription = ref(false)
+
+/** Enables autofocus only for a precise pointer, keeping the modal fully visible on phones. */
+const detectPrecisePointer = (): void => {
+  autofocusDescription.value = window.matchMedia('(pointer: fine)').matches
+}
+onMounted(detectPrecisePointer)
 
 /** Refreshes the page URL and title shown in the greyed-out fields. */
 const collectContext = (): void => {
@@ -151,7 +160,7 @@ const submit = async (): Promise<void> => {
               :maxlength="FEEDBACK_DESCRIPTION_MAX"
               placeholder="哪个数据不对？期望是什么？"
               class="w-full"
-              autofocus
+              :autofocus="autofocusDescription"
             />
           </UFormField>
 
