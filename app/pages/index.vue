@@ -52,8 +52,8 @@ const yearFrom = ref(YEAR_ANY)
 const yearTo = ref(YEAR_ANY)
 const includeBroadcast = ref(false)
 const includeMedleyComponents = ref(false)
-const characterFilter = ref('all')
-const producerFilter = ref('all')
+const characterFilter = ref<string[]>([])
+const producerFilter = ref<string[]>([])
 const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'count', desc: true }])
 
 /** Mirrors a backend value into the URL once the page is interactive. */
@@ -160,13 +160,15 @@ const ranked = computed<RankedSong[]>(() => {
   })
 })
 
-/** Ranking rows after the character and producer filters. */
+/** Ranking rows after the character and producer filters; empty selections mean 全部. */
 const filtered = computed(() =>
-  ranked.value.filter(
-    (row) =>
-      (characterFilter.value === 'all' || row.characterList.includes(characterFilter.value)) &&
-      (producerFilter.value === 'all' || row.producerList.includes(producerFilter.value)),
-  ),
+  ranked.value.filter((row) => {
+    const characterOk =
+      characterFilter.value.length === 0 || characterFilter.value.some((name) => row.characterList.includes(name))
+    const producerOk =
+      producerFilter.value.length === 0 || producerFilter.value.some((name) => row.producerList.includes(name))
+    return characterOk && producerOk
+  }),
 )
 
 /** Sortable header button. */
@@ -221,7 +223,9 @@ type FilterState = {
   to: string
   broadcast: boolean
   medley: boolean
+  /** Selected 角色, comma-separated in the URL; empty means 全部. */
   character: string
+  /** Selected 制作人, comma-separated in the URL; empty means 全部. */
   producer: string
   sort: string
   dir: 'asc' | 'desc'
@@ -235,8 +239,8 @@ const state = computed<FilterState>(() => ({
   to: yearOrNull(yearTo.value) === null ? '' : yearTo.value,
   broadcast: includeBroadcast.value,
   medley: includeMedleyComponents.value,
-  character: characterFilter.value,
-  producer: producerFilter.value,
+  character: characterFilter.value.join(','),
+  producer: producerFilter.value.join(','),
   sort: sorting.value[0]?.id ?? 'count',
   dir: sorting.value[0]?.desc === false ? 'asc' : 'desc',
 }))
@@ -256,8 +260,8 @@ const syncUrl = (): void => {
         to: current.to || undefined,
         broadcast: current.broadcast ? '1' : undefined,
         medley: current.medley ? '1' : undefined,
-        character: current.character === 'all' ? undefined : current.character,
-        producer: current.producer === 'all' ? undefined : current.producer,
+        character: current.character === '' ? undefined : current.character,
+        producer: current.producer === '' ? undefined : current.producer,
         sort: current.sort === 'count' ? undefined : current.sort,
         dir: current.dir === 'desc' ? undefined : current.dir,
       },
@@ -290,8 +294,14 @@ const readUrl = (): void => {
   yearTo.value = restored.to === null ? YEAR_ANY : String(restored.to)
   includeBroadcast.value = readString(url.broadcast) === '1'
   includeMedleyComponents.value = readString(url.medley) === '1'
-  characterFilter.value = readString(url.character) || 'all'
-  producerFilter.value = readString(url.producer) || 'all'
+  /** Splits a comma-separated URL filter into its values, ignoring blanks. */
+  const readList = (value: string): string[] =>
+    value
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter((entry) => entry !== '')
+  characterFilter.value = readList(readString(url.character))
+  producerFilter.value = readList(readString(url.producer))
   const sort = readString(url.sort)
   if (sort !== '') sorting.value = [{ id: sort, desc: readString(url.dir) !== 'asc' }]
   mounted.value = true
@@ -318,8 +328,8 @@ const reset = (): void => {
   yearTo.value = YEAR_ANY
   includeBroadcast.value = false
   includeMedleyComponents.value = false
-  characterFilter.value = 'all'
-  producerFilter.value = 'all'
+  characterFilter.value = []
+  producerFilter.value = []
   sorting.value = [{ id: 'count', desc: true }]
 }
 
@@ -330,36 +340,36 @@ const activeFilters = computed(() => {
   if (yearOrNull(yearFrom.value) !== null || yearOrNull(yearTo.value) !== null) count++
   if (includeBroadcast.value) count++
   if (includeMedleyComponents.value) count++
-  if (characterFilter.value !== 'all') count++
-  if (producerFilter.value !== 'all') count++
+  if (characterFilter.value.length > 0) count++
+  if (producerFilter.value.length > 0) count++
   const all = catalog.value?.series.map((row) => row.id) ?? []
   if (selectedSeries.value.length !== all.length) count++
   return count
 })
 
 /** Options for 角色, built from characters that occur in the current ranking so every choice returns rows. */
-const characterItems = computed(() => [
-  { label: '全部角色', value: 'all' },
-  ...availableCharacters(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
-])
+const characterItems = computed(() =>
+  availableCharacters(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
+)
 
-/** Keeps the selection aligned with the options: a character that no longer occurs falls back to 全部角色. */
+/** Drops selected characters that no longer occur, so the selection never filters the ranking to nothing. */
 const keepCharacterFilterValid = (): void => {
   if (!catalog.value) return
-  if (!characterItems.value.some((item) => item.value === characterFilter.value)) characterFilter.value = 'all'
+  const allowed = new Set(characterItems.value.map((item) => item.value))
+  characterFilter.value = characterFilter.value.filter((value) => allowed.has(value))
 }
 watch(characterItems, keepCharacterFilterValid)
 
 /** Options for 制作人, built from the credit shown in each row so every choice returns rows. */
-const producerItems = computed(() => [
-  { label: '全部制作人', value: 'all' },
-  ...availableProducers(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
-])
+const producerItems = computed(() =>
+  availableProducers(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
+)
 
-/** Keeps the selection aligned with the options: a producer that no longer occurs falls back to 全部制作人. */
+/** Drops selected producers that no longer occur, so the selection never filters the ranking to nothing. */
 const keepProducerFilterValid = (): void => {
   if (!catalog.value) return
-  if (!producerItems.value.some((item) => item.value === producerFilter.value)) producerFilter.value = 'all'
+  const allowed = new Set(producerItems.value.map((item) => item.value))
+  producerFilter.value = producerFilter.value.filter((value) => allowed.has(value))
 }
 watch(producerItems, keepProducerFilterValid)
 /** Series checkboxes in the site language; `value` stays the numeric catalog id used in the URL. */
@@ -434,11 +444,27 @@ const yearToItems = computed(() =>
         </label>
         <label class="grid gap-1 text-xs text-muted">
           角色
-          <USelect v-model="characterFilter" :items="characterItems" size="sm" class="w-36" />
+          <USelectMenu
+            v-model="characterFilter"
+            :items="characterItems"
+            value-key="value"
+            multiple
+            placeholder="全部角色"
+            size="sm"
+            class="w-36"
+          />
         </label>
         <label class="grid gap-1 text-xs text-muted">
           制作人
-          <USelect v-model="producerFilter" :items="producerItems" size="sm" class="w-40" />
+          <USelectMenu
+            v-model="producerFilter"
+            :items="producerItems"
+            value-key="value"
+            multiple
+            placeholder="全部制作人"
+            size="sm"
+            class="w-40"
+          />
         </label>
         <UButton
           color="neutral"
