@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "public" / "data" / "catalog.sqlite"
 SETLISTS = ROOT / "data" / "wiki-setlists.json"
+ALIASES = ROOT / "data" / "wiki-title-aliases.json"
 TARGET = ROOT / "data" / "wiki-songs.json"
 INCREMENT = ROOT / "data" / "increments" / "0009-wiki-songs.sql"
 API = "https://vocadb.net/api"
@@ -85,14 +86,22 @@ def catalog_titles(db_path: Path) -> set[str]:
     return titles
 
 
+def aliases() -> dict[str, str]:
+    """Returns the hand-written wiki-title aliases."""
+    if not ALIASES.exists():
+        return {}
+    return json.loads(ALIASES.read_text(encoding="utf-8"))["aliases"]
+
+
 def wanted_titles() -> list[str]:
     """Returns the wiki titles, in first-seen order, deduplicated by normalized form."""
     payload = json.loads(SETLISTS.read_text(encoding="utf-8"))
+    rewrite = aliases()
     seen: dict[str, str] = {}
     for entry in payload["entries"]:
-        for song in entry["songs"]:
-            key = norm(song["title"])
-            seen.setdefault(key, song["title"])
+        for row in entry["rows"]:
+            title = rewrite.get(row["title"], row["title"])
+            seen.setdefault(norm(title), title)
     return list(seen.values())
 
 

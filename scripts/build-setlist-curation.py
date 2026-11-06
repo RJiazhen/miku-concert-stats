@@ -338,6 +338,19 @@ add(
     note="萌娘百科：广州站 11/23 昼+夜、11/24 仅夜，共 3 场（与 docs/data-issues.md §2.3 记为 2 场不一致，按萌娘展开）",
 )
 
+add(
+    13120,
+    day_night=["2026-10-31", "2026-11-01"],
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/79886.html",
+            "初音ミク Wiki：未来有你・HATSUNE MIKU WITH YOU 2026",
+            "逐曲表按 1日目昼 / 1日目夜 / 2日目昼 / 2日目夜 分四份，故两天各昼夜两场",
+        )
+    ],
+    note="两天各昼场 + 夜场，共 4 场；逐曲表每天昼/夜各换一首",
+)
+
 # ---------------------------------------------------------------- MIKU EXPO
 add(
     1939,
@@ -674,6 +687,7 @@ for pid, name in CANCELLED.items():
 # 每场每城一份，行内保留メドレー 的段落说明。
 WIKI_SETLISTS = json.loads((ROOT / "data" / "wiki-setlists.json").read_text(encoding="utf-8"))
 WIKI_SONGS = json.loads((ROOT / "data" / "wiki-songs.json").read_text(encoding="utf-8"))["songs"]
+WIKI_ALIASES = json.loads((ROOT / "data" / "wiki-title-aliases.json").read_text(encoding="utf-8"))["aliases"]
 
 
 def song_ids_by_title() -> dict[str, list[int]]:
@@ -709,6 +723,7 @@ TITLE_INDEX = song_ids_by_title()
 
 def resolve_song(title: str, prefer: set[int]) -> int | None:
     """Maps a wiki title to a catalog id, preferring an id the 演出 already used."""
+    title = WIKI_ALIASES.get(title, title)
     hits = TITLE_INDEX.get(normalize_title(title), [])
     if not hits:
         return None
@@ -718,22 +733,11 @@ def resolve_song(title: str, prefer: set[int]) -> int | None:
     return min(hits)
 
 
-for item in WIKI_SETLISTS["entries"]:
-    pid = item["performanceId"]
-    db = sqlite3.connect(DB)
-    try:
-        prefer = {
-            row[0]
-            for row in db.execute(
-                "SELECT song_id FROM performance_show_setlist_items WHERE performance_id = ? AND song_id IS NOT NULL",
-                (pid,),
-            ).fetchall()
-        }
-    finally:
-        db.close()
-    songs = []
-    unresolved = []
-    for song in item["songs"]:
+def translate_rows(rows: list[dict], prefer: set[int]) -> tuple[list[dict], list[str]]:
+    """Maps wiki titles to catalog song ids, collecting the ones that do not resolve."""
+    songs: list[dict] = []
+    unresolved: list[str] = []
+    for song in rows:
         song_id = resolve_song(song["title"], prefer)
         if song_id is None:
             unresolved.append(song["title"])
@@ -742,13 +746,121 @@ for item in WIKI_SETLISTS["entries"]:
         if song.get("note"):
             entry["note"] = song["note"]
         songs.append(entry)
+    return songs, unresolved
+
+
+def performance_name(pid: int) -> str:
+    """Reads the catalog name of one 演出, for the source title."""
+    db = sqlite3.connect(DB)
+    try:
+        row = db.execute("SELECT name FROM performances WHERE id = ?", (pid,)).fetchone()
+    finally:
+        db.close()
+    return row[0] if row else "演唱会"
+
+
+SHOW_CACHE: dict[int, list[tuple[str, str, str | None]]] = {}
+
+
+def show_rows(pid: int) -> list[tuple[str, str, str | None]]:
+    """Reads the 場次 keys, dates, and halves of one 演出 from the built catalog."""
+    if pid not in SHOW_CACHE:
+        db = sqlite3.connect(DB)
+        try:
+            SHOW_CACHE[pid] = db.execute(
+                "SELECT show_key, date, half FROM performance_show_setlists WHERE performance_id = ? ORDER BY show_key",
+                (pid,),
+            ).fetchall()
+        finally:
+            db.close()
+    return SHOW_CACHE[pid]
+
+
+def show_matches(pid: int, show_key: str, when: str) -> bool:
+    """Whether a row restricted to `when` was played at this 場次.
+
+    `when` is `day`, `night`, `dN` (the Nth distinct date), `dN:day|night`, or a date.
+    """
+    if when == "":
+        return True
+    rows = show_rows(pid)
+    dates = sorted({date for _, date, _ in rows})
+    row = next((entry for entry in rows if entry[0] == show_key), None)
+    if row is None:
+        return False
+    _, date, half = row
+    head, _, raw_half = when.partition(":")
+    if head.startswith("d") and head[1:].isdigit():
+        index = int(head[1:])
+        if len(dates) < index or date != dates[index - 1]:
+            return False
+    elif re.fullmatch(r"\d{4}-\d{2}-\d{2}", head):
+        if date != head:
+            return False
+    elif head in ("day", "night"):
+        if half != head:
+            return False
+    elif head:
+        raise SystemExit(f"unknown slot token {when!r} for {pid}")
+    if raw_half and half != raw_half:
+        return False
+    return True
+
+
+def preferred_songs(pid: int) -> set[int]:
+    """Song ids the 演出 already used, so a shared title resolves to the same entry."""
+    db = sqlite3.connect(DB)
+    try:
+        return {
+            row[0]
+            for row in db.execute(
+                "SELECT song_id FROM performance_show_setlist_items WHERE performance_id = ? AND song_id IS NOT NULL",
+                (pid,),
+            ).fetchall()
+        }
+    finally:
+        db.close()
+
+
+for item in WIKI_SETLISTS["entries"]:
+    pid = item["performanceId"]
+    prefer = preferred_songs(pid)
+    rows = item["rows"]
+    scoped = [row for row in rows if row["when"]]
+    songs, unresolved = translate_rows([row for row in rows if not row["when"]], prefer)
+    slots = []
+    if scoped:
+        for show_key, _, _ in show_rows(pid):
+            played = [row for row in rows if show_matches(pid, show_key, row["when"])]
+            slot_songs, slot_unresolved = translate_rows(played, prefer)
+            for title in slot_unresolved:
+                if title not in unresolved:
+                    unresolved.append(title)
+            if slot_songs:
+                slots.append({"match": show_key, "songs": slot_songs})
+        if not slots:
+            print(f"  warn: {pid} has constrained rows but no 場次 to place them")
+    # The default list is the union, used only if a 場次 somehow matches no slot.
+    if scoped:
+        songs, union_unresolved = translate_rows(rows, prefer)
+        for title in union_unresolved:
+            if title not in unresolved:
+                unresolved.append(title)
     skipped = list(item.get("notInVocaDB", [])) + unresolved
-    note = f"歌单来自初音ミク Wiki 的逐曲表（{item['label']}），{len(songs)} 行"
+    unattributed = item.get("unattributed") or []
+    label = item["label"] or "本场"
+    if slots:
+        note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），按场次分 {len(slots)} 份"
+    else:
+        note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），{len(songs)} 行"
+    if unattributed:
+        note += f"；百科对这 {len(unattributed)} 首只标了 ※、没写属于哪些城市，无法归位：" + "、".join(unattributed)
     if skipped:
         note += f"；另有 {len(skipped)} 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：" + "、".join(skipped)
+    title = f"初音ミク Wiki：{performance_name(pid)}（{label}）"
     source_entry = {
         "url": item["source"],
-        "title": f"初音ミク Wiki：初音ミクシンフォニー（{item['label']}）",
+        "title": title,
         "accessedAt": item["accessedAt"],
         "confidence": "medium",
         "note": f"逐曲表，含メドレー 拆分；{len(songs)} 行",
@@ -756,12 +868,14 @@ for item in WIKI_SETLISTS["entries"]:
     existing = performances.setdefault(str(pid), {})
     existing["setlist"] = {
         "source": item["source"],
-        "title": source_entry["title"],
+        "title": title,
         "accessedAt": item["accessedAt"],
         "confidence": "medium",
-        "label": item["label"],
+        "label": label,
         "songs": songs,
     }
+    if slots:
+        existing["setlist"]["slots"] = slots
     existing["sources"] = [source_entry]
     existing["note"] = note
 

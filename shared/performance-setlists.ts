@@ -60,12 +60,22 @@ export type PerformanceCuration = {
   setlist?: CuratedSetlist
 }
 
+/** Shapes a slot marker may take: a half, a date, a date and a half, or a full 場次 key. */
+const SETLIST_SLOT_MATCH = /^(?:\d+:)?(?:day|night|\d{4}-\d{2}-\d{2}(?::(?:day|night))?)$/
+
 /** One song of a wiki-sourced setlist, already resolved to a catalog song id. */
 export type CuratedSetlistSong = {
   id: number
   title: string
   /** Free-text note from the source, e.g. `メドレー：悪ノ交響曲 第2楽章`. */
   note?: string
+}
+
+/** One slot of a wiki table whose rows differ by day, night, or date. */
+export type CuratedSetlistSlot = {
+  /** `day`, `night`, `YYYY-MM-DD`, or `YYYY-MM-DD:day|night`. */
+  match: string
+  songs: CuratedSetlistSong[]
 }
 
 /** A complete setlist taken from an outside source. */
@@ -77,6 +87,8 @@ export type CuratedSetlist = {
   /** Which city or slot block the list covers, for the page and the docs. */
   label?: string
   songs: CuratedSetlistSong[]
+  /** Per-slot lists for a table that split one 演出 into different programs. */
+  slots?: CuratedSetlistSlot[]
 }
 
 /** Hand-checked outcome of a 演出 with no setlist row. */
@@ -312,6 +324,46 @@ const parsePerformanceCuration = (value: unknown, performanceId: number): Perfor
       songs,
     }
     if (typeof list.label === 'string' && list.label.trim() !== '') setlist.label = list.label.trim()
+    if (list.slots !== undefined) {
+      const rawSlots = list.slots
+      if (!Array.isArray(rawSlots) || rawSlots.length === 0) {
+        throw new Error(`Curation for ${performanceId} setlist slots must be a non-empty array`)
+      }
+      const slots: CuratedSetlistSlot[] = []
+      for (const slot of rawSlots) {
+        if (typeof slot !== 'object' || slot === null) {
+          throw new Error(`Curation for ${performanceId} setlist slot is not an object`)
+        }
+        const match = (slot as { match?: unknown }).match
+        if (typeof match !== 'string' || !SETLIST_SLOT_MATCH.test(match)) {
+          throw new Error(`Curation for ${performanceId} setlist slot has an unknown match ${String(match)}`)
+        }
+        const slotSongs = (slot as { songs?: unknown }).songs
+        if (!Array.isArray(slotSongs) || slotSongs.length === 0) {
+          throw new Error(`Curation for ${performanceId} setlist slot ${match} has no songs`)
+        }
+        for (const song of slotSongs) {
+          if (typeof song !== 'object' || song === null) {
+            throw new Error(`Curation for ${performanceId} setlist slot ${match} song is not an object`)
+          }
+          const id = (song as { id?: unknown }).id
+          if (typeof id !== 'number') {
+            throw new Error(`Curation for ${performanceId} setlist slot ${match} song has no id`)
+          }
+        }
+        slots.push({
+          match,
+          songs: slotSongs.map((song) => ({
+            id: (song as { id: number }).id,
+            title: String((song as { title?: unknown }).title ?? ''),
+            ...(typeof (song as { note?: unknown }).note === 'string'
+              ? { note: (song as { note: string }).note }
+              : {}),
+          })),
+        })
+      }
+      setlist.slots = slots
+    }
     parsed.setlist = setlist
   }
   if (record.sources !== undefined) {
@@ -813,7 +865,7 @@ export const buildPerformanceSetlists = (
       curated = true
       wikiSourced.add(performance.id)
       for (const show of showsOfRun) {
-        for (const song of curatedSetlist.songs) {
+        for (const song of curatedSetlistSongs(curatedSetlist, show)) {
           addItem(show.key, {
             sourcePosition: null,
             songId: song.id,
@@ -944,11 +996,15 @@ export const buildPerformanceSetlists = (
     setlists.push({
       performance_id: performance.id,
       source_list_id: listId,
-      source_kind: songList?.source ?? 'wiki',
+      // Rows replaced wholesale by a wiki table are wiki rows, whatever list VocaDB had.
+      source_kind: curatedSetlist !== undefined ? 'wiki' : songList?.source ?? 'wiki',
       change,
       status,
       resolution,
-      source_row_count: curatedSetlist === undefined ? lines.length : curatedSetlist.songs.length,
+      source_row_count:
+        curatedSetlist === undefined
+          ? lines.length
+          : Math.max(...[curatedSetlist.songs, ...(curatedSetlist.slots ?? []).map((slot) => slot.songs)].map((songs) => songs.length)),
       day_night_dates: curation.dayNight.has(performance.id) ? JSON.stringify(curation.dayNight.get(performance.id)) : null,
       no_show_dates: curation.noShowDates.has(performance.id) ? JSON.stringify(curation.noShowDates.get(performance.id)) : null,
       single_show_dates: performanceCuration?.singleShowDates === undefined ? null : JSON.stringify(performanceCuration.singleShowDates),
@@ -1130,6 +1186,23 @@ const resolveAttribution = (
  * instead of recomputing the schedule; that keeps the show keys and counts identical
  * everywhere.
  */
+/** Songs a 場次 played, preferring the most specific wiki slot that matches it. */
+const curatedSetlistSongs = (setlist: CuratedSetlist, show: PerformanceShow): CuratedSetlistSong[] => {
+  if (setlist.slots === undefined || setlist.slots.length === 0) return setlist.songs
+  const half = show.half ?? ''
+  const candidates = [
+    show.key,
+    half === '' ? '' : `${show.date}:${half}`,
+    show.date,
+    half,
+  ].filter((value) => value !== '')
+  for (const candidate of candidates) {
+    const slot = setlist.slots.find((entry) => entry.match === candidate)
+    if (slot !== undefined) return slot.songs
+  }
+  return setlist.songs
+}
+
 export const catalogSchedules = (catalog: Catalog): Map<number, PerformanceShow[]> => {
   const map = new Map<number, PerformanceShow[]>()
   for (const row of catalog.performanceShowSetlists) {

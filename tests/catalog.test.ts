@@ -111,12 +111,12 @@ describe('committed catalog', () => {
         /** Reads the in-memory catalog built from committed SQL. */
         all: (sql: string) => db.prepare(sql).all() as SqlRow[],
       })
-      // Every performance with a source list gained a derived 演出 row, plus the two 2026 stops
+      // Every performance with a source list gained a derived 演出 row, plus the 2026/2027 stops
       // whose setlist comes from the Miku wiki because VocaDB has none.
       const withList = catalog.performances.filter((row) => row.song_list_id !== null)
-      expect(catalog.performanceSetlists).toHaveLength(withList.length + 2)
       const wikiOnly = catalog.performanceSetlists.filter((row) => row.source_list_id === null)
-      expect(wikiOnly.map((row) => row.performance_id)).toEqual([12713, 12714])
+      expect(catalog.performanceSetlists).toHaveLength(withList.length + wikiOnly.length)
+      expect(wikiOnly.map((row) => row.performance_id)).toEqual([12713, 12714, 12739, 13120])
       expect(wikiOnly.every((row) => row.source_kind === 'wiki')).toBe(true)
       // 2023 Osaka carried 39 source rows, but no single show played more than 24.
       const osaka = catalog.performanceShowSetlists.filter((row) => row.performance_id === 6045)
@@ -136,14 +136,26 @@ describe('committed catalog', () => {
       const osaka2019 = catalog.performanceShowSetlists.filter((row) => row.performance_id === 2515)
       expect(osaka2019).toHaveLength(4)
       expect(osaka2019.some((row) => row.show_key.includes('2019-08-09'))).toBe(false)
-      // A list without any note is inherited whole, and says so.
+      // A shared list with no notes of its own is replaced by the wiki's per-city table.
       const seattle = catalog.performanceSetlists.find((row) => row.performance_id === 1859)
-      expect(seattle?.status).toBe('inherited')
-      expect(seattle?.resolution).toBe('vocadb-shared')
+      expect(seattle?.status).toBe('complete')
       expect(seattle?.source_list_id).toBe(6571)
-      // Album fallbacks are declared as such and never claim an outside source.
+      const seattleItems = catalog.performanceShowSetlistItems.filter((row) => row.performance_id === 1859)
+      expect(seattleItems.every((row) => row.evidence === 'wiki')).toBe(true)
+      // Seattle is the one stop that skipped Miku (Anamanaguchi), so its list is shorter.
+      const houston = catalog.performanceShowSetlistItems.filter((row) => row.performance_id === 1933)
+      expect(houston.length).toBe(seattleItems.length + 1)
+      // A wiki table that splits a day into day and night keeps them apart.
+      const taipeiDay = catalog.performanceShowSetlistItems
+        .filter((row) => row.show_key === '1941:2016-06-26:day')
+        .map((row) => row.song_id)
+      const taipeiNight = catalog.performanceShowSetlistItems
+        .filter((row) => row.show_key === '1941:2016-06-26:night')
+        .map((row) => row.song_id)
+      expect(taipeiDay).not.toEqual(taipeiNight)
+      // Album fallbacks are gone: every symphony stop now has a per-city wiki list.
       const symphony = catalog.performanceSetlists.find((row) => row.performance_id === 2959)
-      expect(symphony?.source_kind).toBe('album')
+      expect(symphony?.source_kind).toBe('wiki')
       expect(symphony?.pending_review).toBe(0)
       expect(catalog.performanceSetlistSources.length).toBeGreaterThan(0)
       // Every cited source records the day it was read and a confidence level.

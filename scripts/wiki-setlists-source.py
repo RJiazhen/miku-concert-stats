@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Builds data/wiki-setlists.json from the 初音ミク Wiki (atwiki) setlist pages.
 
-The wiki prints one table per page, marking a city-specific row in the 区分 column
-(`大阪公演`, `メドレー東京公演`, `横浜 昼`, `神戸` …). A row without a city token belongs to
-every city of that table. This script applies that rule once and writes the per-演出 list the
-loader consumes, so the filtering is reviewable and never repeated at runtime.
+The wiki prints one table per page and marks a row that only some cities or slots played in a
+dedicated column (`大阪公演`, `メドレー東京公演`, `横浜 昼`, `A日程`, `公演替` …). A row without a
+token belongs to every 演出 of that table. This script applies that rule once — per 演出 for the
+city-level tables, per 場次 for the tables that split a day — and writes the list the loader
+consumes, so the filtering is reviewable and never repeated at runtime.
 
 Lines marked with `#` are repertoire VocaDB has no song entry for (classical pieces or
 public-domain arrangements). They are kept out of the row list and recorded in the 演出 note.
@@ -13,12 +14,22 @@ Run: uv run scripts/wiki-setlists-source.py
 """
 import json
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from wiki_raw_spec import RAW_SPEC  # noqa: E402
+from wiki_tour_tables import LABELS, TOUR_ROWS, TOUR_TABLES  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGET = ROOT / "data" / "wiki-setlists.json"
+RAW_DIR = ROOT / "data" / "wiki-raw"
 ACCESSED = "2026-11-06"
 CITIES = ("札幌", "東京", "横浜", "神戸", "大阪", "名古屋", "福岡", "仙台")
+# A 場次 marker such as `2023-06-04` or `2016-06-26:night`.
+# Rows the wiki uses to label a stage segment rather than a song.
+SEGMENTS = ("バンドメンバー紹介", "パート")
+SHOW_MARKER = re.compile(r"^(?:\d{4}-\d{2}-\d{2}(?::(?:day|night))?|(?:day|night))$")
 
 # page id -> (year label, url suffix)
 PAGES = {
@@ -572,6 +583,187 @@ def cities_in(mark: str) -> set[str]:
     return {city for city in CITIES if city in mark}
 
 
+def parse_row(line: str, key: str) -> tuple[str, str, str]:
+    """Splits one tour row into marker, title, and note.
+
+    Every row starts with `|`, so a row is either `|title|note` or `|marker|title|note`; the
+    number of cells is what tells the two apart.
+    """
+    cells = [cell.strip() for cell in line.split("|")]
+    if cells and cells[0] == "":
+        cells = cells[1:]
+    if not cells:
+        raise SystemExit(f"{key}: empty row")
+    if len(cells) >= 3:
+        return cells[0], cells[1], cells[2]
+    title = cells[0]
+    note = cells[1] if len(cells) > 1 else ""
+    if title == "":
+        raise SystemExit(f"{key}: row without a title: {line!r}")
+    return "", title, note
+
+
+def row_scope(marker: str, markers: dict[str, list[int]], key: str) -> tuple[set[int] | None, str | None]:
+    """Returns the 演出 a row selects and the 場次 token it is limited to, if any."""
+    if marker == "":
+        return None, None
+    if SHOW_MARKER.match(marker):
+        if marker not in markers:
+            raise SystemExit(f"{key}: unknown 場次 marker {marker!r}")
+        return None, marker
+    if marker.startswith("!"):
+        if marker not in markers:
+            raise SystemExit(f"{key}: unknown exclusion marker {marker!r}")
+        return set(markers.get("", [])) - set(markers[marker]), None
+    # `パリ+ロンドン` names every token it lists.
+    tokens = marker.split("+")
+    ids: set[int] = set()
+    for token in tokens:
+        if token not in markers:
+            raise SystemExit(f"{key}: unknown marker {token!r}")
+        ids.update(markers[token])
+    return ids, None
+
+
+def tour_entries() -> list[dict]:
+    """Builds the per-演出 entries of the tour tables, honouring 場次 markers."""
+    entries: list[dict] = []
+    for key, (page, markers) in TOUR_TABLES.items():
+        url = f"https://w.atwiki.jp/hmiku/pages/{page}.html"
+        rows = [parse_row(line, key) for line in TOUR_ROWS[key].strip().split("\n") if line.strip()]
+        every = sorted(markers.get("", []))
+        if not every:
+            raise SystemExit(f"{key}: table names no default 演出")
+        for pid in every:
+            rows_out: list[dict] = []
+            skipped: list[str] = []
+            for marker, title, note in rows:
+                ids, token = row_scope(marker, markers, key)
+                if ids is not None and pid not in ids:
+                    continue
+                if title.startswith("#"):
+                    skipped.append(title.lstrip("#"))
+                    continue
+                entry = {"title": title, "when": token or ""}
+                if note:
+                    entry["note"] = note
+                rows_out.append(entry)
+            if not any(not row["when"] for row in rows_out):
+                raise SystemExit(f"{key} / {pid} has no shared row")
+            item = {
+                "performanceId": pid,
+                "label": LABELS.get(pid, ""),
+                "source": url,
+                "accessedAt": ACCESSED,
+                "rows": rows_out,
+            }
+            if skipped:
+                item["notInVocaDB"] = skipped
+            entries.append(item)
+    return entries
+
+
+def parse_constraint(text: str, default_ids: list[int]) -> tuple[set[int], int | None, str | None]:
+    """Splits one marker constraint such as `6516#2:night` into ids, date index, and half."""
+    pid_part, _, half = text.partition(":")
+    day: int | None = None
+    if "#" in pid_part:
+        pid_part, _, raw_day = pid_part.partition("#")
+        day = int(raw_day)
+    ids = set(default_ids) if pid_part == "*" else {int(pid_part)}
+    return ids, day, half or None
+
+
+def slot_token(day: int | None, half: str | None) -> str:
+    """Renders a 場次 constraint as the token the loader expands."""
+    if day is None and half is None:
+        return ""
+    head = f"d{day}" if day is not None else ""
+    if half is None:
+        return head
+    return f"{head}:{half}" if head else half
+
+
+def raw_entries() -> list[dict]:
+    """Builds entries from the saved cell grids under data/wiki-raw."""
+    entries: list[dict] = []
+    for key, spec in RAW_SPEC.items():
+        path = RAW_DIR / f"{key}.json"
+        if not path.exists():
+            raise SystemExit(f"{key}: missing {path}")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        url = f"https://w.atwiki.jp/hmiku/pages/{payload['page']}.html"
+        grid = payload["rows"]
+        header = grid[0]
+        if "曲名" not in header:
+            raise SystemExit(f"{key}: header has no 曲名 column")
+        title_at = header.index("曲名")
+        marker_at = header.index("公演替") if "公演替" in header else None
+        note_at = header.index("備考") if "備考" in header else None
+        rows = grid[1:]
+
+        ids = spec["performances"]
+        parsed: list[tuple[str, str, str]] = []
+        unattributed: list[str] = []
+        for row in rows:
+            title = row[title_at].strip() if title_at < len(row) else ""
+            if title == "" or title.startswith("《") or title.startswith("MC"):
+                continue
+            if any(marker in title for marker in SEGMENTS):
+                continue
+            marker = row[marker_at].strip() if marker_at is not None and marker_at < len(row) else ""
+            note = row[note_at].strip() if note_at is not None and note_at < len(row) else ""
+            cleaned = marker.replace("※", "").strip()
+            if marker and not cleaned:
+                unattributed.append(title)
+                continue
+            if cleaned and cleaned not in spec["markers"]:
+                raise SystemExit(f"{key}: unknown marker {marker!r} on {title!r}")
+            parsed.append((cleaned, title, note))
+
+        for pid in ids:
+            def tokens_for(cleaned: str) -> list[str]:
+                """Tokens of one row for this 演出; empty means it does not apply."""
+                if cleaned == "":
+                    return [""]
+                found: list[str] = []
+                for text in spec["markers"][cleaned]:
+                    row_ids, day, half = parse_constraint(text, ids)
+                    if pid not in row_ids:
+                        continue
+                    token = slot_token(day, half)
+                    if token == "":
+                        return [""]
+                    if token not in found:
+                        found.append(token)
+                return found
+
+            rows_out: list[dict] = []
+            for cleaned, title, note in parsed:
+                tokens = tokens_for(cleaned)
+                if not tokens:
+                    continue
+                # A row that names several slots becomes one row per slot.
+                for token in tokens:
+                    entry = {"title": title, "when": token}
+                    if note:
+                        entry["note"] = note
+                    rows_out.append(entry)
+            if not any(not row["when"] for row in rows_out):
+                raise SystemExit(f"{key} / {pid} has no shared row")
+            item = {
+                "performanceId": pid,
+                "label": spec["labels"].get(pid, ""),
+                "source": url,
+                "accessedAt": ACCESSED,
+                "rows": rows_out,
+            }
+            if unattributed:
+                item["unattributed"] = unattributed
+            entries.append(item)
+    return entries
+
+
 def main() -> None:
     """Filters every table per city and writes data/wiki-setlists.json."""
     entries = []
@@ -619,23 +811,34 @@ def main() -> None:
                 "label": f"{city}公演",
                 "source": url,
                 "accessedAt": ACCESSED,
-                "songs": songs,
+                "rows": [{"title": song["title"], "when": "", **({"note": song["note"]} if "note" in song else {})} for song in songs],
             }
             if skipped:
                 item["notInVocaDB"] = skipped
             entries.append(item)
+    entries.extend(tour_entries())
+    entries.extend(raw_entries())
     entries.sort(key=lambda item: item["performanceId"])
+    seen: set[int] = set()
+    for item in entries:
+        if item["performanceId"] in seen:
+            raise SystemExit(f"performance {item['performanceId']} has two wiki tables")
+        seen.add(item["performanceId"])
     payload = {
         "version": 1,
         "source": "初音ミク Wiki（atwiki）ライブセットリスト一覧",
-        "rule": "区分（备注）列写了城市的行只属于该城市；没写城市的行属于该表的所有城市；标题以 # 开头的曲目 VocaDB 没有歌曲条目，只记在演出的 note。",
+        "rule": "区分（公演替・备注）列写了城市或日程的行只属于该城市或该场次；没写别的行属于该表的所有演出。标题以 # 开头的曲目 VocaDB 没有歌曲条目，只记在演出的 note。",
         "accessedAt": ACCESSED,
         "entries": entries,
     }
     TARGET.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {TARGET}: {len(entries)} entries")
     for item in entries:
-        print(f"  {item['performanceId']:6d} {item['label']:8s} songs={len(item['songs']):3d} skipped={len(item.get('notInVocaDB', []))}")
+        scoped = sum(1 for row in item["rows"] if row["when"])
+        print(
+            f"  {item['performanceId']:6d} {item['label'][:10]:10s} rows={len(item['rows']):3d}"
+            f" scoped={scoped:2d} skipped={len(item.get('notInVocaDB', []))}"
+        )
 
 
 if __name__ == "__main__":

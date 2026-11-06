@@ -344,11 +344,11 @@ wiki_lists = rows(
     ORDER BY p.series_id, p.start_date
     """
 )
-out.append(f"## 4b. 歌单改由百科提供（{len(wiki_lists)} 个演出）")
+out.append(f"## 4b. 曲目逐条来自百科逐曲表的演出（{len(wiki_lists)} 个）")
 out.append("")
-out.append("这些演出的歌单改为「初音ミク Wiki」的逐曲表：交响乐在 VocaDB 完全没有 songList，")
-out.append("原先只能用专辑 tracklist 补位（专辑是混编的，东京与横滨/神戸本来就是两套节目）。")
-out.append("现在每场每城一份，每行带来源与メドレー 段落标注；2026 的两场在 VocaDB 连歌单都没有，只靠百科。")
+out.append("这些演出改用「初音ミク Wiki」的逐曲表：VocaDB 的 songList 要么是几个城市共用的整份表、")
+out.append("要么根本没有（交响乐全部是专辑 tracklist）。逐曲表按公演替 / 昼夜 / 场次把差别分开，")
+out.append("每行都带来源与メドレー 段落标注，可以逐条核对。")
 out.append("")
 out.append("| 演出 | 系列 | 场次 × 曲目 | 说明 | 来源 |")
 out.append("| --- | --- | --- | --- | --- |")
@@ -364,10 +364,6 @@ out.append("---")
 out.append("")
 
 # ---------------------------------------------------------------- 5. 整份无备注
-out.append("## 5. 整份歌单没有任何备注（整份沿用）")
-out.append("")
-out.append("这些源歌单一行备注都没有，每个演出都拿整套曲目。抽样确认即可，不必逐条回。")
-out.append("")
 inherited = rows(
     """
     SELECT ps.source_list_id, sl.name, sl.source, COUNT(DISTINCT ps.performance_id) AS performances,
@@ -380,24 +376,28 @@ inherited = rows(
     ORDER BY COUNT(DISTINCT ps.performance_id) DESC, ps.source_list_id
     """
 )
-out.append("| 源歌单 | 名称 | 类型 | 演出数 | 场次数 | 行数 |")
-out.append("| --- | --- | --- | --- | --- | --- |")
-for row in inherited:
-    name = (row["name"] or "").replace("|", "\\|")
-    if len(name) > 40:
-        name = name[:38] + "…"
-    out.append(
-        f"| [{row['source_list_id']}](https://vocadb.net/L/{row['source_list_id']}) | {name} | {row['source']} | "
-        f"{row['performances']} | {row['shows']} | {row['list_rows']} |"
-    )
-out.append("")
-out.append("- [ ] 这些歌单确实只有一套曲目，整份沿用正确")
-out.append("- [ ] 其中有分站替换曲（写在补充说明：源歌单 id + 城市 + 曲目）")
-out.append("")
-out.append("**补充说明**")
-out.append("")
-out.append("> ")
-out.append("")
+if inherited:
+    out.append("## 5. 整份歌单没有任何备注（整份沿用）")
+    out.append("")
+    out.append("这些源歌单一行备注都没有，每个演出都拿整套曲目。抽样确认即可，不必逐条回。")
+    out.append("")
+    out.append("| 源歌单 | 名称 | 类型 | 演出数 | 场次数 | 行数 |")
+    out.append("| --- | --- | --- | --- | --- | --- |")
+    for row in inherited:
+        name = (row["name"] or "").replace("|", "\\|")
+        if len(name) > 40:
+            name = name[:38] + "…"
+        out.append(
+            f"| [{row['source_list_id']}](https://vocadb.net/L/{row['source_list_id']}) | {name} | {row['source']} | "
+            f"{row['performances']} | {row['shows']} | {row['list_rows']} |"
+        )
+    out.append("")
+    out.append("- [ ] 这些歌单确实只有一套曲目，整份沿用正确")
+    out.append("")
+    out.append("**补充说明**")
+    out.append("")
+    out.append("> ")
+    out.append("")
 out.append("---")
 out.append("")
 
@@ -410,13 +410,14 @@ missing = rows(
     FROM performances p
     LEFT JOIN performance_status st ON st.performance_id = p.id
     WHERE p.song_list_id IS NULL
+      AND NOT EXISTS (SELECT 1 FROM performance_setlists ps WHERE ps.performance_id = p.id)
     ORDER BY p.series_id, p.start_date
     """
 )
-out.append(f"## 6. 上游没有歌单的演出（{len(missing)} 个，已按你的要求标注取消）")
+out.append(f"## 6. 仍无歌单的演出（{len(missing)} 个）")
 out.append("")
-out.append("VocaDB 的状态字段没有「已取消」，所以取消场次在上游仍记为 `Finished`。")
-out.append("现在 `performance_status` 表按取消公告单独记录，演出页会显示「这场演出已取消」并给出公告链接：")
+out.append("上游没有 songList、百科也还没有逐曲表的演出。取消的场次单独记在 `performance_status`，")
+out.append("演出页会显示「这场演出已取消」并给出公告链接；尚未举行的先留空。")
 out.append("")
 out.append("| 演出 | 系列 | 日期 | 状态 | VocaDB | 来源 |")
 out.append("| --- | --- | --- | --- | --- | --- |")

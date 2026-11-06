@@ -246,6 +246,96 @@
       "publishDate": "2014-11-05",
       "lengthSeconds": 231,
       "sourceUrl": "https://vocadb.net/S/71629"
+    },
+    "みくみくにしてあげる♪": {
+      "id": 1355,
+      "title": "みくみくにしてあげる♪",
+      "artistString": "ika_mo feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2007-09-20",
+      "lengthSeconds": 99,
+      "sourceUrl": "https://vocadb.net/S/1355"
+    },
+    "ナイフ、ナイフ、ナイフ": {
+      "id": 404329,
+      "title": "ナイフ、ナイフ、ナイフ",
+      "artistString": "きくお feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2022-05-01",
+      "lengthSeconds": 205,
+      "sourceUrl": "https://vocadb.net/S/404329"
+    },
+    "ヒバナ -Reloaded-": {
+      "id": 230401,
+      "title": "ヒバナ -Reloaded-",
+      "artistString": "DECO*27, Rockwell feat. 初音ミク",
+      "songType": "Remaster",
+      "publishDate": "2019-05-22",
+      "lengthSeconds": 206,
+      "sourceUrl": "https://vocadb.net/S/230401"
+    },
+    "パリィ": {
+      "id": 629064,
+      "title": "パリィ",
+      "artistString": "宮守文学 feat. 鏡音リン V4X (Power), 鏡音レン V4X (Power)",
+      "songType": "Original",
+      "publishDate": "2024-05-17",
+      "lengthSeconds": 136,
+      "sourceUrl": "https://vocadb.net/S/629064"
+    },
+    "心拍数♯0822": {
+      "id": 6099,
+      "title": "心拍数♯0822",
+      "artistString": "蝶々P feat. 初音ミク Append (Dark)",
+      "songType": "Original",
+      "publishDate": "2010-08-21",
+      "lengthSeconds": 321,
+      "sourceUrl": "https://vocadb.net/S/6099"
+    },
+    "むげんのチケット": {
+      "id": 586830,
+      "title": "むげんのチケット",
+      "artistString": "まらしぃ, KOUICHI, びび feat. various",
+      "songType": "Original",
+      "publishDate": "2024-02-17",
+      "lengthSeconds": 222,
+      "sourceUrl": "https://vocadb.net/S/586830"
+    },
+    "88☆彡": {
+      "id": 400359,
+      "title": "88☆彡",
+      "artistString": "まらしぃ, kemu, びび feat. 初音ミク, KAITO V3 (Straight)",
+      "songType": "Original",
+      "publishDate": "2022-04-20",
+      "lengthSeconds": 131,
+      "sourceUrl": "https://vocadb.net/S/400359"
+    },
+    "デロスサントス": {
+      "id": 920269,
+      "title": "デロスサントス",
+      "artistString": "山本 feat. 重音テトSV",
+      "songType": "Original",
+      "publishDate": "2026-02-21",
+      "lengthSeconds": 200,
+      "sourceUrl": "https://vocadb.net/S/920269"
+    },
+    "让我们拥抱哭泣": {
+      "id": 1054502,
+      "title": "让我们拥抱哭泣",
+      "artistString": "福音莱, 徐肖@Alnova, iPaulWong feat. 初音ミク V4 (中文版)",
+      "songType": "Original",
+      "publishDate": "2026-06-10",
+      "lengthSeconds": 261,
+      "sourceUrl": "https://vocadb.net/S/1054502"
+    },
+    "彩虹游乐园": {
+      "id": 1037976,
+      "title": "彩虹游乐园",
+      "artistString": "烧烤年糕, Xyanide, 动点P feat. 初音ミク V4 (中文版)",
+      "songType": "Original",
+      "publishDate": "2026-09-23",
+      "lengthSeconds": 221,
+      "sourceUrl": "https://vocadb.net/S/1037976"
     }
   }
 }

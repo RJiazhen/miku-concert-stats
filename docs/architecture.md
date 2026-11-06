@@ -80,7 +80,17 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `performances.<id>` 的 `dayNight` / `singleShowDates` / `halves` 也接受字符串 `all`，表示按演出的日期区间展开，用于「该城每天都有一场」或「每天昼夜各一场」这类整段结论。
 
-交响乐的曲目来自 `data/wiki-setlists.json`（初音ミク Wiki 的逐曲表，由 `scripts/wiki-setlists-source.py` 从原始表格过滤成每城一份）。其中部分歌曲 VocaDB 的歌单从未引用过，`scripts/fetch-wiki-songs.py` 按标题在 VocaDB 检索并校验作曲者后写成 `data/wiki-songs.json` 与 `data/increments/0009-wiki-songs.sql`（`INSERT OR IGNORE`，`pnpm collect` 重写 `0001` 后仍在）。匹配不到的行（古典改编，或检索未命中）不写入 catalog，逐条记进演出层 `note`。
+**百科逐曲表是外包数据的主力。** 173 个演出里有 161 个的曲目逐条来自「初音ミク Wiki」（atwiki）的逐曲表。数据分三处：
+
+- `data/wiki-raw/<key>.json`：页面表格的原始单元格（含表头），由浏览器抓取时原样落盘，便于复核。
+- `scripts/wiki_raw_spec.py`：声明每张表的公演替标记选中哪些演出，标记可写成 `6516`、`6516#2`（第 2 个日期）、`*#1:day`（任意演出的第 1 个日期日场）等。
+- `scripts/wiki_tour_tables.py`：早期手工抄录的城市级表格（交响乐、2014–2020 的 EXPO / Live Party / 鼓童）。
+
+`scripts/wiki-setlists-source.py` 把三者统一成 `data/wiki-setlists.json` 的逐行数据（`title` + `when`），`scripts/build-setlist-curation.py` 再按每个场次挑行、解析成 `songs` 或 `slots`。桌面上看不到的差别（同一天昼/夜、不同日期、不同城市）都落在 `slots` 上，`shared/performance-setlists.ts` 按场次键精确匹配。
+
+`when` 语法：`day`/`night`、`dN`（第 N 个日期）、`dN:day|night`、或不带标记（所有场次）。
+
+曲名与 catalog 写法不同的（`DECORATER`、`右肩の蝶[39's Giving Day Edition]`、`キミぺディア`）记在 `data/wiki-title-aliases.json`。catalog 里没有的歌由 `scripts/fetch-wiki-songs.py` 按标题检索 VocaDB、用作曲者排除同名翻唱后写成 `data/wiki-songs.json` 与 `data/increments/0009-wiki-songs.sql`（`INSERT OR IGNORE`，`pnpm collect` 重写 `0001` 后仍在）。仍匹配不到的行（古典改编、鼓童原创曲、`Ｎｙａｎ Ｃａｔ` 这类只有翻唱的）不写入 catalog，逐条记进演出层 `note`。
 
 演出没有 VocaDB 歌单但有百科逐曲表时（如交响乐 2026），`performance_setlists.source_list_id` 为 `NULL`、`source_kind = 'wiki'`，页头改为「百科逐曲表」并且不链 VocaDB。
 
