@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { displayArtistString } from '~~/shared/credit.ts'
-import type { LookupHit } from '~~/shared/lookup.ts'
 import type { SongRow } from '~~/shared/types.ts'
 
 defineProps<{
   query: string
   local: SongRow[]
-  remote: LookupHit[]
-  searching: boolean
-  lookedUp: boolean
 }>()
 
 const emit = defineEmits<{ select: [songId: number] }>()
@@ -16,9 +12,9 @@ const emit = defineEmits<{ select: [songId: number] }>()
 
 <template>
   <div class="max-h-[60vh] overflow-y-auto p-2 text-sm">
-    <p v-if="query.trim() === ''" class="px-2 py-3 text-xs text-muted">输入歌名、版本或艺人，先在本地目录里找。</p>
+    <p v-if="query.trim() === ''" class="px-2 py-3 text-xs text-muted">输入歌名、歌手或制作人。</p>
     <template v-else-if="local.length > 0">
-      <p class="px-2 py-1 text-[11px] tracking-wide text-muted uppercase">目录内 · {{ local.length }} 首</p>
+      <p class="px-2 py-1 text-[11px] tracking-wide text-muted uppercase">{{ local.length }} 首</p>
       <button
         v-for="song in local"
         :key="song.id"
@@ -33,22 +29,6 @@ const emit = defineEmits<{ select: [songId: number] }>()
         在排行中查看全部结果
       </ULink>
     </template>
-    <p v-else-if="searching" class="px-2 py-3 text-xs text-muted">正在向 VocaDB 检索…</p>
-    <template v-else-if="remote.length > 0">
-      <p class="px-2 py-1 text-[11px] tracking-wide text-muted uppercase">VocaDB 检索结果 · 未收录</p>
-      <a
-        v-for="hit in remote"
-        :key="hit.id"
-        :href="hit.url"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="block rounded-lg px-2 py-1.5 hover:bg-elevated"
-      >
-        <SongTitle :song-id="hit.id" :original="hit.name" />
-        <span class="block truncate text-xs text-muted">{{ displayArtistString(hit.artistString) ?? '未记录' }}</span>
-      </a>
-    </template>
-    <p v-else-if="lookedUp" class="px-2 py-3 text-xs text-muted">没有找到，试试更短的歌名。</p>
-    <p v-else class="px-2 py-3 text-xs text-muted">目录里没有这首歌。</p>
+    <p v-else class="px-2 py-3 text-xs text-muted">没有找到，试试更短的歌名。</p>
   </div>
 </template>

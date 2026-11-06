@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { localSongMatches, mapSongSearch } from '../shared/lookup.ts'
+import { localSongMatches } from '../shared/lookup.ts'
 import type { Catalog } from '../shared/types.ts'
 
 describe('lookup', () => {
@@ -11,19 +11,5 @@ describe('lookup', () => {
     } as Catalog
     expect(localSongMatches(catalog, 'kagerou')).toHaveLength(1)
     expect(localSongMatches(catalog, 'not-in-catalog')).toHaveLength(0)
-  })
-
-  it('keeps at most five VocaDB hits and only supported PV services', () => {
-    const items = Array.from({ length: 6 }, (_, index) => ({
-      id: index + 1,
-      name: `Song ${index}`,
-      pvs: [
-        { service: 'Youtube', url: 'https://youtu.be/x', disabled: false },
-        { service: 'SoundCloud', url: 'https://soundcloud.com/x', disabled: false },
-      ],
-    }))
-    const hits = mapSongSearch({ items })
-    expect(hits).toHaveLength(5)
-    expect(hits[0]?.pvs).toEqual([{ platform: 'youtube', url: 'https://youtu.be/x' }])
   })
 })

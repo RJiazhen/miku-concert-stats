@@ -59,7 +59,7 @@
 | 统计 | 代表投稿、区间、跨系列/年份比较、观察点前后差值 |
 | 换算 | 分层相关、对数拟合、训练/留出门槛、公式版本行 |
 | 站点 | SSR 壳、客户端读库、筛选与图表、出处 |
-| 检索 | `GET /api/lookup`：仅当用户查询尚未满足于本地目录时，向 VocaDB 查最多 5 首歌曲及其已登记 PV 链接 |
+| 检索 | 页内搜索只在已下载的本地目录里匹配，不向站外查询 |
 | 工作流 | CI 跑 lint、类型检查、测试和目录构建；每周采集并在有 diff 时提交 SQL |
 
 ## 路径
@@ -73,7 +73,6 @@
 - `scripts/sql/emit.ts`、`scripts/build-catalog.ts`、`scripts/snapshot-youtube.ts`
 - `shared/types.ts`、`shared/bands.ts`、`shared/premiere.ts`、`shared/showtime.ts`、`shared/medley.ts`、`shared/stats.ts`、`shared/correlation.ts`、`shared/catalog.ts`
 - `tests/premiere.test.ts`、`tests/showtime.test.ts`、`tests/medley.test.ts`、`tests/stats.test.ts`、`tests/correlation.test.ts`、`tests/catalog.test.ts`
-- `server/api/lookup.get.ts`
 - `app.vue`、`layouts/default.vue`、`assets/css/main.css`
 - `pages/index.vue`、`pages/compare.vue`、`pages/windows.vue`、`pages/correlation.vue`、`pages/lookup.vue`
 - `components/SiteHeader.vue`、`components/CatalogView.vue`、`composables/useCatalog.ts`
@@ -107,7 +106,6 @@ flowchart LR
   end
   subgraph edge [Cloudflare Worker]
     SSR["Nuxt SSR 壳"]
-    Lookup["/api/lookup"]
   end
   subgraph browser [浏览器]
     Wasm["sql.js"]
@@ -117,7 +115,6 @@ flowchart LR
   YT -->|"仅当有 API key 且每周一次"| SQL
   SQL --> Build --> SQLite --> Wasm --> Stats
   SSR --> browser
-  Lookup -->|"用户主动检索，最多 5 条"| VocaDB
 ```
 
 系列年度首演规则在写入 SQL 前于 `shared/premiere.ts` 计算，并落表 `edition_premieres`（表名保留，含义是「系列年度第一个演出」），便于复核。
@@ -220,7 +217,7 @@ flowchart LR
 
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/bands.ts`，`shared/stats.ts`，`shared/correlation.ts` 及对应 `tests/*`。
 2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`，`scripts/snapshot-youtube.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
-3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、`server/api/lookup.get.ts`、署名与空态。
+3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、署名与空态。
 4. **发布自动化** — `wrangler.toml`、CI、每周工作流；README。
 
 ## 版本合并
@@ -247,4 +244,4 @@ Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目�
 
 ## 页眉搜索
 
-搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。目录里没有命中时才请求 `/api/lookup`，远程结果只给 VocaDB 链接。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
+搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
