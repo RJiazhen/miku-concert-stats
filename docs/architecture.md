@@ -236,6 +236,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `app/components/ShowSetlistSection.vue` 是 `/shows` 的歌单区：两个场次能合并时输出一张「合并歌单」表（右侧只写各场首数，日期已由页头写出），只有一个场次时标题写「歌单」，其余情况每个场次一张表并以场次标签作标题。歌单区不再重复页头已经列出的场次日期与场次数。
 
+`shared/performance-setlists.ts` 的 `mergeShowSetlists` 先按代表场次排出曲目顺序、并入只在其他场次出现的曲目，再把「在每个演过它的场次里都落在同一序号」的行并成一个槽位（`ShowSetlistPrintRow.items`）：这些行是同一序号的日场 / 夜场 / 分天替换曲。`ShowSetlistTable` 用 `UTable` 渲染，每首歌或串烧各占一行，序号列用 `meta.rowspan` 把槽位内的行合并成一个单元格、被吸收的单元格用 `meta.class` 置为 `hidden`，所以编号只到单场曲目数，读者不会把替换曲误数成额外曲目。并槽只在两侧的场次集合完全不相交时成立；同一首歌在两场里序号不同（例如插入曲把后面整体错位）仍单独占行。表格只有「序号 / 歌曲 / 歌手 / 备注」四列，不单设场次列：每个替代曲的场次写进「备注」，整场都演的行省略场次、只覆盖整段日场或夜场写 `仅日场` / `仅夜场`、只覆盖整天写 `仅 8/11`，其余列出具体场次；非 VOCALOID 曲目的分类（器乐曲等）用 ` · ` 接在最后。
+
 `partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同演出的歌曲数量对不上时不合并，按多份歌单分别显示。
 
 `app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌（`public/logo.png` 徽标）、五个公开入口（歌曲 / 系列 / 城市 / 制作人 / 原始数据）、中文名称开关（`USwitch`，只在客户端生效，同时控制中文歌名、中文地点与中文系列名）、`UColorModeButton`。站点图标同样指向 `/logo.png`（`nuxt.config.ts` 的 `app.head.link`）。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。

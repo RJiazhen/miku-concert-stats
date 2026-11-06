@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { derivedItemsByShow, mergeShowSetlists, type MergedShowSetlistRow, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
+import { derivedItemsByShow, mergeShowSetlists, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
 import type { Catalog, PerformanceSetlistRow, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 
 const props = defineProps<{
@@ -34,12 +34,9 @@ const showLabel = (row: PerformanceShowSetlistRow): string => {
   return date
 }
 
-/** Label of every 场次 in calendar order, shared by the merged header and its table. */
-const showLabels = computed<string[]>(() => shows.value.map(showLabel))
-
 /** Printed rows of one 场次, used when the shows cannot share one table. */
 const rowsOf = (show: PerformanceShowSetlistRow): ShowSetlistPrintRow[] =>
-  itemsOf(show.show_key).map((item) => ({ item }))
+  itemsOf(show.show_key).map((item) => ({ position: item.position, items: [{ item }] }))
 
 /** The only 場次 when the 演出 has exactly one, printed without its date because the header shows it. */
 const singleShow = computed<PerformanceShowSetlistRow | null>(() => {
@@ -51,7 +48,7 @@ const singleShow = computed<PerformanceShowSetlistRow | null>(() => {
 const singleShowRows = computed<ShowSetlistPrintRow[]>(() => (singleShow.value === null ? [] : rowsOf(singleShow.value)))
 
 /** One merged programme for the whole 演出, or null when the shows must stay separate. */
-const mergedRows = computed<MergedShowSetlistRow[] | null>(() => {
+const mergedRows = computed<ShowSetlistPrintRow[] | null>(() => {
   if (shows.value.length < 2) return null
   const merged = mergeShowSetlists(shows.value, derivedItemsByShow(props.catalog, props.performanceId))
   return merged?.mergeable === true ? merged.rows : null
@@ -83,7 +80,7 @@ const lengthSummary = computed<string>(() => {
           <h2 class="text-base font-semibold text-highlighted">合并歌单</h2>
           <p class="text-xs text-muted">{{ lengthSummary }}</p>
         </header>
-        <ShowSetlistTable :catalog="catalog" :rows="mergedRows" :show-labels="showLabels" />
+        <ShowSetlistTable :catalog="catalog" :rows="mergedRows" :shows="shows" />
       </div>
 
       <!-- 只有一个场次时，页头已经写明日期，表格标题只写「歌单」。 -->

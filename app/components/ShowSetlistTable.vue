@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { derivedItemSongIds, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
+import type { TableColumn } from '@nuxt/ui'
+import { derivedItemSongIds, type ShowSetlistPrintItem, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
@@ -10,25 +11,87 @@ const props = defineProps<{
   catalog: Catalog
   /** Rows to print; a merged 演出 table passes every 场次 that played each row. */
   rows: ShowSetlistPrintRow[]
-  /** Labels of every 场次 of the 演出, in order; only printed when the rows are merged. */
-  showLabels?: string[]
+  /** Every 场次 of the 演出 in calendar order; only passed for a merged table. */
+  shows?: PerformanceShowSetlistRow[]
 }>()
 
 const { songById, songName, songHref, vocadbSongUrl } = useSongLookup()
 
-/** Whether the table prints the 场次 column, which only a merged 演出 table needs. */
-const merged = computed(() => (props.showLabels?.length ?? 0) > 1)
+/** One table row: a single song or medley of a printed 序号. */
+type SetlistTableRow = {
+  /** 序号 shared by every alternative at this slot. */
+  position: number
+  /** Alternatives printed under the 序号; 1 for an ordinary row. */
+  slotSize: number
+  /** Whether this row owns the merged 序号 cell. */
+  startsSlot: boolean
+  /** The printed alternative, with the 場次 that played it. */
+  entry: ShowSetlistPrintItem
+}
 
-/** Song ids of one row, with a medley expanded to its parts. */
+/** The part of a `UTable` cell the span callbacks read. */
+type SetlistCell = { row: { original: SetlistTableRow } }
+
+/** The part of a `UTable` row its own class callback reads. */
+type SetlistRow = { original: SetlistTableRow }
+
+/**
+ * Flattens the printed rows into one table row per song or medley.
+ * A slot of alternatives becomes several rows with the same `position`, so the 序号 cell can
+ * span them and the numbering stays equal to the song count of one 場次.
+ */
+const data = computed<SetlistTableRow[]>(() =>
+  props.rows.flatMap((row) =>
+    row.items.map((entry, index) => ({
+      position: row.position,
+      slotSize: row.items.length,
+      startsSlot: index === 0,
+      entry,
+    })),
+  ),
+)
+
+/** `rowspan` of the 序号 cell: the slot size on its first row, 1 on the absorbed rows. */
+const positionRowSpan = (cell: SetlistCell): string =>
+  cell.row.original.startsSlot ? String(cell.row.original.slotSize) : '1'
+
+/** Hides the 序号 cell of an absorbed row, whose space the slot's `rowspan` already covers. */
+const positionCellClass = (cell: SetlistCell): string => {
+  const { startsSlot, slotSize } = cell.row.original
+  if (!startsSlot) return 'hidden'
+  // A shared 序号 is emphasized the way the `/raw` comparison table prints slots.
+  return slotSize > 1 ? 'align-top font-mono text-base text-highlighted' : 'font-mono text-muted'
+}
+
+/** Outlines every row of a slot, so a substitution reads as one block rather than two songs. */
+const rowClass = (row: SetlistRow): string =>
+  row.original.slotSize > 1 ? 'border-t border-miku-500/30' : ''
+
+/**
+ * Columns. A merged table puts the 场次 of each alternative inside 备注 instead of giving it a
+ * column of its own, so the table stays the four columns a single 場次 table has.
+ */
+const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
+  {
+    id: 'position',
+    header: '序号',
+    meta: { rowspan: { td: positionRowSpan }, class: { th: 'w-14', td: positionCellClass } },
+  },
+  { id: 'song', header: '歌曲' },
+  { id: 'characters', header: '歌手' },
+  { id: 'note', header: '备注' },
+])
+
+/** Song ids of one printed item, with a medley expanded to its parts. */
 const songIdsOf = (item: PerformanceShowSetlistItemRow): number[] => derivedItemSongIds(props.catalog, item)
 
-/** Medley name when a row points at a medley instead of a single song. */
+/** Medley name when an item points at a medley instead of a single song. */
 const medleyName = (item: PerformanceShowSetlistItemRow): string | null => {
   if (item.medley_id === null) return null
   return props.catalog.medleys.find((row) => row.id === item.medley_id)?.name ?? `串烧 ${item.medley_id}`
 }
 
-/** 演出角色 for one row, merged without duplicates. */
+/** 演出角色 for one printed item, merged without duplicates. */
 const charactersOf = (item: PerformanceShowSetlistItemRow): string => {
   const names = new Set<string>()
   for (const songId of songIdsOf(item)) {
@@ -40,7 +103,7 @@ const charactersOf = (item: PerformanceShowSetlistItemRow): string => {
   return names.size === 0 ? '—' : [...names].join('、')
 }
 
-/** 备注 cell: the repertoire category for a non-VOCALOID row, `—` for an ordinary song. */
+/** 备注 cell of one printed item: the repertoire category for a non-VOCALOID row, `—` otherwise. */
 const noteOf = (item: PerformanceShowSetlistItemRow): string => {
   const labels = new Set<string>()
   for (const songId of songIdsOf(item)) {
@@ -49,74 +112,100 @@ const noteOf = (item: PerformanceShowSetlistItemRow): string => {
     labels.add(songCategoryLabels[song.category])
   }
   return labels.size === 0 ? '—' : [...labels].join('、')
-}
+}/** `M/D` of a stored date; the year is already on the page. */
+const monthDay = (date: string): string => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
 
 /** Compact 场次 label for a cell, e.g. `8/11 日场`; the year is already on the page. */
 const shortShowLabel = (show: PerformanceShowSetlistRow): string => {
   const date = show.date
-  const monthDay = date === null ? '日期未知' : `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
-  if (show.half === 'day') return `${monthDay} 日场`
-  if (show.half === 'night') return `${monthDay} 夜场`
-  return monthDay
+  const label = date === null ? '日期未知' : monthDay(date)
+  if (show.half === 'day') return `${label} 日场`
+  if (show.half === 'night') return `${label} 夜场`
+  return label
 }
 
-/** 场次 cell of a merged row: every 场次 when shared, otherwise the ones that played it. */
-const showCellOf = (row: ShowSetlistPrintRow): string => {
-  const shows = row.shows ?? []
-  if (shows.length === 0 || shows.length >= (props.showLabels?.length ?? 0)) return '—'
-  return `仅 ${shows.map(shortShowLabel).join('、')}`
+/** 场次 of the whole 演出 that share one half. */
+const halfCount = (half: 'day' | 'night'): number => (props.shows ?? []).filter((show) => show.half === half).length
+
+/** 场次 of the whole 演出 that share one date. */
+const dateCount = (date: string): number => (props.shows ?? []).filter((show) => show.date === date).length
+
+/**
+ * 场次 of one alternative: empty when every 場次 played it, a compressed `仅日场` / `仅夜场` /
+ * `仅 8/11` when it covers that whole half or day, otherwise the shows that played it.
+ */
+const showScopeOf = (item: ShowSetlistPrintItem): string => {
+  const played = item.shows ?? []
+  const all = props.shows ?? []
+  if (played.length === 0 || played.length >= all.length) return ''
+  const first = played[0]
+  if (first === undefined) return ''
+  const halves = new Set(played.map((show) => show.half))
+  if (halves.size === 1 && (first.half === 'day' || first.half === 'night') && played.length === halfCount(first.half)) {
+    return first.half === 'day' ? '仅日场' : '仅夜场'
+  }
+  const dates = new Set(played.map((show) => show.date))
+  if (dates.size === 1 && first.date !== null && played.length === dateCount(first.date)) {
+    return `仅 ${monthDay(first.date)}`
+  }
+  return `仅 ${played.map(shortShowLabel).join('、')}`
+}
+
+/**
+ * 备注 cell of one printed item: its 场次 first, then the repertoire category of a non-VOCALOID
+ * row. A song every 場次 played with no special category still prints `—`.
+ */
+const remarkOf = (item: ShowSetlistPrintItem): string => {
+  const note = noteOf(item.item)
+  const parts = [showScopeOf(item), note === '—' ? '' : note].filter((part) => part !== '')
+  return parts.length === 0 ? '—' : parts.join(' · ')
 }
 </script>
 
 <template>
-  <div class="overflow-x-auto rounded-xl border border-default/60">
-    <table class="w-max min-w-full border-collapse text-sm whitespace-nowrap">
-      <thead class="bg-elevated/60 text-left text-xs tracking-wide text-muted uppercase">
-        <tr>
-          <th class="w-14 px-3 py-2 font-medium">序号</th>
-          <th class="px-3 py-2 font-medium">歌曲</th>
-          <th class="px-3 py-2 font-medium">歌手</th>
-          <th v-if="merged" class="px-3 py-2 font-medium">场次</th>
-          <th class="px-3 py-2 font-medium">备注</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="row in rows"
-          :key="`${row.item.position}-${row.item.song_id ?? row.item.medley_id}`"
-          class="border-t border-default/40 align-top odd:bg-elevated/20"
-        >
-          <td class="px-3 py-2 font-mono text-muted">
-            {{ row.item.position }}
-          </td>
-          <td class="px-3 py-2">
-            <template v-if="row.item.medley_id !== null">
-              <span class="text-highlighted">{{ medleyName(row.item) }}</span>
-              <span class="text-muted">（串烧：{{ songIdsOf(row.item).map((id) => songName(id)).join(' / ') }}）</span>
-            </template>
-            <span v-else class="flex flex-wrap items-center gap-x-1">
-              <template v-for="(songId, index) in songIdsOf(row.item)" :key="songId">
-                <span v-if="index > 0" class="text-muted">/</span>
-                <ULink :to="songHref(songId)" class="text-highlighted hover:text-primary">
-                  <SongTitle :song-id="songId" :original="songName(songId)" />
-                </ULink>
-                <ULink
-                  v-if="vocadbSongUrl(songId)"
-                  :to="vocadbSongUrl(songId) ?? ''"
-                  target="_blank"
-                  class="shrink-0 text-dimmed hover:text-primary"
-                  aria-label="在 VocaDB 查看"
-                >
-                  <UIcon name="i-lucide-external-link" class="size-3" />
-                </ULink>
-              </template>
-            </span>
-          </td>
-          <td class="px-3 py-2 text-muted">{{ charactersOf(row.item) }}</td>
-          <td v-if="merged" class="px-3 py-2 text-xs text-muted">{{ showCellOf(row) }}</td>
-          <td class="px-3 py-2 text-xs text-muted">{{ noteOf(row.item) }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <UTable
+    :data="data"
+    :columns="columns"
+    :meta="{ class: { tr: rowClass } }"
+    :ui="{
+      root: 'overflow-x-auto rounded-xl border border-default/60',
+      base: 'w-max min-w-full border-collapse',
+      thead: 'bg-elevated/60',
+      th: 'px-3 py-2 text-xs tracking-wide uppercase',
+      td: 'px-3 py-2',
+    }"
+  >
+    <template #position-cell="{ row }">
+      {{ row.original.position }}
+    </template>
+    <template #song-cell="{ row }">
+      <template v-if="row.original.entry.item.medley_id !== null">
+        <span class="text-highlighted">{{ medleyName(row.original.entry.item) }}</span>
+        <span class="text-muted">（串烧：{{ songIdsOf(row.original.entry.item).map((id) => songName(id)).join(' / ') }}）</span>
+      </template>
+      <span v-else class="inline-flex flex-wrap items-center gap-x-1">
+        <template v-for="(songId, index) in songIdsOf(row.original.entry.item)" :key="songId">
+          <span v-if="index > 0" class="text-muted">/</span>
+          <ULink :to="songHref(songId)" class="text-highlighted hover:text-primary">
+            <SongTitle :song-id="songId" :original="songName(songId)" />
+          </ULink>
+          <ULink
+            v-if="vocadbSongUrl(songId)"
+            :to="vocadbSongUrl(songId) ?? ''"
+            target="_blank"
+            class="shrink-0 text-dimmed hover:text-primary"
+            aria-label="在 VocaDB 查看"
+          >
+            <UIcon name="i-lucide-external-link" class="size-3" />
+          </ULink>
+        </template>
+      </span>
+    </template>
+    <template #characters-cell="{ row }">
+      {{ charactersOf(row.original.entry.item) }}
+    </template>
+    <template #note-cell="{ row }">
+      <span class="text-xs">{{ remarkOf(row.original.entry) }}</span>
+    </template>
+  </UTable>
 </template>

@@ -638,9 +638,43 @@ describe('mergeShowSetlists', () => {
     ])
     const merged = mergeShowSetlists(shows, items)
     expect(merged?.mergeable).toBe(true)
-    expect(merged?.rows.map((row) => row.item.song_id)).toEqual([1, 4, 2, 3])
-    expect(merged?.rows.map((row) => row.item.position)).toEqual([1, 2, 3, 4])
-    expect(merged?.rows.map((row) => row.shows.length)).toEqual([2, 1, 2, 2])
+    expect(merged?.rows.map((row) => row.position)).toEqual([1, 2, 3, 4])
+    expect(merged?.rows.map((row) => row.items.map((entry) => entry.item.song_id))).toEqual([[1], [4], [2], [3]])
+    expect(merged?.rows.map((row) => row.items.map((entry) => entry.shows?.length))).toEqual([[2], [1], [2], [2]])
+  })
+
+  it('groups substitutes that share one position under a single 序号', () => {
+    const shows = [
+      showRow('1:a', '2023-08-11', 'day', 3),
+      showRow('1:b', '2023-08-11', 'night', 3),
+      showRow('1:c', '2023-08-12', 'night', 3),
+    ]
+    const items = new Map([
+      ['1:a', [itemRow('1:a', 1, 1), itemRow('1:a', 2, 2), itemRow('1:a', 3, 8)]],
+      ['1:b', [itemRow('1:b', 1, 1), itemRow('1:b', 2, 3), itemRow('1:b', 3, 8)]],
+      ['1:c', [itemRow('1:c', 1, 1), itemRow('1:c', 2, 4), itemRow('1:c', 3, 8)]],
+    ])
+    const merged = mergeShowSetlists(shows, items)
+    expect(merged?.mergeable).toBe(true)
+    // Three shows of three songs; the middle slot holds its three substitutes under one 序号.
+    expect(merged?.rows).toHaveLength(3)
+    expect(merged?.rows.map((row) => row.items.map((entry) => entry.item.song_id))).toEqual([[1], [2, 3, 4], [8]])
+    expect(merged?.rows[1]?.items.map((entry) => entry.shows?.map((show) => show.show_key))).toEqual([
+      ['1:a'],
+      ['1:b'],
+      ['1:c'],
+    ])
+  })
+
+  it('does not fold rows that sit at different positions in their shows', () => {
+    const shows = [showRow('1:a', '2023-08-11', 'day', 3), showRow('1:b', '2023-08-11', 'night', 4)]
+    const items = new Map([
+      ['1:a', [itemRow('1:a', 1, 1), itemRow('1:a', 2, 2), itemRow('1:a', 3, 3)]],
+      ['1:b', [itemRow('1:b', 1, 1), itemRow('1:b', 2, 4), itemRow('1:b', 3, 2), itemRow('1:b', 4, 3)]],
+    ])
+    const merged = mergeShowSetlists(shows, items)
+    expect(merged?.rows).toHaveLength(4)
+    expect(merged?.rows.every((row) => row.items.length === 1)).toBe(true)
   })
 
   it('refuses to merge shows that share less than half their programme', () => {

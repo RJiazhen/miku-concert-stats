@@ -1303,19 +1303,29 @@ export const derivedItemsByShow = (catalog: Catalog, performanceId: number): Map
   return map
 }
 
-/** One printed row of a 场次 table, or of a merged 演出 table. */
-export type ShowSetlistPrintRow = {
+/** One song or medley printed on a row, with the 場次 that played it. */
+export type ShowSetlistPrintItem = {
   item: PerformanceShowSetlistItemRow
-  /** 场次 that played the row; omitted when the table prints a single 场次. */
+  /** 场次 that played this item; omitted when the table prints a single 场次. */
   shows?: PerformanceShowSetlistRow[]
 }
 
-/** One row of a merged 演出 setlist, with the 场次 that played it. */
-export type MergedShowSetlistRow = ShowSetlistPrintRow & { shows: PerformanceShowSetlistRow[] }
+/**
+ * One printed row of a 场次 table, or of a merged 演出 table.
+ * An ordinary row holds one item; a replacement slot holds every alternative it covers.
+ * The page prints one table row per item and merges the 序号 cell across the slot's rows,
+ * so the numbering still ends at the song count of a single 場次.
+ */
+export type ShowSetlistPrintRow = {
+  /** Printed 序号; in a merged table this is the slot number the alternatives share. */
+  position: number
+  /** Song or medley alternatives printed under this 序号, in calendar order of their 場次. */
+  items: ShowSetlistPrintItem[]
+}
 
 /** Result of merging the 场次 setlists of one 演出. */
 export type MergedShowSetlist = {
-  rows: MergedShowSetlistRow[]
+  rows: ShowSetlistPrintRow[]
   /** False when the shows are too different for one shared programme to be honest. */
   mergeable: boolean
 }
@@ -1329,6 +1339,9 @@ const setlistRowKey = (item: PerformanceShowSetlistItemRow): string =>
  *
  * The longest 场次 (earliest on a tie) gives the printed order. A row only other 场次 played
  * is inserted after the nearest row those 场次 share, so the running order stays intact.
+ * Rows that sit at the same single position in every 场次 that played them are alternatives of
+ * one 序号: they print on separate table rows under one merged 序号 cell, so the numbering
+ * still ends at the song count of a single 場次.
  * `mergeable` is false when any 场次 shares less than half its rows with the representative:
  * the shows were different programmes then, and the page keeps them apart instead of
  * inventing one setlist. Returns null for a 演出 with fewer than two 场次.
@@ -1399,11 +1412,54 @@ export const mergeShowSetlists = (
     }
   }
 
-  const rows: MergedShowSetlistRow[] = []
-  order.forEach((key, index) => {
-    const item = itemByKey.get(key)
-    if (item === undefined) return
-    rows.push({ item: { ...item, position: index + 1 }, shows: showsByKey.get(key) ?? [] })
+  /** Positions a row occupies inside each 場次 that played it. */
+  const positionsByKey = new Map<string, Set<number>>()
+  for (const show of ordered) {
+    for (const item of itemsOf(show)) {
+      const key = setlistRowKey(item)
+      const positions = positionsByKey.get(key) ?? new Set<number>()
+      positions.add(item.position)
+      positionsByKey.set(key, positions)
+    }
+  }
+
+  /** Slot key of a row: one single position means the other rows at that position are substitutes. */
+  const slotKeyOf = (key: string): string => {
+    const positions = positionsByKey.get(key)
+    return positions?.size === 1 ? `position:${[...positions][0]}` : `row:${key}`
+  }
+
+  // Keep the merged order but pull the alternatives of one slot together.
+  const slotKeys: string[] = []
+  const keysBySlot = new Map<string, string[]>()
+  for (const key of order) {
+    const slotKey = slotKeyOf(key)
+    const keys = keysBySlot.get(slotKey)
+    if (keys === undefined) {
+      keysBySlot.set(slotKey, [key])
+      slotKeys.push(slotKey)
+      continue
+    }
+    keys.push(key)
+  }
+
+  /** Calendar order of the first 場次 that played a row, used to order the alternatives. */
+  const firstShowOf = (key: string): string => {
+    const show = showsByKey.get(key)?.[0]
+    return `${show?.date ?? '9999'}:${show?.half ?? ''}`
+  }
+
+  const rows: ShowSetlistPrintRow[] = slotKeys.map((slotKey, index) => {
+    const keys = [...(keysBySlot.get(slotKey) ?? [])].sort((left, right) =>
+      firstShowOf(left).localeCompare(firstShowOf(right)),
+    )
+    return {
+      position: index + 1,
+      items: keys.flatMap((key) => {
+        const item = itemByKey.get(key)
+        return item === undefined ? [] : [{ item, shows: showsByKey.get(key) ?? [] }]
+      }),
+    }
   })
 
   return { rows, mergeable }
