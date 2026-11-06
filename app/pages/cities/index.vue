@@ -3,6 +3,7 @@ import { computed, h, onMounted, ref, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames } from '~/composables/usePlaceNames.ts'
+import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
 import { buildCityIndex, rankCities } from '~~/shared/cities.ts'
 import { performanceSchedules } from '~~/shared/event-schedule.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
@@ -10,6 +11,7 @@ import { reviewRotations } from '~~/shared/rotation.ts'
 const UButton = resolveComponent('UButton')
 
 const { catalog, error, pending, load } = useCatalog()
+const { tableAnchor, tableStyle } = useRankingTableHeight()
 
 /** Parsed once: the checked place list and its matchers never change at runtime. */
 const cityIndex = buildCityIndex(placeNames)
@@ -134,12 +136,14 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
 
       <UTable
         v-if="catalog"
+        ref="tableAnchor"
         v-model:sorting="sorting"
         :data="rows"
         :columns="columns"
         :loading="pending"
         sticky
-        class="ranking-scroll max-h-[max(12rem,calc(100dvh-25rem))]"
+        class="ranking-scroll"
+        :style="tableStyle"
         :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5' }"
       >
         <template #rank-cell="{ row }">

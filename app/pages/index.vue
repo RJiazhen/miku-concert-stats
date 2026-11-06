@@ -8,6 +8,7 @@ import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
+import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
 import { splitCharacterChips } from '~~/shared/character-chips.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
@@ -29,6 +30,7 @@ const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
+const { tableAnchor, tableStyle } = useRankingTableHeight()
 
 /** Width the 歌曲 cell may occupy before it truncates; keeps every column visible at 1280px. */
 const NAME_WIDTH = 220
@@ -503,12 +505,14 @@ const yearToItems = computed(() =>
 
       <UTable
         v-if="catalog"
+        ref="tableAnchor"
         v-model:sorting="sorting"
         :data="filtered"
         :columns="columns"
         :loading="pending"
         sticky
-        class="ranking-scroll max-h-[max(12rem,calc(100dvh-37rem))]"
+        class="ranking-scroll"
+        :style="tableStyle"
         :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5' }"
       >
         <template #rank-cell="{ row }">
