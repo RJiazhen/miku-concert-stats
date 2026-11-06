@@ -188,7 +188,7 @@ Do not re-derive the rules from this document alone. The source of truth is the 
 | `shared/event-schedule.ts` | `performanceSchedules`, `showsForPerformance`, `showsForNotes`, `performanceDates`, `dayNightDatesFor` — the 场次 layer |
 | `shared/song-variants.ts` | `parseSongVariants` + `variantSongIdsOf` / `canonicalSongId` — version merging from `data/song-variants.json` |
 | `shared/edition-setlists.ts` | `parseSetlistMerges`, `partitionSongLists`, `buildSetlistDisplay` — cross-演出 setlist comparison |
-| `shared/performance-setlists.ts` | `buildPerformanceSetlists`, `parsePerformanceSetlistCuration`, `catalogSchedules`, `derivedItemsByShow`, `derivedItemSongIds`, `showSongIds` — the per-場次 layer |
+| `shared/performance-setlists.ts` | `buildPerformanceSetlists`, `parsePerformanceSetlistCuration`, `catalogSchedules`, `showCountsByPerformance`, `setlistPerformanceIds`, `derivedItemsByShow`, `derivedItemSongIds`, `showSongIds` — the per-場次 layer, plus the two helpers the index pages use so a wiki-sourced 演出 is not reported as "no setlist" |
 | `shared/rotation.ts` | `reviewRotations`, `parseRotationNotes`, `performanceCityKey`, `splitNote` — note → performance/场次 assignment |
 | `shared/album-setlists.ts` | album-source detection and the exact Chinese notice text |
 
@@ -471,9 +471,9 @@ ORDER BY p.start_date DESC, p.id DESC;
 -- current first rows: 12251 Tokyo (2026-08-28..30), 12250 Osaka, 12249 Hamamatsu, ...
 ```
 
-There is no `city` column. Derive it from `name`, `series_suffix`, and the aliases in `shared/rotation.ts` (`performanceCityKey`) or the aggregation in `shared/cities.ts`; do not guess. Get the 场次 count from `performanceSchedules(catalog, review).get(performance.id)` rather than subtracting dates by hand.
+There is no `city` column. Derive it from `name`, `series_suffix`, and the aliases in `shared/rotation.ts` (`performanceCityKey`) or the aggregation in `shared/cities.ts`; do not guess. Get the 场次 count from `showCountsByPerformance(catalog, review).get(performance.id)` (`shared/performance-setlists.ts`): it reads the derived layer first, so a stop whose days were split by hand reports its real show count, and falls back to `performanceSchedules` for 演出 that have no derived rows. Do not count setlists with `song_list_id IS NOT NULL`: a wiki-sourced stop keeps that column NULL, so use `setlistPerformanceIds(catalog).has(id)` instead.
 
-**Report:** `performance.id`, name, `start_date`–`end_date`, derived city, venue, country, `role` (broadcast flag), 场次 count, whether `song_list_id` exists, and `https://miku-concert-stats.rjiazhen.top/shows/{id}`. Group by `series_number` only when the user asks for a series-year view; it is not a separate 演出.
+**Report:** `performance.id`, name, `start_date`–`end_date`, derived city, venue, country, `role` (broadcast flag), 场次 count, whether the 演出 has a setlist at all (`setlistPerformanceIds`), and `https://miku-concert-stats.rjiazhen.top/shows/{id}`. Group by `series_number` only when the user asks for a series-year view; it is not a separate 演出.
 
 ### (d) “Which songs debuted in a given series year?”
 
