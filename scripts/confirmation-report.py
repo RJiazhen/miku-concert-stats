@@ -410,7 +410,7 @@ out.append("")
 # ---------------------------------------------------------------- 6. 无歌单
 missing = rows(
     """
-    SELECT p.id, p.series_id, p.name, p.start_date, p.vocadb_status,
+    SELECT p.id, p.series_id, p.name, p.start_date, p.vocadb_status, p.source_url AS page_url,
            st.status AS status, st.note AS status_note, st.source_url AS status_source,
            st.accessed_at AS status_accessed
     FROM performances p
@@ -438,9 +438,10 @@ for row in missing:
     else:
         state = "未标注"
     source = f"[公告]({row['status_source']})" if row["status_source"] else "—"
+    vocadb = row["vocadb_status"] or ("—" if "vocadb.net" not in (row["page_url"] or "") else "未记录")
     out.append(
-        f"| [{row['id']}](https://vocadb.net/E/{row['id']}) {row['name']} | {series} | "
-        f"{row['start_date'] or '无'} | {state} | {row['vocadb_status']} | {source} |"
+        f"| [{row['id']}]({row['page_url']}) {row['name']} | {series} | "
+        f"{row['start_date'] or '无'} | {state} | {vocadb} | {source} |"
     )
 out.append("")
 out.append("- [ ] 都先留空，等实体发行或官方歌单")

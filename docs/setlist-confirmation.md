@@ -501,7 +501,7 @@
 
 ---
 
-## 6. 仍无歌单的演出（26 个）
+## 6. 仍无歌单的演出（27 个）
 
 上游没有 songList、百科也还没有逐曲表的演出。取消的场次单独记在 `performance_status`，
 演出页会显示「这场演出已取消」并给出公告链接；尚未举行的先留空。
@@ -529,6 +529,7 @@
 | [12227](https://vocadb.net/E/12227) MIKU EXPO 2026 Paris | MIKU EXPO | 2026-11-22 | 未标注 | Draft | — |
 | [12228](https://vocadb.net/E/12228) MIKU EXPO 2026 Madrid | MIKU EXPO | 2026-11-24 | 未标注 | Draft | — |
 | [12449](https://vocadb.net/E/12449) MIKU EXPO 2026 Lisbon | MIKU EXPO | 2026-11-27 | 未标注 | Draft | — |
+| [3000000001](https://zh.moegirl.org.cn/初音未来·未来有你2026演唱会) MIKU WITH YOU 2026 in Chengdu | 未来有你 | 2026-12-26 | 尚未举行 | — | [公告](https://zh.moegirl.org.cn/初音未来·未来有你2026演唱会) |
 | [2886](https://vocadb.net/E/2886) 初音ミク×鼓童スペシャルライブ２０２０～結～ | 鼓童 | 无 | **已取消** | Finished | [公告](https://twitter.com/kodo_miku/status/1353583380097507333) |
 | [12940](https://vocadb.net/E/12940) 初音ミク×鼓童スペシャルライブ～響演～ | 鼓童 | 2026-11-20 | 未标注 | Finished | — |
 | [13210](https://vocadb.net/E/13210) 初音ミクシンフォニー 2027 東京 | 交响乐 | 无 | 未标注 | Draft | — |

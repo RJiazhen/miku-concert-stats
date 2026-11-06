@@ -693,6 +693,23 @@ for pid, name in CANCELLED.items():
         "accessedAt": ACCESSED,
     }
 
+# ---------------------------------------------------------------- 演出状态（尚未举行）
+# 成都站是上海站收官（2026-11-01）当天公布的，VocaDB 的系列 173 里还没有这条 event，
+# 所以它由 data/increments/0011-manual-performances.sql 补进目录。单场演出、暂无歌单。
+UPCOMING = {
+    3_000_000_001: {
+        "note": "2026-12-26 19:00 成都金融城演艺中心，上海站收官时公布定档与开票；演出尚未举行，暂无歌单",
+        "source": "https://zh.moegirl.org.cn/初音未来·未来有你2026演唱会",
+    },
+}
+for pid, upcoming in UPCOMING.items():
+    statuses[str(pid)] = {
+        "status": "upcoming",
+        "note": upcoming["note"],
+        "source": upcoming["source"],
+        "accessedAt": "2026-11-06",
+    }
+
 # ---------------------------------------------------------------- 百科歌单：初音ミクシンフォニー
 # 交响乐在 VocaDB 没有任何 songList，之前只能用专辑 tracklist 补位；专辑是混编的，
 # 与逐曲表对不上（东京与横滨/神戸本来就是两套节目）。这里改用「初音ミク Wiki」的逐曲表，

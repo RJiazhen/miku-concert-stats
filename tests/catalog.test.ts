@@ -4,6 +4,7 @@ import { albumSongListId } from '../shared/album-setlists.ts'
 import { loadCatalog } from '../shared/catalog.ts'
 import { producerCredit } from '../shared/credit.ts'
 import { producerNamesFor } from '../shared/producer-options.ts'
+import { LOCAL_PERFORMANCE_ID_BASE } from '../shared/repertoire.ts'
 import type { SqlRow } from '../shared/types.ts'
 import { applyCatalogSql } from '../scripts/build-catalog.ts'
 
@@ -201,6 +202,35 @@ describe('committed catalog', () => {
       // Medleys stay empty until a source line splits into verifiable songs.
       expect(catalog.medleys).toHaveLength(0)
       expect(catalog.medleySongs).toHaveLength(0)
+    } finally {
+      db.close()
+    }
+  })
+
+  it('keeps a 演出 VocaDB does not list as a local id with no VocaDB page', () => {
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      const chengdu = catalog.performances.find((row) => row.id === 3_000_000_001)
+      expect(chengdu?.series_id).toBe(173)
+      expect(chengdu?.series_number).toBe(2026)
+      expect(chengdu?.start_date).toBe('2026-12-26')
+      expect(chengdu?.end_date).toBeNull()
+      expect(chengdu?.showtime_local).toBe('19:00')
+      // A manual row never claims a VocaDB event or song list.
+      expect(chengdu?.song_list_id).toBeNull()
+      expect(chengdu?.vocadb_status).toBeNull()
+      expect((chengdu?.id ?? 0) >= LOCAL_PERFORMANCE_ID_BASE).toBe(true)
+      expect(chengdu?.source_url.startsWith('https://vocadb.net/')).toBe(false)
+      // It is listed as not yet played, so the page does not ask for a missing VocaDB setlist.
+      const status = catalog.performanceStatus.find((row) => row.performance_id === chengdu?.id)
+      expect(status?.status).toBe('upcoming')
+      expect(status?.source_url.startsWith('https://')).toBe(true)
+      expect(catalog.performanceSetlists.some((row) => row.performance_id === chengdu?.id)).toBe(false)
     } finally {
       db.close()
     }

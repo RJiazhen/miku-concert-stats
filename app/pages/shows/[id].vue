@@ -8,6 +8,7 @@ import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setl
 import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { catalogSchedules } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
+import { fromVocaDB } from '~~/shared/repertoire.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
@@ -73,6 +74,9 @@ const albumSource = computed(() => albumSources.value[0] ?? null)
 const setlistRow = computed(
   () => catalog.value?.performanceSetlists.find((row) => row.performance_id === performanceId.value) ?? null,
 )
+
+/** Whether the 演出 itself has a VocaDB event page, false for a row registered from a schedule source. */
+const performanceOnVocaDB = computed(() => fromVocaDB(performance.value))
 
 /** VocaDB song-list page, or null when the rows are an album tracklist or a wiki table. */
 const vocaDBListUrl = computed(() => {
@@ -168,7 +172,7 @@ const headerLine = computed(() => {
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <UButton :to="performance.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            VocaDB 演出
+            {{ performanceOnVocaDB ? 'VocaDB 演出' : '演出来源' }}
           </UButton>
           <UButton v-if="vocaDBListUrl" :to="vocaDBListUrl" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
             VocaDB 歌单
@@ -204,7 +208,8 @@ const headerLine = computed(() => {
         title="这个演出在 VocaDB 没有歌单"
         description="没有歌单时无法列出曲目。"
       />
-      <template v-else>
+      <!-- A cancelled or not-yet-played 演出 has nothing to list; its status alert already says so. -->
+      <template v-else-if="hasDerived || !statusNote">
         <ShowSetlistSection
           v-if="catalog"
           :catalog="catalog"

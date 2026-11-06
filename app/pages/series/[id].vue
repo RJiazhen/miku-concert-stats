@@ -124,8 +124,8 @@ const yearRange = computed(() => {
               :to="entry.performance.source_url"
               target="_blank"
               class="text-xs text-dimmed hover:text-primary"
-              aria-label="在 VocaDB 查看这个演出"
-              title="在 VocaDB 查看这个演出"
+              aria-label="查看这个演出的来源页面"
+              title="查看这个演出的来源页面"
             >
               <UIcon name="i-lucide-external-link" class="size-4" />
             </ULink>

@@ -23,8 +23,7 @@ This is the skill for the site <https://miku-concert-stats.rjiazhen.top>. It exp
 Use the cheapest correct path, in this order:
 
 1. **Download the catalog once**, open it read-only, and compute with SQL plus the ported `shared/` logic. This is the only way to answer counts exactly, and it works offline after the download.
-2. **Use `GET /api/lookup?q=` only when the answer is not in the catalog** — typically an unknown song title that needs a VocaDB id. It searches VocaDB on demand; it does not return setlists or appearance counts.
-3. **Never scrape HTML pages** (`/`, `/songs/{id}`, `/shows/{id}`, `/series`, `/series/{id}`, `/cities`, `/raw`, `/report`) to extract numbers. Those pages are for humans; their tables are rendered from the same catalog and can change without notice.
+2. **Never scrape HTML pages** (`/`, `/songs/{id}`, `/shows/{id}`, `/series`, `/series/{id}`, `/cities`, `/raw`, `/report`) to extract numbers. Those pages are for humans; their tables are rendered from the same catalog and can change without notice.
 
 The site is Chinese-first; answer in the language the user used. Keep the Chinese terms 系列 / 演出 / 场次 when they remove ambiguity.
 
@@ -70,7 +69,7 @@ VocaDB stores **one** song list for a whole run and lets several 演出 share it
 | Table | One row is | Key columns |
 | --- | --- | --- |
 | `series` | a series | `id`, `name`, `name_ja`, `source_url` (`vocadb.net/Es/{id}`) |
-| `performances` | one 演出 / release event / city stop | `id`, `series_id`, `name`, `name_ja`, `venue_name`, `country_code`, `start_date`, `end_date`, `role` (`show` / `broadcast`), `series_number`, `series_suffix`, `song_list_id`, `source_url` (`vocadb.net/E/{id}`) |
+| `performances` | one 演出 / release event / city stop | `id`, `series_id`, `name`, `name_ja`, `venue_name`, `country_code`, `start_date`, `end_date`, `role` (`show` / `broadcast`), `series_number`, `series_suffix`, `song_list_id`, `source_url` (`vocadb.net/E/{id}`, or the schedule source for an id at or above `3_000_000_000`, which marks a 演出 VocaDB does not list at all) |
 | `song_lists` | one setlist attached to one or more performances | `id`, `name`, `source` (`vocadb` / `album`), `album_id`, `medium` (`bluray` / `cd` / `dvd`), `source_url` |
 | `setlist_items` | one printed setlist line | `song_list_id`, `position`, `listed_song_id`, `notes` |
 | `setlist_item_songs` | one song counted from a line | `song_list_id`, `position`, `song_id`, `role` (`listed` / `component`) |
@@ -80,7 +79,7 @@ VocaDB stores **one** song list for a whole run and lets several 演出 share it
 | `performance_show_setlist_items` | one ordered song of one 場次 | `performance_id`, `show_key`, `position`, `source_position` (source row it came from; NULL for a hand-added row), `song_id`, `medley_id` (exactly one of the two is set), `evidence` (`note` / `shared` / `curated` / `wiki`), `notes` |
 | `wiki`-sourced rows | a setlist taken from the Miku wiki: 161 of 181 performances, including every Symphony and every multi-city EXPO tour | `performance_setlist_items.evidence = 'wiki'`, `performance_setlists.source_kind = 'wiki'` (`source_list_id` is NULL only when VocaDB had no list at all); cite `performance_setlist_sources` |
 | `medleys` / `medley_songs` | one complete medley and its parts | `id` / `medley_id`, `position`, `song_id`; currently empty (medley parts are stored as ordinary rows with a note) |
-| `performance_status` | the real outcome of a 演出 that has no setlist row | `performance_id`, `status` (`cancelled` / `postponed` / `upcoming`), `note`, `source_url`, `accessed_at`. VocaDB files cancelled shows as `Finished` with no date, so this table is the only place a cancellation is recorded |
+| `performance_status` | the real outcome of a 演出 that has no setlist row | `performance_id`, `status` (`cancelled` / `postponed` / `upcoming`), `note`, `source_url`, `accessed_at`. VocaDB files cancelled shows as `Finished` with no date, so this table is the only place a cancellation is recorded; `upcoming` marks a dated show that has not happened yet |
 | `songs` | one song entry | `id`, `name`, `name_ja`, `name_en`, `artist_string`, `song_type`, `category`, `publish_date`, `source_url` (`vocadb.net/S/{id}`, or the wiki page when `category <> 'vocaloid'`) |
 | `song_vocalists` | one credited vocalist of a song | `song_id`, `name`; this is the preferred cast source over `artist_string`. Empty for a non-VOCALOID row |
 | `category` (on `songs`) | whether the row is a VOCALOID song | `vocaloid` (normal) or `classical` / `traditional` / `instrumental`. The last three are repertoire registered from a wiki setlist so a 場次 keeps its whole programme: no vocalist, `artist_string` holds the composer, and the row is **not** from VocaDB |
@@ -96,35 +95,9 @@ The authoritative schema is `data/schema.sql`; the loader is `shared/catalog.ts`
 
 ## 3. Public HTTP surface and static assets
 
-The deployed Worker exposes **exactly two public API routes** plus static assets. Do not invent routes.
+The deployed Worker exposes **one public API route** plus static assets. Do not invent routes. The site never proxies VocaDB at request time; its data is baked into the catalog at build time.
 
 Human-facing pages, all read-only views rather than APIs: `/` (ranking), `/songs/{id}`, `/shows/{id}`, `/series`, `/series/{id}`, `/cities`, `/raw`, `/report`. Use the catalog for numbers; open a page only when the user wants a link.
-
-### `GET /api/lookup?q=<text>`
-
-On-demand VocaDB song search. Use it only when the catalog cannot answer the question.
-
-- `q` is trimmed; length must be **1–80** characters. Missing or out-of-range input returns **400**.
-- It calls VocaDB `/api/songs` with `maxResults=5`, `fields=PVs`, `lang=Default`, and returns at most **5** hits.
-- Success body is an array of `LookupHit` (`shared/lookup.ts`):
-
-```json
-[
-  {
-    "id": 1322,
-    "name": "メルト",
-    "artistString": "ryo feat. 初音ミク",
-    "url": "https://vocadb.net/S/1322",
-    "pvs": [{ "platform": "youtube", "url": "https://www.youtube.com/watch?v=..." }]
-  }
-]
-```
-
-`artistString` may be `null`. `pvs` only contains enabled PVs on `niconico`, `youtube`, or `bilibili`; disabled PVs and unsupported services are dropped. If VocaDB fails, the route returns **502**. It is rate-limited by Cloudflare only (there is **no app-level quota**). Be considerate: results are cached upstream only by the browser, so repeated tool calls re-query VocaDB.
-
-```http
-GET https://miku-concert-stats.rjiazhen.top/api/lookup?q=%E3%83%A1%E3%83%AB%E3%83%88
-```
 
 ### `POST /api/feedback`
 
@@ -276,7 +249,7 @@ Do not claim VocaDB endorses the site or your answer. Do not redistribute third-
 
 ### Do not scrape, do not invent
 
-- Use the catalog or `/api/lookup`; do not fetch `/songs/{id}`, `/shows/{id}`, `/` to parse numbers. Page HTML is a rendered view, not an API.
+- Use the catalog; do not fetch `/songs/{id}`, `/shows/{id}`, `/` to parse numbers. Page HTML is a rendered view, not an API.
 - Do not invent producer or vocalist credits. `songs.artist_string` is the full credit; `songs.artist_string` may collapse a large cast to `feat. various`. Use `song_vocalists` first. The "制作人" column uses the structured `song_producers` roster first (authoritative, producer-side jobs only) and only falls back to the text before `feat.` when the song entry names no producer; VocaDB `Unknown producer(s)` / `Unknown artist` placeholders are dropped, and missing means "未记录". Free-text-only names that disagree with the structured roster are listed in `docs/reports/producer-conflicts.md`; quote that report instead of guessing.
 - Do not invent a setlist that VocaDB does not have. Do not fill gaps from a studio album unless the catalog already records that fallback.
 - Do not report a quarantined mashup line as one song. Do not report `role = 'component'` rows as standalone songs unless the user explicitly asks for components.
@@ -306,7 +279,7 @@ The collection scripts (`scripts/vocadb/client.ts`) use:
 - one retry after **2 s** on HTTP 429 or 5xx
 - an on-disk cache keyed by URL SHA-256
 
-`GET /api/lookup` uses the same User-Agent server-side and asks for at most five results. If you hit VocaDB directly (for example to resolve a song id the catalog lacks), identify yourself with a similar descriptive User-Agent and a contact/repository URL, keep requests spaced out, and do not bulk-crawl. Prefer `/api/lookup`, and only when the answer is not in the catalog. Do not scrape VocaDB HTML.
+If you hit VocaDB directly (for example to resolve a song id the catalog lacks), identify yourself with a similar descriptive User-Agent and a contact/repository URL, keep requests spaced out, and do not bulk-crawl. Do not scrape VocaDB HTML.
 
 ## 7. Copy-paste recipes
 
@@ -552,7 +525,7 @@ Both queries exclude `role = 'broadcast'` rows and medley components, and they d
 
 An answer is correct only if all of these hold:
 
-- [ ] It answers the count/setlist question **without fetching any HTML page**; the catalog (or `/api/lookup` for an unknown id) is the source.
+- [ ] It answers the count/setlist question **without fetching any HTML page**; the catalog is the source.
 - [ ] It states the counting mode: `event` (按演出) or `show` (按场次), and the filters (series, year, broadcast, medley, variants).
 - [ ] It does not report `role = 'component'` medley parts as standalone songs unless the user explicitly asked, and it does not count quarantined mashups.
 - [ ] It attributes data to VocaDB with a link (`/S/{id}`, `/E/{id}`, `/Es/{id}`) and mentions the VocaDB license/link-back requirement.

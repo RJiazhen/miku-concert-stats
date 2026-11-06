@@ -2,7 +2,7 @@
 
 记录截至 **2026-11-06** 已确认的数据缺陷与模型张力，供后续单独开 agent 逐项修复。每条包含：现象、影响、证据（目录 id）、建议方向；已修复的条目标注「已解决」并给出复核方法。
 
-数据侧的现状一句话：目录里 **207 个演出**，其中 **181 个有歌单**、展开成 **364 个场次 / 9041 条曲目**；这 181 个里 169 个的曲目逐条来自百科逐曲表、12 个仍用 VocaDB 歌单。182 条来源记录覆盖全部 181 个有歌单的演出，待核实 / 冲突 / 不确定场次均为 0。剩下 26 个没有歌单的演出里，13 个已标取消、3 个是尚未举行的交响乐、9 个是 MIKU EXPO 2026 欧洲站、1 个是鼓童 2026。
+数据侧的现状一句话：目录里 **208 个演出**，其中 **181 个有歌单**、展开成 **364 个场次 / 9041 条曲目**；这 181 个里 169 个的曲目逐条来自百科逐曲表、12 个仍用 VocaDB 歌单。182 条来源记录覆盖全部 181 个有歌单的演出，待核实 / 冲突 / 不确定场次均为 0。剩下 27 个没有歌单的演出里，13 个已标取消、1 个已标尚未举行（未来有你 2026 成都站）、3 个是尚未举行的交响乐、9 个是 MIKU EXPO 2026 欧洲站、1 个是鼓童 2026。
 
 约定引用：
 
@@ -284,12 +284,28 @@ SELECT performance_id, GROUP_CONCAT(show_key, ' ') FROM performance_show_setlist
 
 **若要独立**：VocaDB 有系列 `218 ミクの日大感謝祭`（Draft、0 场），把它加进 `SERIES_IDS` 并在 `data/series-titles.zh-CN.json` 补中文名即可。
 
+### 4.5 不在 VocaDB 的演出（人工补录）
+
+VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由主办方在上海站收官时公布，VocaDB 没有对应 event，因此目录里由 `data/increments/0011-manual-performances.sql` 直接补一行：
+
+| id | 演出 | 日期 | 数据 |
+| --- | --- | --- | --- |
+| 3000000001 | MIKU WITH YOU 2026 in Chengdu | 2026-12-26 19:00 | 成都金融城演艺中心，单场，尚无歌单 |
+
+约定：
+
+- **id 从 3,000,000,000 起**（`shared/repertoire.ts` 的 `LOCAL_PERFORMANCE_ID_BASE`），与 VocaDB 的 releaseEvent id 不重叠；任何调用 `vocadb.net/api/releaseEvents/{id}` 的脚本都要跳过这个区间。
+- 这类行的 `source_url` 不是 `vocadb.net/E/{id}`，而是日程／公告来源，`vocadb_status` 写 `NULL`。演出页的按钮因此显示「演出来源」而不是「VocaDB 演出」。
+- 补录文件必须以 `INSERT OR IGNORE` 写在 `0001` 之后：`pnpm collect` 会先删掉整张 `performances` 再重写。
+- 尚未举行的场次在 `data/performance-setlists.json` 的 `statuses.<id>` 写 `status: "upcoming"`，`pnpm derive:setlists` 会写进 `performance_status`，演出页显示「这场演出尚未举行」。
+- 歌单仍等百科／官方，演出结束后按 `.cursor/skills/update-concert-data/SKILL.md` 补 `data/wiki-raw/` 与 `scripts/wiki_raw_spec.py`（`RAW_SPEC` 里 `mwy2026` 目前只指向 13120，新增成都表要另加一个 key 或把该 id 加进 `performances`）。
+
 ---
 
 ## 五、展示层的小问题
 
 1. **MIKU EXPO 没有中文译名**（保留官方拉丁拼写），`data/series-titles.zh-CN.json` 里没有它。`MIKU WITH YOU` 已按官方中文名补为「未来有你」。若日后要译 `MIKU EXPO`，直接加条目即可；`tests/series-titles.test.ts` 只要求日文系列必须有译名，拉丁系列不作强制。
-2. **质量报告只给汇总数字**，不逐行列出「没有歌单或开始日期的演出」（目前 30 场）。要定位具体场次只能查 `/raw` 的演出表。
+2. **质量报告只给汇总数字**，不逐行列出「没有歌单或开始日期的演出」（目前 31 场）。要定位具体场次只能查 `/raw` 的演出表。
 3. **公开页面只保留 系列 → 演出 → 场次 三级**，`/series/{id}` 是系列主页，`/editions` 路由已删除；`series_number` 仍留在数据里，只用于首演与歌单差异对照。
 4. **差异报告需要手动同步**：改动解析逻辑后必须跑 `pnpm report:setlist`，否则 CI 的 `pnpm report:setlist --check` 会失败。
 
