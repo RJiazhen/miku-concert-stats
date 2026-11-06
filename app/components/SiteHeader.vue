@@ -100,6 +100,19 @@ const links = [
             </div>
           </template>
         </UPopover>
+        <!-- Far right: last item in the row so it stays visually anchored past the menu. -->
+        <UTooltip text="GitHub 仓库">
+          <UButton
+            to="https://github.com/RJiazhen/miku-concert-stats"
+            target="_blank"
+            rel="noopener noreferrer"
+            icon="i-tabler:brand-github"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            aria-label="GitHub 仓库（在新窗口打开）"
+          />
+        </UTooltip>
       </div>
     </div>
   </header>
