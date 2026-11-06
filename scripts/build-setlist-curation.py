@@ -749,6 +749,11 @@ def translate_rows(rows: list[dict], prefer: set[int]) -> tuple[list[dict], list
     return songs, unresolved
 
 
+def quote_titles(titles: list[str]) -> str:
+    """Joins titles with corner brackets so a title containing `、` stays readable."""
+    return "、".join(f"「{title}」" for title in titles)
+
+
 def performance_name(pid: int) -> str:
     """Reads the catalog name of one 演出, for the source title."""
     db = sqlite3.connect(DB)
@@ -854,9 +859,9 @@ for item in WIKI_SETLISTS["entries"]:
     else:
         note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），{len(songs)} 行"
     if unattributed:
-        note += f"；百科对这 {len(unattributed)} 首只标了 ※、没写属于哪些城市，无法归位：" + "、".join(unattributed)
+        note += f"；百科对这 {len(unattributed)} 首只标了 ※、没写属于哪些城市，无法归位：" + quote_titles(unattributed)
     if skipped:
-        note += f"；另有 {len(skipped)} 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：" + "、".join(skipped)
+        note += f"；另有 {len(skipped)} 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：" + quote_titles(skipped)
     title = f"初音ミク Wiki：{performance_name(pid)}（{label}）"
     source_entry = {
         "url": item["source"],
