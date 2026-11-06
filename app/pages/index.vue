@@ -396,14 +396,19 @@ const yearToItems = computed(() =>
 
 <template>
   <main class="space-y-6">
-    <h1 class="sr-only">初音未来演唱会曲目统计</h1>
-    <p class="max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-      按场次或按演出统计每首歌出现的次数。按场次时，一个演出里的每一天各算一次，同一天的日场与夜场也分别计算；
-      按演出时，每个城市站各算一次，不再把同一年同一系列的多个城市合并。
-      例如魔法未来 2020 在大阪与东京各有一个演出：按演出计 2 次，按场次计 6 次。
-      默认不计配信、线上和 VR 演出，也不把串烧的组成歌曲单独计入。
-      同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
-    </p>
+    <section class="pt-4 sm:pt-8">
+      <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
+        初音未来演唱会<br class="sm:hidden">曲目统计
+      </h1>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
+        按场次或按演出统计每首歌出现的次数。按场次时，一个演出里的每一天各算一次，同一天的日场与夜场也分别计算；
+        按演出时，每个城市站各算一次，不再把同一年同一系列的多个城市合并。
+        例如魔法未来 2020 在大阪与东京各有一个演出：按演出计 2 次，按场次计 6 次。
+        默认不计配信、线上和 VR 演出，也不把串烧的组成歌曲单独计入。
+        同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
+      </p>
+    </section>
 
     <UAlert
       v-if="error"
