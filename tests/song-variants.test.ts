@@ -1,7 +1,12 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { parseSongVariants, emptySongVariantIndex, variantVersionNote } from '../shared/song-variants.ts'
 import { rankSongAppearances } from '../shared/stats.ts'
 import type { Catalog, PerformanceRow, SetlistItemRow, SetlistItemSongRow, SongRow } from '../shared/types.ts'
+
+/** Committed variant list, read without importing JSON into the bundle. */
+const committed = (): unknown =>
+  JSON.parse(readFileSync(new URL('../data/song-variants.json', import.meta.url), 'utf8')) as unknown
 
 /** Minimal catalog overridden by each fixture. */
 const catalog = (): Catalog => ({
@@ -102,6 +107,16 @@ describe('song variant file', () => {
     expect(index.size).toBe(2)
     expect(index.entries.get(2)?.kind).toBe('remix')
     expect(emptySongVariantIndex().groupSongIds(5)).toEqual([5])
+  })
+
+  it('folds the two short-version chains into the full versions', () => {
+    const index = parseSongVariants(committed())
+    expect(index.canonicalSongId(389595)).toBe(10951)
+    expect(index.canonicalSongId(295872)).toBe(2925)
+    for (const variantId of [389595, 295872]) {
+      expect(index.entries.get(variantId)?.kind).toBe('remix')
+      expect(index.entries.get(variantId)?.note).toBeTruthy()
+    }
   })
 })
 
