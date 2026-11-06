@@ -282,16 +282,21 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `scripts/build-api.ts` 在 `build:catalog` 末尾运行（`predev` / `prebuild` 因此自动带上），把目录展开成供外部 AI 调用的只读 JSON；构建期直接从 `public/data/catalog.sqlite` 计算，运行时不读写 SQLite。产物分两处：
 
-- `public/api/v1/**`：静态 JSON，由 Cloudflare 静态资源直接返回。`index.json`、`songs.json`、`songs/{id}.json`、`series.json`、`series/{id}.json`、`performances/{id}.json`。`songs.json` 是全量摘要，逐个 id 的详细出场记录在 `songs/{id}.json`，每个演出的场次歌单在 `performances/{id}.json`。
-- `server/assets/api/rank.json`：构建期生成的紧凑计数（含每个系列的场次 / 演出数、每个日历年的计数、首次出现的系列年度），由 `nuxt.config.ts` 的 `nitro.serverAssets` 以 `assets:api` 挂载，只给下面三个动态路由用。
+- `public/api/v1/**`：静态 JSON，由 Cloudflare 静态资源直接返回。
+  - `index.json`（自述：计数、口径、筛选参数、全部端点）、`filters.json`（可选系列 / 角色 / 制作人 / 年份范围）
+  - `songs.json`、`songs/{id}.json`、`series.json`、`series/{id}.json`、`performances.json`、`performances/{id}.json`
+  - `producers.json`、`producers/{id}.json`、`cities.json`
+  - `reports/quality.json`、`reports/setlist-differences.json`
+  约 1,100 个文件、8.6 MB。
+- `server/assets/api/rank.json`：构建期生成的紧凑计数（每首歌的场次 / 演出数、系列与日历年的分解、首次出现的系列年度、角色与制作人名单，以及计入配信后的另一套数字），由 `nuxt.config.ts` 的 `nitro.serverAssets` 以 `assets:api` 挂载，只给下面三个动态路由用。
 
 动态路由（`server/api/v1/`）读取 `assets:api` 并在内存里过滤，返回小页面而不是整库：
 
-- `GET /api/v1/search?q=`：按原名、日文名、英文名、中文名做大小写不敏感子串匹配，默认 10 条、上限 25 条。
-- `GET /api/v1/rank?mode=show|event&series=&yearFrom=&yearTo=`：按场次（默认）或演出排行；`series` 与年份范围互斥，默认 20 条、上限 100 条。
+- `GET /api/v1/search?q=&type=all|songs|producers|series`：歌曲按原名 / 日文名 / 英文名 / 中文名匹配，制作人与系列按名字匹配；默认 10 条、上限 25 条。
+- `GET /api/v1/rank?mode=&series=&yearFrom=&yearTo=&character=&producer=&includeBroadcast=&includeMedleyComponents=&sort=&order=`：与排行页同一批筛选；`series` 与年份范围互斥；默认 20 条、上限 100 条。`character` / `producer` 只筛行不改计数，`includeMedleyComponents` 因派生层已展开串烧而不改变结果。
 - `GET /api/v1/debuts?year=&series=`：该年首次出现在目录里的歌曲；带 `series` 时用该系列的系列年度（`seriesNumber`）判断。
 
-计数口径直接复用 `shared/stats.ts` 的 `rankSongAppearances`；`build-api.ts` 用同一套出场映射重算一次并逐首校验，任何偏差都会让构建失败，避免 API 与页面漂移。`shared/song-variants.ts` 的版本合并、配信 / 线上 / VR 的默认排除都与排行榜一致。`nuxt.config.ts` 给 `/api/v1/**` 写了 `cache-control: public, max-age=300`。
+计数口径直接复用 `shared/stats.ts` 的 `rankSongAppearances`；`build-api.ts` 用同一套出场映射重算默认口径与「计入配信」两套，并逐首校验次数、演出数、系列数、年份区间与 `approximate`，任何偏差都会让构建失败，避免 API 与页面漂移。制作人、城市、质量报告与歌单差异分别复用 `shared/producers.ts`、`shared/cities.ts`、`shared/setlist-diff.ts` 与 `/raw` 页同一套判定。`nuxt.config.ts` 给 `/api/v1/**` 写了 `cache-control: public, max-age=300` 与 `access-control-allow-origin: *`。
 
 `public/api` 与 `server/assets/api` 都是构建产物，已加入 `.gitignore`；改完数据重新部署后 API 才会更新。
 
