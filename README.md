@@ -73,11 +73,10 @@ niconico 与哔哩哔哩只保存 VocaDB 上的投稿链接。不调用 niconico
 ```bash
 pnpm install
 pnpm test
-pnpm build:catalog
-pnpm dev
+vp dev            # 等价于 pnpm dev，会先重建目录再启动 nuxt dev
 ```
 
-Node 22 或更高（Nuxt 4 与 Nuxt UI 4 要求 ≥ 22.12）。
+Node 22 或更高（Nuxt 4 与 Nuxt UI 4 要求 ≥ 22.12）。`vp dev` 由 `vite.config.ts` 的交接插件把 Vite+ 自带的 Vite 进程换成 `nuxt dev`，`--port` / `--host` 参数会照常传到 Nuxt：`vp dev --port 3117`。
 
 `pnpm collect` 会按至少 300 毫秒的间隔请求 VocaDB，并把原始响应缓存在 `data/cache/`（不提交）。增量 SQL 写到 `data/increments/`。`pnpm collect:vocalists` 单独重写 `0006-song-vocalists.sql`（每首歌的出演声库名单），`pnpm collect:producers` 重写自己派生的 `0007-song-producers.sql`（`categories` 含 `Producer` 或 `roles` 含 `Composer` / `Arranger` / `VoiceManipulator` 的署名，与 VocaDB「Producers」分区一致，按 VocaDB artist id 去重，`roles` 列保留小写证据；Publisher / Illustrator / Animator / Lyricist / Mixer / Mastering / Instrumentalist 与只有 Label / Circle 的署名不算制作人，`VoiceManipulator`（調声 / 調音）保留）；排行的「制作人」列与筛选优先用这张表，只有该行没有任何结构化署名时才退回自由文本，新增或改动的歌曲要重跑一次再 `pnpm build:catalog`。
 

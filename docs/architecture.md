@@ -61,9 +61,15 @@ VocaDB 上没有歌单的演出可以由专辑曲目补位。`data/album-setlist
 
 `scripts/snapshot-youtube.ts`（`pnpm snapshot:youtube`）在 `YOUTUBE_API_KEY` 存在时，对目录里未禁用的 YouTube `platform_video_id` 调用 Data API v3 `videos.list`（`part=statistics`，每批 50 个 id）。没有数字 `viewCount` 的条目跳过，不写成 0。结果以 `INSERT OR IGNORE` 追加到 `data/increments/0002-youtube-snapshots.sql`。没有密钥时打印跳过并返回 0。
 
-`scripts/build-catalog.ts`（`pnpm build:catalog`，也是 `predev` / `prebuild`）用 better-sqlite3 执行 `data/schema.sql`，再按文件名字典序执行 `data/increments/*.sql`，写出 `public/data/catalog.sqlite`，同时写一份 gzip 副本 `public/data/catalog.sqlite.gz`，并把 `sql.js` 的 `sql-wasm.wasm` 复制到 `public/sql-wasm.wasm`。这三个产物都在 `.gitignore` 里。
+`scripts/build-catalog.ts`（`pnpm build:catalog`，`prebuild` 与 `scripts/dev.ts` 也调用它的 `buildCatalog()`）用 better-sqlite3 执行 `data/schema.sql`，再按文件名字典序执行 `data/increments/*.sql`，写出 `public/data/catalog.sqlite`，同时写一份 gzip 副本 `public/data/catalog.sqlite.gz`，并把 `sql.js` 的 `sql-wasm.wasm` 复制到 `public/sql-wasm.wasm`。这三个产物都在 `.gitignore` 里。
 
 Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中，所以浏览器下载 gzip 副本并用 `DecompressionStream('gzip')` 解压；不支持该 API 的浏览器退回未压缩文件。`nuxt.config.ts` 在构建时对 gzip 文件取 SHA-256 前 16 位写进 `runtimeConfig.public.catalogVersion`，下载 URL 变成 `/data/catalog.sqlite.gz?v=<hash>`；`nuxt dev` 直接读未压缩文件，避免重建后命中旧的 immutable 缓存。`routeRules` 让 Nitro 把它写进 Cloudflare 的 `_headers`：gzip 副本 `immutable` 缓存一年，未压缩文件保持 `must-revalidate` 并带上 `application/vnd.sqlite3`（`/raw` 的下载链接指向它）。
+
+### 开发服务器 `vite.config.ts` 与 `scripts/dev.ts`
+
+`vp dev` 是 Vite+ 的内置命令，只起一个纯 Vite 进程；本项目的页面、SSR 与 `server/api` 只存在于 `nuxt dev`。`vite.config.ts` 的 `miku:nuxt-dev-handoff` 插件在 Vite 绑好端口后关掉它，用同一个端口启动 `scripts/dev.ts`，并把 `--port` / `--host` 转发给 Nuxt（端口取自实际绑定的 `httpServer.address()`，配置端口被占用时也不会错位）；`MIKU_NUXT_DEV_CHILD` 只在子进程里设置，交接因此不会递归，子进程退出或收到 `SIGINT` / `SIGTERM` 时父进程跟着退出。
+
+`scripts/dev.ts` 先调用 `build-catalog.ts` 的 `buildCatalog()` 重建目录（原来的 `predev` 已并入），再 `nuxt dev`；`pnpm dev` 用同一个脚本，所以两个入口行为一致。`vite.config.ts` 用 `vite-plus` 的 `defineConfig`（项目依赖里有 `vite-plus`）：Nuxt 的 `B5004` 检查只放行导入了 `vite-plus` 的根 `vite.config.ts`，同时 Nuxt 不会把这份配置并进自己的 Vite。这里的 `logLevel: 'warn'` 是为了不打印那个马上就被关闭的 Vite 地址。
 
 ### 共享逻辑 `shared/`
 
@@ -282,7 +288,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 ### 公开只读 JSON API `/api/v1`
 
-`scripts/build-api.ts` 在 `build:catalog` 末尾运行（`predev` / `prebuild` 因此自动带上），把目录展开成供外部 AI 调用的只读 JSON；构建期直接从 `public/data/catalog.sqlite` 计算，运行时不读写 SQLite。产物分两处：
+`scripts/build-api.ts` 在 `build:catalog` 末尾运行（`prebuild` 与 `scripts/dev.ts` 因此自动带上），把目录展开成供外部 AI 调用的只读 JSON；构建期直接从 `public/data/catalog.sqlite` 计算，运行时不读写 SQLite。产物分两处：
 
 - `public/api/v1/**`：静态 JSON，由 Cloudflare 静态资源直接返回。
   - `index.json`（自述：计数、口径、筛选参数、全部端点）、`filters.json`（可选系列 / 角色 / 制作人 / 年份范围）
@@ -451,10 +457,10 @@ flowchart TD
 
 ```bash
 pnpm install
-pnpm dev --port 3001
+vp dev --port 3001
 ```
 
-`predev` 会先跑 `build-catalog`。补抓专辑曲目（只请求 `data/album-setlists.json` 里的专辑）时运行 `pnpm collect:albums`；它会重写 `data/increments/0004-album-setlists.sql`，不会碰 `0001`。改过源歌单或 `data/performance-setlists.json` 之后必须重算场次层，否则 `/shows` 与排行仍是旧数据：
+`pnpm dev` 与 `vp dev` 都走 `scripts/dev.ts`：先重建 `public/data/catalog.sqlite`（原来的 `predev` 已并入这个脚本，`vp dev` 因此不需要跑 npm 生命周期脚本），再启动 `nuxt dev`；`vp dev` 由 `vite.config.ts` 的交接插件把 Vite+ 内置的 Vite 进程换掉。补抓专辑曲目（只请求 `data/album-setlists.json` 里的专辑）时运行 `pnpm collect:albums`；它会重写 `data/increments/0004-album-setlists.sql`，不会碰 `0001`。改过源歌单或 `data/performance-setlists.json` 之后必须重算场次层，否则 `/shows` 与排行仍是旧数据：
 
 ```bash
 pnpm derive:setlists          # 重写 data/increments/0008-performance-setlists.sql
@@ -549,11 +555,13 @@ git -C "$HOME/projects/full-stack/miku-concert-stats.worktrees/main" worktree ad
 
 凡是改动用户可见行为的任务（页面、组件、样式、筛选、UI 里展示的数据），收尾时都要留一个本地开发服务器在运行，方便用户随时打开检查；只跑通 `build` / `test` 不算完成。
 
-本机 Node 26.x 下直接 `pnpm dev` 会在 `@nuxt/cli` 同步 allowed hosts 时崩掉（`options.hostname.toLowerCase is not a function`），必须显式指定 host：
+开发服务器用 `vp dev`（与 `pnpm dev` 等价，两者都走 `scripts/dev.ts`：先重建目录，再 `nuxt dev`）：
 
 ```bash
-NUXT_IGNORE_LOCK=1 pnpm dev --host 127.0.0.1 --port <port>
+NUXT_IGNORE_LOCK=1 vp dev --port <port>
 ```
+
+`vite.config.ts` 里的 `miku:nuxt-dev-handoff` 插件负责交接：`vp dev` 的内置 Vite 进程绑好端口后立即关闭，再把同一个端口交给 `nuxt dev`，所以 `vp dev` 的 `--port` / `--host` 行为与 `pnpm dev` 一致，输出里只多一行 Vite+ 的自述。`nuxt.config.ts` 的 `devServer.host` 固定为 `127.0.0.1`，不再需要手动 `--host`（早先那次崩溃源于 `@nuxt/cli` 4.0.1 在 `devServer.host` 退化成对象时对它调用 `toLowerCase()`）。
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 

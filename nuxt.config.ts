@@ -18,6 +18,11 @@ const catalogVersion = (): string => {
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-06',
+  // `@nuxt/cli` 4.0.1 crashes in `#syncAllowedHosts` when `devServer.host`
+  // resolves to the schema's fallback object instead of a string, so name it.
+  devServer: {
+    host: '127.0.0.1',
+  },
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
   // Cloudflare does not compress the sqlite content type, so ship a gzip copy

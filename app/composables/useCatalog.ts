@@ -106,7 +106,7 @@ export const useCatalog = () => {
 
   /**
    * Versioned gzip URL so repeat visits reuse the cached catalog.
-   * Empty in dev: `predev` rebuilds the file, and the dev server must not hand
+   * Empty in dev: the dev script rebuilds the file, and the dev server must not hand
    * back a stale copy under an immutable URL.
    */
   const gzipUrl = (): string | null => {

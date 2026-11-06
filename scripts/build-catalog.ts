@@ -63,18 +63,25 @@ export const compressCatalogFile = (source: string): string => {
   return target
 }
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-
-if (isDirectRun) {
-  const target = buildCatalogFile()
+/**
+ * Builds everything the browser downloads — sqlite catalog, gzip copy, sql.js
+ * wasm and the JSON API — and prints each file it wrote. Shared by the
+ * `build:catalog` script and the dev server bootstrap in `scripts/dev.ts`.
+ */
+export const buildCatalog = (root = repoRoot()): void => {
+  const target = buildCatalogFile(root)
   const compressed = compressCatalogFile(target)
   try {
-    copySqlWasm()
+    copySqlWasm(root)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     console.error(`Skipping sql.js wasm copy: ${message}`)
   }
   console.log(`Wrote ${target}`)
   console.log(`Wrote ${compressed}`)
-  buildApiFiles()
+  buildApiFiles(root)
 }
+
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+
+if (isDirectRun) buildCatalog()

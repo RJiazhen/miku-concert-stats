@@ -196,10 +196,10 @@ SELECT COUNT(*) FROM performance_setlists ps
 - 起 dev server 并抽查 `/shows/<id>`（场次标题、逐曲表、note 横幅）与 `/series/<id>`：
 
 ```bash
-screen -dmS miku-dev zsh -lc 'cd <repo> && NUXT_IGNORE_LOCK=1 pnpm dev --host 127.0.0.1 --port 3117 >> /tmp/miku-dev-3117.log 2>&1'
+screen -dmS miku-dev zsh -lc 'cd <repo> && NUXT_IGNORE_LOCK=1 vp dev --port 3117 >> /tmp/miku-dev-3117.log 2>&1'
 ```
 
-本机 Node 26 下必须显式 `--host`，否则 `@nuxt/cli` 会崩；`screen` 比 `nohup` 可靠。
+`vp dev` 与 `pnpm dev` 等价（都走 `scripts/dev.ts`），`vite.config.ts` 会把 Vite+ 的 Vite 进程交接给 `nuxt dev`；`screen` 比 `nohup` 可靠。
 
 ## 8. 收尾
 
