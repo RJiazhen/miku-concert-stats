@@ -1,0 +1,185 @@
+---
+name: update-concert-data
+description: Add or correct Hatsune Miku concert setlists in the miku-concert-stats catalog by collecting per-city, per-slot song lists from the 初音ミク Wiki (atwiki) and the official sites, then rebuilding the derived 場次 layer and the review reports. Use when asked to 更新歌单数据, 补录某场演出, 对齐百科逐曲表, add a tour's setlist, fix a wrong setlist, or refresh docs/setlist-confirmation.md.
+disable-model-invocation: true
+---
+
+# 更新演唱会歌单数据
+
+> Cursor 专用内部流程，不发布到仓库根的 `skills/`（那是给外部 agent 的公开 skill）。
+
+一条歌单从百科表格到站点显示要过五道工序：**抓表 → 定归属 → 对曲名 → 展开场次 → 出报告**。
+每一步都有脚本，手改中间产物会在下一次生成时被覆盖。
+
+## 0. 先读这份事实
+
+- 目录里一个「演出」是某城市的一站（`performances.id`，VocaDB 的 Event）；
+  一个「场次」是某天的一场（`performance_show_setlists.show_key`，形如 `6045:2023-08-11:day`）。
+- 同一份 VocaDB songList 常被十几个演出共用，且没有分场备注 —— 这正是要换成百科逐曲表的原因。
+- 百科逐曲表在「区分」列标出差异：`公演替`（城市 / 日程）、`備考`（首日·次日、昼·夜）。
+  没标的行 = 该表所有演出都唱。
+- VocaDB 只是个曲名与歌曲 id 的字典；**曲目本身不再以它为准**。
+
+## 1. 数据放在哪
+
+| 路径 | 是什么 | 谁写 |
+| --- | --- | --- |
+| `data/wiki-raw/<key>.json` | 页面表格的原始单元格（含表头）+ `page` | **人工/agent 抓取后直接写入** |
+| `scripts/wiki_raw_spec.py` | 每张 raw 表的标记 → 演出映射 | 手改 |
+| `scripts/wiki_tour_tables.py` | 手抄的城市级表（EXPO 2014–2020、Live Party、鼓童、未来有你、魔法未来 2014） | 手改 |
+| `data/wiki-setlists.json` | 逐行数据（`title` + `when`） | `wiki-setlists-source.py` |
+| `data/wiki-title-aliases.json` | 百科写法 → catalog 写法 | 手改 |
+| `data/wiki-songs.json` | catalog 里没有的歌 | `fetch-wiki-songs.py` |
+| `data/increments/0009-wiki-songs.sql` | 上面那些歌的 `INSERT OR IGNORE` | `fetch-wiki-songs.py` |
+| `data/performance-setlists.json` | 每个演出的 `setlist` / `slots` / `sources` / `note` | `build-setlist-curation.py` |
+| `data/increments/0008-performance-setlists.sql` | 派生层（`performance_setlists` 等 4 张表） | `pnpm derive:setlists` |
+
+`0008` 和 `0009` 都是生成物：不要手改，改上游再重跑。
+
+## 2. 跑一遍的顺序
+
+```bash
+uv run scripts/wiki-setlists-source.py      # raw → data/wiki-setlists.json
+uv run scripts/fetch-wiki-songs.py          # 缺失曲名 → data/wiki-songs.json + 0009
+pnpm build:catalog                          # 让 0009 的歌进 catalog
+uv run scripts/build-setlist-curation.py    # → data/performance-setlists.json
+pnpm derive:setlists                        # → data/increments/0008-*.sql
+pnpm build:catalog
+pnpm report:confirmation                    # docs/setlist-confirmation.md
+pnpm report:setlist-review --force          # docs/reports/setlist-review.md
+pnpm test && pnpm lint && pnpm typecheck
+```
+
+两次 `pnpm build:catalog` 各有用途：第一次让后续步骤看到 `0009` 新增的歌；
+最后一次产出站点实际加载的 `catalog.sqlite(.gz)`（`confirmation-report.py` 也直接读它）。
+
+两个生成脚本都幂等：连跑两次，`data/wiki-setlists.json` 与 `data/performance-setlists.json`
+的 `git diff` 应为空。（`0008` 首行的 `Generated:` 时间戳每次都会变，用 `pnpm derive:setlists --check`
+判断它是否过期，别看 diff。）
+
+## 3. 抓百科表格
+
+`w.atwiki.jp` 对 curl 返回 403，用已登录的浏览器（`cursor-ide-browser`）在**同一域名下**
+`fetch` 页面再 `DOMParser` 解表。完整脚本与表格陷阱见 [scrape-atwiki.md](scrape-atwiki.md)：
+把 `Runtime.evaluate` 返回的网格数组原样写进 `data/wiki-raw/<key>.json`（`page` 填 atwiki 页号）。
+
+> 不要用 `browser_navigate` + 截图核对表格，`rowspan` 会让表格错行；必须做 rowspan/colspan 展开。
+
+## 4. 定归属
+
+新建的 raw 表要在 `scripts/wiki_raw_spec.py` 的 `RAW_SPEC` 里登记：
+
+```python
+"mm2025": {
+    "performances": [8768, 8769, 8770],          # 这张表覆盖的演出 id
+    "labels": {8768: "仙台", 8769: "大阪", 8770: "东京"},  # 页面上显示的城市名
+    "markers": {                                  # 公演替列的值 → 场次约束
+        "仙台": ["8768"], "大阪": ["8769"], "東京": ["8770"],
+        "昼公演": ["*:day"], "夜公演": ["*:night"],
+    },
+},
+```
+
+先查出演出 id：
+
+```sql
+SELECT id, name, start_date FROM performances WHERE name LIKE '%2027%' ORDER BY start_date;
+```
+
+约束语法（`parse_constraint`）：
+
+| 写法 | 含义 |
+| --- | --- |
+| `6516` | 该演出的全部场次 |
+| `6516#2` | 该演出第 2 个日期（按日期排序） |
+| `*#1` | 本表任意演出的第 1 个日期 |
+| `*:day` / `*:night` | 本表全部日场 / 夜场 |
+| `6516#2:night` | 第 2 个日期的夜场 |
+
+多个约束可以并列，一行命中多个就展开成多行。`公演替` 里只有 `※` 的行表示百科没写哪些城市唱，
+**不要猜**：脚本会把它记进 `unattributed`，最终写进演出层 `note`。
+
+小表（单城市、无日程切分）也可以直接手抄进 `wiki_tour_tables.py` 的 `TOUR_ROWS`，
+标记写成城市名或 `day` / `night` / `2023-06-04`。
+
+城市写在 `備考` 而不是 `公演替` 的表走不了 raw 路径（`RAW_SPEC` 只读 `公演替`），照 `TOUR_ROWS` 手抄。
+
+交响乐又是另一种：它的表没有 `公演替` 列，城市差异写在 `備考` 里，所以模板在
+`scripts/wiki-setlists-source.py` 的 `TABLES` / `ROWS`（键形如 `"2024-横滨神户"`，行内备注写城市名，
+脚本按城市名过滤）。加新的一年时就照那里补一段。
+
+## 5. 对曲名
+
+解析顺序：`data/wiki-title-aliases.json` → catalog 的 `name/name_ja/name_en` 归一化匹配
+（去括号、空格、标点，全角转半角、转小写）。
+
+只有别名表放过**纯写法差异**：`DECORATER`→`DECORATOR`、`右肩の蝶[39's Giving Day Edition]`→`右肩の蝶`、
+`キミぺディア`→`キミペディア`。改变曲目身份的写法不许进别名表。
+
+catalog 里没有的歌由 `fetch-wiki-songs.py` 去 VocaDB 找：标题必须精确命中，且命中的条目
+`artistString` 要含百科写的作曲者（同名翻唱极多，只靠标题会挂错）。规则都在 `COMPOSERS` 里，
+新曲名补一条。搜不到就不写 —— **宁可缺，不要错**。
+
+catalog 里没有、也不该有的：
+
+- 古典 / 民谣改编（`ピアノ協奏曲…`、`交響曲第9番`、`White Christmas`、`そりすべり`）
+- 鼓童原创器乐曲（`巴`、`三宅`、`巡 -MEGURU-`、`BURNING`…）
+- 同场再演一遍的曲目（`ぽっぴっぽー（Grand Finale）`）—— 会重复计数，用 `#` 排除
+- 舞台段落行（`MC…`、`《アンコール》`、`バンドメンバー紹介`、`…パート`）—— 脚本已跳过
+
+这些一律写进演出层 `note`，标题用「」包起来（含 `、` 的曲名才读得断）。
+
+## 6. 展开场次
+
+`build-setlist-curation.py` 把每行 `when` 判给具体 `show_key`：`""` 表示所有场次，
+`day` / `night` 匹配半天，`d2` 是第 2 个日期，`d2:night` 是第 2 个日期的夜场。
+命中后写进 `performance-setlists.json`：
+
+```json
+"setlist": {
+  "source": "https://w.atwiki.jp/hmiku/pages/67127.html",
+  "title": "初音ミク Wiki：…（仙台）",
+  "accessedAt": "2026-11-06",
+  "confidence": "medium",
+  "label": "仙台",
+  "songs":  [ /* 默认歌单，场次没命中 slot 时用 */ ],
+  "slots":  [ { "match": "8768:2025-08-02:day", "songs": [ /* … */ ] } ]
+}
+```
+
+`slots.match` 必须写完整 `show_key`。`shared/performance-setlists.ts` 按
+`show_key → 日期:半天 → 日期 → 半天` 的顺序找第一个命中的 slot。
+
+新演出的日程本身（哪天有几场）由 `add(...)` 决定，写在同一脚本前半部分；
+`dayNight=[…]` 表示这些日期有昼场和夜场，`halves={…}` 表示某天只有一种。日程来源同样要记进 `sources`。
+
+演出在 VocaDB 完全没有 songList 时，`performance_setlists.source_list_id` 会是 `NULL`、
+`source_kind='wiki'`，页面会自动去掉 VocaDB 链接 —— 不需要特殊处理。
+
+## 7. 验收
+
+`pnpm derive:setlists` 的末行必须同时满足：
+
+```
+… 0 pending review, 0 conflicts
+```
+
+再加两条 SQL：
+
+```sql
+SELECT COUNT(*) FROM performance_show_setlists WHERE uncertain = 1;   -- 必须是 0
+SELECT show_key, item_count FROM performance_show_setlists
+ WHERE performance_id = <id> ORDER BY show_key;                        -- 逐场核对条数
+```
+
+- 同一演出的各场条数应等于百科「曲数」；差异必须能在 `note` 里解释（城市替换、安可追加）。
+- `uncertain` 出现 `setlist length mismatch` 通常是行归属错了（跨城市串行、昼夜没分开）；
+  **不要**用 `explainedLengths` 压掉，先查因。百科来源的演出本来就不做长度比对。
+- `tests/catalog.test.ts` 里钉了总演出数、wiki-only 演出 id 列表、若干逐场条数，改动后要一起更新。
+- 抽两条页面确认渲染：`/shows/<id>`（场次标题、逐曲来源、note 横幅）与 `/raw`。
+
+## 8. 收尾
+
+- 汇报口径：本次新增/改动的演出数、新增歌曲数、仍未匹配的曲目标题、仍无歌单的演出。
+- 提交信息写清改了什么源；**不要**加 Cursor 的 co-author trailer。
+- 只要 `docs/setlist-confirmation.md` 的「待核实 / 冲突」不再是 0，就不要提交 —— 先修数据。
