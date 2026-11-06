@@ -228,7 +228,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
 | `/producers` | `app/pages/producers/index.vue` | 制作人排行榜。`UTable` 排序，默认按曲目数降序，可按名字搜索；每行给出曲目数、演出曲目、表演次数、演出数、场次、最早/最晚年份、主要角色与最多 3 首代表作（链到 `/songs/{id}`）；制作人名链到 `/producers/{name}`；页头汇总制作人数与去重后的曲目数 |
-| `/producers/{name}` | `app/pages/producers/[...name].vue` | 制作人详情。路由键是名字（`encodeURIComponent`），有结构化 `artist_id` 时附 VocaDB artist 外链；页头给出曲目数、演出曲目、表演次数、演出数、场次、年份跨度与按角色汇总的署名次数；「署名曲目」表列出曲名、该曲里的角色、投稿年份与场次，可按列排序；「出场记录」每个演出一行，链到 `/series/{id}` 与 `/shows/{id}`；名字不在目录里时显示空状态而不是 404 |
+| `/producers/{name}` | `app/pages/producers/[...name].vue` | 制作人详情。路由键是名字（`encodeURIComponent`），有结构化 `artist_id` 时附 VocaDB artist 外链；页头给出曲目数、演出曲目、表演次数、演出数、场次、年份跨度与按角色汇总的署名次数；「署名曲目」表列出曲名、投稿年份与场次，可按列排序；「出场记录」每个演出一行，链到 `/series/{id}` 与 `/shows/{id}`；名字不在目录里时显示空状态而不是 404 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown；范围是同一系列年度或相邻系列年度 |
 | `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人先取该版本的 `song_producers`，没有时才退回 `artist_string` 的 `feat.` 前并去掉 VocaDB 的 `Unknown producer(s)` 占位，每个名字链到 `/producers/{name}`；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次；相关投稿有快照时附播放量 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一个演出的场次列表、轮换解析结果与长度一致性；歌单来自专辑时显示来源提示。面包屑只有 系列 → 演出 两级，系列项链到 `/series/{id}` |

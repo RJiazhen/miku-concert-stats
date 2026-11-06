@@ -73,8 +73,6 @@ const roleFacts = computed(() => {
 type SongView = {
   songId: number
   name: string
-  /** Chinese role labels, each printed as a badge. */
-  roles: string[]
   publishYear: number | null
   showCount: number
 }
@@ -84,7 +82,6 @@ const songRows = computed<SongView[]>(() =>
   (producer.value?.songs ?? []).map((song) => ({
     songId: song.songId,
     name: song.name,
-    roles: song.roles.map((role) => producerRoleLabels[role]),
     publishYear: song.publishYear,
     showCount: song.showCount,
   })),
@@ -139,7 +136,6 @@ const sortableHeader = useSortableHeader()
 
 const songColumns: TableColumn<SongView>[] = [
   { accessorKey: 'name', header: sortableHeader('曲名'), enableSorting: true },
-  { id: 'roles', accessorFn: (row) => row.roles.join('、'), header: '角色', enableSorting: false },
   { accessorKey: 'publishYear', header: sortableHeader('投稿年份'), enableSorting: true },
   { accessorKey: 'showCount', header: sortableHeader('场次'), enableSorting: true },
 ]
@@ -225,12 +221,6 @@ const cell = (value: string | number | null): string => (value === null || value
           <NuxtLink :to="`/songs/${row.original.songId}`" class="text-highlighted no-underline hover:text-primary">
             <SongTitle :song-id="row.original.songId" :original="row.original.name" />
           </NuxtLink>
-        </template>
-        <template #roles-cell="{ row }">
-          <div v-if="row.original.roles.length > 0" class="flex flex-wrap gap-1">
-            <UBadge v-for="role in row.original.roles" :key="role" color="neutral" variant="subtle" size="sm">{{ role }}</UBadge>
-          </div>
-          <span v-else class="text-muted">—</span>
         </template>
         <template #publishYear-cell="{ row }">
           <span class="tabular-nums text-muted">{{ cell(row.original.publishYear) }}</span>
