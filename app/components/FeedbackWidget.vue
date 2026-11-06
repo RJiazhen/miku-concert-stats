@@ -30,6 +30,23 @@ const detectPrecisePointer = (): void => {
 }
 onMounted(detectPrecisePointer)
 
+/** Whether the mobile button already shrank to its icon-only form for this visit. */
+const collapsed = ref(false)
+
+/** Collapses the mobile button once, then detaches both one-shot listeners. */
+const collapseButton = (): void => {
+  collapsed.value = true
+  window.removeEventListener('scroll', collapseButton, { capture: true })
+  window.removeEventListener('click', collapseButton, { capture: true })
+}
+
+/** Starts watching the first scroll or tap that collapses the mobile feedback button. */
+const watchFirstInteraction = (): void => {
+  window.addEventListener('scroll', collapseButton, { capture: true, passive: true })
+  window.addEventListener('click', collapseButton, { capture: true, passive: true })
+}
+onMounted(watchFirstInteraction)
+
 /** Refreshes the page URL and title shown in the greyed-out fields. */
 const collectContext = (): void => {
   if (!import.meta.client) return
@@ -108,7 +125,8 @@ const submit = async (): Promise<void> => {
 
 <template>
   <UButton
-    class="fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 rounded-full shadow-lg shadow-black/25 sm:right-6"
+    class="fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 rounded-full shadow-lg shadow-black/25 transition-[gap,padding] duration-200 motion-reduce:transition-none sm:right-6"
+    :class="collapsed ? 'max-sm:gap-0 max-sm:px-2.5' : ''"
     color="primary"
     variant="solid"
     size="lg"
@@ -118,7 +136,10 @@ const submit = async (): Promise<void> => {
     @click="openModal"
   >
     <UIcon name="i-lucide-message-square-warning" class="size-5" />
-    <span class="hidden sm:inline">报告错误</span>
+    <span
+      class="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 motion-reduce:transition-none"
+      :class="collapsed ? 'max-w-0 opacity-0 sm:max-w-24 sm:opacity-100' : 'max-w-24'"
+    >报告错误</span>
   </UButton>
 
   <UModal
