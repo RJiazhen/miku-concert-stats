@@ -15,6 +15,10 @@
           的逐曲表登记，页内会标注。转载这些数据库内容时请链回 VocaDB。许可说明见
           <ULink to="https://wiki.vocadb.net/docs/license" target="_blank" class="text-primary">VocaDB License</ULink>。
         </p>
+        <p>
+          让外部 AI 直接读取本站说明：<ULink to="/skill.md" target="_blank" class="text-primary">/skill.md</ULink>
+          （纯文本，无需安装）。
+        </p>
       </div>
     </footer>
     <FeedbackWidget />

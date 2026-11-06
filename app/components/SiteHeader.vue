@@ -58,6 +58,7 @@ const links = [
       </nav>
 
       <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 lg:gap-3">
+        <AiPromptButton />
         <SiteSearch />
         <!-- Label and switch are one unit: below sm both move into the navigation panel. -->
         <label class="hidden cursor-pointer items-center gap-2 text-xs whitespace-nowrap text-muted sm:flex">

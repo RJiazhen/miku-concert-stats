@@ -17,7 +17,13 @@ npx skills add RJiazhen/miku-concert-stats@query-concert-stats
 npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g   # 全局安装
 ```
 
-它不需要任何密钥或账号，只读取公开数据。装不了 npm 包的 agent 可以直接读 [`skills/query-concert-stats/SKILL.md`](skills/query-concert-stats/SKILL.md)。
+它不需要任何密钥或账号，只读取公开数据。装不了 skill 的 agent 可以直接读 [`skills/query-concert-stats/SKILL.md`](skills/query-concert-stats/SKILL.md)。
+
+不想安装也可以把这个链接交给 AI：
+
+<https://miku-concert-stats.rjiazhen.top/skill.md>
+
+它按纯文本（`text/plain`）返回上面这份 skill 的当前版本，构建时从 `skills/` 打包进 Worker，所以改完 skill 重新部署即生效。无需鉴权。页眉右侧有一个 `AI` 字样的图标按钮（`tabler:ai`）：点击即复制一段指向该地址的示例提问，粘贴到 AI 对话框就能试效果。
 
 ## 站点
 

@@ -278,7 +278,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `server/routes/skill.md.ts` 从 `/skill.md` 以 `text/plain; charset=utf-8` 返回 `skills/query-concert-stats/SKILL.md` 的当前版本，供不想安装 skill 的外部 agent 直接读取。文件由 `nuxt.config.ts` 的 `nitro.serverAssets` 在构建期打包进 Worker（产物是 `chunks/raw/SKILL.mjs`），运行时不读文件系统；响应带 `cache-control: public, max-age=300`，改完 skill 重新部署即更新。页脚与 README 都链接这个地址。
 
-`app/components/AiPromptButton.vue` 是页眉右侧的 `AI` 按钮（`i-lucide-sparkles`）：点击后用 `navigator.clipboard.writeText` 写入一段固定提示词——它指向 `/skill.md`，并附两个需要目录数据才能回答的问题。成功后按钮 4 秒内切换为绿色 `已复制` + 对勾并弹 toast「已复制提示词／粘贴到 AI 对话框即可测试」，失败时只弹 toast 说明可手动让 AI 读取 `/skill.md`；提示词本身不在页面上展示。
+`app/components/AiPromptButton.vue` 是页眉右侧的图标按钮（`i-tabler:ai`，即 A + I 描边字形，不带文字标签，`aria-label` 与 tooltip 说明用途）。按钮与字形都锁定 28px（`ui.base: 'size-7 justify-center p-0'`、`ui.leadingIcon: 'size-7'`），因此与 `size="sm"` 的其他页眉控件同高，图标放大也不会撑高页眉（始终 59px）；`justify-center` 必须在 `base` 里写，因为 Nuxt UI 的按钮主题只做垂直居中。点击后用 `navigator.clipboard.writeText` 写入一段固定提示词——它指向 `/skill.md`，并附两个需要目录数据才能回答的问题。成功后按钮 6 秒内换成绿色对勾（`i-lucide-check`），并在按钮下方用绝对定位的浮层提示「粘贴到AI对话框中试试吧~」；失败时同一位置提示改为「复制失败，请手动让 AI 读取 /skill.md」。提示语不用 toast，避免页面底部弹出通知，也不占用页眉宽度；提示词本身不在页面上展示。`tabler:ai` 来自 `@iconify-json/tabler`（devDependency），`icon.clientBundle.scan` 只把用到的这一个图标打进客户端包。
 
 `server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
 

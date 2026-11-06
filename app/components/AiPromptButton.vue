@@ -1,0 +1,88 @@
+<script setup lang="ts">
+/** Demo prompt pointing at the plain-text skill; kept short so it fits any AI chat box. */
+const PROMPT = [
+  '请先读取 https://miku-concert-stats.rjiazhen.top/skill.md（纯文本说明），然后按其中的计数规则回答：',
+  '1. メルト 在初音未来演唱会上一共演出过多少次？请分别说明「按场次」和「按演出」两个口径。',
+  '2. マジカルミライ 2024 东京场的歌单有哪些曲目？',
+  '回答时注明计数口径，并给出对应的 VocaDB 来源链接。',
+].join('\n')
+
+/** How long the button and the inline hint keep their transient state. */
+const CONFIRM_MS = 6000
+
+/** Inline feedback shown beside the button instead of a page-level notification. */
+type CopyHint = 'copied' | 'failed'
+
+/** The hint currently shown next to the button; `null` restores the idle label. */
+const hint = ref<CopyHint | null>(null)
+
+let resetTimer: ReturnType<typeof setTimeout> | undefined
+
+/** Cancels a pending reset so a repeated click restarts the full hint duration. */
+const stopReset = (): void => {
+  if (resetTimer === undefined) return
+  clearTimeout(resetTimer)
+  resetTimer = undefined
+}
+
+/** Shows a hint beside the button, then restores the idle state. */
+const showHint = (value: CopyHint): void => {
+  hint.value = value
+  stopReset()
+  resetTimer = setTimeout(() => {
+    hint.value = null
+    resetTimer = undefined
+  }, CONFIRM_MS)
+}
+
+/** Copies the demo prompt and reports the outcome inline, next to the button. */
+const copyPrompt = async (): Promise<void> => {
+  try {
+    await navigator.clipboard.writeText(PROMPT)
+    showHint('copied')
+  } catch {
+    showHint('failed')
+  }
+}
+
+onBeforeUnmount(stopReset)
+</script>
+
+<template>
+  <div class="relative">
+    <UTooltip :text="hint === 'copied' ? '已复制，粘贴到 AI 对话框测试' : '复制 AI 提示词'">
+      <!-- Icon-only: `tabler:ai` is the AI mark itself, so no text label is needed. -->
+      <!-- 28px square button (same as `size="sm"`) with a 28px glyph box; `justify-center`
+           centers it horizontally, since the base theme only centers vertically. -->
+      <UButton
+        :icon="hint === 'copied' ? 'i-lucide-check' : 'i-tabler:ai'"
+        :color="hint === 'copied' ? 'success' : 'neutral'"
+        :variant="hint === 'copied' ? 'soft' : 'ghost'"
+        :ui="{ base: 'size-7 justify-center p-0', leadingIcon: 'size-7' }"
+        size="sm"
+        :aria-label="hint === 'copied' ? '已复制 AI 提示词，粘贴到 AI 对话框测试' : '复制 AI 提示词'"
+        @click="copyPrompt"
+      />
+    </UTooltip>
+
+    <!-- Absolutely positioned so the hint never widens the header row. -->
+    <Transition
+      enter-active-class="transition duration-150 ease-out"
+      enter-from-class="opacity-0 -translate-y-1"
+      leave-active-class="transition duration-150 ease-in"
+      leave-to-class="opacity-0 -translate-y-1"
+    >
+      <p
+        v-if="hint"
+        role="status"
+        aria-live="polite"
+        class="absolute top-full right-0 z-50 mt-2 w-max max-w-64 rounded-md border px-2.5 py-1.5 text-xs shadow-lg"
+        :class="hint === 'failed'
+          ? 'border-error/40 bg-error/10 text-error'
+          : 'border-success/40 bg-success/10 text-success'"
+      >
+        {{ hint === 'failed' ? '复制失败，请手动让 AI 读取 /skill.md' : '粘贴到AI对话框中试试吧~' }}
+      </p>
+    </Transition>
+  </div>
+</template>

@@ -25,6 +25,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@iconify-json/lucide": "^1.2.150",
+    "@iconify-json/tabler": "^1.2.43",
     "@nuxt/ui": "^4.12.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.7.2",

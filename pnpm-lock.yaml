@@ -176,6 +176,9 @@ importers:
       '@iconify-json/lucide':
         specifier: ^1.2.150
         version: 1.2.150
+      '@iconify-json/tabler':
+        specifier: ^1.2.43
+        version: 1.2.43
       '@nuxt/ui':
         specifier: ^4.12.0
         version: 4.12.0(e079634392be1f810d39e683f9756a12)
@@ -824,6 +827,9 @@ packages:
 
   '@iconify-json/lucide@1.2.150':
     resolution: {integrity: sha512-av3IH1CB8RuKrlKGDmBbt6dLYtZus1Vr89VOysxORLhKcTr4ARe4Dmp0gL7Q47sK9GMkyROn1a+h07tAYpSuEw==}
+
+  '@iconify-json/tabler@1.2.43':
+    resolution: {integrity: sha512-EKhyOj6nASi25ZjuRpEhPL1fwiKVtg/e/VX6v6X3FPKpjG9og26ypW8ItnWYSTn6fdNuQe3VPeyuThWlP6QuWw==}
 
   '@iconify/collections@1.0.760':
     resolution: {integrity: sha512-y0j4RSI9zXGvtQHNlc6pLQ9QkYWRkdhYMgmws9m7W//jTXiWKT+pahkFvPhWArQz/HppNaNCk0pyRicO3tquRA==}
@@ -6035,6 +6041,10 @@ snapshots:
   '@humanwhocodes/retry@0.4.3': {}
 
   '@iconify-json/lucide@1.2.150':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/tabler@1.2.43':
     dependencies:
       '@iconify/types': 2.0.0
 

@@ -7,6 +7,8 @@ description: Answer Hatsune Miku concert setlist and song-appearance questions f
 
 This is the skill for the site <https://miku-concert-stats.rjiazhen.top>. It explains how to answer setlist and song-appearance questions **from data**, without scraping the site's HTML. The site is a Nuxt 4 + Cloudflare Workers frontend; its aggregation runs in the browser against a SQLite catalog. The same catalog is downloadable, so an agent can compute answers locally.
 
+An always-current plain-text copy of this skill is served at <https://miku-concert-stats.rjiazhen.top/skill.md>. Fetch that URL when you cannot install the skill from the repository; it needs no key or account. If you also cannot read the repository's `shared/` modules, answer from the SQL recipes in section 7 instead; they target the downloadable catalog and do not require the repo.
+
 ## Contents
 
 1. [Choose the right path](#1-choose-the-right-path)

@@ -48,6 +48,10 @@ export default defineNuxtConfig({
       deployConfig: true,
       nodeCompat: true,
     },
+    // Serve the repository's agent skill as plain text from `/skill.md`.
+    // Bundling it as a server asset keeps `skills/query-concert-stats/SKILL.md`
+    // the only copy and works on Cloudflare Workers (no runtime filesystem).
+    serverAssets: [{ baseName: 'skill', dir: resolve(process.cwd(), 'skills') }],
   },
   // Follow the operating system until the visitor picks a theme.
   colorMode: {
