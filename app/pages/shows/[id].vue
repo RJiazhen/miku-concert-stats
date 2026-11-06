@@ -35,6 +35,11 @@ const shows = computed(() => {
   return catalogSchedules(catalog.value, review.value).get(current.id) ?? []
 })
 
+/** Whether the catalog derived a 場次 layer for this 演出, including a wiki-sourced one. */
+const hasDerived = computed(() =>
+  catalog.value?.performanceSetlists.some((row) => row.performance_id === performanceId.value) ?? false,
+)
+
 /** Hand-checked outcome when the catalog has one, e.g. a cancelled show. */
 const statusNote = computed(() => {
   const current = performance.value
@@ -160,7 +165,7 @@ const headerLine = computed(() => {
         </template>
       </UAlert>
       <UAlert
-        v-if="performance.song_list_id === null && !statusNote"
+        v-if="performance.song_list_id === null && !statusNote && !hasDerived"
         color="warning"
         variant="subtle"
         icon="i-lucide-info"

@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "accessedAt": "2026-11-06",
+  "source": "https://vocadb.net/api/songs",
+  "note": "百科歌单里出现、但当前 catalog 没有的歌曲。名称用百科标题，别名匹配 VocaDB 的 name / aliases。",
+  "songs": {
+    "吉原ラメント": {
+      "id": 14435,
+      "title": "吉原ラメント",
+      "artistString": "亜沙, 小山乃舞世 feat. 重音テト",
+      "songType": "Original",
+      "publishDate": "2012-07-19",
+      "lengthSeconds": 234,
+      "sourceUrl": "https://vocadb.net/S/14435"
+    },
+    "ちがう!!!": {
+      "id": 140137,
+      "title": "ちがう!!!",
+      "artistString": "カルロス袴田 feat. 初音ミク, 音街ウナ Spicy",
+      "songType": "Original",
+      "publishDate": "2016-11-17",
+      "lengthSeconds": 269,
+      "sourceUrl": "https://vocadb.net/S/140137"
+    },
+    "Crazy ∞ nighT": {
+      "id": 13724,
+      "title": "Crazy ∞ nighT",
+      "artistString": "ひとしずくP, やま△ feat. various",
+      "songType": "Original",
+      "publishDate": "2012-07-18",
+      "lengthSeconds": 208,
+      "sourceUrl": "https://vocadb.net/S/13724"
+    },
+    "Twilight ∞ nighT": {
+      "id": 22102,
+      "title": "Twilight ∞ nighT",
+      "artistString": "ひとしずくP, やま△ feat. various",
+      "songType": "Original",
+      "publishDate": "2013-02-13",
+      "lengthSeconds": 228,
+      "sourceUrl": "https://vocadb.net/S/22102"
+    },
+    "EveR ∞ LastinG ∞ NighT": {
+      "id": 63660,
+      "title": "EveR ∞ LastinG ∞ NighT",
+      "artistString": "ひとしずくP, やま△ feat. various",
+      "songType": "Original",
+      "publishDate": "2014-09-03",
+      "lengthSeconds": 323,
+      "sourceUrl": "https://vocadb.net/S/63660"
+    },
+    "Snow Song Show": {
+      "id": 18306,
+      "title": "Snow Song Show",
+      "artistString": "sasakure.UK, DECO*27 feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2012-12-12",
+      "lengthSeconds": 265,
+      "sourceUrl": "https://vocadb.net/S/18306"
+    },
+    "ドレミファロンド": {
+      "id": 8601,
+      "title": "ドレミファロンド",
+      "artistString": "40mP feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2012-01-17",
+      "lengthSeconds": 200,
+      "sourceUrl": "https://vocadb.net/S/8601"
+    },
+    "子猫のパヤパヤ": {
+      "id": 5635,
+      "title": "子猫のパヤパヤ",
+      "artistString": "ワンカップP feat. 初音ミク, MEIKO",
+      "songType": "Original",
+      "publishDate": "2007-10-21",
+      "lengthSeconds": 225,
+      "sourceUrl": "https://vocadb.net/S/5635"
+    },
+    "脱げばいいってモンじゃない！": {
+      "id": 3301,
+      "title": "脱げばいいってモンじゃない！",
+      "artistString": "デッドボールP feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2009-10-16",
+      "lengthSeconds": 261,
+      "sourceUrl": "https://vocadb.net/S/3301"
+    },
+    "ダンスロボットダンス": {
+      "id": 141649,
+      "title": "ダンスロボットダンス",
+      "artistString": "ナユタン星人 feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2016-12-06",
+      "lengthSeconds": 191,
+      "sourceUrl": "https://vocadb.net/S/141649"
+    },
+    "タイムリミット": {
+      "id": 2732,
+      "title": "タイムリミット",
+      "artistString": "North-T feat. 初音ミク",
+      "songType": "Remix",
+      "publishDate": "2007-10-08",
+      "lengthSeconds": 259,
+      "sourceUrl": "https://vocadb.net/S/2732"
+    },
+    "ショウタイム・ルーラー": {
+      "id": 363262,
+      "title": "ショウタイム・ルーラー",
+      "artistString": "カラスヤサボウ feat. 鏡音リン",
+      "songType": "Original",
+      "publishDate": "2021-10-29",
+      "lengthSeconds": 214,
+      "sourceUrl": "https://vocadb.net/S/363262"
+    },
+    "黄泉桜": {
+      "id": 383,
+      "title": "黄泉桜",
+      "artistString": "hinayukki feat. MEIKO",
+      "songType": "Original",
+      "publishDate": "2009-03-07",
+      "lengthSeconds": 217,
+      "sourceUrl": "https://vocadb.net/S/383"
+    },
+    "闇色アリス": {
+      "id": 1434,
+      "title": "闇色アリス",
+      "artistString": "samfree feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2009-02-20",
+      "lengthSeconds": 236,
+      "sourceUrl": "https://vocadb.net/S/1434"
+    },
+    "Leia - Remind": {
+      "id": 210407,
+      "title": "Leia - Remind",
+      "artistString": "ゆよゆっぺ feat. 巡音ルカ",
+      "songType": "Remaster",
+      "publishDate": "2018-10-27",
+      "lengthSeconds": 255,
+      "sourceUrl": "https://vocadb.net/S/210407"
+    },
+    "Fondant Step": {
+      "id": 303006,
+      "title": "Fondant Step",
+      "artistString": "Heavenz feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2021-01-26",
+      "lengthSeconds": 266,
+      "sourceUrl": "https://vocadb.net/S/303006"
+    },
+    "君色マリンスノウ": {
+      "id": 371523,
+      "title": "君色マリンスノウ",
+      "artistString": "カルロス袴田 feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2021-12-28",
+      "lengthSeconds": 239,
+      "sourceUrl": "https://vocadb.net/S/371523"
+    },
+    "ハッピーチートデー": {
+      "id": 552180,
+      "title": "ハッピーチートデー",
+      "artistString": "れるりり, tepe feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2023-12-15",
+      "lengthSeconds": 156,
+      "sourceUrl": "https://vocadb.net/S/552180"
+    },
+    "クリスタルスノウ": {
+      "id": 703459,
+      "title": "クリスタルスノウ",
+      "artistString": "Aqu3ra feat. 初音ミク V4X (Soft)",
+      "songType": "Original",
+      "publishDate": "2025-01-10",
+      "lengthSeconds": 226,
+      "sourceUrl": "https://vocadb.net/S/703459"
+    },
+    "Afterglow": {
+      "id": 23901,
+      "title": "Afterglow",
+      "artistString": "ジミーサムP feat. 巡音ルカ",
+      "songType": "Original",
+      "publishDate": "2013-03-04",
+      "lengthSeconds": 217,
+      "sourceUrl": "https://vocadb.net/S/23901"
+    },
+    "ジターバグ": {
+      "id": 256954,
+      "title": "ジターバグ",
+      "artistString": "栗山夕璃, 端倉鑛 feat. 初音ミク, MEIKO V3 (Power)",
+      "songType": "Original",
+      "publishDate": "2019-10-13",
+      "lengthSeconds": 209,
+      "sourceUrl": "https://vocadb.net/S/256954"
+    },
+    "愛言葉V": {
+      "id": 915394,
+      "title": "愛言葉V",
+      "artistString": "DECO*27, kz, OTOIRO feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2026-02-14",
+      "lengthSeconds": 219,
+      "sourceUrl": "https://vocadb.net/S/915394"
+    },
+    "再教育": {
+      "id": 13728,
+      "title": "再教育",
+      "artistString": "Neru feat. 鏡音リン Append (Power), 鏡音レン Append (Power)",
+      "songType": "Original",
+      "publishDate": "2012-08-01",
+      "lengthSeconds": 250,
+      "sourceUrl": "https://vocadb.net/S/13728"
+    },
+    "ノンブレス・オブリージュ": {
+      "id": 335988,
+      "title": "ノンブレス・オブリージュ",
+      "artistString": "ピノキオピー feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2021-06-02",
+      "lengthSeconds": 209,
+      "sourceUrl": "https://vocadb.net/S/335988"
+    },
+    "SHIAWASE FOR YOU!": {
+      "id": 862431,
+      "title": "SHIAWASE FOR YOU!",
+      "artistString": "いよわ feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2025-10-22",
+      "lengthSeconds": 203,
+      "sourceUrl": "https://vocadb.net/S/862431"
+    },
+    "開演": {
+      "id": 1011745,
+      "title": "開演",
+      "artistString": "まらしぃ, びび, KOUICHI feat. 初音ミク V6 (Unknown)",
+      "songType": "Original",
+      "publishDate": "2026-05-04",
+      "lengthSeconds": 77,
+      "sourceUrl": "https://vocadb.net/S/1011745"
+    },
+    "二人の白地図": {
+      "id": 71629,
+      "title": "二人の白地図",
+      "artistString": "PolyphonicBranch feat. MEIKO V3 (Unknown)",
+      "songType": "Original",
+      "publishDate": "2014-11-05",
+      "lengthSeconds": 231,
+      "sourceUrl": "https://vocadb.net/S/71629"
+    }
+  }
+}

@@ -80,6 +80,10 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `performances.<id>` 的 `dayNight` / `singleShowDates` / `halves` 也接受字符串 `all`，表示按演出的日期区间展开，用于「该城每天都有一场」或「每天昼夜各一场」这类整段结论。
 
+交响乐的曲目来自 `data/wiki-setlists.json`（初音ミク Wiki 的逐曲表，由 `scripts/wiki-setlists-source.py` 从原始表格过滤成每城一份）。其中部分歌曲 VocaDB 的歌单从未引用过，`scripts/fetch-wiki-songs.py` 按标题在 VocaDB 检索并校验作曲者后写成 `data/wiki-songs.json` 与 `data/increments/0009-wiki-songs.sql`（`INSERT OR IGNORE`，`pnpm collect` 重写 `0001` 后仍在）。匹配不到的行（古典改编，或检索未命中）不写入 catalog，逐条记进演出层 `note`。
+
+演出没有 VocaDB 歌单但有百科逐曲表时（如交响乐 2026），`performance_setlists.source_list_id` 为 `NULL`、`source_kind = 'wiki'`，页头改为「百科逐曲表」并且不链 VocaDB。
+
 **数据来源不再以 VocaDB 为主。** 实测 VocaDB 的场次与歌单缺漏较多（没有日夜场字段、共享歌单只靠行内备注、交响乐整年没有歌单），因此核实时按「官网 → 萌娘百科 → 初音ミク Wiki（atwiki）→ VocaDB Fandom」的顺序取数，冲突时优先采用官网与百科，我们自己的派生层承担合并，不改上游。
 
 `performances.<id>.setlist` 用一份外部逐曲表**整体替换**该演出的 VocaDB 行：每首歌写 `id` / `title` / 可选 `note`（如 `メドレー：悪ノ交響曲 第2楽章`），并要求 `source` / `title` / `accessedAt` / `confidence`。派生时该演出的每个场次都用这份表，行级 `evidence = 'wiki'`，演出级 `resolution = 'external'`。id 必须存在于 catalog，构建期会校验；标题到 id 的映射由 `scripts/build-setlist-curation.py` 按归一化标题解析，解析失败直接报错而不是猜。

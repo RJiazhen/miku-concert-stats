@@ -444,6 +444,34 @@ describe('wiki-sourced setlists and statuses', () => {
     expect(() => validateCurationAgainstCatalog(curation, base, reviewRotations(base))).toThrow(/unknown song/)
   })
 
+  it('gives a performance without a VocaDB list a wiki setlist', () => {
+    const base = mikuWithYou2019()
+    // 3753 loses its upstream list, so the wiki table is the only source.
+    const chengdu = base.performances.find((row) => row.id === 3753)
+    if (chengdu) chengdu.song_list_id = null
+    const curation = parsePerformanceSetlistCuration({
+      version: 1,
+      performances: {
+        3753: {
+          setlist: {
+            source: 'https://w.atwiki.jp/hmiku/pages/1.html',
+            title: 'Wiki list',
+            accessedAt: '2026-11-05',
+            confidence: 'medium',
+            songs: [{ id: 100, title: 'common' }, { id: 201, title: 'B version' }],
+          },
+        },
+      },
+    })
+    const build = buildPerformanceSetlists(base, reviewRotations(base), curation)
+    const row = build.setlists.find((entry) => entry.performance_id === 3753)
+    expect(row?.source_list_id).toBeNull()
+    expect(row?.source_kind).toBe('wiki')
+    expect(row?.resolution).toBe('external')
+    expect(row?.status).toBe('complete')
+    expect(build.items.filter((item) => item.performance_id === 3753).map((item) => item.song_id)).toEqual([100, 201])
+  })
+
   it('records a cancelled show without a setlist row', () => {
     const base = mikuWithYou2019()
     const curation = parsePerformanceSetlistCuration({

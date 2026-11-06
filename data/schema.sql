@@ -141,8 +141,9 @@ CREATE TABLE medley_quarantine (
 -- External sources live here and not per 场次: every lookup is keyed by performance.
 CREATE TABLE performance_setlists (
   performance_id INTEGER PRIMARY KEY,
-  -- Source song list this 演出's rows were derived from.
-  source_list_id INTEGER NOT NULL,
+  -- Source song list this 演出's rows were derived from; NULL when the rows come straight from a
+  -- wiki table for a 演出 VocaDB never gave a song list.
+  source_list_id INTEGER,
   source_kind TEXT NOT NULL,
   -- 'none' when every source row applies, 'filtered' when some were dropped, 'curated' when a
   -- hand-checked correction changed the result.

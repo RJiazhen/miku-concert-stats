@@ -111,9 +111,13 @@ describe('committed catalog', () => {
         /** Reads the in-memory catalog built from committed SQL. */
         all: (sql: string) => db.prepare(sql).all() as SqlRow[],
       })
-      // Every performance with a source list gained a derived 演出 row.
+      // Every performance with a source list gained a derived 演出 row, plus the two 2026 stops
+      // whose setlist comes from the Miku wiki because VocaDB has none.
       const withList = catalog.performances.filter((row) => row.song_list_id !== null)
-      expect(catalog.performanceSetlists).toHaveLength(withList.length)
+      expect(catalog.performanceSetlists).toHaveLength(withList.length + 2)
+      const wikiOnly = catalog.performanceSetlists.filter((row) => row.source_list_id === null)
+      expect(wikiOnly.map((row) => row.performance_id)).toEqual([12713, 12714])
+      expect(wikiOnly.every((row) => row.source_kind === 'wiki')).toBe(true)
       // 2023 Osaka carried 39 source rows, but no single show played more than 24.
       const osaka = catalog.performanceShowSetlists.filter((row) => row.performance_id === 6045)
       expect(osaka).toHaveLength(6)

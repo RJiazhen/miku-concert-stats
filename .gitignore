@@ -13,3 +13,5 @@ public/sql-wasm.wasm
 .env.*
 !.env.example
 tmp/
+
+__pycache__/

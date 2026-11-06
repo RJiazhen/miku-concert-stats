@@ -105,7 +105,7 @@ const releaseMedium = (row: SqlRow): ReleaseMedium | null => {
 /** Narrows the derived source-kind column, which mirrors `song_lists.source`. */
 const derivedSourceKind = (row: SqlRow): SetlistSource => {
   const value = text(row, 'source_kind')
-  if (value === 'vocadb' || value === 'album') return value
+  if (value === 'vocadb' || value === 'album' || value === 'wiki') return value
   throw new Error(`Unknown derived source kind ${value}`)
 }
 
@@ -309,7 +309,7 @@ export const loadCatalog = (db: Queryable): Catalog => {
   }))
   const performanceSetlists = db.all('SELECT * FROM performance_setlists ORDER BY performance_id').map((row): PerformanceSetlistRow => ({
     performance_id: int(row, 'performance_id'),
-    source_list_id: int(row, 'source_list_id'),
+    source_list_id: intOrNull(row, 'source_list_id'),
     source_kind: derivedSourceKind(row),
     change: derivedChange(row),
     status: derivedStatus(row),

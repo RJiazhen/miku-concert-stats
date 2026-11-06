@@ -70,23 +70,27 @@ const bestConfidence = computed(() => {
       <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
         <UBadge color="neutral" variant="subtle" size="sm">{{ shows.length }} 个场次</UBadge>
         <UBadge color="neutral" variant="subtle" size="sm">{{ lengthSummary }}</UBadge>
-        <UBadge color="neutral" variant="subtle" size="sm">源歌单 {{ setlist.source_row_count }} 行</UBadge>
+        <UBadge color="neutral" variant="subtle" size="sm">
+          {{ setlist.source_list_id === null ? '百科逐曲表' : '源歌单' }} {{ setlist.source_row_count }} 行
+        </UBadge>
         <UBadge v-if="pendingReview" color="warning" variant="subtle" size="sm">场次归属仍待核实</UBadge>
         <UBadge v-if="bestConfidence" color="neutral" variant="subtle" size="sm">
           来源置信度 {{ bestConfidence }}
         </UBadge>
         <UBadge v-if="setlist.conflict === 1" color="error" variant="subtle" size="sm">与既有结论存在冲突</UBadge>
         <ULink
+          v-if="setlist.source_list_id !== null"
           :to="`https://vocadb.net/L/${setlist.source_list_id}`"
           target="_blank"
           class="text-primary hover:underline"
         >
           查看 VocaDB 源歌单
         </ULink>
+        <span v-else class="text-muted">歌单来自百科逐曲表，VocaDB 没有该演出的歌单</span>
       </div>
 
       <UAlert
-        v-if="setlist.status === 'inherited'"
+        v-if="setlist.status === 'inherited' && setlist.source_list_id !== null"
         color="info"
         variant="subtle"
         icon="i-lucide-info"

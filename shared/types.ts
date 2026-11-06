@@ -81,8 +81,8 @@ export type EditionPremiereRow = {
   rule: string
 }
 
-/** Where a setlist came from: the event's own VocaDB song list, or a release tracklist. */
-export type SetlistSource = 'vocadb' | 'album'
+/** Where a setlist came from: the event's own VocaDB song list, a release tracklist, or a wiki. */
+export type SetlistSource = 'vocadb' | 'album' | 'wiki'
 
 /** Physical medium of a release whose tracklist stands in for a missing setlist. */
 export type ReleaseMedium = 'bluray' | 'cd' | 'dvd'
@@ -172,7 +172,8 @@ export type SetlistConfidence = 'high' | 'medium' | 'low'
 /** Derived 演出 layer: one row per performance, with the attribution and its sources. */
 export type PerformanceSetlistRow = {
   performance_id: number
-  source_list_id: number
+  /** Null when the rows come from a wiki table and VocaDB has no song list for this 演出. */
+  source_list_id: number | null
   source_kind: SetlistSource
   /** `none` keeps every source row, `filtered` drops some, `curated` was hand-corrected. */
   change: 'none' | 'filtered' | 'curated'

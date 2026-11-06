@@ -1,0 +1,2633 @@
+{
+  "version": 1,
+  "source": "初音ミク Wiki（atwiki）ライブセットリスト一覧",
+  "rule": "区分（备注）列写了城市的行只属于该城市；没写城市的行属于该表的所有城市；标题以 # 开头的曲目 VocaDB 没有歌曲条目，只记在演出的 note。",
+  "accessedAt": "2026-11-06",
+  "entries": [
+    {
+      "performanceId": 2504,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80287.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "39",
+          "note": "オープニング"
+        },
+        {
+          "title": "初音ミクの消失",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "初音ミクの激唱",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "Just Be Friends",
+          "note": "メドレー：巡音ルカ10周年"
+        },
+        {
+          "title": "ダブルラリアット",
+          "note": "メドレー"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "メモリ"
+        },
+        {
+          "title": "四季折の羽"
+        },
+        {
+          "title": "Fire◎Flower"
+        },
+        {
+          "title": "ロキ"
+        },
+        {
+          "title": "耳のあるロボットの唄",
+          "note": "メドレー：重音テト10周年"
+        },
+        {
+          "title": "吉原ラメント",
+          "note": "メドレー"
+        },
+        {
+          "title": "おちゃめ機能",
+          "note": "メドレー"
+        },
+        {
+          "title": "ハッピーシンセサイザ",
+          "note": "メドレー：名曲小編成"
+        },
+        {
+          "title": "いーあるふぁんくらぶ",
+          "note": "メドレー"
+        },
+        {
+          "title": "ちがう!!!",
+          "note": "メドレー"
+        },
+        {
+          "title": "メルティランドナイトメア"
+        },
+        {
+          "title": "好き！雪！本気マジック",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "Snow Fairy Story",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "スターナイトスノウ",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "星のカケラ"
+        },
+        {
+          "title": "ガールズフレンドシップ"
+        },
+        {
+          "title": "卑怯戦隊うろたんだー",
+          "note": "アンコール"
+        },
+        {
+          "title": "ray",
+          "note": "アンコール"
+        },
+        {
+          "title": "たいせつなこと",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 2870,
+      "label": "横浜公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80354.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "1/6 -out of the gravity-",
+          "note": "オープニング"
+        },
+        {
+          "title": "39"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー：巡音ルカメドレー"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "メモリ"
+        },
+        {
+          "title": "ロキ",
+          "note": "メドレー：鏡音リン・鏡音レン"
+        },
+        {
+          "title": "右肩の蝶",
+          "note": "メドレー"
+        },
+        {
+          "title": "ねぇ、どろどろさん"
+        },
+        {
+          "title": "Nostalogic",
+          "note": "MEIKO 15th Anniversary"
+        },
+        {
+          "title": "on the rocks",
+          "note": "MEIKO 15th Anniversary"
+        },
+        {
+          "title": "ピアノ×フォルテ×スキャンダル",
+          "note": "MEIKO 15th Anniversary"
+        },
+        {
+          "title": "ハッピーシンセサイザ",
+          "note": "メドレー横浜公演：ピアノ五重奏"
+        },
+        {
+          "title": "いーあるふぁんくらぶ",
+          "note": "メドレー横浜公演"
+        },
+        {
+          "title": "嗚呼、素晴らしきニャン生",
+          "note": "メドレー横浜公演"
+        },
+        {
+          "title": "Catch the Wave"
+        },
+        {
+          "title": "ODDS&ENDS"
+        },
+        {
+          "title": "罪の名前"
+        },
+        {
+          "title": "Bad ∞ End ∞ Night",
+          "note": "メドレー"
+        },
+        {
+          "title": "Crazy ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "Twilight ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "EveR ∞ LastinG ∞ NighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "星のカケラ"
+        },
+        {
+          "title": "たいせつなこと"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "アンコール"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "アンコール"
+        },
+        {
+          "title": "卑怯戦隊うろたんだー",
+          "note": "アンコール"
+        },
+        {
+          "title": "SPiCa",
+          "note": "アンコール"
+        }
+      ],
+      "notInVocaDB": [
+        "スーパートルコ行進曲"
+      ]
+    },
+    {
+      "performanceId": 2871,
+      "label": "大阪公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80354.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "1/6 -out of the gravity-",
+          "note": "オープニング"
+        },
+        {
+          "title": "ray"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー：巡音ルカメドレー"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "メモリ"
+        },
+        {
+          "title": "ロキ",
+          "note": "メドレー：鏡音リン・鏡音レン"
+        },
+        {
+          "title": "右肩の蝶",
+          "note": "メドレー"
+        },
+        {
+          "title": "ねぇ、どろどろさん"
+        },
+        {
+          "title": "Nostalogic",
+          "note": "MEIKO 15th Anniversary"
+        },
+        {
+          "title": "on the rocks",
+          "note": "MEIKO 15th Anniversary"
+        },
+        {
+          "title": "ピアノ×フォルテ×スキャンダル",
+          "note": "MEIKO 15th Anniversary"
+        },
+        {
+          "title": "Snow Song Show",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "Catch the Wave"
+        },
+        {
+          "title": "ODDS&ENDS"
+        },
+        {
+          "title": "罪の名前"
+        },
+        {
+          "title": "Bad ∞ End ∞ Night",
+          "note": "メドレー"
+        },
+        {
+          "title": "Crazy ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "Twilight ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "EveR ∞ LastinG ∞ NighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "星のカケラ"
+        },
+        {
+          "title": "たいせつなこと"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "アンコール"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "アンコール"
+        },
+        {
+          "title": "卑怯戦隊うろたんだー",
+          "note": "アンコール"
+        },
+        {
+          "title": "SPiCa",
+          "note": "アンコール"
+        }
+      ],
+      "notInVocaDB": [
+        "そりすべり",
+        "White Christmas",
+        "ジングルベル"
+      ]
+    },
+    {
+      "performanceId": 2954,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80404.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "未来序曲",
+          "note": "オープニング"
+        },
+        {
+          "title": "Tell Your World"
+        },
+        {
+          "title": "メルティランドナイトメア",
+          "note": "昼公演"
+        },
+        {
+          "title": "ウミユリ海底譚",
+          "note": "メドレー夜公演"
+        },
+        {
+          "title": "ヒビカセ",
+          "note": "メドレー夜公演"
+        },
+        {
+          "title": "ゴーストルール",
+          "note": "メドレー夜公演"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー：5th Anniversary ver."
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー"
+        },
+        {
+          "title": "Alice in Musicland"
+        },
+        {
+          "title": "紅一葉",
+          "note": "メドレー：和楽器とオーケストラ"
+        },
+        {
+          "title": "番凩",
+          "note": "メドレー"
+        },
+        {
+          "title": "千年の独奏歌",
+          "note": "メドレー"
+        },
+        {
+          "title": "Catch the Wave"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "メドレー"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "メドレー"
+        },
+        {
+          "title": "from Y to Y",
+          "note": "昼公演"
+        },
+        {
+          "title": "歌に形はないけれど",
+          "note": "夜公演"
+        },
+        {
+          "title": "初音ミクの消失"
+        },
+        {
+          "title": "舞台"
+        },
+        {
+          "title": "ブラック★ロックシューター",
+          "note": "アンコール"
+        },
+        {
+          "title": "ハジメテノオト",
+          "note": "アンコール・昼公演"
+        },
+        {
+          "title": "たいせつなこと",
+          "note": "アンコール・夜公演"
+        },
+        {
+          "title": "メルト",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 2955,
+      "label": "横浜公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80404.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "舞台",
+          "note": "オープニング"
+        },
+        {
+          "title": "メルト"
+        },
+        {
+          "title": "白い雪のプリンセスは"
+        },
+        {
+          "title": "深海少女"
+        },
+        {
+          "title": "メランコリック"
+        },
+        {
+          "title": "劣等上等"
+        },
+        {
+          "title": "Alice in Musicland"
+        },
+        {
+          "title": "ドクター＝ファンクビート",
+          "note": "メドレー：KAITO 15th Anniversary"
+        },
+        {
+          "title": "番凩",
+          "note": "メドレー"
+        },
+        {
+          "title": "千年の独奏歌",
+          "note": "メドレー"
+        },
+        {
+          "title": "No Logic"
+        },
+        {
+          "title": "初音ミクの消失"
+        },
+        {
+          "title": "ワーワーワールド"
+        },
+        {
+          "title": "依存香炉"
+        },
+        {
+          "title": "ハジメテノオト",
+          "note": "横浜 昼"
+        },
+        {
+          "title": "SPiCa",
+          "note": "横浜 夜"
+        },
+        {
+          "title": "glow"
+        },
+        {
+          "title": "ブラック★ロックシューター",
+          "note": "アンコール"
+        },
+        {
+          "title": "Last Night, Good Night",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 2956,
+      "label": "大阪公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80404.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "舞台",
+          "note": "オープニング"
+        },
+        {
+          "title": "メルト"
+        },
+        {
+          "title": "白い雪のプリンセスは"
+        },
+        {
+          "title": "深海少女"
+        },
+        {
+          "title": "メランコリック"
+        },
+        {
+          "title": "劣等上等"
+        },
+        {
+          "title": "Alice in Musicland"
+        },
+        {
+          "title": "ドクター＝ファンクビート",
+          "note": "メドレー：KAITO 15th Anniversary"
+        },
+        {
+          "title": "番凩",
+          "note": "メドレー"
+        },
+        {
+          "title": "千年の独奏歌",
+          "note": "メドレー"
+        },
+        {
+          "title": "No Logic"
+        },
+        {
+          "title": "初音ミクの消失"
+        },
+        {
+          "title": "ワーワーワールド"
+        },
+        {
+          "title": "依存香炉"
+        },
+        {
+          "title": "Connecting"
+        },
+        {
+          "title": "glow"
+        },
+        {
+          "title": "ブラック★ロックシューター",
+          "note": "アンコール"
+        },
+        {
+          "title": "Last Night, Good Night",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 2957,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80167.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "未来序曲",
+          "note": "オープニング"
+        },
+        {
+          "title": "ハジメテノオト"
+        },
+        {
+          "title": "みくみくにしてあげる♪【してやんよ】",
+          "note": "メドレー：2007年楽曲ヒストリー"
+        },
+        {
+          "title": "えれくとりっく・えんじぇぅ",
+          "note": "メドレー"
+        },
+        {
+          "title": "恋スルVOC@LOID",
+          "note": "メドレー"
+        },
+        {
+          "title": "初音ミクの消失",
+          "note": "2008–2009年楽曲ヒストリー"
+        },
+        {
+          "title": "ロミオとシンデレラ"
+        },
+        {
+          "title": "裏表ラバーズ"
+        },
+        {
+          "title": "結ンデ開イテ羅刹ト骸"
+        },
+        {
+          "title": "ODDS&ENDS",
+          "note": "メドレー：SEGA project DIVAコーナー"
+        },
+        {
+          "title": "こっち向いて Baby",
+          "note": "メドレー"
+        },
+        {
+          "title": "罪の名前",
+          "note": "メドレー"
+        },
+        {
+          "title": "Starduster"
+        },
+        {
+          "title": "炉心融解",
+          "note": "メドレー：鏡音リン・鏡音レンメドレー"
+        },
+        {
+          "title": "ココロ",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー"
+        },
+        {
+          "title": "ロストワンの号哭",
+          "note": "メドレー"
+        },
+        {
+          "title": "FREELY TOMORROW",
+          "note": "メドレー：Mitchie M メドレー"
+        },
+        {
+          "title": "ビバハピ",
+          "note": "メドレー"
+        },
+        {
+          "title": "からくりピエロ",
+          "note": "メドレー：ボカロPピックアップ"
+        },
+        {
+          "title": "ドレミファロンド",
+          "note": "メドレー"
+        },
+        {
+          "title": "ウミユリ海底譚",
+          "note": "メドレー：最新楽曲メドレー"
+        },
+        {
+          "title": "ヒビカセ",
+          "note": "メドレー"
+        },
+        {
+          "title": "ゴーストルール",
+          "note": "メドレー"
+        },
+        {
+          "title": "千本桜"
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "note": "アンコール"
+        },
+        {
+          "title": "Tell Your World",
+          "note": "アンコール"
+        },
+        {
+          "title": "メルト",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 2958,
+      "label": "大阪公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80237.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "未来序曲",
+          "note": "オープニング"
+        },
+        {
+          "title": "Tell Your World"
+        },
+        {
+          "title": "初音ミクの消失",
+          "note": "メドレー"
+        },
+        {
+          "title": "初音ミクの激唱",
+          "note": "メドレー"
+        },
+        {
+          "title": "炉心融解",
+          "note": "メドレー"
+        },
+        {
+          "title": "ココロ",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー"
+        },
+        {
+          "title": "ロストワンの号哭",
+          "note": "メドレー"
+        },
+        {
+          "title": "四季折の羽"
+        },
+        {
+          "title": "Fire◎Flower"
+        },
+        {
+          "title": "ODDS&ENDS",
+          "note": "メドレー"
+        },
+        {
+          "title": "メルト",
+          "note": "メドレー"
+        },
+        {
+          "title": "ゴーストルール"
+        },
+        {
+          "title": "みくみくにしてあげる♪【してやんよ】",
+          "note": "メドレー：初音ミク名曲 小編成"
+        },
+        {
+          "title": "Ievan Polkka",
+          "note": "メドレー"
+        },
+        {
+          "title": "Nyan Cat",
+          "note": "メドレー"
+        },
+        {
+          "title": "子猫のパヤパヤ",
+          "note": "メドレー"
+        },
+        {
+          "title": "from Y to Y",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "Reboot",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "Starduster",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "歌に形はないけれど"
+        },
+        {
+          "title": "Connecting"
+        },
+        {
+          "title": "脱げばいいってモンじゃない！",
+          "note": "アンコール"
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "note": "アンコール"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "アンコール"
+        },
+        {
+          "title": "ハジメテノオト",
+          "note": "アンコール"
+        },
+        {
+          "title": "桜ノ雨",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 2959,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80237.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "未来序曲",
+          "note": "オープニング"
+        },
+        {
+          "title": "千本桜"
+        },
+        {
+          "title": "初音ミクの消失",
+          "note": "メドレー"
+        },
+        {
+          "title": "初音ミクの激唱",
+          "note": "メドレー"
+        },
+        {
+          "title": "炉心融解",
+          "note": "メドレー"
+        },
+        {
+          "title": "ココロ",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー"
+        },
+        {
+          "title": "ロストワンの号哭",
+          "note": "メドレー"
+        },
+        {
+          "title": "四季折の羽"
+        },
+        {
+          "title": "Fire◎Flower"
+        },
+        {
+          "title": "ODDS&ENDS",
+          "note": "メドレー"
+        },
+        {
+          "title": "メルト",
+          "note": "メドレー"
+        },
+        {
+          "title": "ゴーストルール"
+        },
+        {
+          "title": "みくみくにしてあげる♪【してやんよ】",
+          "note": "メドレー：初音ミク名曲 小編成"
+        },
+        {
+          "title": "Ievan Polkka",
+          "note": "メドレー"
+        },
+        {
+          "title": "Nyan Cat",
+          "note": "メドレー"
+        },
+        {
+          "title": "子猫のパヤパヤ",
+          "note": "メドレー"
+        },
+        {
+          "title": "アンドロメダアンドロメダ",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "ダンスロボットダンス",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "リバースユニバース",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "note": "メドレー東京公演"
+        },
+        {
+          "title": "歌に形はないけれど"
+        },
+        {
+          "title": "Connecting"
+        },
+        {
+          "title": "脱げばいいってモンじゃない！",
+          "note": "アンコール"
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "note": "アンコール"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "アンコール"
+        },
+        {
+          "title": "ハジメテノオト",
+          "note": "アンコール"
+        },
+        {
+          "title": "桜ノ雨",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 2960,
+      "label": "大阪公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80287.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "39",
+          "note": "オープニング"
+        },
+        {
+          "title": "ロミオとシンデレラ",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "ゴーストルール",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "Just Be Friends",
+          "note": "メドレー：巡音ルカ10周年"
+        },
+        {
+          "title": "ダブルラリアット",
+          "note": "メドレー"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "メモリ"
+        },
+        {
+          "title": "四季折の羽"
+        },
+        {
+          "title": "Fire◎Flower"
+        },
+        {
+          "title": "ロキ"
+        },
+        {
+          "title": "耳のあるロボットの唄",
+          "note": "メドレー：重音テト10周年"
+        },
+        {
+          "title": "吉原ラメント",
+          "note": "メドレー"
+        },
+        {
+          "title": "おちゃめ機能",
+          "note": "メドレー"
+        },
+        {
+          "title": "ハッピーシンセサイザ",
+          "note": "メドレー：名曲小編成"
+        },
+        {
+          "title": "いーあるふぁんくらぶ",
+          "note": "メドレー"
+        },
+        {
+          "title": "ちがう!!!",
+          "note": "メドレー"
+        },
+        {
+          "title": "メルティランドナイトメア"
+        },
+        {
+          "title": "Snow Fairy Story",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "スターナイトスノウ",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "リバースユニバース",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "note": "メドレー大阪公演"
+        },
+        {
+          "title": "星のカケラ"
+        },
+        {
+          "title": "ガールズフレンドシップ"
+        },
+        {
+          "title": "卑怯戦隊うろたんだー",
+          "note": "アンコール"
+        },
+        {
+          "title": "ray",
+          "note": "アンコール"
+        },
+        {
+          "title": "たいせつなこと",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 3710,
+      "label": "横浜公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80422.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "カンタレラ"
+        },
+        {
+          "title": "サンドリヨン"
+        },
+        {
+          "title": "ワールドイズマイン"
+        },
+        {
+          "title": "千本桜"
+        },
+        {
+          "title": "上弦の月"
+        },
+        {
+          "title": "リモコン",
+          "note": "メドレー：鏡音リン・鏡音レン"
+        },
+        {
+          "title": "劣等上等",
+          "note": "メドレー"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー：巡音ルカ"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "タイムマシン"
+        },
+        {
+          "title": "Reboot"
+        },
+        {
+          "title": "あったかいと"
+        },
+        {
+          "title": "ドクター＝ファンクビート"
+        },
+        {
+          "title": "ピアノ×フォルテ×スキャンダル"
+        },
+        {
+          "title": "ニジイロストーリーズ"
+        },
+        {
+          "title": "シネマ"
+        },
+        {
+          "title": "トンデモワンダーズ"
+        },
+        {
+          "title": "Last Night, Good Night",
+          "note": "アンコール"
+        },
+        {
+          "title": "magnet",
+          "note": "アンコール"
+        },
+        {
+          "title": "怪人",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 3869,
+      "label": "神戸公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80422.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "カンタレラ"
+        },
+        {
+          "title": "サンドリヨン"
+        },
+        {
+          "title": "ワールドイズマイン"
+        },
+        {
+          "title": "千本桜"
+        },
+        {
+          "title": "上弦の月"
+        },
+        {
+          "title": "リモコン",
+          "note": "メドレー：鏡音リン・鏡音レン"
+        },
+        {
+          "title": "劣等上等",
+          "note": "メドレー"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー：巡音ルカ"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "タイムマシン"
+        },
+        {
+          "title": "39"
+        },
+        {
+          "title": "あったかいと"
+        },
+        {
+          "title": "ドクター＝ファンクビート"
+        },
+        {
+          "title": "ピアノ×フォルテ×スキャンダル"
+        },
+        {
+          "title": "ニジイロストーリーズ"
+        },
+        {
+          "title": "シネマ"
+        },
+        {
+          "title": "トンデモワンダーズ"
+        },
+        {
+          "title": "Last Night, Good Night",
+          "note": "アンコール"
+        },
+        {
+          "title": "magnet",
+          "note": "アンコール"
+        },
+        {
+          "title": "怪人",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 4322,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80506.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "怪人",
+          "note": "東京 昼"
+        },
+        {
+          "title": "未来序曲",
+          "note": "東京 夜"
+        },
+        {
+          "title": "タイムリミット"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー"
+        },
+        {
+          "title": "ヴェノマニア公の狂気"
+        },
+        {
+          "title": "それがあなたの幸せとしても"
+        },
+        {
+          "title": "Bad ∞ End ∞ Night",
+          "note": "メドレー"
+        },
+        {
+          "title": "Crazy ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "Twilight ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "EveR ∞ LastinG ∞ NighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "神っぽいな",
+          "note": "メドレー：小編成1"
+        },
+        {
+          "title": "ショウタイム・ルーラー",
+          "note": "メドレー"
+        },
+        {
+          "title": "上弦の月",
+          "note": "メドレー：小編成2"
+        },
+        {
+          "title": "黄泉桜",
+          "note": "メドレー"
+        },
+        {
+          "title": "炉心融解",
+          "note": "メドレー：鏡音リン・鏡音レン"
+        },
+        {
+          "title": "ココロ",
+          "note": "メドレー"
+        },
+        {
+          "title": "テレキャスタービーボーイ",
+          "note": "メドレー"
+        },
+        {
+          "title": "初めての恋が終わる時"
+        },
+        {
+          "title": "glow"
+        },
+        {
+          "title": "闇色アリス",
+          "note": "アンコール"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "メルト",
+          "note": "東京 昼大阪"
+        },
+        {
+          "title": "ハジメテノオト",
+          "note": "東京 夜"
+        }
+      ]
+    },
+    {
+      "performanceId": 4808,
+      "label": "横浜公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80506.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "ヴァンパイア"
+        },
+        {
+          "title": "ねぇねぇねぇ。"
+        },
+        {
+          "title": "帝国少女",
+          "note": "メドレー"
+        },
+        {
+          "title": "深海少女",
+          "note": "メドレー"
+        },
+        {
+          "title": "リモコン",
+          "note": "メドレー"
+        },
+        {
+          "title": "劣等上等",
+          "note": "メドレー"
+        },
+        {
+          "title": "shake it！"
+        },
+        {
+          "title": "それがあなたの幸せとしても"
+        },
+        {
+          "title": "ODDS&ENDS",
+          "note": "メドレー"
+        },
+        {
+          "title": "こっち向いて Baby",
+          "note": "メドレー"
+        },
+        {
+          "title": "罪の名前",
+          "note": "メドレー"
+        },
+        {
+          "title": "ビターチョコデコレーション",
+          "note": "メドレー"
+        },
+        {
+          "title": "ショウタイム・ルーラー",
+          "note": "メドレー"
+        },
+        {
+          "title": "テレキャスタービーボーイ",
+          "note": "メドレー"
+        },
+        {
+          "title": "上弦の月",
+          "note": "メドレー"
+        },
+        {
+          "title": "黄泉桜",
+          "note": "メドレー"
+        },
+        {
+          "title": "タイムマシン"
+        },
+        {
+          "title": "青を焚べて"
+        },
+        {
+          "title": "大江戸ジュリアナイト",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "千本桜",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "Fire◎Flower",
+          "note": "アンコール"
+        },
+        {
+          "title": "SPiCa",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 4814,
+      "label": "大阪公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80506.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "shake it！"
+        },
+        {
+          "title": "タイムリミット"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー"
+        },
+        {
+          "title": "ヴェノマニア公の狂気"
+        },
+        {
+          "title": "それがあなたの幸せとしても"
+        },
+        {
+          "title": "Bad ∞ End ∞ Night",
+          "note": "メドレー"
+        },
+        {
+          "title": "Crazy ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "Twilight ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "EveR ∞ LastinG ∞ NighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "神っぽいな",
+          "note": "メドレー：小編成1"
+        },
+        {
+          "title": "ショウタイム・ルーラー",
+          "note": "メドレー"
+        },
+        {
+          "title": "上弦の月",
+          "note": "メドレー：小編成2"
+        },
+        {
+          "title": "黄泉桜",
+          "note": "メドレー"
+        },
+        {
+          "title": "炉心融解",
+          "note": "メドレー：鏡音リン・鏡音レン"
+        },
+        {
+          "title": "ココロ",
+          "note": "メドレー"
+        },
+        {
+          "title": "テレキャスタービーボーイ",
+          "note": "メドレー"
+        },
+        {
+          "title": "初めての恋が終わる時"
+        },
+        {
+          "title": "glow"
+        },
+        {
+          "title": "闇色アリス",
+          "note": "アンコール"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "メルト",
+          "note": "東京 昼大阪"
+        }
+      ]
+    },
+    {
+      "performanceId": 4877,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80537.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "Tell Your World"
+        },
+        {
+          "title": "転生林檎"
+        },
+        {
+          "title": "shake it！"
+        },
+        {
+          "title": "七つの罪と罰",
+          "note": "メドレー：悪ノ交響曲 第1楽章"
+        },
+        {
+          "title": "ヴェノマニア公の狂気",
+          "note": "メドレー：第2楽章"
+        },
+        {
+          "title": "悪食娘コンチータ",
+          "note": "メドレー：第2楽章"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー：第3楽章"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー：第3楽章"
+        },
+        {
+          "title": "眠らせ姫からの贈り物",
+          "note": "メドレー：第4楽章"
+        },
+        {
+          "title": "円尾坂の仕立屋",
+          "note": "メドレー：第4楽章"
+        },
+        {
+          "title": "悪徳のジャッジメント",
+          "note": "メドレー：第5楽章"
+        },
+        {
+          "title": "ネメシスの銃口",
+          "note": "メドレー：第5楽章"
+        },
+        {
+          "title": "FLASH",
+          "note": "メドレー"
+        },
+        {
+          "title": "黄昏を生きる",
+          "note": "メドレー"
+        },
+        {
+          "title": "抜錨"
+        },
+        {
+          "title": "アトラクトライト"
+        },
+        {
+          "title": "ハジメテノオト"
+        },
+        {
+          "title": "Birthday Song for ミク"
+        },
+        {
+          "title": "愛言葉",
+          "note": "アンコール"
+        },
+        {
+          "title": "rain stops, good-bye",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "よつばのクローバー",
+          "note": "アンコール・メドレー"
+        },
+        {
+          "title": "メルト",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 4878,
+      "label": "横浜公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80537.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "ダーリンダンス"
+        },
+        {
+          "title": "初音ミクの消失",
+          "note": "メドレー"
+        },
+        {
+          "title": "初音ミクの激唱",
+          "note": "メドレー"
+        },
+        {
+          "title": "転生林檎"
+        },
+        {
+          "title": "天樂 -双響-"
+        },
+        {
+          "title": "shake it！"
+        },
+        {
+          "title": "抜錨"
+        },
+        {
+          "title": "FLASH",
+          "note": "メドレー"
+        },
+        {
+          "title": "黄昏を生きる",
+          "note": "メドレー"
+        },
+        {
+          "title": "みくみくにしてあげる♪【してやんよ】",
+          "note": "メドレー：16th Anniversary"
+        },
+        {
+          "title": "私の時間",
+          "note": "メドレー：16th Anniversary"
+        },
+        {
+          "title": "Starduster",
+          "note": "メドレー：16th Anniversary"
+        },
+        {
+          "title": "七つの罪と罰",
+          "note": "メドレー：悪ノ交響曲 第1楽章"
+        },
+        {
+          "title": "ヴェノマニア公の狂気",
+          "note": "メドレー：第2楽章"
+        },
+        {
+          "title": "悪食娘コンチータ",
+          "note": "メドレー：第2楽章"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー：第3楽章"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー：第3楽章"
+        },
+        {
+          "title": "眠らせ姫からの贈り物",
+          "note": "メドレー：第4楽章"
+        },
+        {
+          "title": "円尾坂の仕立屋",
+          "note": "メドレー：第4楽章"
+        },
+        {
+          "title": "悪徳のジャッジメント",
+          "note": "メドレー：第5楽章"
+        },
+        {
+          "title": "ネメシスの銃口",
+          "note": "メドレー：第5楽章"
+        },
+        {
+          "title": "Packaged"
+        },
+        {
+          "title": "星のカケラ",
+          "note": "アンコール"
+        },
+        {
+          "title": "39",
+          "note": "アンコール"
+        },
+        {
+          "title": "ブループラネット",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 4879,
+      "label": "神戸公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80537.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "ダーリンダンス"
+        },
+        {
+          "title": "初音ミクの消失",
+          "note": "メドレー"
+        },
+        {
+          "title": "初音ミクの激唱",
+          "note": "メドレー"
+        },
+        {
+          "title": "転生林檎"
+        },
+        {
+          "title": "天樂 -双響-"
+        },
+        {
+          "title": "shake it！"
+        },
+        {
+          "title": "抜錨"
+        },
+        {
+          "title": "FLASH",
+          "note": "メドレー"
+        },
+        {
+          "title": "黄昏を生きる",
+          "note": "メドレー"
+        },
+        {
+          "title": "みくみくにしてあげる♪【してやんよ】",
+          "note": "メドレー：16th Anniversary"
+        },
+        {
+          "title": "私の時間",
+          "note": "メドレー：16th Anniversary"
+        },
+        {
+          "title": "Starduster",
+          "note": "メドレー：16th Anniversary"
+        },
+        {
+          "title": "七つの罪と罰",
+          "note": "メドレー：悪ノ交響曲 第1楽章"
+        },
+        {
+          "title": "ヴェノマニア公の狂気",
+          "note": "メドレー：第2楽章"
+        },
+        {
+          "title": "悪食娘コンチータ",
+          "note": "メドレー：第2楽章"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー：第3楽章"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー：第3楽章"
+        },
+        {
+          "title": "眠らせ姫からの贈り物",
+          "note": "メドレー：第4楽章"
+        },
+        {
+          "title": "円尾坂の仕立屋",
+          "note": "メドレー：第4楽章"
+        },
+        {
+          "title": "悪徳のジャッジメント",
+          "note": "メドレー：第5楽章"
+        },
+        {
+          "title": "ネメシスの銃口",
+          "note": "メドレー：第5楽章"
+        },
+        {
+          "title": "Packaged"
+        },
+        {
+          "title": "星のカケラ",
+          "note": "アンコール"
+        },
+        {
+          "title": "39",
+          "note": "アンコール"
+        },
+        {
+          "title": "ブループラネット",
+          "note": "アンコール"
+        },
+        {
+          "title": "白い雪のプリンセスは",
+          "note": "ダブルアンコール・神戸のみ"
+        }
+      ]
+    },
+    {
+      "performanceId": 8033,
+      "label": "横浜公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80641.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "ヒバナ (Reloaded)"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "メモリ"
+        },
+        {
+          "title": "メランコリック"
+        },
+        {
+          "title": "脱法ロック"
+        },
+        {
+          "title": "ツギハギスタッカート"
+        },
+        {
+          "title": "レッドランドマーカー"
+        },
+        {
+          "title": "君を捜す空",
+          "note": "Synchronicity 3部作"
+        },
+        {
+          "title": "光と影の楽園"
+        },
+        {
+          "title": "巡る世界のレクイエム"
+        },
+        {
+          "title": "Leia - Remind"
+        },
+        {
+          "title": "星屑ユートピア"
+        },
+        {
+          "title": "Yellow",
+          "note": "メドレー"
+        },
+        {
+          "title": "DECORATOR",
+          "note": "メドレー"
+        },
+        {
+          "title": "Catch the Wave",
+          "note": "メドレー"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "メドレー"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "メドレー"
+        },
+        {
+          "title": "Genesis"
+        },
+        {
+          "title": "letter song",
+          "note": "アンコール"
+        },
+        {
+          "title": "ReAct",
+          "note": "アンコール"
+        },
+        {
+          "title": "ヴィーナス",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 8035,
+      "label": "神戸公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80641.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "ヒバナ (Reloaded)"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "note": "メドレー"
+        },
+        {
+          "title": "メモリ"
+        },
+        {
+          "title": "メランコリック"
+        },
+        {
+          "title": "脱法ロック"
+        },
+        {
+          "title": "ツギハギスタッカート"
+        },
+        {
+          "title": "レッドランドマーカー"
+        },
+        {
+          "title": "君を捜す空",
+          "note": "Synchronicity 3部作"
+        },
+        {
+          "title": "光と影の楽園"
+        },
+        {
+          "title": "巡る世界のレクイエム"
+        },
+        {
+          "title": "Leia - Remind"
+        },
+        {
+          "title": "星屑ユートピア"
+        },
+        {
+          "title": "Yellow",
+          "note": "メドレー"
+        },
+        {
+          "title": "DECORATOR",
+          "note": "メドレー"
+        },
+        {
+          "title": "Catch the Wave",
+          "note": "メドレー"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "メドレー"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "メドレー"
+        },
+        {
+          "title": "Genesis"
+        },
+        {
+          "title": "letter song",
+          "note": "アンコール"
+        },
+        {
+          "title": "ReAct",
+          "note": "アンコール"
+        },
+        {
+          "title": "ヴィーナス",
+          "note": "アンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 8037,
+      "label": "札幌公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80551.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "ステラ"
+        },
+        {
+          "title": "Loading Memories"
+        },
+        {
+          "title": "インタビュア"
+        },
+        {
+          "title": "エゴロック"
+        },
+        {
+          "title": "ヘッジホッグ"
+        },
+        {
+          "title": "好き！雪！本気マジック",
+          "note": "メドレー：SNOW MIKU歴代テーマ"
+        },
+        {
+          "title": "Snow Fairy Story",
+          "note": "メドレー"
+        },
+        {
+          "title": "雪がとける前に",
+          "note": "メドレー"
+        },
+        {
+          "title": "スターナイトスノウ",
+          "note": "メドレー"
+        },
+        {
+          "title": "四角い地球を丸くする",
+          "note": "メドレー"
+        },
+        {
+          "title": "アイ",
+          "note": "メドレー"
+        },
+        {
+          "title": "ぽかぽかの星",
+          "note": "メドレー"
+        },
+        {
+          "title": "Fondant Step",
+          "note": "メドレー"
+        },
+        {
+          "title": "君色マリンスノウ",
+          "note": "メドレー"
+        },
+        {
+          "title": "SnowMix♪",
+          "note": "メドレー"
+        },
+        {
+          "title": "ハッピーチートデー",
+          "note": "メドレー"
+        },
+        {
+          "title": "未来序曲"
+        },
+        {
+          "title": "私の恋はヘルファイア"
+        },
+        {
+          "title": "スノーマン"
+        },
+        {
+          "title": "たいせつなこと"
+        },
+        {
+          "title": "プレイオン"
+        },
+        {
+          "title": "ハジメテノオト",
+          "note": "アンコール・昼公演"
+        },
+        {
+          "title": "舞台",
+          "note": "アンコール・夜公演"
+        },
+        {
+          "title": "クリスタルスノウ",
+          "note": "アンコール"
+        },
+        {
+          "title": "Hand in Hand",
+          "note": "アンコール"
+        },
+        {
+          "title": "SPiCa",
+          "note": "アンコール・昼公演"
+        },
+        {
+          "title": "メルト",
+          "note": "アンコール・夜公演"
+        }
+      ]
+    },
+    {
+      "performanceId": 8710,
+      "label": "大阪公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80551.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "愛して愛して愛して"
+        },
+        {
+          "title": "おこちゃま戦争"
+        },
+        {
+          "title": "どりーみんチュチュ"
+        },
+        {
+          "title": "レイニースノードロップ"
+        },
+        {
+          "title": "きみとぼくのレゾナンス"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "メドレー"
+        },
+        {
+          "title": "Tell Your World"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "メドレー"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "メドレー"
+        },
+        {
+          "title": "抜錨"
+        },
+        {
+          "title": "メルト"
+        },
+        {
+          "title": "Blessing",
+          "note": "アンコール"
+        },
+        {
+          "title": "Hand in Hand",
+          "note": "アンコール"
+        },
+        {
+          "title": "プレイオン",
+          "note": "アンコール"
+        },
+        {
+          "title": "ray",
+          "note": "ダブルアンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 8711,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80551.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "愛して愛して愛して"
+        },
+        {
+          "title": "おこちゃま戦争"
+        },
+        {
+          "title": "どりーみんチュチュ"
+        },
+        {
+          "title": "レイニースノードロップ"
+        },
+        {
+          "title": "きみとぼくのレゾナンス"
+        },
+        {
+          "title": "ODDS&ENDS"
+        },
+        {
+          "title": "ロミオとシンデレラ"
+        },
+        {
+          "title": "Bad ∞ End ∞ Night",
+          "note": "メドレー"
+        },
+        {
+          "title": "Crazy ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "Twilight ∞ nighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "EveR ∞ LastinG ∞ NighT",
+          "note": "メドレー"
+        },
+        {
+          "title": "上弦の月"
+        },
+        {
+          "title": "初音ミクの消失"
+        },
+        {
+          "title": "Blessing",
+          "note": "アンコール"
+        },
+        {
+          "title": "Hand in Hand",
+          "note": "アンコール"
+        },
+        {
+          "title": "プレイオン",
+          "note": "アンコール"
+        },
+        {
+          "title": "命に嫌われている。",
+          "note": "ダブルアンコール"
+        }
+      ]
+    },
+    {
+      "performanceId": 9267,
+      "label": "横浜公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80551.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "Blessing"
+        },
+        {
+          "title": "愛して愛して愛して"
+        },
+        {
+          "title": "ReAct",
+          "note": "メドレー"
+        },
+        {
+          "title": "ACUTE",
+          "note": "メドレー"
+        },
+        {
+          "title": "右肩の蝶"
+        },
+        {
+          "title": "番凩"
+        },
+        {
+          "title": "Dear"
+        },
+        {
+          "title": "裏表ラバーズ",
+          "note": "メドレー：wowaka Special"
+        },
+        {
+          "title": "ローリンガール",
+          "note": "メドレー"
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "note": "メドレー"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー"
+        },
+        {
+          "title": "アンノウン・マザーグース"
+        },
+        {
+          "title": "Hand in Hand"
+        },
+        {
+          "title": "メズマライザー",
+          "note": "アンコール"
+        },
+        {
+          "title": "オーバーライド",
+          "note": "アンコール"
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "未来序曲",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "メモリ",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "ガールズフレンドシップ",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "たいせつなこと",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "ピアノ×フォルテ×スキャンダル",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "舞台",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "怪人",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "青を焚べて",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "ヴィーナス",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "39",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "プレイオン",
+          "note": "アンコール"
+        },
+        {
+          "title": "メルト",
+          "note": "アンコール・横浜"
+        }
+      ],
+      "notInVocaDB": [
+        "ぽっぴっぽー（Grand Finale）"
+      ]
+    },
+    {
+      "performanceId": 9276,
+      "label": "神戸公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80551.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "Blessing"
+        },
+        {
+          "title": "愛して愛して愛して"
+        },
+        {
+          "title": "ReAct",
+          "note": "メドレー"
+        },
+        {
+          "title": "ACUTE",
+          "note": "メドレー"
+        },
+        {
+          "title": "右肩の蝶"
+        },
+        {
+          "title": "番凩"
+        },
+        {
+          "title": "Dear"
+        },
+        {
+          "title": "裏表ラバーズ",
+          "note": "メドレー：wowaka Special"
+        },
+        {
+          "title": "ローリンガール",
+          "note": "メドレー"
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "note": "メドレー"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー"
+        },
+        {
+          "title": "アンノウン・マザーグース"
+        },
+        {
+          "title": "Hand in Hand"
+        },
+        {
+          "title": "メズマライザー",
+          "note": "アンコール"
+        },
+        {
+          "title": "オーバーライド",
+          "note": "アンコール"
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "未来序曲",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "メモリ",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "ガールズフレンドシップ",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "たいせつなこと",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "ピアノ×フォルテ×スキャンダル",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "舞台",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "怪人",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "青を焚べて",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "悪ノ娘",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "悪ノ召使",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "ヴィーナス",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "39",
+          "note": "アンコール：10th メドレー"
+        },
+        {
+          "title": "プレイオン",
+          "note": "アンコール"
+        }
+      ],
+      "notInVocaDB": [
+        "ぽっぴっぽー（Grand Finale）",
+        "交響曲第9番"
+      ]
+    },
+    {
+      "performanceId": 12709,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80641.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "サイハテ"
+        },
+        {
+          "title": "テオ"
+        },
+        {
+          "title": "アカツキアライヴァル"
+        },
+        {
+          "title": "恋は戦争"
+        },
+        {
+          "title": "君を捜す空",
+          "note": "Synchronicity 3部作"
+        },
+        {
+          "title": "光と影の楽園"
+        },
+        {
+          "title": "巡る世界のレクイエム"
+        },
+        {
+          "title": "Afterglow",
+          "note": "巡音ルカ15th Anniversary"
+        },
+        {
+          "title": "Just Be Friends",
+          "note": "メドレー"
+        },
+        {
+          "title": "ダブルラリアット",
+          "note": "メドレー"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "note": "メドレー"
+        },
+        {
+          "title": "on the rocks"
+        },
+        {
+          "title": "ジターバグ"
+        },
+        {
+          "title": "カンタレラ",
+          "note": "メドレー"
+        },
+        {
+          "title": "サンドリヨン",
+          "note": "メドレー"
+        },
+        {
+          "title": "ヴィーナス"
+        },
+        {
+          "title": "抜錨",
+          "note": "アンコール・昼公演"
+        },
+        {
+          "title": "それがあなたの幸せとしても",
+          "note": "アンコール・夜公演"
+        },
+        {
+          "title": "ACUTE",
+          "note": "アンコール"
+        },
+        {
+          "title": "ハジメテノオト",
+          "note": "アンコール・昼公演"
+        },
+        {
+          "title": "メルト",
+          "note": "アンコール・夜公演"
+        }
+      ]
+    },
+    {
+      "performanceId": 12713,
+      "label": "札幌公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80458.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "愛言葉V"
+        },
+        {
+          "title": "混沌ブギ"
+        },
+        {
+          "title": "再教育"
+        },
+        {
+          "title": "抜錨"
+        },
+        {
+          "title": "げんてん"
+        },
+        {
+          "title": "命に嫌われている。"
+        },
+        {
+          "title": "天樂 -双響-",
+          "note": "協奏曲札幌"
+        },
+        {
+          "title": "ツギハギスタッカート",
+          "note": "協奏曲札幌"
+        },
+        {
+          "title": "メルティランドナイトメア",
+          "note": "協奏曲札幌"
+        },
+        {
+          "title": "愛して愛して愛して",
+          "note": "協奏曲札幌"
+        },
+        {
+          "title": "青炎",
+          "note": "札幌：KAITO名曲コーナー"
+        },
+        {
+          "title": "あったかいと"
+        },
+        {
+          "title": "みかぼし"
+        },
+        {
+          "title": "ODDS&ENDS"
+        },
+        {
+          "title": "ノンブレス・オブリージュ",
+          "note": "アンコール"
+        },
+        {
+          "title": "SHIAWASE FOR YOU!",
+          "note": "アンコール・札幌"
+        },
+        {
+          "title": "開演",
+          "note": "アンコール"
+        },
+        {
+          "title": "メルト",
+          "note": "アンコール・札幌"
+        }
+      ],
+      "notInVocaDB": [
+        "ピアノ協奏曲 第5番「皇帝」第1楽章"
+      ]
+    },
+    {
+      "performanceId": 12714,
+      "label": "東京公演",
+      "source": "https://w.atwiki.jp/hmiku/pages/80458.html",
+      "accessedAt": "2026-11-06",
+      "songs": [
+        {
+          "title": "愛言葉V"
+        },
+        {
+          "title": "混沌ブギ"
+        },
+        {
+          "title": "再教育"
+        },
+        {
+          "title": "抜錨"
+        },
+        {
+          "title": "青炎"
+        },
+        {
+          "title": "命に嫌われている。"
+        },
+        {
+          "title": "深海少女",
+          "note": "協奏曲東京"
+        },
+        {
+          "title": "ウミユリ海底譚",
+          "note": "協奏曲東京"
+        },
+        {
+          "title": "星のカケラ",
+          "note": "協奏曲東京"
+        },
+        {
+          "title": "SPiCa",
+          "note": "協奏曲東京"
+        },
+        {
+          "title": "げんてん",
+          "note": "東京：MEIKO名曲コーナー"
+        },
+        {
+          "title": "二人の白地図"
+        },
+        {
+          "title": "夜舞うシルエット"
+        },
+        {
+          "title": "ODDS&ENDS"
+        },
+        {
+          "title": "ノンブレス・オブリージュ",
+          "note": "アンコール"
+        },
+        {
+          "title": "グリーンライツ・セレナーデ",
+          "note": "アンコール・東京"
+        },
+        {
+          "title": "開演",
+          "note": "アンコール"
+        },
+        {
+          "title": "Connecting",
+          "note": "アンコール・東京"
+        }
+      ],
+      "notInVocaDB": [
+        "ピアノ協奏曲 第2番 第1楽章"
+      ]
+    }
+  ]
+}

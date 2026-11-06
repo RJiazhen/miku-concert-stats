@@ -748,6 +748,8 @@ export const buildPerformanceSetlists = (
     inherited: 0,
     omittedRows: 0,
   }
+  /** 演出 whose rows came straight from a wiki table; their length is not comparable across cities. */
+  const wikiSourced = new Set<number>()
   const linesByList = new Map<number, ResolvedRotationLine[]>()
   for (const line of review.lines) {
     const bucket = linesByList.get(line.songListId) ?? []
@@ -763,12 +765,13 @@ export const buildPerformanceSetlists = (
 
   for (const performance of catalog.performances) {
     const listId = performance.song_list_id
-    if (listId === null) continue
-    const songList = catalog.songLists.find((row) => row.id === listId)
-    if (!songList) throw new Error(`Performance ${performance.id} points at missing song list ${listId}`)
-    const listCuration = curation.lists.get(listId)
     const performanceCuration = curation.performances.get(performance.id)
-    const lines = linesByList.get(listId) ?? []
+    // A 演出 with no upstream song list can still get one from a wiki table.
+    if (listId === null && performanceCuration?.setlist === undefined) continue
+    const songList = listId === null ? null : catalog.songLists.find((row) => row.id === listId)
+    if (listId !== null && !songList) throw new Error(`Performance ${performance.id} points at missing song list ${listId}`)
+    const listCuration = listId === null ? undefined : curation.lists.get(listId)
+    const lines = listId === null ? [] : linesByList.get(listId) ?? []
     const schedule = schedules.get(performance.id) ?? []
     const showsOfRun: PerformanceShow[] =
       schedule.length > 0
@@ -782,10 +785,10 @@ export const buildPerformanceSetlists = (
       if (Array.isArray(target) && target.some((showKey) => runKeys.has(showKey))) assignedHere.add(Number(key))
     }
     const ownLines = lines.filter((line) => line.performanceIds.includes(performance.id) || assignedHere.has(line.position))
-    if (ownLines.length === 0) continue
-
     /** A wiki setlist replaces the whole row set for this 演出. */
     const curatedSetlist = performanceCuration?.setlist
+    // Without any source row the 演出 contributes nothing, unless a wiki supplied the whole list.
+    if (ownLines.length === 0 && curatedSetlist === undefined) continue
 
     let curated = false
     // Whether this 演出's halves are known, so a half-naming note is exact: a curated
@@ -808,6 +811,7 @@ export const buildPerformanceSetlists = (
     if (curatedSetlist !== undefined) {
       // The outside list already says what each 場次 played, so the VocaDB rows are ignored.
       curated = true
+      wikiSourced.add(performance.id)
       for (const show of showsOfRun) {
         for (const song of curatedSetlist.songs) {
           addItem(show.key, {
@@ -850,7 +854,7 @@ export const buildPerformanceSetlists = (
         curated = true
       }
       if (targets.length === 0) continue
-      const songIds = songIdsOfLine(catalog, listId, line.position)
+      const songIds = listId === null ? [] : songIdsOfLine(catalog, listId, line.position)
       if (songIds.length === 0) continue
       const shared = effectiveNotes === null || effectiveNotes.trim() === '' ? true : isSharedLine({ ...line, notes: effectiveNotes })
       const evidence: PendingItem['evidence'] =
@@ -905,7 +909,11 @@ export const buildPerformanceSetlists = (
 
     // A wiki setlist is an outside attribution even when the notes alone would stay unresolved.
     const resolution =
-      curatedSetlist !== undefined ? 'external' : resolveAttribution(performanceCuration, ownLines, catalog, listId, halvesKnown)
+      curatedSetlist !== undefined
+        ? 'external'
+        : listId === null
+          ? 'unresolved'
+          : resolveAttribution(performanceCuration, ownLines, catalog, listId, halvesKnown)
     const citedSources = performanceCuration?.sources ?? []
     const conflict =
       performanceCuration?.conflict === true || citedSources.some((source) => source.conflict === true) ? 1 : 0
@@ -936,11 +944,11 @@ export const buildPerformanceSetlists = (
     setlists.push({
       performance_id: performance.id,
       source_list_id: listId,
-      source_kind: songList.source,
+      source_kind: songList?.source ?? 'wiki',
       change,
       status,
       resolution,
-      source_row_count: lines.length,
+      source_row_count: curatedSetlist === undefined ? lines.length : curatedSetlist.songs.length,
       day_night_dates: curation.dayNight.has(performance.id) ? JSON.stringify(curation.dayNight.get(performance.id)) : null,
       no_show_dates: curation.noShowDates.has(performance.id) ? JSON.stringify(curation.noShowDates.get(performance.id)) : null,
       single_show_dates: performanceCuration?.singleShowDates === undefined ? null : JSON.stringify(performanceCuration.singleShowDates),
@@ -1032,6 +1040,8 @@ export const buildPerformanceSetlists = (
     if (listId === undefined || listId === null) continue
     // A cited reason settles the difference: it is not an error to be flagged again.
     if (curation.lists.get(listId)?.explainedLengths?.[row.show_key] !== undefined) continue
+    // A wiki list is the per-city truth; cities of one year genuinely differ in length.
+    if (wikiSourced.has(row.performance_id)) continue
     const expected = expectedByList.get(listId)
     if (expected === undefined || row.item_count === expected) continue
     const reasons = new Set<string>(parseReasons(row.reasons))
