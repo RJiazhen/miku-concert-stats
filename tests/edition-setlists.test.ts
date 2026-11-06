@@ -70,7 +70,7 @@ describe('merged setlist display', () => {
     expect(display.rows).toHaveLength(39)
     expect(display.slotCount).toBe(24)
     const firstSlot = display.rows.filter((row) => row.index === 3)
-    expect(firstSlot.map(rowName)).toEqual(['ローリンガール', 'ゴーストルール', '初音ミクの消失 -DEAD END-'])
+    expect(firstSlot.map(rowName)).toEqual(['ローリンガール', 'ゴーストルール', '初音ミクの消失'])
     expect(firstSlot.map((row) => row.showLabel)).toEqual(['第 1 天', '第 2 天', '第 3 天'])
   })
 

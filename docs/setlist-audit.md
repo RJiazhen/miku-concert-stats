@@ -317,7 +317,7 @@
 
 ## 8. 版本合并与疑似重复
 
-### 8.1 已写入 `data/song-variants.json` 的 18 条
+### 8.1 已写入 `data/song-variants.json` 的 19 条
 
 | 变体 | 并入 | 类型 | 说明 |
 | --- | --- | --- | --- |
@@ -339,6 +339,7 @@
 | [3383](https://vocadb.net/S/3383) Fire◎Flower 2011 | [6387](https://vocadb.net/S/6387) | remaster | 2011 版 |
 | [16943](https://vocadb.net/S/16943) みんなみくみくにしてあげる♪ | [1355](https://vocadb.net/S/1355) | remaster | 2012 版 |
 | [326239](https://vocadb.net/S/326239) 虽然歌声无形 | [277408](https://vocadb.net/S/277408) | language | 中文版 |
+| [2925](https://vocadb.net/S/2925) 初音ミクの消失 -DEAD END-（287 秒） | ~~[295872](https://vocadb.net/S/295872)~~ | — | 已从目录删除（0014）：现场只演奏改编短版 |
 
 **需要你确认**：以上 18 条是否有不该合并的？特别是 `Sharing The World` 的英文/西语版，以及 `Hand in Hand` 的现场翻唱。
 
@@ -349,9 +350,14 @@
 | 专辑曲目 | 解析结果 | 问题 | 结论 |
 | --- | --- | --- | --- |
 | ハジメテノオト（短版） | [389595](https://vocadb.net/S/389595) `ハジメテノオト(Shortバージョン)` | 没有并入常见的 [10951](https://vocadb.net/S/10951) | |
-| 初音ミクの消失 | [295872](https://vocadb.net/S/295872) `初音ミクの消失`（2007 Original） | 没有并入常见的 [2925](https://vocadb.net/S/2925) `-DEAD END-`（2008 Remix） | |
+| 初音ミクの消失 | [295872](https://vocadb.net/S/295872) `初音ミクの消失`（2007 Original，110 秒） | ~~没有并入常见的 [2925](https://vocadb.net/S/2925) `-DEAD END-`~~ | 长版从目录删除（见下） |
 
 **我的判断**：这两条不一定是错。交响乐用的是「Short 版」和「Original 版」，与常见版本可能是不同录音。需要你决定：**按「同一首歌」合并，还是保留为不同版本并在页面注明？**
+
+**结论（2026-11-06，[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)）**：逐条核对了 11 个交响乐演出的 atwiki 逐曲表，并对照了现场录像，两处都只是 id 归属问题，与「短版/长版」无关：
+
+- `389595`（ハジメテノオト Short 版，136 秒）从未在任何演出出现，**已从目录删除**，引用改到 `10951`（`data/increments/0013-drop-unperformed-short-version.sql`）。
+- `2925`（-DEAD END- 287 秒长版）**已从目录删除**（`data/increments/0014-merge-dead-end-long-version.sql`），引用全部改到 `295872`。现场从未演奏长版：MIKU EXPO 2016 东京、マジカルミライ 2023、初音ミク×鼓童 2017 用的都是改编后的短版（约 2 分 40 秒），这条说明写到 `data/song-notes.json`，单曲页顶部会显示。
 
 ### 8.3 疑似重复但未合并（8 组）
 
@@ -363,7 +369,7 @@
 | 歌に形はないけれど | [2322](https://vocadb.net/S/2322) Original（2008-01-20） · [277408](https://vocadb.net/S/277408) Remaster（2009-03-25） | |
 | Packaged | [2432](https://vocadb.net/S/2432) Remix（2007-09-25） · [100671](https://vocadb.net/S/100671) Original（2007-09-22） | |
 | Tell Your World | [8395](https://vocadb.net/S/8395) Remix（2012-01-18） · [399060](https://vocadb.net/S/399060) Original（2011-12-15） | |
-| ハジメテノオト | [10951](https://vocadb.net/S/10951) Remix（2007-10-13） · [389595](https://vocadb.net/S/389595) Short（2007-10-12） | |
+| ハジメテノオト | [10951](https://vocadb.net/S/10951) Remix（2007-10-13） · ~~[389595](https://vocadb.net/S/389595) Short~~ | 已解决：Short 版从目录删除（见 8.2） |
 | Birthday Song for ミク | [14339](https://vocadb.net/S/14339) Original（2012-07-20） · [522024](https://vocadb.net/S/522024) Remix（2012-08-01） | |
 | on the rocks | [19913](https://vocadb.net/S/19913) Cover（2014-04-23） · [203921](https://vocadb.net/S/203921) Original（2012-03-08） | |
 | Blessing | [50703](https://vocadb.net/S/50703) Original（2014-03-11） · [423456](https://vocadb.net/S/423456) Remaster（2022-07-20） | |

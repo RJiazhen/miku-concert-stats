@@ -366,6 +366,10 @@ flowchart TD
 
 对象。键是变体歌曲 id 的十进制字符串，值是 `canonical`（并入的歌曲 id）、`kind`、可选 `note`。只能一级映射，不允许 A → B → C。单曲页的版本备注取自 `variantVersionNote`：`kind` 与标题差异之外，`cover` 还会用变体歌曲自己的署名解析出演出角色，附在全角括号里（如 `翻唱（鏡音リン、鏡音レン）`）；解析不到角色时不加括号。
 
+### `data/song-notes.json`
+
+对象。键是歌曲 id 的十进制字符串，值是单曲页正文的一句中文说明。`shared/song-notes.ts` 校验键是 id、文本非空。单曲页用 canonical id 查找，合并版本组共用主条目的说明；`tests/song-notes.test.ts` 保证每个键都指向目录里真实存在的歌曲。
+
 ### `data/setlist-merges.json`
 
 对象。键是 `song_list_id`，值是 `group`（同一组合共用）与可选 `note`。用 LCS 覆盖率人工确认过才写入；`docs/reports/setlist-differences.md` 会列出未合并的候选。

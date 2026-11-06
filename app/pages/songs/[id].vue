@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { useSongNotes } from '~/composables/useSongNotes.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { songCharacters, type SongCredits } from '~/composables/useCharacters.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
@@ -27,6 +28,7 @@ import type { Platform } from '~~/shared/types.ts'
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
+const { noteFor } = useSongNotes()
 const { songById, songHref, vocadbSongUrl } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
@@ -70,6 +72,9 @@ const appearanceNoteParts = (versionNote: string, coverage: string | null): Note
 
 /** Merged variant ids, sorted. */
 const variantIds = computed(() => variants.variantSongIdsOf(canonicalId.value))
+
+/** Checked note for this song, shown right under the header; null hides the alert. */
+const songNote = computed(() => noteFor(canonicalId.value))
 
 /** Every song id in the group, canonical first. */
 const groupIds = computed(() => variants.groupSongIds(canonicalId.value))
@@ -321,6 +326,15 @@ const headerFacts = computed(() => {
         </div>
         <p v-if="headerFacts" class="text-sm text-muted">{{ headerFacts }}</p>
       </header>
+
+      <UAlert
+        v-if="songNote"
+        color="neutral"
+        variant="subtle"
+        icon="i-lucide-info"
+        title="演唱会演奏的版本"
+        :description="songNote"
+      />
 
       <UCard v-if="variantRows.length > 0">
         <template #header>

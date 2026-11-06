@@ -109,14 +109,18 @@ describe('song variant file', () => {
     expect(emptySongVariantIndex().groupSongIds(5)).toEqual([5])
   })
 
-  it('folds the two short-version chains into the full versions', () => {
+  it('keeps no entry for the dropped 初音ミクの消失 long version', () => {
+    // 2925 (-DEAD END-) was removed by data/increments/0014: every recorded performance plays the
+    // Short version, so a variant entry would re-introduce an off-stage song.
     const index = parseSongVariants(committed())
-    expect(index.canonicalSongId(389595)).toBe(10951)
-    expect(index.canonicalSongId(295872)).toBe(2925)
-    for (const variantId of [389595, 295872]) {
-      expect(index.entries.get(variantId)?.kind).toBe('remix')
-      expect(index.entries.get(variantId)?.note).toBeTruthy()
-    }
+    expect(index.entries.has(2925)).toBe(false)
+    expect(index.canonicalSongId(295872)).toBe(295872)
+  })
+
+  it('keeps no entry for the dropped ハジメテノオト short version', () => {
+    // 389595 was removed from the catalog by data/increments/0013 because no 演出 played it,
+    // so a leftover mapping would point at a song that does not exist.
+    expect(parseSongVariants(committed()).entries.has(389595)).toBe(false)
   })
 })
 
