@@ -141,6 +141,30 @@ const headerLine = computed(() => {
   ]
   return parts.filter((part): part is string => part !== null && part !== '').join(' · ')
 })
+
+/** Compact `M/D 日场` label used when a multi-day run needs the date next to the half. */
+const shortShowLabel = (show: { date: string, half: 'day' | 'night' | null, label: string }): string => {
+  if (show.date === '') return show.label
+  const monthDay = `${Number(show.date.slice(5, 7))}/${Number(show.date.slice(8, 10))}`
+  if (show.half === 'day') return `${monthDay} 日场`
+  if (show.half === 'night') return `${monthDay} 夜场`
+  return monthDay
+}
+
+/**
+ * 场次 labels under the header. A single-day 演出 already prints its date above, so the line
+ * only names the halves; a multi-day run keeps a compact date so each half still maps to a day.
+ */
+const showLabelsInHeader = computed<string[]>(() => {
+  const facts = headerFacts.value
+  const singleDay = facts !== null && facts.dates !== null && facts.dates === performance.value?.start_date
+  if (!singleDay) return shows.value.map(shortShowLabel)
+  return shows.value.flatMap((show) => {
+    if (show.half === 'day') return ['日场']
+    if (show.half === 'night') return ['夜场']
+    return []
+  })
+})
 </script>
 
 <template>
@@ -163,11 +187,11 @@ const headerLine = computed(() => {
             {{ seriesView.primary }} 系列
           </NuxtLink>
         </p>
-        <p v-if="shows.length > 0" class="text-xs text-muted">
+        <p v-if="showLabelsInHeader.length > 0" class="text-xs text-muted">
           场次（{{ shows.length }}）：
-          <template v-for="(show, index) in shows" :key="show.key">
+          <template v-for="(label, index) in showLabelsInHeader" :key="index">
             <span v-if="index > 0"> · </span>
-            <span class="text-highlighted">{{ show.label }}</span>
+            <span class="text-highlighted">{{ label }}</span>
           </template>
         </p>
         <div class="flex flex-wrap gap-2 text-xs">

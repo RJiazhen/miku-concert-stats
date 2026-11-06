@@ -41,6 +41,15 @@ const showLabels = computed<string[]>(() => shows.value.map(showLabel))
 const rowsOf = (show: PerformanceShowSetlistRow): ShowSetlistPrintRow[] =>
   itemsOf(show.show_key).map((item) => ({ item }))
 
+/** The only 場次 when the 演出 has exactly one, printed without its date because the header shows it. */
+const singleShow = computed<PerformanceShowSetlistRow | null>(() => {
+  if (shows.value.length !== 1) return null
+  return shows.value[0] ?? null
+})
+
+/** Printed rows of that 場次. */
+const singleShowRows = computed<ShowSetlistPrintRow[]>(() => (singleShow.value === null ? [] : rowsOf(singleShow.value)))
+
 /** One merged programme for the whole 演出, or null when the shows must stay separate. */
 const mergedRows = computed<MergedShowSetlistRow[] | null>(() => {
   if (shows.value.length < 2) return null
@@ -53,7 +62,7 @@ const lengthSummary = computed<string>(() => {
   const counts = [...new Set(shows.value.map((row) => row.item_count))]
   if (counts.length === 0) return '无歌单'
   if (counts.length === 1) return `每场 ${counts[0]} 首`
-  return `每场 ${counts.join(' / ')} 首`
+  return `各场 ${counts.join(' / ')} 首`
 })
 </script>
 
@@ -68,17 +77,22 @@ const lengthSummary = computed<string>(() => {
       description="目录里没有该演出的场次级数据，无法列出曲目。"
     />
     <template v-else>
-      <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
-        <UBadge color="neutral" variant="subtle" size="sm">{{ shows.length }} 个场次</UBadge>
-        <UBadge color="neutral" variant="subtle" size="sm">{{ lengthSummary }}</UBadge>
-      </div>
-
+      <!-- 场次日期与数量已经写在页头，这里不再重复列出。 -->
       <div v-if="mergedRows" class="space-y-2">
         <header class="flex flex-wrap items-baseline justify-between gap-2">
           <h2 class="text-base font-semibold text-highlighted">合并歌单</h2>
-          <p class="text-xs text-muted">{{ showLabels.join('、') }}</p>
+          <p class="text-xs text-muted">{{ lengthSummary }}</p>
         </header>
         <ShowSetlistTable :catalog="catalog" :rows="mergedRows" :show-labels="showLabels" />
+      </div>
+
+      <!-- 只有一个场次时，页头已经写明日期，表格标题只写「歌单」。 -->
+      <div v-else-if="singleShow" class="space-y-2">
+        <header class="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 class="text-base font-semibold text-highlighted">歌单</h2>
+          <p class="text-xs text-muted">{{ singleShow.item_count }} 首</p>
+        </header>
+        <ShowSetlistTable :catalog="catalog" :rows="singleShowRows" />
       </div>
 
       <div v-else class="space-y-4">

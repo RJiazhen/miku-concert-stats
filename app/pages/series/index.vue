@@ -209,7 +209,6 @@ const cell = (value: string | null): string => (value === null || value === '' ?
         <div class="flex flex-wrap items-baseline justify-between gap-2">
           <h2 class="text-lg font-semibold text-highlighted">
             系列
-            <span class="ml-1 text-sm font-normal text-muted">{{ seriesRows.length }} 个</span>
           </h2>
           <p class="text-xs text-muted">「场次」按演出日计数，日场 / 夜场分别计数</p>
         </div>
@@ -253,8 +252,8 @@ const cell = (value: string | null): string => (value === null || value === '' ?
         <div class="flex flex-wrap items-baseline justify-between gap-2">
           <h2 class="text-lg font-semibold text-highlighted">
             演出
-            <span class="ml-1 text-sm font-normal text-muted">
-              {{ filteredPerformances.length }} 个<template v-if="filteredPerformances.length !== performanceRows.length"> / {{ performanceRows.length }}</template>
+            <span v-if="filteredPerformances.length !== performanceRows.length" class="ml-1 text-sm font-normal text-muted">
+              筛选后 {{ filteredPerformances.length }} / {{ performanceRows.length }} 个
             </span>
           </h2>
           <label class="flex items-center gap-2 text-xs text-muted">

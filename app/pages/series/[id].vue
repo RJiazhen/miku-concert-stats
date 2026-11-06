@@ -109,7 +109,7 @@ const yearRange = computed(() => {
 
       <UCard>
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">演出（{{ entries.length }}）</h2>
+          <h2 class="text-base font-semibold text-highlighted">演出</h2>
         </template>
         <ul class="divide-y divide-default/40">
           <li v-for="entry in entries" :key="entry.performance.id" class="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">

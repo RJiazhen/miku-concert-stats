@@ -70,7 +70,7 @@ const showCellOf = (row: ShowSetlistPrintRow): string => {
 
 <template>
   <div class="overflow-x-auto rounded-xl border border-default/60">
-    <table class="w-max min-w-xl border-collapse text-sm whitespace-nowrap">
+    <table class="w-max min-w-full border-collapse text-sm whitespace-nowrap">
       <thead class="bg-elevated/60 text-left text-xs tracking-wide text-muted uppercase">
         <tr>
           <th class="w-14 px-3 py-2 font-medium">序号</th>
