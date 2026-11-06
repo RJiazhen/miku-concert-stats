@@ -27,6 +27,7 @@ export default defineNuxtConfig({
     '/api/v1/**': {
       headers: {
         'cache-control': 'public, max-age=300',
+        'access-control-allow-origin': '*',
       },
     },
     '/data/catalog.sqlite.gz': {
