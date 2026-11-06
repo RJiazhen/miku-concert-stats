@@ -996,7 +996,7 @@ for item in WIKI_SETLISTS["entries"]:
 
 # 逐曲表循环会用表格说明覆盖 note；只看日程的百科证据在这里补回，避免昼夜结构无处留档。
 SCHEDULE_NOTES = {
-    9401: "2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首",
+    9401: "2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首；VocaDB 歌单 24530 只录了前 10 行，但同样把《ストリーミングハート》标成 Daytime、《キメラ》标成 Nighttime，昼夜结构一致",
 }
 for pid, schedule_note in SCHEDULE_NOTES.items():
     entry = performances.get(str(pid))

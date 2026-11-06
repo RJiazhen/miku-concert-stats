@@ -325,14 +325,14 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 - 歌单仍等百科／官方，演出结束后按 `.cursor/skills/update-concert-data/SKILL.md` 补 `data/wiki-raw/` 与 `scripts/wiki_raw_spec.py`（`RAW_SPEC` 里 `mwy2026` 目前只指向 13120，新增成都表要另加一个 key 或把该 id 加进 `performances`）。
 
 **变体：VocaDB 有 event 但不在任何收录系列里**。デコミク LIVE starring 初音ミク『Hello』是 VocaDB event 9401，`seriesId` 为空，`pnpm collect` 的系列循环走不到它，因此由 `data/increments/0015-decomiku-hello.sql` 补：
-
 | id | 演出 | 日期 | 数据 |
 | --- | --- | --- | --- |
 | 9401 | デコミク LIVE starring 初音ミク『Hello』 | 2026-02-14 昼 + 夜 | 国立代々木競技場第一体育館；百科逐曲表 27 首 × 2 场 |
 
 - 与成都站不同，9401 是真实 VocaDB id：`source_url` 保持 `https://vocadb.net/E/9401`，`vocadb_status` 写 `Finished`。
 - 它没有系列，目录里新建了**本地系列 900000000**（`デコミク LIVE starring 初音ミク`），并补一条 `edition_premieres`；本地系列 id 从 900,000,000 起，避免与 VocaDB 的 series id 冲突。
-- VocaDB 给这个 event 挂了一个**空** song list 24530，所以 `performances.song_list_id` 写 24530（排行与覆盖统计据此计入），逐曲行仍全部来自百科（`performance_setlists.source_kind = 'wiki'`）。
+- VocaDB 给这个 event 挂了一个**只录了前 10 行**（到《チェリーポップ》为止）的 song list 24530，所以 `performances.song_list_id` 写 24530（排行与覆盖统计据此计入），逐曲行仍全部来自百科的 27 行（`performance_setlists.source_kind = 'wiki'`）。这 10 行里的 `Daytime`（#5）与 `Nighttime`（#6）与百科的昼夜互换一致，可当独立佐证。
+- 因为 `pnpm collect` 不会拉取 24530 的行，`setlist_items` 里没有它的行；一旦将来这个列表补全并被采集，百科逐曲表仍会整份替换它（wiki 优先）。
 - 中文系列名写在 `data/series-titles.zh-CN.json`（日文系列必须有译名，`tests/series-titles.test.ts` 会检查）。
 
 ### 4.6 演出名的人工更正

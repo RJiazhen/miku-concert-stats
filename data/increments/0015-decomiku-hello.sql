@@ -8,7 +8,9 @@
 -- VocaDB series id.
 --
 -- VocaDB: https://vocadb.net/E/9401 (name, date, venue, status, web links)
---         https://vocadb.net/L/24530 (song list attached to the event; no lines yet)
+--         https://vocadb.net/L/24530 (song list attached to the event: only the first 10 lines,
+--         up to チェリーポップ, with `Daytime` on #5 and `Nighttime` on #6 — enough to corroborate
+--         the day/night split, but not the full programme)
 -- Wiki:   https://w.atwiki.jp/hmiku/pages/72956.html (setlist, 2026-02-14 昼 + 夜, 27 songs each)
 -- 0001 rewrites every catalog row, so this file has to run after it; INSERT OR IGNORE keeps the
 -- rows once they are there, and a future VocaDB collection of 9401 will not duplicate them.

@@ -497,7 +497,7 @@
 | 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（札幌公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
 | 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
 | 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 1 × 16 | 歌单来自初音ミク Wiki 的逐曲表（横浜），16 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html) |
-| デコミク LIVE starring 初音ミク『Hello』（9401） | 900000000 | 2 × 54 | 歌单来自初音ミク Wiki 的逐曲表（代代木），按场次分 2 份；百科日程：2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首 | [初音ミク Wiki：デコミク LIVE starring 初音ミク『Hello』（代代木）](https://w.atwiki.jp/hmiku/pages/72956.html) |
+| デコミク LIVE starring 初音ミク『Hello』（9401） | 900000000 | 2 × 54 | 歌单来自初音ミク Wiki 的逐曲表（代代木），按场次分 2 份；百科日程：2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首；VocaDB 歌单 24530 只录了前 10 行，但同样把《ストリーミングハート》标成 Daytime、《キメラ》标成 Nighttime，昼夜结构一致 | [初音ミク Wiki：デコミク LIVE starring 初音ミク『Hello』（代代木）](https://w.atwiki.jp/hmiku/pages/72956.html) |
 
 ---
 
