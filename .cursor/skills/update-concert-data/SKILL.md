@@ -1,6 +1,6 @@
 ---
 name: update-concert-data
-description: Add or correct Hatsune Miku concert setlists in the miku-concert-stats catalog by collecting per-city, per-slot song lists from the 初音ミク Wiki (atwiki) and the official sites, then rebuilding the derived 場次 layer and the review reports. Use when asked to 更新歌单数据, 补录某场演出, 对齐百科逐曲表, add a tour's setlist, fix a wrong setlist, or refresh docs/setlist-confirmation.md.
+description: Add or correct Hatsune Miku concert setlists in the miku-concert-stats catalog by collecting per-city, per-slot song lists from the 初音ミク Wiki (atwiki) and the official sites, filling in Chinese and English song titles from official names, voca.wiki and 萌娘百科, then rebuilding the derived 場次 layer and the review reports. Use when asked to 更新歌单数据, 补录某场演出, 对齐百科逐曲表, add a tour's setlist, 补歌名中文译名, fix a wrong setlist, or refresh docs/setlist-confirmation.md.
 disable-model-invocation: true
 ---
 
@@ -33,6 +33,8 @@ disable-model-invocation: true
 | `scripts/wiki_tour_tables.py` | 手抄的城市级表（EXPO 2014–2020、Live Party、鼓童、未来有你、魔法未来 2014） | 手改 |
 | `data/wiki-setlists.json` | 逐行数据（`title` + `when`） | `wiki-setlists-source.py` |
 | `data/wiki-title-aliases.json` | 百科写法 → catalog 写法 | 手改 |
+| `data/song-titles.zh-CN.json` | 歌曲中文名（`id → { title, source, comment }`），页眉开关控制显示 | 手改，见 §5「中文译名与英文名」 |
+| `data/increments/0015-song-english-names.sql` | VocaDB 没给英文名的 `songs.name_en` 补写 | 手改 |
 | `data/wiki-songs.json` | catalog 里没有的歌（VocaDB 能查到） | `fetch-wiki-songs.py` |
 | `data/increments/0009-wiki-songs.sql` | 上面那些歌的 `INSERT OR IGNORE` | `fetch-wiki-songs.py` |
 | `data/wiki-repertoire.json` | catalog 和 VocaDB 都没有的曲目：类别、作曲者、备注、保留 id | **手改** |
@@ -162,6 +164,40 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
 舞台段落行（`MC…`、`《アンコール》`、`バンドメンバー紹介`、`…パート`）不是曲目，
 `wiki-setlists-source.py` 已经跳过，不要登记。
 
+### 中文译名与英文名
+
+中文曲名不走 catalog，写在 `data/song-titles.zh-CN.json`（`id → { title, source, comment }`）；
+英文名走 `songs.name_en`，VocaDB 没给时补在 `data/increments/0015-song-english-names.sql`（`UPDATE`，可重复执行）。
+新歌单第一次出现的歌，逐首查 `data/song-titles.zh-CN.json` 有没有它的 id，没有就按下面的顺序补，
+**不许因为查不到就跳过**：
+
+1. **官方中文译名**。Crypton / 初音未来官方中文频道、官方 bilibili 号、官方专辑的中文曲名优先，
+   `source` 写 `官方中译`。
+2. **民间约定俗成的译名**。先查 [voca.wiki](https://voca.wiki)（术力口百科）条目 infobox 的 `歌曲名称` 栏，
+   第三行通常就是通行译名（`サンドリヨン` → `Cendrillon` → `灰姑娘`）；再查
+   [萌娘百科](https://zh.moegirl.org.cn)的条目名与正文首段。`source` 写 `vocawiki` 或 `萌娘百科`。
+   两站都能直接抓源码（`https://voca.wiki/api.php?action=parse&page=<标题>&prop=wikitext&format=json`），
+   比截图核对可靠。早前从 VocaDB 别名表取的 `vocadb-alias` 也算这一档，但要当心繁体和音译。
+3. **自己翻译**。前两档都没有才动手，`source` 写 `人工核定`，`comment` 写清依据（如「直译」）。
+   宁可直译也不编造。
+
+补充规则：
+
+- **假名形式的英文词直接保留英文**：曲名本身是英文语句的假名写法时（`クリスタルスノウ` → `Crystal Snow`、
+  `サンドリヨン` → `Cendrillon`、`ダンスロボットダンス` → `Dance Robot Dance`），
+  中文显示名直接用这个英文，不再译成中文；同时把它写进 `songs.name_en`，让 `shared/lookup.ts` 的检索也能命中。
+  判断标准是原曲有没有官方英文名，不要自行把片假名音译成英文。
+- 资料给的是 `中文/English` 混排时按这个拆：前半进 `title`，英文进 `name_en`，**不要**把英文留在中文名里，
+  也不要塞进 `comment`。
+- 一个 id 只留一个显示名；第二种通行写法写进 `comment`（`另译：…`）。
+- 中文名与日文原名完全相同的（`心拍数♯0822`、`再教育`、`巴`）不要登记：`formatSongTitle` 遇到同名只显示原名，
+  写进去只会虚增映射条数。
+- 非 VOCALOID 曲目换来源：古典曲目查 zh.wikipedia 的条目名（`第5号钢琴协奏曲 (贝多芬)`、`Sleigh Ride` → `滑雪橇`），
+  鼓童这类器乐曲多半是汉字同名，只需简繁转换（`LION（獅子吼）` → `LION（狮子吼）`，`source` 写 `简繁转换`）。
+- 键按数值升序，`title` 与 `source` 不能为空，id 必须真的在 catalog 里，否则 `tests/song-titles.test.ts` 会挂；
+  那个测试只校验已登记的条目，**不会提示你漏了哪首**。
+- 一次补很多条时，先列一张 `tmp/` 下的对照表（id / 原名 / 现名 / 建议 / 依据）给人过目，再写回 JSON。
+
 ## 6. 展开场次
 
 `build-setlist-curation.py` 把每行 `when` 判给具体 `show_key`：`""` 表示所有场次，
@@ -228,8 +264,19 @@ SELECT show_key, item_count FROM performance_show_setlists
 - `tests/catalog.test.ts` 里钉了总演出数、wiki-only 演出 id 列表、若干逐场条数，改动后要一起更新。
 - 抽两条页面确认渲染：`/shows/<id>`（场次标题、逐曲来源、note 横幅）与 `/raw`。
 
+新歌单还要查一遍还没中文名的曲目（中文名在 JSON 里，SQL 查不到，只能两边对照）：
+
+```python
+import json, sqlite3
+
+db = sqlite3.connect("public/data/catalog.sqlite")
+known = json.load(open("data/song-titles.zh-CN.json"))
+missing = [row for row in db.execute("SELECT id, name FROM songs WHERE name_en IS NULL") if str(row[0]) not in known]
+print(missing)  # 每一条都要么在 JSON 里有中文名，要么本来就是英文/汉字名
+```
+
 ## 8. 收尾
 
-- 汇报口径：本次新增/改动的演出数、新增歌曲数、仍未匹配的曲目标题、仍无歌单的演出。
+- 汇报口径：本次新增/改动的演出数、新增歌曲数、未匹配的曲目标题、还没中文／英文名的曲目、仍无歌单的演出。
 - 提交信息写清改了什么源；**不要**加 Cursor 的 co-author trailer。
 - 只要 `docs/setlist-confirmation.md` 的「待核实 / 冲突」不再是 0，就不要提交 —— 先修数据。

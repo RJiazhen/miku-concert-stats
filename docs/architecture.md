@@ -24,6 +24,8 @@
 
 `data/increments/0012-performance-name-fixes.sql` 只做**显示名更正**：上游 13120 只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站后两者无法区分，所以用 `UPDATE` 把 `name` / `name_ja` / `series_suffix` 改成 `MIKU WITH YOU 2026 in Shanghai`。它同样写在 `0001` 之后，`pnpm collect` 重写 `0001` 后仍然生效；只改这三列，不动日期、场馆与 `song_list_id`。
 
+`data/increments/0015-song-english-names.sql` 补 **VocaDB 没给英文名的四首已演出歌曲**：`サンドリヨン` → `Cendrillon`、`タイムリミット` → `Time Limit`、`ダンスロボットダンス` → `Dance Robot Dance`、`クリスタルスノウ` → `Crystal Snow`。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文；该文件同样在 `0001` 之后用 `UPDATE`，可重复执行。
+
 ## 技术栈
 
 - **Nuxt 4.6**，`srcDir` 为 `app/`。`shared/`、`scripts/`、`tests/`、`server/`、`data/` 留在根目录，`app/**` 通过 `~~/shared/*` 引用纯逻辑。
