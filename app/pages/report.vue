@@ -107,18 +107,15 @@ const copyMarkdown = async (): Promise<void> => {
 
     <UCard>
       <div class="flex flex-wrap items-end gap-3">
-        <label class="grid gap-1 text-xs text-muted">
-          范围
+        <FilterField label="范围">
           <USelect v-model="scope" :items="scopeItems" size="sm" class="w-32" />
-        </label>
-        <label class="grid gap-1 text-xs text-muted">
-          分级
+        </FilterField>
+        <FilterField label="分级">
           <USelect v-model="severity" :items="severityItems" size="sm" class="w-48" />
-        </label>
-        <label class="grid gap-1 text-xs text-muted">
-          合并状态
+        </FilterField>
+        <FilterField label="合并状态">
           <USelect v-model="mergedFilter" :items="mergedItems" size="sm" class="w-32" />
-        </label>
+        </FilterField>
         <p class="pb-2 text-xs text-muted">
           共 {{ pairs.length }} / {{ basePairs.length }} 对
           <template v-if="report">· 同一系列年度 {{ report.pairCount }} 对，其中 {{ report.mergedPairCount }} 对已合并</template>

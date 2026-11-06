@@ -117,20 +117,18 @@ onMounted(() => {
       </p>
     </header>
 
-    <p v-if="error" class="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-      {{ error }}
-    </p>
+    <UAlert v-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
 
     <div v-else-if="pending && !catalog" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      <USkeleton v-for="index in 6" :key="index" class="h-28 rounded-2xl" />
+      <USkeleton v-for="index in 6" :key="index" class="h-28 rounded-xl" />
     </div>
 
     <template v-else-if="catalog">
       <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <div
+        <UCard
           v-for="metric in metrics"
           :key="metric.label"
-          class="rounded-2xl border border-default bg-elevated/40 p-4"
+          variant="subtle"
         >
           <div class="flex items-center justify-between gap-2">
             <p class="text-xs text-muted">{{ metric.label }}</p>
@@ -142,11 +140,11 @@ onMounted(() => {
             {{ formatNumber(metric.value) }}
           </p>
           <p class="mt-1 text-[11px] text-muted">{{ metric.hint }}</p>
-        </div>
+        </UCard>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-2">
-        <section class="rounded-2xl border border-default bg-elevated/30 p-5">
+        <UCard variant="subtle">
           <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
             <UIcon name="i-lucide-list-music" class="size-4 text-primary" />
             歌单来源
@@ -165,9 +163,9 @@ onMounted(() => {
               </div>
             </div>
           </div>
-        </section>
+        </UCard>
 
-        <section class="rounded-2xl border border-default bg-elevated/30 p-5">
+        <UCard variant="subtle">
           <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
             <UIcon name="i-lucide-video" class="size-4 text-primary" />
             视频平台
@@ -186,9 +184,9 @@ onMounted(() => {
               </div>
             </div>
           </div>
-        </section>
+        </UCard>
 
-        <section class="rounded-2xl border border-default bg-elevated/30 p-5">
+        <UCard variant="subtle">
           <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
             <UIcon name="i-lucide-clock" class="size-4 text-primary" />
             数据新鲜度
@@ -199,9 +197,9 @@ onMounted(() => {
               <dd class="mt-0.5 text-sm font-medium text-highlighted">{{ row.value }}</dd>
             </div>
           </dl>
-        </section>
+        </UCard>
 
-        <section class="rounded-2xl border border-default bg-elevated/30 p-5">
+        <UCard variant="subtle">
           <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
             <UIcon name="i-lucide-scale" class="size-4 text-primary" />
             来源与许可
@@ -214,7 +212,7 @@ onMounted(() => {
               <p class="mt-0.5 text-muted">{{ source.license }} · {{ source.notes }}</p>
             </li>
           </ul>
-        </section>
+        </UCard>
       </div>
     </template>
   </div>

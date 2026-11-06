@@ -75,32 +75,34 @@ const lengthSummary = computed<string>(() => {
     />
     <template v-else>
       <!-- 场次日期与数量已经写在页头，这里不再重复列出。 -->
-      <div v-if="mergedRows" class="space-y-2">
-        <header class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 class="text-base font-semibold text-highlighted">合并歌单</h2>
-          <p class="text-xs text-muted">{{ lengthSummary }}</p>
-        </header>
-        <ShowSetlistTable :catalog="catalog" :rows="mergedRows" :shows="shows" />
-      </div>
+      <ShowSetlistTable
+        v-if="mergedRows"
+        :catalog="catalog"
+        :rows="mergedRows"
+        :shows="shows"
+        title="合并歌单"
+        :count="lengthSummary"
+      />
 
       <!-- 只有一个场次时，页头已经写明日期，表格标题只写「歌单」。 -->
-      <div v-else-if="singleShow" class="space-y-2">
-        <header class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 class="text-base font-semibold text-highlighted">歌单</h2>
-          <p class="text-xs text-muted">{{ singleShow.item_count }} 首</p>
-        </header>
-        <ShowSetlistTable :catalog="catalog" :rows="singleShowRows" />
-      </div>
+      <ShowSetlistTable
+        v-else-if="singleShow"
+        :catalog="catalog"
+        :rows="singleShowRows"
+        title="歌单"
+        :count="`${singleShow.item_count} 首`"
+      />
 
-      <div v-else class="space-y-4">
-        <div v-for="show in shows" :key="show.show_key" class="space-y-2">
-          <header class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="text-base font-semibold text-highlighted">{{ showLabel(show) }}</h2>
-            <p class="text-xs text-muted">{{ show.item_count }} 首</p>
-          </header>
-          <ShowSetlistTable :catalog="catalog" :rows="rowsOf(show)" />
-        </div>
-      </div>
+      <template v-else>
+        <ShowSetlistTable
+          v-for="show in shows"
+          :key="show.show_key"
+          :catalog="catalog"
+          :rows="rowsOf(show)"
+          :title="showLabel(show)"
+          :count="`${show.item_count} 首`"
+        />
+      </template>
     </template>
   </section>
 </template>

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { derivedItemSongIds, type ShowSetlistPrintItem, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
-import { formatCharacters } from '~/composables/useCharacters.ts'
+import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
 
@@ -13,6 +13,12 @@ const props = defineProps<{
   rows: ShowSetlistPrintRow[]
   /** Every 场次 of the 演出 in calendar order; only passed for a merged table. */
   shows?: PerformanceShowSetlistRow[]
+  /** Section heading, e.g. `合并歌单` or one 场次 label. */
+  title: string
+  /** Small text right after the heading, e.g. `每场 22 首`. */
+  count?: string | null
+  /** One-line explanation under the heading. */
+  note?: string | null
 }>()
 
 const { songById, songName, songHref, vocadbSongUrl } = useSongLookup()
@@ -92,15 +98,14 @@ const medleyName = (item: PerformanceShowSetlistItemRow): string | null => {
 }
 
 /** 演出角色 for one printed item, merged without duplicates. */
-const charactersOf = (item: PerformanceShowSetlistItemRow): string => {
+const charactersOf = (item: PerformanceShowSetlistItemRow): string[] => {
   const names = new Set<string>()
   for (const songId of songIdsOf(item)) {
     const song = songById(songId)
     if (song === null) continue
-    const text = formatCharacters(song)
-    if (text !== '—') for (const name of text.split('、')) names.add(name)
+    for (const name of songCharacters(song)) names.add(name)
   }
-  return names.size === 0 ? '—' : [...names].join('、')
+  return [...names]
 }
 
 /** 备注 cell of one printed item: the repertoire category for a non-VOCALOID row, `—` otherwise. */
@@ -163,17 +168,14 @@ const remarkOf = (item: ShowSetlistPrintItem): string => {
 </script>
 
 <template>
-  <UTable
+  <TableSection
+    :title="title"
+    :count="count ?? null"
+    :note="note ?? null"
+    :fill="false"
     :data="data"
     :columns="columns"
     :meta="{ class: { tr: rowClass } }"
-    :ui="{
-      root: 'overflow-x-auto rounded-xl border border-default/60',
-      base: 'w-max min-w-full border-collapse',
-      thead: 'bg-elevated/60',
-      th: 'px-3 py-2 text-xs tracking-wide uppercase',
-      td: 'px-3 py-2',
-    }"
   >
     <template #position-cell="{ row }">
       {{ row.original.position }}
@@ -202,10 +204,10 @@ const remarkOf = (item: ShowSetlistPrintItem): string => {
       </span>
     </template>
     <template #characters-cell="{ row }">
-      {{ charactersOf(row.original.entry.item) }}
+      <CharacterChips :names="charactersOf(row.original.entry.item)" />
     </template>
     <template #note-cell="{ row }">
       <span class="text-xs">{{ remarkOf(row.original.entry) }}</span>
     </template>
-  </UTable>
+  </TableSection>
 </template>

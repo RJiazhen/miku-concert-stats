@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongNotes } from '~/composables/useSongNotes.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import { songCharacters, type SongCredits } from '~/composables/useCharacters.ts'
+import { songCharacters } from '~/composables/useCharacters.ts'
+import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
 import { producerNamesFor } from '~~/shared/producer-options.ts'
 import { producerPath } from '~~/shared/producers.ts'
@@ -19,10 +21,7 @@ import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { latestSnapshot } from '~~/shared/stats.ts'
 import { fromVocaDB, isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
 import {
-  nextAppearanceSort,
-  sortAppearances,
-  type AppearanceSort,
-  type AppearanceSortKey,
+  compareAppearances,
 } from '~~/shared/appearance-sort.ts'
 import type { Platform } from '~~/shared/types.ts'
 
@@ -34,6 +33,7 @@ const { songById, songHref, vocadbSongUrl } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { language, translationFor } = useSongLanguage()
+const sortableHeader = useSortableHeader()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -80,11 +80,8 @@ const songNote = computed(() => noteFor(canonicalId.value))
 /** Every song id in the group, canonical first. */
 const groupIds = computed(() => variants.groupSongIds(canonicalId.value))
 
-/** 演出角色 text for a credit line; `未记录` reads better than the table's em dash. */
-const charactersText = (credits: SongCredits | null): string => {
-  const names = songCharacters(credits)
-  return names.length === 0 ? '未记录' : names.join('、')
-}
+/** 演出角色 of a credit line, as the chips the header and the variant card print. */
+const characterNamesOf = (credits: Parameters<typeof songCharacters>[0]): string[] => songCharacters(credits)
 
 /** Variant entries with the facts the 其他版本 card needs to describe each merged song. */
 const variantRows = computed(() => {
@@ -110,6 +107,24 @@ const variantRows = computed(() => {
   })
 })
 
+/** One row of the 出场记录 table. */
+type AppearanceRow = {
+  key: string
+  seriesId: number
+  seriesName: string
+  /** `seriesName` in the site language, kept separate so the sort and series-year key stay on the catalog name. */
+  seriesLabel: string
+  seriesNumber: number | null
+  performanceId: number
+  performanceName: string
+  date: string | null
+  role: string
+  /** Plain text of the 备注 cell, used by the column sort. */
+  noteText: string
+  /** 备注 cell parts in display order, also concatenated into `noteText`. */
+  noteParts: NotePart[]
+}
+
 /** Performances that played any version of this song. */
 const appearances = computed(() => {
   if (!catalog.value) return []
@@ -130,22 +145,7 @@ const appearances = computed(() => {
     return variantVersionNote(canonicalName, variantSong?.name ?? String(songId), entry.kind, performers)
   }
 
-  const rows: {
-    key: string
-    seriesId: number
-    seriesName: string
-    /** `seriesName` in the site language, kept separate so the sort and series-year key stay on the catalog name. */
-    seriesLabel: string
-    seriesNumber: number | null
-    performanceId: number
-    performanceName: string
-    date: string | null
-    role: string
-    /** Plain text of the 备注 cell, used by the column sort. */
-    noteText: string
-    /** 备注 cell parts in display order, also concatenated into `noteText`. */
-    noteParts: NotePart[]
-  }[] = []
+  const rows: AppearanceRow[] = []
   for (const link of catalog.value.setlistItemSongs) {
     if (!ids.has(link.song_id)) continue
     if (link.role !== 'listed') continue
@@ -204,42 +204,67 @@ const appearances = computed(() => {
   return rows
 })
 
-/** Active column of the 出场记录 table; date ascending is the order the table always had. */
-const appearanceSort = ref<AppearanceSort>({ key: 'date', direction: 'asc' })
+/** Sort state of the 出场记录 table; date ascending is the order the table always had. */
+const appearanceSorting = ref([{ id: 'date', desc: false }])
 
-/** Columns of the 出场记录 table, in display order. */
-const appearanceColumns: readonly { key: AppearanceSortKey; label: string }[] = [
-  { key: 'date', label: '日期' },
-  { key: 'series', label: '系列' },
-  { key: 'venue', label: '演出' },
-  { key: 'note', label: '备注' },
-]
+/** Columns of the 出场记录 table; every one sorts through the shared appearance comparator. */
+const appearanceColumns = computed<TableColumn<AppearanceRow>[]>(() => [
+  {
+    accessorKey: 'date',
+    header: sortableHeader('日期'),
+    enableSorting: true,
+    sortingFn: (left, right) => compareAppearances(left.original, right.original, 'date'),
+  },
+  {
+    accessorKey: 'seriesLabel',
+    header: sortableHeader('系列'),
+    enableSorting: true,
+    sortingFn: (left, right) => compareAppearances(left.original, right.original, 'series'),
+  },
+  {
+    accessorKey: 'performanceName',
+    header: sortableHeader('演出'),
+    enableSorting: true,
+    sortingFn: (left, right) => compareAppearances(left.original, right.original, 'venue'),
+  },
+  {
+    accessorKey: 'noteText',
+    header: sortableHeader('备注'),
+    enableSorting: true,
+    sortingFn: (left, right) => compareAppearances(left.original, right.original, 'note'),
+  },
+])
 
-/** Appearances in the order the active header asks for. */
-const sortedAppearances = computed(() => sortAppearances(appearances.value, appearanceSort.value))
-
-/** Applies a header click: a new column starts ascending, the active column flips. */
-const toggleAppearanceSort = (key: AppearanceSortKey): void => {
-  appearanceSort.value = nextAppearanceSort(appearanceSort.value, key)
-}
-
-/** Sort indicator icon for a header, matching the ranking table on the home page. */
-const appearanceSortIcon = (key: AppearanceSortKey): string => {
-  if (appearanceSort.value.key !== key) return 'i-lucide-arrow-up-down'
-  return appearanceSort.value.direction === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow'
-}
-
-/** `aria-sort` value announced for a header cell. */
-const appearanceAriaSort = (key: AppearanceSortKey): 'ascending' | 'descending' | 'none' => {
-  if (appearanceSort.value.key !== key) return 'none'
-  return appearanceSort.value.direction === 'asc' ? 'ascending' : 'descending'
-}
+/** Columns of the 相关投稿 table; the snapshot column only exists when snapshots do. */
+const videoColumns = computed<TableColumn<VideoRow>[]>(() => {
+  const list: TableColumn<VideoRow>[] = [
+    { accessorKey: 'platform', header: '平台' },
+    { accessorKey: 'title', header: '标题' },
+    { accessorKey: 'pvType', header: '类型' },
+    { accessorKey: 'publishDate', header: '日期' },
+  ]
+  if (hasSnapshots.value) list.push({ id: 'views', header: '最新播放量' })
+  list.push({ id: 'url', header: '链接' })
+  return list
+})
 
 /** Distinct series the song appears in, for the header count. */
 const seriesCount = computed(() => {
   const ids = new Set(appearances.value.map((row) => row.seriesId))
   return ids.size
 })
+
+/** One row of the 相关投稿 table. */
+type VideoRow = {
+  key: number
+  platform: string
+  title: string
+  pvType: string
+  publishDate: string
+  /** Latest snapshot view count, null when the platform video has none. */
+  views: number | null
+  url: string
+}
 
 /** PVs for any version of the song, grouped by platform. */
 const videos = computed(() => {
@@ -260,10 +285,23 @@ const latestViews = (platform: Platform, platformVideoId: string): number | null
 /** Formats a view count. */
 const viewsText = (count: number | null): string => (count === null ? '无快照' : count.toLocaleString('zh-Hans'))
 
+/** Rows of the 相关投稿 table, one per platform video. */
+const videoRows = computed<VideoRow[]>(() =>
+  videos.value.map((video) => ({
+    key: video.vocadb_pv_id,
+    platform: video.platform,
+    title: video.title ?? '—',
+    pvType: video.pv_type ?? '—',
+    publishDate: video.publish_date ?? '—',
+    views: latestViews(video.platform, video.platform_video_id),
+    url: video.url,
+  })),
+)
+
 const hasSnapshots = computed(() => (catalog.value?.snapshots.length ?? 0) > 0)
 
-/** 演出角色 for the canonical song, shown in the header rather than the merged card. */
-const characters = computed(() => charactersText(song.value ?? null))
+/** 演出角色 for the canonical song, printed as chips in the header. */
+const characters = computed(() => characterNamesOf(song.value ?? null))
 
 /** Muted facts under the title: 投稿日期 and 演出角色 of the canonical song. */
 /** Whether the catalog registered this song from a wiki setlist rather than VocaDB. */
@@ -282,10 +320,11 @@ const categoryLabel = computed(() => {
 const headerFacts = computed(() => {
   const facts: string[] = []
   if (song.value?.publish_date) facts.push(`投稿日期 ${song.value.publish_date}`)
-  // A non-VOCALOID piece has no 演出角色 by definition, so the line would only repeat "未记录".
-  if (!outsideVocaDB.value || isVocaloidSong(song.value)) facts.push(`演出角色 ${characters.value}`)
   return facts.join(' · ')
 })
+
+/** Whether the header prints the 演出角色 chip line; a non-VOCALOID piece has none by definition. */
+const showsCharacterLine = computed(() => (!outsideVocaDB.value || isVocaloidSong(song.value)) && characters.value.length > 0)
 </script>
 
 <template>
@@ -325,6 +364,10 @@ const headerFacts = computed(() => {
           </UButton>
         </div>
         <p v-if="headerFacts" class="text-sm text-muted">{{ headerFacts }}</p>
+        <div v-if="showsCharacterLine" class="flex flex-wrap items-center gap-2 text-sm text-muted">
+          <span>演出角色</span>
+          <CharacterChips :names="characters" size="sm" />
+        </div>
       </header>
 
       <UAlert
@@ -355,7 +398,7 @@ const headerFacts = computed(() => {
                 <UIcon name="i-lucide-external-link" class="size-3" />
               </ULink>
             </div>
-            <p v-if="row.producerNames.length > 0 || row.characters.length > 0" class="text-xs text-muted">
+            <p v-if="row.producerNames.length > 0" class="text-xs text-muted">
               <template v-if="row.producerNames.length > 0">
                 制作人
                 <template v-for="(name, nameIndex) in row.producerNames" :key="name">
@@ -363,109 +406,80 @@ const headerFacts = computed(() => {
                   <NuxtLink :to="producerPath(name)" class="text-muted no-underline hover:text-primary">{{ name }}</NuxtLink>
                 </template>
               </template>
-              <template v-if="row.producerNames.length > 0 && row.characters.length > 0"> · </template>
-              <template v-if="row.characters.length > 0">演出角色 {{ row.characters.join('、') }}</template>
             </p>
+            <div v-if="row.characters.length > 0" class="flex flex-wrap items-center gap-2 text-xs text-muted">
+              <span>演出角色</span>
+              <CharacterChips :names="row.characters" />
+            </div>
           </li>
         </ul>
       </UCard>
 
-      <UCard>
-        <template #header>
-          <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="text-base font-semibold text-highlighted">出场记录</h2>
-            <span class="text-xs text-muted">{{ appearances.length }} 个演出 · {{ seriesCount }} 个系列</span>
-          </div>
+      <TableSection
+        title="出场记录"
+        :count="`${appearances.length} 个演出 · ${seriesCount} 个系列`"
+        :fill="false"
+        v-model:sorting="appearanceSorting"
+        :data="appearances"
+        :columns="appearanceColumns"
+        empty-icon="i-lucide-calendar-x"
+        empty-title="没有出场记录"
+        empty-description="没有在已收录的歌单里出现。"
+      >
+        <template #date-cell="{ row }">
+          <span class="font-mono text-muted">{{ row.original.date ?? '—' }}</span>
         </template>
-        <p v-if="appearances.length === 0" class="text-sm text-muted">没有在已收录的歌单里出现。</p>
-        <div v-else class="overflow-x-auto">
-          <table class="w-max min-w-full whitespace-nowrap text-sm">
-            <thead class="text-left text-xs tracking-wide text-muted uppercase">
-              <tr>
-                <th
-                  v-for="column in appearanceColumns"
-                  :key="column.key"
-                  scope="col"
-                  :aria-sort="appearanceAriaSort(column.key)"
-                  class="px-2 py-1 font-medium"
-                >
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
-                    size="xs"
-                    class="-mx-2"
-                    :label="column.label"
-                    :trailing-icon="appearanceSortIcon(column.key)"
-                    :aria-label="`按${column.label}排序`"
-                    @click="toggleAppearanceSort(column.key)"
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in sortedAppearances" :key="row.key" class="border-t border-default/40">
-                <td class="px-2 py-1.5 font-mono text-muted">{{ row.date ?? '—' }}</td>
-                <td class="px-2 py-1.5 text-muted">
-                  <NuxtLink
-                    :to="`/series/${row.seriesId}`"
-                    class="text-primary"
-                    :title="row.seriesName"
-                  >
-                    {{ row.seriesLabel }}
-                  </NuxtLink>
-                </td>
-                <td class="px-2 py-1.5">
-                  <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.performanceName || '—' }}</NuxtLink>
-                </td>
-                <td class="px-2 py-1.5 text-xs">
-                  <template v-for="(part, partIndex) in row.noteParts" :key="`${part.warning ? 'w' : 'm'}:${part.text}`">
-                    <span v-if="partIndex > 0" class="text-muted">；</span>
-                    <span :class="part.warning ? 'text-warning' : 'text-muted'">{{ part.text }}</span>
-                  </template>
-                  <span v-if="row.noteParts.length === 0" class="text-muted">—</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </UCard>
+        <template #seriesLabel-cell="{ row }">
+          <NuxtLink
+            :to="`/series/${row.original.seriesId}`"
+            class="text-primary"
+            :title="row.original.seriesName"
+          >
+            {{ row.original.seriesLabel }}
+          </NuxtLink>
+        </template>
+        <template #performanceName-cell="{ row }">
+          <NuxtLink :to="`/shows/${row.original.performanceId}`" class="text-primary">{{ row.original.performanceName || '—' }}</NuxtLink>
+        </template>
+        <template #noteText-cell="{ row }">
+          <span class="text-xs">
+            <template v-for="(part, partIndex) in row.original.noteParts" :key="`${part.warning ? 'w' : 'm'}:${part.text}`">
+              <span v-if="partIndex > 0" class="text-muted">；</span>
+              <span :class="part.warning ? 'text-warning' : 'text-muted'">{{ part.text }}</span>
+            </template>
+            <span v-if="row.original.noteParts.length === 0" class="text-muted">—</span>
+          </span>
+        </template>
+      </TableSection>
 
-      <UCard>
-        <template #header>
-          <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="text-base font-semibold text-highlighted">相关投稿</h2>
-          </div>
+      <TableSection
+        title="相关投稿"
+        :fill="false"
+        :data="videoRows"
+        :columns="videoColumns"
+        empty-icon="i-lucide-video-off"
+        empty-title="没有投稿链接"
+        :empty-description="outsideVocaDB ? '这首曲目不在 VocaDB 上，没有登记投稿链接。' : 'VocaDB 上没有登记投稿链接。'"
+      >
+        <template #platform-cell="{ row }">
+          <span class="text-muted">{{ row.original.platform }}</span>
         </template>
-        <p v-if="videos.length === 0" class="text-sm text-muted">
-          {{ outsideVocaDB ? '这首曲目不在 VocaDB 上，没有登记投稿链接。' : 'VocaDB 上没有登记投稿链接。' }}
-        </p>
-        <div v-else class="overflow-x-auto">
-          <table class="w-max min-w-full whitespace-nowrap text-sm">
-            <thead class="text-left text-xs tracking-wide text-muted uppercase">
-              <tr>
-                <th class="px-2 py-1.5 font-medium">平台</th>
-                <th class="px-2 py-1.5 font-medium">标题</th>
-                <th class="px-2 py-1.5 font-medium">类型</th>
-                <th class="px-2 py-1.5 font-medium">日期</th>
-                <th v-if="hasSnapshots" class="px-2 py-1.5 font-medium">最新播放量</th>
-                <th class="px-2 py-1.5 font-medium">链接</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="video in videos" :key="video.vocadb_pv_id" class="border-t border-default/40">
-                <td class="px-2 py-1.5 text-muted">{{ video.platform }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ video.title ?? '—' }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ video.pv_type ?? '—' }}</td>
-                <td class="px-2 py-1.5 font-mono text-muted">{{ video.publish_date ?? '—' }}</td>
-                <td v-if="hasSnapshots" class="px-2 py-1.5 tabular-nums">{{ viewsText(latestViews(video.platform, video.platform_video_id)) }}</td>
-                <td class="px-2 py-1.5">
-                  <ULink :to="video.url" target="_blank" class="text-primary">打开</ULink>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </UCard>
+        <template #title-cell="{ row }">
+          <span class="text-muted">{{ row.original.title }}</span>
+        </template>
+        <template #pvType-cell="{ row }">
+          <span class="text-muted">{{ row.original.pvType }}</span>
+        </template>
+        <template #publishDate-cell="{ row }">
+          <span class="font-mono text-muted">{{ row.original.publishDate }}</span>
+        </template>
+        <template #views-cell="{ row }">
+          <span class="tabular-nums">{{ viewsText(row.original.views) }}</span>
+        </template>
+        <template #url-cell="{ row }">
+          <ULink :to="row.original.url" target="_blank" class="text-primary">打开</ULink>
+        </template>
+      </TableSection>
     </template>
   </main>
 </template>

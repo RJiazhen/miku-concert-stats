@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref, resolveComponent } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
-import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
+import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import {
   buildProducerIndex,
@@ -13,11 +13,8 @@ import {
   type ProducerRow,
 } from '~~/shared/producers.ts'
 
-const UButton = resolveComponent('UButton')
-
 const { catalog, error, pending, load } = useCatalog()
 const { songById } = useSongLookup()
-const { tableAnchor, tableStyle } = useRankingTableHeight()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -42,7 +39,8 @@ type RankedProducer = {
   showCount: number
   firstYear: number | null
   lastYear: number | null
-  rolesText: string
+  /** Chinese role labels, each printed as a badge in the 主要角色 column. */
+  roles: string[]
   topSongs: { id: number; name: string }[]
 }
 
@@ -62,7 +60,7 @@ const rows = computed<RankedProducer[]>(() => {
     showCount: row.showCount,
     firstYear: row.firstYear,
     lastYear: row.lastYear,
-    rolesText: rolesPresent(row.roles).map((role) => producerRoleLabels[role]).join('、') || '—',
+    roles: rolesPresent(row.roles).map((role) => producerRoleLabels[role]),
     topSongs: topSongsOf(row),
   }))
 })
@@ -89,19 +87,8 @@ const totals = computed(() => {
 /** Default order: most credited songs first. */
 const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'songCount', desc: true }])
 
-/** Sortable header button, matching the song and city rankings. */
-const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: () => false | 'asc' | 'desc'; toggleSorting: (desc?: boolean) => void } }) => {
-  const sorted = column.getIsSorted()
-  return h(UButton, {
-    color: 'neutral',
-    variant: 'ghost',
-    size: 'xs',
-    label,
-    trailingIcon: sorted ? (sorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
-    class: '-mx-2',
-    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-  })
-}
+/** Sortable header button, shared with every other table on the site. */
+const sortableHeader = useSortableHeader()
 
 const columns: TableColumn<RankedProducer>[] = [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
@@ -113,7 +100,7 @@ const columns: TableColumn<RankedProducer>[] = [
   { accessorKey: 'showCount', header: sortableHeader('场次'), enableSorting: true },
   { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
-  { accessorKey: 'rolesText', header: '主要角色', enableSorting: false },
+  { id: 'roles', accessorFn: (row) => row.roles.join('、'), header: '主要角色', enableSorting: false },
   { accessorKey: 'topSongs', header: '代表作', enableSorting: false },
 ]
 
@@ -145,88 +132,75 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
       :description="error"
     />
 
-    <section v-else class="space-y-3">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 class="text-lg font-semibold text-highlighted">
-          排行
-          <span class="ml-1 text-sm font-normal text-muted">{{ filtered.length }} 位</span>
-        </h2>
-        <label class="flex items-center gap-2 text-xs text-muted">
-          搜索制作人
+    <TableSection
+      v-if="catalog || pending"
+      title="排行"
+      :count="`${filtered.length} 位`"
+      v-model:sorting="sorting"
+      :data="filtered"
+      :columns="columns"
+      :loading="pending"
+      empty-icon="i-lucide-user-x"
+      empty-title="没有符合条件的制作人"
+      empty-description="换一个更短的名字。"
+    >
+      <template #note>
+        <ul class="grid gap-1 text-xs leading-relaxed text-muted">
+          <li>「曲目数」：有署名的不同歌曲数，不同版本分别计数；</li>
+          <li>「演出曲目」：其中至少上过一场演唱会的歌曲数；</li>
+          <li>「表演次数」按场次累计，「演出数」每场演出计一次，「场次」按天计数、日场 / 夜场分开。</li>
+        </ul>
+      </template>
+      <template #actions>
+        <FilterField label="搜索制作人">
           <UInput v-model="query" icon="i-lucide-search" size="sm" class="w-44" autocomplete="off" />
-        </label>
-      </div>
-
-      <ul class="grid gap-1 text-xs leading-relaxed text-muted">
-        <li>「曲目数」：有署名的不同歌曲数，不同版本分别计数；</li>
-        <li>「演出曲目」：其中至少上过一场演唱会的歌曲数；</li>
-        <li>「表演次数」按场次累计，「演出数」每场演出计一次，「场次」按天计数、日场 / 夜场分开。</li>
-      </ul>
-
-      <UTable
-        v-if="catalog"
-        ref="tableAnchor"
-        v-model:sorting="sorting"
-        :data="filtered"
-        :columns="columns"
-        :loading="pending"
-        sticky
-        class="ranking-scroll"
-        :style="tableStyle"
-        :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5' }"
-      >
-        <template #rank-cell="{ row }">
-          <span class="font-mono text-muted">{{ row.original.rank }}</span>
-        </template>
-        <template #name-cell="{ row }">
-          <NuxtLink :to="producerPath(row.original.name)" class="text-highlighted no-underline hover:text-primary">
-            {{ row.original.name }}
-          </NuxtLink>
-        </template>
-        <template #songCount-cell="{ row }">
-          <UBadge color="primary" variant="subtle">{{ row.original.songCount }}</UBadge>
-        </template>
-        <template #performedSongCount-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ row.original.performedSongCount }}</span>
-        </template>
-        <template #appearanceCount-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ row.original.appearanceCount }}</span>
-        </template>
-        <template #performanceCount-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ row.original.performanceCount }}</span>
-        </template>
-        <template #showCount-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ row.original.showCount }}</span>
-        </template>
-        <template #firstYear-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ cell(row.original.firstYear) }}</span>
-        </template>
-        <template #lastYear-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
-        </template>
-        <template #rolesText-cell="{ row }">
-          <span class="text-xs text-muted">{{ row.original.rolesText }}</span>
-        </template>
-        <template #topSongs-cell="{ row }">
-          <ul v-if="row.original.topSongs.length > 0" class="space-y-0.5">
-            <li v-for="song in row.original.topSongs" :key="song.id" class="min-w-0">
-              <NuxtLink :to="`/songs/${song.id}`" class="block max-w-40 truncate text-xs text-primary no-underline hover:underline">
-                <SongTitle :song-id="song.id" :original="song.name" truncate />
-              </NuxtLink>
-            </li>
-          </ul>
-          <span v-else class="text-muted">—</span>
-        </template>
-        <template #empty>
-          <UEmpty
-            icon="i-lucide-user-x"
-            title="没有符合条件的制作人"
-            description="换一个更短的名字。"
-            variant="naked"
-          />
-        </template>
-      </UTable>
-      <USkeleton v-else class="h-72 w-full rounded-xl" />
-    </section>
+        </FilterField>
+      </template>
+      <template #rank-cell="{ row }">
+        <span class="font-mono text-muted">{{ row.original.rank }}</span>
+      </template>
+      <template #name-cell="{ row }">
+        <NuxtLink :to="producerPath(row.original.name)" class="text-highlighted no-underline hover:text-primary">
+          {{ row.original.name }}
+        </NuxtLink>
+      </template>
+      <template #songCount-cell="{ row }">
+        <UBadge color="primary" variant="subtle">{{ row.original.songCount }}</UBadge>
+      </template>
+      <template #performedSongCount-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.performedSongCount }}</span>
+      </template>
+      <template #appearanceCount-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.appearanceCount }}</span>
+      </template>
+      <template #performanceCount-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.performanceCount }}</span>
+      </template>
+      <template #showCount-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.showCount }}</span>
+      </template>
+      <template #firstYear-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ cell(row.original.firstYear) }}</span>
+      </template>
+      <template #lastYear-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
+      </template>
+      <template #roles-cell="{ row }">
+        <div v-if="row.original.roles.length > 0" class="flex flex-wrap gap-1">
+          <UBadge v-for="role in row.original.roles" :key="role" color="neutral" variant="subtle" size="sm">{{ role }}</UBadge>
+        </div>
+        <span v-else class="text-muted">—</span>
+      </template>
+      <template #topSongs-cell="{ row }">
+        <ul v-if="row.original.topSongs.length > 0" class="space-y-0.5">
+          <li v-for="song in row.original.topSongs" :key="song.id" class="min-w-0">
+            <NuxtLink :to="`/songs/${song.id}`" class="block max-w-40 truncate text-xs text-primary no-underline hover:underline">
+              <SongTitle :song-id="song.id" :original="song.name" truncate />
+            </NuxtLink>
+          </li>
+        </ul>
+        <span v-else class="text-muted">—</span>
+      </template>
+    </TableSection>
   </main>
 </template>

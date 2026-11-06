@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref, resolveComponent } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
+import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overview.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
-
-const UButton = resolveComponent('UButton')
 
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
@@ -140,19 +139,8 @@ const seriesSorting = ref([{ id: 'performances', desc: true }])
 /** Default order of the 演出 table: the catalog's newest-first date order. */
 const performanceSorting = ref<{ id: string; desc: boolean }[]>([])
 
-/** Sortable header button, matching the song ranking and the city ranking. */
-const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: () => false | 'asc' | 'desc'; toggleSorting: (desc?: boolean) => void } }) => {
-  const sorted = column.getIsSorted()
-  return h(UButton, {
-    color: 'neutral',
-    variant: 'ghost',
-    size: 'xs',
-    label,
-    trailingIcon: sorted ? (sorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
-    class: '-mx-2',
-    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-  })
-}
+/** Sortable header button, shared with every other table on the site. */
+const sortableHeader = useSortableHeader()
 
 const seriesColumns: TableColumn<SeriesView>[] = [
   { accessorKey: 'primary', header: sortableHeader('系列'), enableSorting: true },
@@ -201,103 +189,81 @@ const cell = (value: string | null): string => (value === null || value === '' ?
     />
 
     <template v-else>
-      <section class="space-y-3">
-        <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 class="text-lg font-semibold text-highlighted">
-            系列
-          </h2>
-          <p class="text-xs text-muted">「场次」按演出日计数，日场 / 夜场分别计数</p>
-        </div>
+      <TableSection
+        v-if="catalog || pending"
+        title="系列"
+        note="「场次」按演出日计数，日场 / 夜场分别计数"
+        :fill="false"
+        v-model:sorting="seriesSorting"
+        :data="seriesRows"
+        :columns="seriesColumns"
+        :loading="pending"
+        empty-icon="i-lucide-layers"
+        empty-title="没有系列"
+        empty-description="目录里还没有系列记录。"
+      >
+        <template #primary-cell="{ row }">
+          <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-highlighted no-underline hover:text-primary">
+            {{ row.original.primary }}
+          </NuxtLink>
+          <span v-if="row.original.originalNote" class="block text-xs text-dimmed">{{ row.original.originalNote }}</span>
+        </template>
+        <template #performances-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ row.original.performances }}</span>
+        </template>
+        <template #shows-cell="{ row }">
+          <UBadge color="primary" variant="subtle">{{ row.original.shows }}</UBadge>
+        </template>
+        <template #years-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ cell(row.original.years) }}</span>
+        </template>
+        <template #firstDate-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ cell(row.original.firstDate) }}</span>
+        </template>
+        <template #lastDate-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ cell(row.original.lastDate) }}</span>
+        </template>
+      </TableSection>
 
-        <UTable
-          v-if="catalog"
-          v-model:sorting="seriesSorting"
-          :data="seriesRows"
-          :columns="seriesColumns"
-          :loading="pending"
-        >
-          <template #primary-cell="{ row }">
-            <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-highlighted no-underline hover:text-primary">
-              {{ row.original.primary }}
-            </NuxtLink>
-            <span v-if="row.original.originalNote" class="block text-xs text-dimmed">{{ row.original.originalNote }}</span>
-          </template>
-          <template #performances-cell="{ row }">
-            <span class="tabular-nums text-muted">{{ row.original.performances }}</span>
-          </template>
-          <template #shows-cell="{ row }">
-            <UBadge color="primary" variant="subtle">{{ row.original.shows }}</UBadge>
-          </template>
-          <template #years-cell="{ row }">
-            <span class="tabular-nums text-muted">{{ cell(row.original.years) }}</span>
-          </template>
-          <template #firstDate-cell="{ row }">
-            <span class="tabular-nums text-muted">{{ cell(row.original.firstDate) }}</span>
-          </template>
-          <template #lastDate-cell="{ row }">
-            <span class="tabular-nums text-muted">{{ cell(row.original.lastDate) }}</span>
-          </template>
-          <template #empty>
-            <UEmpty icon="i-lucide-layers" title="没有系列" description="目录里还没有系列记录。" variant="naked" />
-          </template>
-        </UTable>
-        <USkeleton v-else class="h-56 w-full rounded-xl" />
-      </section>
-
-      <section class="space-y-3">
-        <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 class="text-lg font-semibold text-highlighted">
-            演出
-            <span v-if="filteredPerformances.length !== performanceRows.length" class="ml-1 text-sm font-normal text-muted">
-              筛选后 {{ filteredPerformances.length }} / {{ performanceRows.length }} 个
-            </span>
-          </h2>
-          <label class="flex items-center gap-2 text-xs text-muted">
-            系列
+      <TableSection
+        v-if="catalog || pending"
+        title="演出"
+        :count="filteredPerformances.length !== performanceRows.length ? `筛选后 ${filteredPerformances.length} / ${performanceRows.length} 个` : `${performanceRows.length} 个`"
+        :fill="false"
+        v-model:sorting="performanceSorting"
+        :data="filteredPerformances"
+        :columns="performanceColumns"
+        :loading="pending"
+        empty-icon="i-lucide-calendar-x"
+        empty-title="没有符合条件的演出"
+        empty-description="换一个系列筛选。"
+      >
+        <template #actions>
+          <FilterField label="系列">
             <USelect v-model="seriesFilter" :items="seriesItems" size="sm" class="w-44" />
-          </label>
-        </div>
-
-        <UTable
-          v-if="catalog"
-          v-model:sorting="performanceSorting"
-          :data="filteredPerformances"
-          :columns="performanceColumns"
-          :loading="pending"
-          sticky
-          class="max-h-[75vh]"
-        >
-          <template #dates-cell="{ row }">
-            <span class="whitespace-nowrap tabular-nums text-muted">{{ cell(row.original.dates) }}</span>
-          </template>
-          <template #label-cell="{ row }">
-            <NuxtLink :to="`/shows/${row.original.id}`" class="text-highlighted no-underline hover:text-primary">
-              {{ row.original.label }}
-            </NuxtLink>
-            <UBadge v-if="!row.original.hasSetlist" color="neutral" variant="subtle" size="sm" class="ml-2">暂无歌单</UBadge>
-          </template>
-          <template #seriesLabel-cell="{ row }">
-            <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-muted no-underline hover:text-primary">
-              {{ row.original.seriesLabel }}
-            </NuxtLink>
-          </template>
-          <template #venue-cell="{ row }">
-            <span class="text-muted">{{ cell(row.original.venue) }}</span>
-          </template>
-          <template #shows-cell="{ row }">
-            <span class="tabular-nums text-muted">{{ row.original.shows }}</span>
-          </template>
-          <template #empty>
-            <UEmpty
-              icon="i-lucide-calendar-x"
-              title="没有符合条件的演出"
-              description="换一个系列筛选。"
-              variant="naked"
-            />
-          </template>
-        </UTable>
-        <USkeleton v-else class="h-72 w-full rounded-xl" />
-      </section>
+          </FilterField>
+        </template>
+        <template #dates-cell="{ row }">
+          <span class="whitespace-nowrap tabular-nums text-muted">{{ cell(row.original.dates) }}</span>
+        </template>
+        <template #label-cell="{ row }">
+          <NuxtLink :to="`/shows/${row.original.id}`" class="text-highlighted no-underline hover:text-primary">
+            {{ row.original.label }}
+          </NuxtLink>
+          <UBadge v-if="!row.original.hasSetlist" color="neutral" variant="subtle" size="sm" class="ml-2">暂无歌单</UBadge>
+        </template>
+        <template #seriesLabel-cell="{ row }">
+          <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-muted no-underline hover:text-primary">
+            {{ row.original.seriesLabel }}
+          </NuxtLink>
+        </template>
+        <template #venue-cell="{ row }">
+          <span class="text-muted">{{ cell(row.original.venue) }}</span>
+        </template>
+        <template #shows-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ row.original.shows }}</span>
+        </template>
+      </TableSection>
     </template>
   </main>
 </template>

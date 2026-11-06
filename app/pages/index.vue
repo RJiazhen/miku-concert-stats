@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref, resolveComponent, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
-import { songCharacters, characterColor } from '~/composables/useCharacters.ts'
+import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
-import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
-import { splitCharacterChips } from '~~/shared/character-chips.ts'
+import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { availableProducers, producerNamesForSongs } from '~~/shared/producer-options.ts'
@@ -23,21 +22,16 @@ import {
   type YearRange,
 } from '~~/shared/year-range.ts'
 
-const UButton = resolveComponent('UButton')
-
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
-const { tableAnchor, tableStyle } = useRankingTableHeight()
+const sortableHeader = useSortableHeader()
 
 /** Width the 歌曲 cell may occupy before it truncates; keeps every column visible at 1280px. */
 const NAME_WIDTH = 220
-
-/** Fixed width of the 歌手 cell, so chips do not reflow when the page width changes. */
-const CHARACTER_WIDTH = 236
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -94,10 +88,6 @@ type RankedSong = {
   variantNames: string
   /** Full title in the active language, shown in the tooltip when the cell truncates. */
   titleText: string
-  /** Character chips shown inline; the rest sit behind the counter button. */
-  characterChips: string[]
-  /** Characters the counter button reveals on hover. */
-  hiddenCharacterChips: string[]
 }
 
 /** Ranking rows enriched with the display text and character list the table needs. */
@@ -139,7 +129,6 @@ const ranked = computed<RankedSong[]>(() => {
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
     const title = formatSongTitle(row.name, translationFor(row.songId), language.value)
-    const chipSplit = splitCharacterChips(characterList)
     return {
       songId: row.songId,
       rank: index + 1,
@@ -157,8 +146,6 @@ const ranked = computed<RankedSong[]>(() => {
       versionCount: row.variantSongIds.length + 1,
       variantNames,
       titleText: title.originalNote === null ? title.primary : `${title.primary}（${title.originalNote}）`,
-      characterChips: chipSplit.visible,
-      hiddenCharacterChips: chipSplit.hidden,
     }
   })
 })
@@ -174,19 +161,7 @@ const filtered = computed(() =>
   }),
 )
 
-/** Sortable header button. */
-const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: () => false | 'asc' | 'desc'; toggleSorting: (desc?: boolean) => void } }) => {
-  const sorted = column.getIsSorted()
-  return h(UButton, {
-    color: 'neutral',
-    variant: 'ghost',
-    size: 'xs',
-    label,
-    trailingIcon: sorted ? (sorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
-    class: '-mx-2',
-    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-  })
-}
+/** Sortable header button, shared with every other table on the site. */
 
 const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true, meta: { class: { th: 'w-14' } } },
@@ -201,19 +176,6 @@ const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
 ])
-
-/**
- * Inline style of one character chip: its image colour as the border, with a faint tint of
- * the same colour behind the name so light and dark themes both keep the text readable.
- */
-const chipStyle = (name: string): Record<string, string> => {
-  const color = characterColor(name)
-  if (color === null) return {}
-  return {
-    borderColor: color,
-    backgroundColor: `${color}1f`,
-  }
-}
 
 /** Blank marker for a missing value. */
 const cell = (value: string | number | null): string => (value === null || value === '' ? '—' : String(value))
@@ -430,16 +392,13 @@ const yearToItems = computed(() =>
           <UButton :variant="mode === 'show' ? 'solid' : 'outline'" label="按场次" @click="mode = 'show'" />
           <UButton :variant="mode === 'event' ? 'solid' : 'outline'" label="按演出" @click="mode = 'event'" />
         </UFieldGroup>
-        <label class="grid gap-1 text-xs text-muted">
-          起始年
+        <FilterField label="起始年">
           <USelect v-model="yearFrom" :items="yearFromItems" size="sm" class="w-24" />
-        </label>
-        <label class="grid gap-1 text-xs text-muted">
-          结束年
+        </FilterField>
+        <FilterField label="结束年">
           <USelect v-model="yearTo" :items="yearToItems" size="sm" class="w-24" />
-        </label>
-        <label class="grid gap-1 text-xs text-muted">
-          角色
+        </FilterField>
+        <FilterField label="角色">
           <USelectMenu
             v-model="characterFilter"
             :items="characterItems"
@@ -451,9 +410,8 @@ const yearToItems = computed(() =>
             size="sm"
             class="w-36"
           />
-        </label>
-        <label class="grid gap-1 text-xs text-muted">
-          制作人
+        </FilterField>
+        <FilterField label="制作人">
           <USelectMenu
             v-model="producerFilter"
             :items="producerItems"
@@ -465,7 +423,7 @@ const yearToItems = computed(() =>
             size="sm"
             class="w-40"
           />
-        </label>
+        </FilterField>
         <UButton
           color="neutral"
           variant="outline"
@@ -491,31 +449,26 @@ const yearToItems = computed(() =>
       </div>
     </UCard>
 
-    <section class="space-y-3">
-      <h2 class="text-lg font-semibold text-highlighted">
-        排行
-        <span class="ml-1 text-sm font-normal text-muted">{{ filtered.length }} 首</span>
-      </h2>
-
-      <ul class="grid gap-1 text-xs leading-relaxed text-muted">
-        <li>「场次数」：每场实际表演计为一次，同一天的日夜场都各自计为一次；</li>
-        <li>「演出数」：每次演出计为一次，单次演出包含多场实际表演也只计为一次；</li>
-        <li>「含 N 个版本」：表示包括原版与 remix、不同声库或翻唱版本共 N 个版本，全部合并计数。</li>
-      </ul>
-
-      <UTable
-        v-if="catalog"
-        ref="tableAnchor"
-        v-model:sorting="sorting"
-        :data="filtered"
-        :columns="columns"
-        :loading="pending"
-        sticky
-        class="ranking-scroll"
-        :style="tableStyle"
-        :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5' }"
-      >
-        <template #rank-cell="{ row }">
+    <TableSection
+      v-if="catalog || pending"
+      title="排行"
+      :count="`${filtered.length} 首`"
+      v-model:sorting="sorting"
+      :data="filtered"
+      :columns="columns"
+      :loading="pending"
+      empty-icon="i-lucide-search-x"
+      empty-title="没有符合条件的歌曲"
+      empty-description="放宽年份与系列筛选。"
+    >
+      <template #note>
+        <ul class="grid gap-1 text-xs leading-relaxed text-muted">
+          <li>「场次数」：每场实际表演计为一次，同一天的日夜场都各自计为一次；</li>
+          <li>「演出数」：每次演出计为一次，单次演出包含多场实际表演也只计为一次；</li>
+          <li>「含 N 个版本」：表示包括原版与 remix、不同声库或翻唱版本共 N 个版本，全部合并计数。</li>
+        </ul>
+      </template>
+      <template #rank-cell="{ row }">
           <span class="font-mono text-muted">{{ row.original.rank }}</span>
         </template>
         <template #name-cell="{ row }">
@@ -563,45 +516,11 @@ const yearToItems = computed(() =>
           <span v-else class="text-muted">—</span>
         </template>
         <template #characters-cell="{ row }">
-          <div
-            v-if="row.original.characterList.length > 0"
-            class="flex flex-nowrap items-center gap-1 overflow-hidden"
-            :style="{ width: `${CHARACTER_WIDTH}px` }"
-          >
-            <span
-              v-for="name in row.original.characterChips"
-              :key="name"
-              class="shrink-0 rounded border px-1 py-0.5 text-[11px]"
-              :style="chipStyle(name)"
-            >
-              {{ name }}
-            </span>
-            <UTooltip
-              v-if="row.original.hiddenCharacterChips.length > 0"
-              :content="{ side: 'top' }"
-            >
-              <UButton
-                color="neutral"
-                variant="subtle"
-                size="xs"
-                class="shrink-0 rounded border px-1 py-0.5 text-[11px] font-normal"
-                :label="`+${row.original.hiddenCharacterChips.length}`"
-              />
-              <template #content>
-                <div class="flex max-w-60 flex-wrap items-center gap-1">
-                  <span
-                    v-for="name in row.original.hiddenCharacterChips"
-                    :key="name"
-                    class="rounded border px-1 py-0.5 text-[11px]"
-                    :style="chipStyle(name)"
-                  >
-                    {{ name }}
-                  </span>
-                </div>
-              </template>
-            </UTooltip>
-          </div>
-          <span v-else class="text-muted">—</span>
+          <CharacterChips
+            :names="row.original.characterList"
+            :wrap="false"
+            class="w-[236px]"
+          />
         </template>
         <template #count-cell="{ row }">
           <UBadge v-if="!row.original.approximate" color="primary" variant="subtle">
@@ -638,16 +557,6 @@ const yearToItems = computed(() =>
         <template #lastYear-cell="{ row }">
           <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
         </template>
-        <template #empty>
-          <UEmpty
-            icon="i-lucide-search-x"
-            title="没有符合条件的歌曲"
-            description="放宽年份与系列筛选。"
-            variant="naked"
-          />
-        </template>
-      </UTable>
-      <USkeleton v-else class="h-72 w-full rounded-xl" />
-    </section>
+    </TableSection>
   </main>
 </template>

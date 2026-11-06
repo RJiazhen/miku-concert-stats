@@ -207,6 +207,17 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 页面在挂载后调用 `app/composables/useCatalog.ts` 的 `load`。服务端渲染不打开 wasm。客户端只下载一次 `/data/catalog.sqlite.gz?v=<hash>`，在浏览器里解压成 sqlite 字节，用 `/sql-wasm.wasm` 初始化 sql.js，再 `loadCatalog`。结果放在 Nuxt `useState` 里，各页共用。
 
+### 共享 UI 组件
+
+列表页共用一套表格外壳与角色标签，页面只决定列、行与单元格内容（issue #26）：
+
+- `app/components/TableSection.vue`：标题 / 计数 / 说明 + `UTable` 的统一外壳。默认 `fill` 用 `useRankingTableHeight` 撑满视口并粘性表头，`fill=false` 用于卡片内表格；统一 `th/td` 内边距、`ranking-scroll`、`USkeleton` 加载态与 `UEmpty` 空状态，并把页面传进来的命名单元格插槽转发给 `UTable`。
+- `app/components/CharacterChip.vue` / `CharacterChips.vue`：角色（演出歌手）标签。边框与淡底色取自 `characters.json` 的应援色，超过 `limit` 的角色收进 `+N` 气泡；`wrap=false` 供固定宽度的排行榜列使用。制作人署名这类非角色标签用 `UBadge`。
+- `app/components/SortableHeader.vue` + `app/composables/useSortableHeader.ts`：所有可排序表头共用的 ghost 按钮与升降序图标。
+- `app/components/FilterField.vue`：`UFormField` 包装的筛选标签，替换手写 `<label>`。
+
+`UTable` 的 `meta.rowspan` / `meta.class` 约定保留（`ShowSetlistTable`、`SetlistTable` 用它合并同序号的替换曲）。`/raw` 的「数据表」标签仍是手写 `<table>`：列由目录表结构动态决定，只沿用同样的外壳与空状态，单元格保持数据原样。
+
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |

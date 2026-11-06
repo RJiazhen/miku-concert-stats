@@ -178,7 +178,7 @@ onMounted(async () => {
     </header>
 
     <div class="grid gap-3 sm:grid-cols-3">
-      <div class="rounded-2xl border border-default bg-elevated/40 p-4">
+      <UCard variant="subtle">
         <p class="flex items-center gap-1.5 text-xs text-muted">
           <UIcon name="i-lucide-inbox" class="size-3.5" />
           全部
@@ -186,8 +186,8 @@ onMounted(async () => {
         <p class="mt-2 text-2xl font-semibold tabular-nums text-highlighted">
           {{ counts.all }}
         </p>
-      </div>
-      <div class="rounded-2xl border border-default bg-elevated/40 p-4">
+      </UCard>
+      <UCard variant="subtle">
         <p class="flex items-center gap-1.5 text-xs text-warning">
           <UIcon name="i-lucide-circle-alert" class="size-3.5" />
           未解决
@@ -195,8 +195,8 @@ onMounted(async () => {
         <p class="mt-2 text-2xl font-semibold tabular-nums text-highlighted">
           {{ counts.open }}
         </p>
-      </div>
-      <div class="rounded-2xl border border-default bg-elevated/40 p-4">
+      </UCard>
+      <UCard variant="subtle">
         <p class="flex items-center gap-1.5 text-xs text-success">
           <UIcon name="i-lucide-circle-check" class="size-3.5" />
           已解决
@@ -204,7 +204,7 @@ onMounted(async () => {
         <p class="mt-2 text-2xl font-semibold tabular-nums text-highlighted">
           {{ counts.resolved }}
         </p>
-      </div>
+      </UCard>
     </div>
 
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -231,15 +231,14 @@ onMounted(async () => {
       />
     </div>
 
-    <div
+    <UAlert
       v-if="unavailable"
-      class="rounded-2xl border border-default bg-elevated/30 p-6 text-sm text-muted"
+      color="neutral"
+      variant="subtle"
+      icon="i-lucide-lock"
+      :title="developmentMode ? '本地开发不读取真实反馈' : '当前环境没有 Cloudflare Access 配置'"
     >
-      <p class="flex items-center gap-2 font-medium text-highlighted">
-        <UIcon name="i-lucide-lock" class="size-4 text-warning" />
-        {{ developmentMode ? '本地开发不读取真实反馈' : '当前环境没有 Cloudflare Access 配置' }}
-      </p>
-      <p class="mt-2 leading-relaxed">
+      <template #description>
         <template v-if="developmentMode">
           本地 <code class="rounded bg-elevated px-1 py-0.5">nuxt dev</code> 没有可供 127.0.0.1 使用的 Access 应用，
           Worker 也不会把 FEEDBACK 绑定放进请求上下文，因此这里不发起读取请求。部署后访问线上域名的
@@ -251,115 +250,116 @@ onMounted(async () => {
           <NuxtLink to="/admin/system" class="text-primary">系统状态</NuxtLink>
           核对配置。
         </template>
-      </p>
-    </div>
+      </template>
+    </UAlert>
 
-    <p v-else-if="errorKind" class="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-      {{ ERROR_COPY[errorKind] }}
-    </p>
+    <UAlert
+      v-else-if="errorKind"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-circle-alert"
+      :description="ERROR_COPY[errorKind]"
+    />
 
     <div v-else-if="pending && items.length === 0" class="space-y-3">
-      <USkeleton v-for="index in 3" :key="index" class="h-28 w-full rounded-2xl" />
+      <USkeleton v-for="index in 3" :key="index" class="h-28 w-full rounded-xl" />
     </div>
 
-    <div
+    <UEmpty
       v-else-if="items.length === 0"
-      class="rounded-2xl border border-dashed border-default bg-elevated/20 px-6 py-14 text-center"
-    >
-      <UIcon name="i-lucide-inbox" class="mx-auto size-8 text-muted" />
-      <p class="mt-3 text-sm font-medium text-highlighted">
-        暂无反馈
-      </p>
-      <p class="mt-1 text-xs text-muted">
-        收到的错误报告会按时间倒序出现在这里。
-      </p>
-    </div>
+      icon="i-lucide-inbox"
+      title="暂无反馈"
+      description="收到的错误报告会按时间倒序出现在这里。"
+      variant="naked"
+      class="rounded-xl border border-dashed border-default py-12"
+    />
 
-    <div
+    <UEmpty
       v-else-if="visibleItems.length === 0"
-      class="rounded-2xl border border-dashed border-default bg-elevated/20 px-6 py-12 text-center"
-    >
-      <UIcon name="i-lucide-search-x" class="mx-auto size-8 text-muted" />
-      <p class="mt-3 text-sm font-medium text-highlighted">
-        没有符合当前条件的反馈
-      </p>
-      <p class="mt-1 text-xs text-muted">
-        换一个关键词，或切换到「全部」。
-      </p>
-    </div>
+      icon="i-lucide-search-x"
+      title="没有符合当前条件的反馈"
+      description="换一个关键词，或切换到「全部」。"
+      variant="naked"
+      class="rounded-xl border border-dashed border-default py-12"
+    />
 
     <ul v-else class="space-y-3">
       <li
         v-for="item in visibleItems"
         :key="item.id"
-        class="relative overflow-hidden rounded-2xl border border-default bg-elevated/30 p-4 transition-colors hover:border-primary/40"
       >
-        <span
-          class="absolute inset-y-0 left-0 w-0.5"
-          :class="item.status === 'resolved' ? 'bg-success' : 'bg-warning'"
-        />
-        <div class="flex flex-wrap items-start justify-between gap-3 ps-2">
-          <div class="min-w-0 flex-1 space-y-2">
-            <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
-              <UBadge
-                :color="item.status === 'resolved' ? 'success' : 'warning'"
-                variant="subtle"
-                size="sm"
-              >
-                {{ FEEDBACK_STATUS_LABEL[item.status] }}
-              </UBadge>
-              <time :datetime="item.receivedAt">{{ formatTime(item.receivedAt) }}</time>
-              <span v-if="item.viewport" class="rounded-full bg-elevated px-2 py-0.5">
-                视口 {{ item.viewport }}
-              </span>
-              <span v-if="item.catalogVersion" class="rounded-full bg-elevated px-2 py-0.5">
-                目录 {{ item.catalogVersion }}
-              </span>
-            </div>
-            <p class="whitespace-pre-wrap text-sm leading-relaxed text-default">
-              {{ item.description }}
-            </p>
-            <div class="space-y-1 text-xs text-muted">
-              <p v-if="item.pageTitle || item.pageUrl" class="truncate">
-                <UIcon name="i-lucide-monitor" class="me-1 inline size-3.5 align-[-2px]" />
-                <a
-                  v-if="item.pageUrl && isHttpUrl(item.pageUrl)"
-                  :href="item.pageUrl"
-                  class="text-primary hover:underline"
-                  target="_blank"
-                  rel="noreferrer"
+        <UCard
+          variant="subtle"
+          class="relative overflow-hidden transition-colors hover:border-primary/40"
+          :ui="{ body: 'p-4' }"
+        >
+          <span
+            class="absolute inset-y-0 left-0 w-0.5"
+            :class="item.status === 'resolved' ? 'bg-success' : 'bg-warning'"
+          />
+          <div class="flex flex-wrap items-start justify-between gap-3 ps-2">
+            <div class="min-w-0 flex-1 space-y-2">
+              <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
+                <UBadge
+                  :color="item.status === 'resolved' ? 'success' : 'warning'"
+                  variant="subtle"
+                  size="sm"
                 >
-                  {{ item.pageTitle || item.pageUrl }}
-                </a>
-                <span v-else>{{ item.pageTitle || item.pageUrl }}</span>
+                  {{ FEEDBACK_STATUS_LABEL[item.status] }}
+                </UBadge>
+                <time :datetime="item.receivedAt">{{ formatTime(item.receivedAt) }}</time>
+                <UBadge v-if="item.viewport" color="neutral" variant="subtle" size="sm">
+                  视口 {{ item.viewport }}
+                </UBadge>
+                <UBadge v-if="item.catalogVersion" color="neutral" variant="subtle" size="sm">
+                  目录 {{ item.catalogVersion }}
+                </UBadge>
+              </div>
+              <p class="whitespace-pre-wrap text-sm leading-relaxed text-default">
+                {{ item.description }}
               </p>
-              <p v-if="item.sourceUrl" class="truncate">
-                <UIcon name="i-lucide-link" class="me-1 inline size-3.5 align-[-2px]" />
-                数据来源：
-                <a
-                  v-if="isHttpUrl(item.sourceUrl)"
-                  :href="item.sourceUrl"
-                  class="text-primary hover:underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {{ item.sourceUrl }}
-                </a>
-                <span v-else>{{ item.sourceUrl }}</span>
-              </p>
+              <div class="space-y-1 text-xs text-muted">
+                <p v-if="item.pageTitle || item.pageUrl" class="truncate">
+                  <UIcon name="i-lucide-monitor" class="me-1 inline size-3.5 align-[-2px]" />
+                  <ULink
+                    v-if="item.pageUrl && isHttpUrl(item.pageUrl)"
+                    :to="item.pageUrl"
+                    class="text-primary hover:underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {{ item.pageTitle || item.pageUrl }}
+                  </ULink>
+                  <span v-else>{{ item.pageTitle || item.pageUrl }}</span>
+                </p>
+                <p v-if="item.sourceUrl" class="truncate">
+                  <UIcon name="i-lucide-link" class="me-1 inline size-3.5 align-[-2px]" />
+                  数据来源：
+                  <ULink
+                    v-if="isHttpUrl(item.sourceUrl)"
+                    :to="item.sourceUrl"
+                    class="text-primary hover:underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {{ item.sourceUrl }}
+                  </ULink>
+                  <span v-else>{{ item.sourceUrl }}</span>
+                </p>
+              </div>
             </div>
+            <UButton
+              size="sm"
+              color="neutral"
+              :variant="item.status === 'resolved' ? 'soft' : 'solid'"
+              :icon="item.status === 'resolved' ? 'i-lucide-rotate-ccw' : 'i-lucide-check'"
+              :loading="busyId === item.id"
+              @click="toggleStatus(item)"
+            >
+              {{ item.status === 'resolved' ? '标为未解决' : '标为已解决' }}
+            </UButton>
           </div>
-          <UButton
-            size="sm"
-            color="neutral"
-            :variant="item.status === 'resolved' ? 'soft' : 'solid'"
-            :icon="item.status === 'resolved' ? 'i-lucide-rotate-ccw' : 'i-lucide-check'"
-            :loading="busyId === item.id"
-            @click="toggleStatus(item)"
-          >
-            {{ item.status === 'resolved' ? '标为未解决' : '标为已解决' }}
-          </UButton>
-        </div>
+        </UCard>
       </li>
     </ul>
   </div>

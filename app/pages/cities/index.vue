@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref, resolveComponent } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames } from '~/composables/usePlaceNames.ts'
-import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
+import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { buildCityIndex, rankCities } from '~~/shared/cities.ts'
 import { showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
-const UButton = resolveComponent('UButton')
-
 const { catalog, error, pending, load } = useCatalog()
-const { tableAnchor, tableStyle } = useRankingTableHeight()
 
 /** Parsed once: the checked place list and its matchers never change at runtime. */
 const cityIndex = buildCityIndex(placeNames)
@@ -70,19 +67,8 @@ const totals = computed(() => {
   }
 })
 
-/** Sortable header button, matching the song ranking. */
-const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: () => false | 'asc' | 'desc'; toggleSorting: (desc?: boolean) => void } }) => {
-  const sorted = column.getIsSorted()
-  return h(UButton, {
-    color: 'neutral',
-    variant: 'ghost',
-    size: 'xs',
-    label,
-    trailingIcon: sorted ? (sorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
-    class: '-mx-2',
-    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-  })
-}
+/** Sortable header button, shared with every other table on the site. */
+const sortableHeader = useSortableHeader()
 
 const columns: TableColumn<RankedCity>[] = [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
@@ -119,62 +105,42 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
       :description="error"
     />
 
-    <section v-else class="space-y-3">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 class="text-lg font-semibold text-highlighted">
-          排行
-          <span class="ml-1 text-sm font-normal text-muted">
-            {{ rows.length }} 个城市 · {{ totals.concerts }} 个演出 · {{ totals.shows }} 个场次
-          </span>
-        </h2>
-        <p class="text-xs text-muted">「场次」按演出日计数，日场 / 夜场分别计数</p>
-      </div>
+    <TableSection
+      v-if="catalog || pending"
+      title="排行"
+      :count="`${rows.length} 个城市 · ${totals.concerts} 个演出 · ${totals.shows} 个场次`"
+      note="「场次」按演出日计数，日场 / 夜场分别计数"
+      v-model:sorting="sorting"
+      :data="rows"
+      :columns="columns"
+      :loading="pending"
+      empty-icon="i-lucide-map-pin-off"
+      empty-title="没有可统计的城市"
+      empty-description="目录里还没有带城市名称的演出。"
+    >
+      <template #rank-cell="{ row }">
+        <span class="font-mono text-muted">{{ row.original.rank }}</span>
+      </template>
+      <template #city-cell="{ row }">
+        <span class="text-highlighted">{{ row.original.city }}</span>
+        <span v-if="row.original.originalNames" class="block text-xs text-dimmed">{{ row.original.originalNames }}</span>
+      </template>
+      <template #concerts-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.concerts }}</span>
+      </template>
+      <template #shows-cell="{ row }">
+        <UBadge color="primary" variant="subtle">{{ row.original.shows }}</UBadge>
+      </template>
+      <template #firstYear-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ cell(row.original.firstYear) }}</span>
+      </template>
+      <template #lastYear-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
+      </template>
+    </TableSection>
 
-      <UTable
-        v-if="catalog"
-        ref="tableAnchor"
-        v-model:sorting="sorting"
-        :data="rows"
-        :columns="columns"
-        :loading="pending"
-        sticky
-        class="ranking-scroll"
-        :style="tableStyle"
-        :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5' }"
-      >
-        <template #rank-cell="{ row }">
-          <span class="font-mono text-muted">{{ row.original.rank }}</span>
-        </template>
-        <template #city-cell="{ row }">
-          <span class="text-highlighted">{{ row.original.city }}</span>
-          <span v-if="row.original.originalNames" class="block text-xs text-dimmed">{{ row.original.originalNames }}</span>
-        </template>
-        <template #concerts-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ row.original.concerts }}</span>
-        </template>
-        <template #shows-cell="{ row }">
-          <UBadge color="primary" variant="subtle">{{ row.original.shows }}</UBadge>
-        </template>
-        <template #firstYear-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ cell(row.original.firstYear) }}</span>
-        </template>
-        <template #lastYear-cell="{ row }">
-          <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
-        </template>
-        <template #empty>
-          <UEmpty
-            icon="i-lucide-map-pin-off"
-            title="没有可统计的城市"
-            description="目录里还没有带城市名称的演出。"
-            variant="naked"
-          />
-        </template>
-      </UTable>
-      <USkeleton v-else class="h-72 w-full rounded-xl" />
-
-      <p v-if="ranking && ranking.unknown.concerts > 0" class="text-xs text-muted">
-        另有 {{ ranking.unknown.concerts }} 个线上或没有标明城市的演出未计入排名。
-      </p>
-    </section>
+    <p v-if="ranking && ranking.unknown.concerts > 0" class="text-xs text-muted">
+      另有 {{ ranking.unknown.concerts }} 个线上或没有标明城市的演出未计入排名。
+    </p>
   </main>
 </template>

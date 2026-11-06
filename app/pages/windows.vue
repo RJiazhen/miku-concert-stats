@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { countedSongIds, dayInstant, observeWindow, songById } from '~~/shared/stats.ts'
 import type { Platform } from '~~/shared/types.ts'
@@ -15,7 +16,7 @@ const startLoad = (): void => {
 }
 onMounted(startLoad)
 
-const editionKey = ref<string | null>(null)
+const editionKey = ref<string | undefined>(undefined)
 const platform = ref<Platform>('youtube')
 
 const editions = computed(() => {
@@ -32,8 +33,8 @@ const editions = computed(() => {
 
 /** Selects the first series year once premieres are loaded. */
 const chooseEdition = (): void => {
-  if (editionKey.value !== null || editions.value.length === 0) return
-  editionKey.value = editions.value[0]?.key ?? null
+  if (editionKey.value !== undefined || editions.value.length === 0) return
+  editionKey.value = editions.value[0]?.key
 }
 watch(editions, chooseEdition)
 
@@ -70,6 +71,36 @@ const songName = (songId: number): string => {
 }
 
 const sufficient = computed(() => premiereObservations.value.filter((row) => row.status === 'ok').length)
+
+/** One printed observation row; a missing snapshot is spelled out instead of left blank. */
+type ObservationRow = {
+  key: number
+  songId: number
+  before: string
+  after: string
+  delta: string
+}
+
+/** Observations with the three figures turned into cell text. */
+const observationRows = computed<ObservationRow[]>(() =>
+  premiereObservations.value.map((row) => {
+    const ok = row.status === 'ok'
+    return {
+      key: row.songId,
+      songId: row.songId,
+      before: ok ? String(row.before) : '样本不足',
+      after: ok ? String(row.after) : '样本不足',
+      delta: ok ? String(row.delta) : '样本不足',
+    }
+  }),
+)
+
+const columns: TableColumn<ObservationRow>[] = [
+  { id: 'song', header: '歌曲' },
+  { accessorKey: 'before', header: '首演前' },
+  { accessorKey: 'after', header: '首演后' },
+  { accessorKey: 'delta', header: '差值' },
+]
 </script>
 
 <template>
@@ -80,46 +111,47 @@ const sufficient = computed(() => premiereObservations.value.filter((row) => row
     <UAlert v-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UCard v-else>
       <div class="flex flex-wrap items-end gap-3">
-        <label class="grid gap-1 text-xs text-muted">
-          系列年度
+        <FilterField label="系列年度">
           <USelect v-model="editionKey" :items="editions.map((row) => ({ label: row.label, value: row.key }))" size="sm" class="w-64" />
-        </label>
-        <label class="grid gap-1 text-xs text-muted">
-          平台
+        </FilterField>
+        <FilterField label="平台">
           <USelect
             v-model="platform"
             :items="[{ label: 'YouTube', value: 'youtube' }, { label: 'niconico', value: 'niconico' }, { label: '哔哩哔哩', value: 'bilibili' }]"
             size="sm"
             class="w-32"
           />
-        </label>
+        </FilterField>
       </div>
       <p class="mt-3 text-xs text-muted">
         首演 {{ selected?.premiere.premiere_date ?? '—' }}：{{ sufficient }} / {{ premiereObservations.length }} 首两侧都有快照。
         歌单公布时间：{{ announcedAt ?? '公开 API 的歌单对象没有该字段' }}。
       </p>
-      <div class="mt-4 overflow-x-auto">
-        <table class="w-max min-w-full whitespace-nowrap text-sm">
-          <thead class="text-left text-xs tracking-wide text-muted uppercase">
-            <tr>
-              <th class="px-2 py-1.5 font-medium">歌曲</th>
-              <th class="px-2 py-1.5 font-medium">首演前</th>
-              <th class="px-2 py-1.5 font-medium">首演后</th>
-              <th class="px-2 py-1.5 font-medium">差值</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in premiereObservations" :key="row.songId" class="border-t border-default/40">
-              <td class="px-2 py-1.5">
-                <SongTitle :song-id="row.songId" :original="songName(row.songId)" />
-              </td>
-              <td class="px-2 py-1.5 text-muted">{{ row.status === 'ok' ? row.before : '样本不足' }}</td>
-              <td class="px-2 py-1.5 text-muted">{{ row.status === 'ok' ? row.after : '样本不足' }}</td>
-              <td class="px-2 py-1.5 text-muted">{{ row.status === 'ok' ? row.delta : '样本不足' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </UCard>
+
+    <TableSection
+      v-if="!error"
+      title="首演窗口"
+      :count="`${observationRows.length} 首`"
+      :fill="false"
+      :data="observationRows"
+      :columns="columns"
+      empty-icon="i-lucide-calendar-x"
+      empty-title="没有可观察的歌曲"
+      empty-description="先选择一个有首演日期的系列年度。"
+    >
+      <template #song-cell="{ row }">
+        <SongTitle :song-id="row.original.songId" :original="songName(row.original.songId)" />
+      </template>
+      <template #before-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.before }}</span>
+      </template>
+      <template #after-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.after }}</span>
+      </template>
+      <template #delta-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.delta }}</span>
+      </template>
+    </TableSection>
   </main>
 </template>

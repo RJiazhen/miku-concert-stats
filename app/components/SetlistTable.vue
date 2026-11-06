@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { TableColumn } from '@nuxt/ui'
 import { performanceCellOf, type PerformanceCell, type SetlistDisplay, type SetlistDisplayRow } from '~~/shared/edition-setlists.ts'
 import { shortPerformanceName } from '~~/shared/performance-name.ts'
-import { formatCharacters } from '~/composables/useCharacters.ts'
+import { songCharacters } from '~/composables/useCharacters.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
@@ -27,10 +28,20 @@ const shortNameOf = (name: string): string => {
   return localizePlace(shortPerformanceName(name, props.seriesName ?? '', props.seriesNumber ?? null))
 }
 
-/** 演出 cell for every row, computed once per display. */
-const cells = computed<PerformanceCell[]>(() =>
-  props.display.rows.map((row) =>
-    performanceCellOf({
+/** One table row: a printed slot line plus whether it owns the merged 序号 cell. */
+type SetlistTableRow = SetlistDisplayRow & {
+  /** Whether this row is the first of its slot, so it prints the 序号. */
+  startsSlot: boolean
+  /** 演出 cell text and tooltip, computed once per row. */
+  cell: PerformanceCell
+}
+
+/** Display rows annotated with the slot outline and their 演出 cell. */
+const data = computed<SetlistTableRow[]>(() =>
+  props.display.rows.map((row, position) => ({
+    ...row,
+    startsSlot: position === 0 || props.display.rows[position - 1]?.index !== row.index,
+    cell: performanceCellOf({
       selectorLabel: row.selectorLabel,
       performanceIds: row.performanceIds,
       names: row.showDetail,
@@ -39,29 +50,21 @@ const cells = computed<PerformanceCell[]>(() =>
       currentCity: props.currentCity ?? null,
       shortName: shortNameOf,
     }),
-  ),
+  })),
 )
-
-/** Whether a displayed row starts a shared slot. */
-const startsSlot = (row: SetlistDisplayRow, index: number): boolean => {
-  if (row.slotSize < 2) return false
-  const previous = props.display.rows[index - 1]
-  return !previous || previous.index !== row.index
-}
 
 /** Distinct song ids on a row, in printed order. */
 const songIdsOf = (row: SetlistDisplayRow): number[] => [...new Set(row.items.flatMap((item) => item.songIds))]
 
 /** 演出角色 for every song on a row, merged without duplicates. */
-const charactersOf = (row: SetlistDisplayRow): string => {
+const charactersOf = (row: SetlistDisplayRow): string[] => {
   const names = new Set<string>()
   for (const songId of songIdsOf(row)) {
     const song = songById(songId)
     if (song === null) continue
-    const text = formatCharacters(song)
-    if (text !== '—') for (const name of text.split('、')) names.add(name)
+    for (const name of songCharacters(song)) names.add(name)
   }
-  return names.size === 0 ? '—' : [...names].join('、')
+  return [...names]
 }
 
 /** 备注 cell: the repertoire category for a non-VOCALOID row, `—` for an ordinary song. */
@@ -74,69 +77,84 @@ const noteOf = (row: SetlistDisplayRow): string => {
   }
   return labels.size === 0 ? '—' : [...labels].join('、')
 }
+
+/** `rowspan` of the 序号 cell: the slot size on its first row, 1 on the absorbed rows. */
+const positionRowSpan = (cell: { row: { original: SetlistTableRow } }): string =>
+  cell.row.original.startsSlot ? String(cell.row.original.slotSize) : '1'
+
+/** Hides the 序号 cell of an absorbed row, whose space the slot's `rowspan` already covers. */
+const positionCellClass = (cell: { row: { original: SetlistTableRow } }): string => {
+  const { startsSlot, slotSize } = cell.row.original
+  if (!startsSlot) return 'hidden'
+  return slotSize > 1 ? 'align-top font-mono text-base text-highlighted' : 'font-mono text-muted'
+}
+
+/** Outlines every row of a shared slot, so a substitution reads as one block. */
+const rowClass = (row: { original: SetlistTableRow }): string =>
+  row.original.slotSize > 1 ? 'border-t border-miku-500/30' : ''
+
+/** Column set; the 場次 column is only labelled 演出 when the page shows many 演出. */
+const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
+  {
+    id: 'position',
+    header: '序号',
+    meta: { rowspan: { td: positionRowSpan }, class: { th: 'w-14', td: positionCellClass } },
+  },
+  { id: 'song', header: '歌曲' },
+  { id: 'characters', header: '歌手' },
+  {
+    id: 'shows',
+    header: props.currentPerformanceId === null || props.currentPerformanceId === undefined ? '演出' : '场次',
+  },
+  { id: 'note', header: '备注' },
+])
 </script>
 
 <template>
-  <div class="overflow-x-auto rounded-xl border border-default/60">
-    <table class="w-max min-w-full border-collapse text-sm whitespace-nowrap">
-      <thead class="bg-elevated/60 text-left text-xs tracking-wide text-muted uppercase">
-        <tr>
-          <th class="w-14 px-3 py-2 font-medium">序号</th>
-          <th class="px-3 py-2 font-medium">歌曲</th>
-          <th class="px-3 py-2 font-medium">歌手</th>
-          <th class="px-3 py-2 font-medium">{{ currentPerformanceId === null || currentPerformanceId === undefined ? '演出' : '场次' }}</th>
-          <th class="px-3 py-2 font-medium">备注</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(row, position) in display.rows"
-          :key="`${row.index}-${position}`"
-          class="align-top odd:bg-elevated/20"
-          :class="row.slotSize > 1 ? 'border-t border-miku-500/30' : 'border-t border-default/40'"
-        >
-          <td
-            v-if="startsSlot(row, position)"
-            :rowspan="row.slotSize"
-            class="px-3 py-2 align-top font-mono text-base text-highlighted"
+  <TableSection
+    title="歌单"
+    :count="`${display.slotCount} 个序号`"
+    :fill="false"
+    :data="data"
+    :columns="columns"
+    :meta="{ class: { tr: rowClass } }"
+  >
+    <template #position-cell="{ row }">
+      {{ row.original.index }}
+    </template>
+    <template #song-cell="{ row }">
+      <div class="flex flex-wrap items-center gap-x-1">
+        <template v-for="(songId, songIndex) in songIdsOf(row.original)" :key="songId">
+          <span v-if="songIndex > 0" class="text-muted">/</span>
+          <ULink :to="songHref(songId)" class="text-highlighted hover:text-primary">
+            <SongTitle :song-id="songId" :original="songName(songId)" />
+          </ULink>
+          <ULink
+            v-if="vocadbSongUrl(songId)"
+            :to="vocadbSongUrl(songId) ?? ''"
+            target="_blank"
+            class="shrink-0 text-dimmed hover:text-primary"
+            aria-label="在 VocaDB 查看"
           >
-            {{ row.index }}
-          </td>
-          <td v-else-if="row.slotSize < 2" class="px-3 py-2 font-mono text-muted">
-            {{ row.index }}
-          </td>
-          <td class="px-3 py-2">
-            <div class="flex flex-wrap items-center gap-x-1">
-              <template v-for="(songId, songIndex) in songIdsOf(row)" :key="songId">
-                <span v-if="songIndex > 0" class="text-muted">/</span>
-                <ULink :to="songHref(songId)" class="text-highlighted hover:text-primary">
-                  <SongTitle :song-id="songId" :original="songName(songId)" />
-                </ULink>
-                <ULink
-                  v-if="vocadbSongUrl(songId)"
-                  :to="vocadbSongUrl(songId) ?? ''"
-                  target="_blank"
-                  class="shrink-0 text-dimmed hover:text-primary"
-                  aria-label="在 VocaDB 查看"
-                >
-                  <UIcon name="i-lucide-external-link" class="size-3" />
-                </ULink>
-              </template>
-            </div>
-          </td>
-          <td class="px-3 py-2 text-muted">{{ charactersOf(row) }}</td>
-          <td class="px-3 py-2">
-            <UTooltip
-              v-if="cells[position]?.text"
-              :text="cells[position]?.title.map(localizePlace).join('、')"
-              :content="{ side: 'top' }"
-            >
-              <span class="text-highlighted">{{ cells[position]?.text }}</span>
-            </UTooltip>
-          </td>
-          <td class="px-3 py-2 text-xs text-muted">{{ noteOf(row) }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+            <UIcon name="i-lucide-external-link" class="size-3" />
+          </ULink>
+        </template>
+      </div>
+    </template>
+    <template #characters-cell="{ row }">
+      <CharacterChips :names="charactersOf(row.original)" />
+    </template>
+    <template #shows-cell="{ row }">
+      <UTooltip
+        v-if="row.original.cell.text"
+        :text="row.original.cell.title.map(localizePlace).join('、')"
+        :content="{ side: 'top' }"
+      >
+        <span class="text-highlighted">{{ row.original.cell.text }}</span>
+      </UTooltip>
+    </template>
+    <template #note-cell="{ row }">
+      <span class="text-xs text-muted">{{ noteOf(row.original) }}</span>
+    </template>
+  </TableSection>
 </template>

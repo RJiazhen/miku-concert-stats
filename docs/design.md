@@ -246,6 +246,8 @@ flowchart LR
 
 Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目录，页面用 `~~/shared/*` 引用纯逻辑。页眉是毛玻璃吸顶条，导航只保留「排行 / 原始数据 / 核验 / 检索」；播放量相关页面在拿到快照前由 `middleware/retired.ts` 重定向到首页。排行用 `UTable` 与 TanStack 排序，筛选条件写入 URL query，刷新与分享都能复原。
 
+所有列表页的表格以曲目排行为基准：`TableSection` 提供标题、`UTable`、粘性表头、`ranking-scroll`、加载骨架与空状态，`SortableHeader` 提供统一下拉排序表头，页面不再各自决定外壳样式。角色一律用 `CharacterChips`（应援色描边与淡底色，超过 3 个折叠成 `+N` 气泡），制作人署名这类非角色标签用 `UBadge`；筛选标签用 `FilterField`（`UFormField`）。唯一的例外是 `/raw` 的「数据表」：列由目录表结构动态决定，保留手写表格，但沿用同样的外壳与空状态。详见 `docs/architecture.md` 的「共享 UI 组件」。
+
 ## 页眉搜索
 
 搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层先列制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`），再列歌曲；只有制作人命中时 `Enter` 不跳转。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。

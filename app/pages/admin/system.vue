@@ -75,11 +75,11 @@ const rows = computed<StatusRow[]>(() => {
   ]
 })
 
-/** Colour classes for the three status tones. */
-const toneClass = (tone: StatusRow['tone']): string => {
-  if (tone === 'ok') return 'bg-success/10 text-success'
-  if (tone === 'warn') return 'bg-warning/10 text-warning'
-  return 'bg-elevated text-muted'
+/** Badge colour for the three status tones. */
+const toneColor = (tone: StatusRow['tone']): 'success' | 'warning' | 'neutral' => {
+  if (tone === 'ok') return 'success'
+  if (tone === 'warn') return 'warning'
+  return 'neutral'
 }
 
 onMounted(() => {
@@ -113,25 +113,21 @@ onMounted(() => {
     </header>
 
     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      <div
-        v-for="row in rows"
-        :key="row.label"
-        class="rounded-2xl border border-default bg-elevated/40 p-4"
-      >
+      <UCard v-for="row in rows" :key="row.label" variant="subtle">
         <div class="flex items-center justify-between gap-2">
           <p class="text-xs text-muted">{{ row.label }}</p>
-          <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold" :class="toneClass(row.tone)">
+          <UBadge :color="toneColor(row.tone)" variant="subtle" size="sm">
             {{ row.tone === 'ok' ? '正常' : row.tone === 'warn' ? '注意' : '信息' }}
-          </span>
+          </UBadge>
         </div>
         <p class="mt-2 truncate text-lg font-semibold text-highlighted" :title="row.value">
           {{ row.value }}
         </p>
         <p class="mt-1 text-[11px] leading-relaxed text-muted">{{ row.hint }}</p>
-      </div>
+      </UCard>
     </div>
 
-    <section class="rounded-2xl border border-default bg-elevated/30 p-5">
+    <UCard variant="subtle">
       <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
         <UIcon name="i-lucide-shield-check" class="size-4 text-primary" />
         Cloudflare Access 配置
@@ -160,9 +156,9 @@ onMounted(() => {
           <code class="rounded bg-elevated px-1 py-0.5">ACCESS_AUD</code> 并重新部署。
         </li>
       </ol>
-    </section>
+    </UCard>
 
-    <section class="rounded-2xl border border-default bg-elevated/30 p-5">
+    <UCard variant="subtle">
       <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
         <UIcon name="i-lucide-server" class="size-4 text-primary" />
         管理接口
@@ -185,6 +181,6 @@ onMounted(() => {
           <dd class="mt-0.5 text-muted">把一条反馈标为 open 或 resolved，并用同样的 TTL 重写。</dd>
         </div>
       </dl>
-    </section>
+    </UCard>
   </div>
 </template>

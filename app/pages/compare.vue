@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { compareBy } from '~~/shared/stats.ts'
 import { BANDS } from '~~/shared/bands.ts'
@@ -23,6 +24,37 @@ const rows = computed(() => (catalog.value ? compareBy(catalog.value, platform.v
 
 /** Formats a share for the comparison table. */
 const percent = (ratio: number | null): string => (ratio === null ? '—' : `${(ratio * 100).toFixed(1)}%`)
+
+/** One table row: a grouping label plus the count and share of each playback band. */
+type CompareRow = {
+  key: string
+  label: string
+  songCount: number
+  /** Band id to its printed `count（share）` text. */
+  bandText: Record<string, string>
+}
+
+/** Rows flattened into the cell text the table prints. */
+const tableRows = computed<CompareRow[]>(() =>
+  rows.value.map((row) => ({
+    key: row.key,
+    label: row.label,
+    songCount: row.songCount,
+    bandText: Object.fromEntries(row.bands.map((band) => [band.id, `${band.count}（${percent(band.ratio)}）`])),
+  })),
+)
+
+/** One column per playback band, after the grouping and the song count. */
+const columns = computed<TableColumn<CompareRow>[]>(() => [
+  { accessorKey: 'label', header: '分组' },
+  { accessorKey: 'songCount', header: '歌曲数' },
+  ...BANDS.map((band) => ({
+    id: band.id,
+    header: band.label,
+    enableSorting: false,
+    accessorFn: (row: CompareRow) => row.bandText[band.id] ?? '—',
+  })),
+])
 </script>
 
 <template>
@@ -33,43 +65,41 @@ const percent = (ratio: number | null): string => (ratio === null ? '—' : `${(
     <UAlert v-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UCard v-else>
       <div class="flex flex-wrap items-end gap-3">
-        <label class="grid gap-1 text-xs text-muted">
-          平台
+        <FilterField label="平台">
           <USelect
             v-model="platform"
             :items="[{ label: 'YouTube', value: 'youtube' }, { label: 'niconico', value: 'niconico' }, { label: '哔哩哔哩', value: 'bilibili' }]"
             size="sm"
             class="w-32"
           />
-        </label>
-        <label class="grid gap-1 text-xs text-muted">
-          分组
+        </FilterField>
+        <FilterField label="分组">
           <USelect
             v-model="grouping"
             :items="[{ label: '系列', value: 'series' }, { label: '系列年度', value: 'edition' }, { label: '公历年', value: 'year' }]"
             size="sm"
             class="w-32"
           />
-        </label>
-      </div>
-      <div class="mt-4 overflow-x-auto">
-        <table class="w-max min-w-full whitespace-nowrap text-sm">
-          <thead class="text-left text-xs tracking-wide text-muted uppercase">
-            <tr>
-              <th class="px-2 py-1.5 font-medium">分组</th>
-              <th class="px-2 py-1.5 font-medium">歌曲数</th>
-              <th v-for="band in BANDS" :key="band.id" class="px-2 py-1.5 font-medium">{{ band.label }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in rows" :key="row.key" class="border-t border-default/40">
-              <td class="px-2 py-1.5">{{ row.label }}</td>
-              <td class="px-2 py-1.5 tabular-nums text-muted">{{ row.songCount }}</td>
-              <td v-for="band in row.bands" :key="band.id" class="px-2 py-1.5 text-muted">{{ band.count }}（{{ percent(band.ratio) }}）</td>
-            </tr>
-          </tbody>
-        </table>
+        </FilterField>
       </div>
     </UCard>
+
+    <TableSection
+      title="播放量分组"
+      :count="`${tableRows.length} 组`"
+      :fill="false"
+      :data="tableRows"
+      :columns="columns"
+      empty-icon="i-lucide-chart-no-axes-column"
+      empty-title="没有可比对的播放量"
+      empty-description="当前平台还没有可用的快照。"
+    >
+      <template #label-cell="{ row }">
+        <span class="text-highlighted">{{ row.original.label }}</span>
+      </template>
+      <template #songCount-cell="{ row }">
+        <span class="tabular-nums text-muted">{{ row.original.songCount }}</span>
+      </template>
+    </TableSection>
   </main>
 </template>

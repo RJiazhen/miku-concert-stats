@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
@@ -8,9 +9,10 @@ import { buildSetlistDisplay, displaySides } from '~~/shared/edition-setlists.ts
 import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { producerCredit } from '~~/shared/credit.ts'
-import { formatCharacters } from '~/composables/useCharacters.ts'
+import { songCharacters } from '~/composables/useCharacters.ts'
 import { setlistPerformanceIds } from '~~/shared/performance-setlists.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
+import { songCategoryLabels, fromVocaDB } from '~~/shared/repertoire.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
@@ -34,13 +36,8 @@ const tabs: { value: Tab; label: string }[] = [
   { value: 'quality', label: '质量报告' },
 ]
 
-/** Switches the raw-data view. */
-const setTab = (value: Tab): void => {
-  tab.value = value
-}
-
-/** Cell content with an optional source link. */
-type Cell = { text: string; href?: string }
+/** Cell content with an optional source link and character chips. */
+type Cell = { text: string; href?: string; chips?: string[] }
 
 /** One data table on the raw page. */
 type RawTable = { id: string; label: string; headers: string[]; rows: Cell[][] }
@@ -234,7 +231,7 @@ const tables = computed<RawTable[]>(() => {
         { text: row.name },
         { text: row.name_ja ?? '—' },
         { text: producerCredit(row.artist_string) ?? '—' },
-        { text: formatCharacters(row) },
+        { text: songCharacters(row).join('、'), chips: songCharacters(row) },
         { text: row.song_type },
         { text: row.category === 'vocaloid' ? 'VOCALOID' : songCategoryLabels[row.category] },
         { text: row.publish_date ?? '—' },
@@ -352,8 +349,36 @@ const uncertainLines = computed(() => review.value?.lines.filter((line) => line.
 /** Shows whose parsed setlist length differs from the list's usual length. */
 const mismatchedShows = computed(() => review.value?.shows ?? [])
 
+/** One row of the 场次歌单 table. */
+type ShowSetlistRow = {
+  performanceId: number
+  name: string
+  series: string
+  startDate: string | null
+  shows: number
+  sourceRows: number
+  status: string
+  resolution: string
+  change: string
+  pendingReview: boolean
+  conflict: boolean
+  sources: number
+}
+
+/** Columns of the 场次歌单 table. */
+const showSetlistColumns: TableColumn<ShowSetlistRow>[] = [
+  { accessorKey: 'name', header: '演出' },
+  { accessorKey: 'series', header: '系列' },
+  { accessorKey: 'startDate', header: '日期' },
+  { accessorKey: 'shows', header: '场次' },
+  { accessorKey: 'sourceRows', header: '源行数' },
+  { id: 'status', header: '状态' },
+  { accessorKey: 'resolution', header: '归属方式' },
+  { accessorKey: 'sources', header: '来源' },
+]
+
 /** Derived 演出 rows joined with their 场次 counts, grouped by series for the 场次歌单 tab. */
-const showSetlists = computed(() => {
+const showSetlists = computed<ShowSetlistRow[]>(() => {
   if (!catalog.value) return []
   const seriesName = new Map(catalog.value.series.map((row) => [row.id, row.name]))
   const showsByPerformance = new Map<number, number>()
@@ -474,17 +499,14 @@ const editionSongCount = computed(() => {
 
     <UAlert v-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
 
-    <div class="flex flex-wrap gap-1">
-      <UButton
-        v-for="item in tabs"
-        :key="item.value"
-        :variant="tab === item.value ? 'solid' : 'outline'"
-        color="neutral"
-        size="sm"
-        :label="item.label"
-        @click="setTab(item.value)"
-      />
-    </div>
+    <UTabs
+      v-model="tab"
+      :items="tabs"
+      :content="false"
+      color="neutral"
+      variant="pill"
+      size="sm"
+    />
 
     <section v-if="tab === 'edition'" class="space-y-4">
       <p class="text-xs text-muted">
@@ -492,8 +514,7 @@ const editionSongCount = computed(() => {
       </p>
       <UCard>
         <div class="flex flex-wrap items-end gap-3">
-          <label class="grid gap-1 text-xs text-muted">
-            系列年度
+          <FilterField label="系列年度">
             <USelectMenu
               :model-value="editionModel"
               :items="editionItems"
@@ -504,11 +525,10 @@ const editionSongCount = computed(() => {
               class="w-72"
               @update:model-value="selectEdition"
             />
-          </label>
-          <label class="grid gap-1 text-xs text-muted">
-            显示范围
+          </FilterField>
+          <FilterField label="显示范围">
             <USelect v-model="sideIndex" :items="sideOptions" size="sm" class="w-72" />
-          </label>
+          </FilterField>
           <p class="pb-2 text-xs text-muted">{{ editionSongCount }} 首（合并版本后去重）</p>
         </div>
       </UCard>
@@ -525,43 +545,44 @@ const editionSongCount = computed(() => {
     </section>
 
     <section v-else-if="tab === 'shows'" class="space-y-4">
-      <p class="text-xs text-muted">
-        每个演出派生出的场次歌单，共有 {{ showSetlists.length }} 个演出。
-      </p>
-      <UCard>
-        <div class="overflow-x-auto">
-          <table class="w-max min-w-full whitespace-nowrap text-sm">
-            <thead class="text-left text-xs tracking-wide text-muted uppercase">
-              <tr>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">演出</th>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">系列</th>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">日期</th>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">场次</th>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">源行数</th>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">状态</th>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">归属方式</th>
-                <th class="px-2 py-1.5 font-medium whitespace-nowrap">来源</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in showSetlists" :key="row.performanceId" class="border-t border-default/40">
-                <td class="px-2 py-1.5">
-                  <NuxtLink :to="`/shows/${row.performanceId}`" class="text-primary">{{ row.name }}</NuxtLink>
-                  <span v-if="row.pendingReview" class="ml-1 text-warning">· 待复核</span>
-                  <span v-if="row.conflict" class="ml-1 text-error">· 冲突</span>
-                </td>
-                <td class="px-2 py-1.5 text-muted">{{ row.series }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ row.startDate ?? '日期未知' }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ row.shows }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ row.sourceRows }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ row.status }} / {{ row.change }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ row.resolution }}</td>
-                <td class="px-2 py-1.5 text-muted">{{ row.sources }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </UCard>
+      <TableSection
+        title="场次歌单"
+        :count="`${showSetlists.length} 个演出`"
+        note="每个演出派生出的场次歌单，点演出席名可进入该演出的歌单页。"
+        :fill="false"
+        :data="showSetlists"
+        :columns="showSetlistColumns"
+        empty-icon="i-lucide-list-x"
+        empty-title="没有场次歌单"
+        empty-description="目录里还没有派生的场次数据。"
+      >
+        <template #name-cell="{ row }">
+          <NuxtLink :to="`/shows/${row.original.performanceId}`" class="text-primary">{{ row.original.name }}</NuxtLink>
+          <span v-if="row.original.pendingReview" class="ml-1 text-warning">· 待复核</span>
+          <span v-if="row.original.conflict" class="ml-1 text-error">· 冲突</span>
+        </template>
+        <template #series-cell="{ row }">
+          <span class="text-muted">{{ row.original.series }}</span>
+        </template>
+        <template #startDate-cell="{ row }">
+          <span class="text-muted">{{ row.original.startDate ?? '日期未知' }}</span>
+        </template>
+        <template #shows-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ row.original.shows }}</span>
+        </template>
+        <template #sourceRows-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ row.original.sourceRows }}</span>
+        </template>
+        <template #status-cell="{ row }">
+          <span class="text-muted">{{ row.original.status }} / {{ row.original.change }}</span>
+        </template>
+        <template #resolution-cell="{ row }">
+          <span class="text-muted">{{ row.original.resolution }}</span>
+        </template>
+        <template #sources-cell="{ row }">
+          <span class="tabular-nums text-muted">{{ row.original.sources }}</span>
+        </template>
+      </TableSection>
     </section>
 
     <section v-else-if="tab === 'tables'" class="space-y-4">
@@ -586,7 +607,8 @@ const editionSongCount = computed(() => {
             <tbody>
               <tr v-for="(row, index) in table.rows.slice(0, limitOf(table.id))" :key="index" class="border-t border-default/40">
                 <td v-for="(cell, cellIndex) in row" :key="cellIndex" class="px-2 py-1.5 align-top">
-                  <ULink v-if="cell.href" :to="cell.href" target="_blank" class="text-primary">{{ cell.text }}</ULink>
+                  <CharacterChips v-if="cell.chips && cell.chips.length > 0" :names="cell.chips" />
+                  <ULink v-else-if="cell.href" :to="cell.href" target="_blank" class="text-primary">{{ cell.text }}</ULink>
                   <span v-else class="text-muted">{{ cell.text }}</span>
                 </td>
               </tr>

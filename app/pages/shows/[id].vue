@@ -33,7 +33,7 @@ const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : 
 const shows = computed(() => {
   const current = performance.value
   if (!catalog.value || !review.value || !current) return []
-  return catalogSchedules(catalog.value, review.value).get(current.id) ?? []
+  return catalogSchedules(catalog.value).get(current.id) ?? []
 })
 
 /** Whether the catalog derived a 場次 layer for this 演出, including a wiki-sourced one. */

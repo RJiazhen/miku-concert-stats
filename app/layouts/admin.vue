@@ -127,15 +127,15 @@ onMounted(() => {
       <template #header>
         <UDashboardNavbar :title="current.label" :icon="current.icon" :as="{ title: 'div' }">
           <template #right>
-            <span
-              class="hidden items-center gap-1.5 rounded-full border border-default px-2.5 py-1 text-[11px] text-muted md:flex"
+            <UBadge
+              class="hidden md:inline-flex"
+              :color="session.identity ? 'success' : (accessMissing ? 'warning' : 'error')"
+              variant="subtle"
+              size="sm"
+              :icon="session.identity ? 'i-lucide-circle-check' : (accessMissing ? 'i-lucide-circle-alert' : 'i-lucide-lock')"
             >
-              <span
-                class="size-1.5 rounded-full"
-                :class="session.identity ? 'bg-success' : (accessMissing ? 'bg-warning' : 'bg-error')"
-              />
               {{ session.identity ? '已登录' : (accessMissing ? '未配置' : '未登录') }}
-            </span>
+            </UBadge>
             <UButton
               to="/"
               icon="i-lucide-globe"
@@ -150,15 +150,14 @@ onMounted(() => {
       </template>
 
       <template #body>
-        <div
+        <UAlert
           v-if="accessMissing"
-          class="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning"
+          color="warning"
+          variant="subtle"
+          icon="i-lucide-triangle-alert"
+          title="Cloudflare Access 尚未配置"
         >
-          <p class="flex items-center gap-2 font-medium">
-            <UIcon name="i-lucide-triangle-alert" class="size-4 shrink-0" />
-            Cloudflare Access 尚未配置
-          </p>
-          <p class="mt-1 leading-relaxed">
+          <template #description>
             本地 <code class="rounded bg-elevated px-1 py-0.5">nuxt dev</code> 没有 Access 应用，Worker 也不会拿到
             <code class="rounded bg-elevated px-1 py-0.5">ACCESS_TEAM_DOMAIN</code> /
             <code class="rounded bg-elevated px-1 py-0.5">ACCESS_AUD</code>，因此不会跳转登录页，反馈数据也不可读。
@@ -167,31 +166,28 @@ onMounted(() => {
             <code class="rounded bg-elevated px-1 py-0.5">/admin</code>、
             <code class="rounded bg-elevated px-1 py-0.5">/admin/*</code>、
             <code class="rounded bg-elevated px-1 py-0.5">/api/admin/*</code> 加入 Access 应用的 destinations。
-          </p>
-        </div>
-        <div
+          </template>
+        </UAlert>
+        <UAlert
           v-else-if="signedOut"
-          class="rounded-xl border border-error/40 bg-error/10 p-4 text-sm text-error"
+          color="error"
+          variant="subtle"
+          icon="i-lucide-lock"
+          title="登录状态无效"
+          description="当前请求没有有效的 Cloudflare Access 身份，管理接口会一律返回 401。请刷新页面重新走一次 Access 登录；如果仍失败，检查登录账号是否在 Access 策略的允许列表里。"
         >
-          <p class="flex items-center gap-2 font-medium">
-            <UIcon name="i-lucide-lock" class="size-4 shrink-0" />
-            登录状态无效
-          </p>
-          <p class="mt-1 leading-relaxed">
-            当前请求没有有效的 Cloudflare Access 身份，管理接口会一律返回 401。请刷新页面重新走一次
-            Access 登录；如果仍失败，检查登录账号是否在 Access 策略的允许列表里。
-          </p>
-          <UButton
-            class="mt-3"
-            size="sm"
-            color="error"
-            variant="soft"
-            icon="i-lucide-refresh-cw"
-            @click="reloadPage"
-          >
-            重新加载
-          </UButton>
-        </div>
+          <template #actions>
+            <UButton
+              size="sm"
+              color="error"
+              variant="soft"
+              icon="i-lucide-refresh-cw"
+              @click="reloadPage"
+            >
+              重新加载
+            </UButton>
+          </template>
+        </UAlert>
 
         <slot />
       </template>
