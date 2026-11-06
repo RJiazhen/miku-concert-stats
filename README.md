@@ -58,7 +58,8 @@ niconico 与哔哩哔哩只保存 VocaDB 上的投稿链接。不调用 niconico
 | --- | --- |
 | `data/song-variants.json` | 把 remix、remaster、声库、翻唱、语言版本并入同一首歌，排行与统计按合并后的歌计数 |
 | `data/setlist-merges.json` | 同一系列年度不同演出的歌单并排对照（例如 2019 マジカルミライ 东京与大阪） |
-| `data/song-titles.zh-CN.json` | 歌曲中文名，页眉开关控制是否显示 |
+| `data/song-titles.zh-CN.json` | 歌曲中文名（`title` 唯一显示名，`aliases` 只供搜索匹配），页眉开关控制是否显示 |
+| `data/song-titles.zh-Hant.json` | 歌曲繁体中文名，暂不显示 |
 | `data/song-notes.json` | 单曲页顶部的补充说明（例如「演唱会演奏的是改编后的短版」） |
 | `data/place-names.zh-CN.json` | 演出名里的地点中文名，跟随页眉同一个开关切换 |
 | `data/characters.json` | 声库名到角色的映射与应援色，用于「歌手」列 |

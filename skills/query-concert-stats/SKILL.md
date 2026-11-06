@@ -22,6 +22,7 @@ Answer in the user's language, in words the user could have used themselves. The
 - **No identifiers in the prose.** Do not print song ids (`1322`), 演出 ids (`7215`), series ids (`81`, especially the `900000000+` local placeholders), producer ids (`a45`), or show keys (`7215:2024-08-30:day`). Say 曲名、演出名、年份、城市、系列 instead: 「2024 年魔法未来东京场」, not 「演出 7215」. An id is acceptable only inside a clickable link target, never as a label, a table cell, or "see id …".
 - **No field names or storage details.** Unless the user is asking about the API itself, do not quote `showCount`, `eventCount`, `songListId`, `variantCount`, `albumFallback`, `pendingReview`, `catalogVersion`, `sourceKind`, `resolution`, JSON snippets, file names, or the SQLite catalogue. Translate the concept: 「按场次统计 90 次」, not 「`showCount: 90`」; 「数据还在核对」, not 「`pendingReview: true`」. The same applies to quality numbers: describe what is missing in plain words.
 - **Use the localized name the API already carries.** Songs have `name`, `nameJa`, `nameEn`, and `nameZh`; pick the one matching the user's language (Chinese question → `nameZh` when it is not `null`). `cities[].city` is already the Chinese city name, with `originalNames` for other spellings. Keep producer names in their official spelling (`DECO*27`, `kz`, `ryo`, `Mitchie M`) — those are not translated.
+- **`nameZh` is the only Chinese title to use; aliases are not substitutes.** One song often has several circulating Chinese translations, traditional-character spellings, fan nicknames, or meme names. Even when you know them, name the song with `nameZh` and never lead with an alias — an unfamiliar name makes the user think you mean a different song. If the user's own wording uses an alias, map it to the `nameZh` entry and answer with that title, adding the alias at most once in parentheses on first mention (「世末舞厅（世界末日舞厅）」). Do not present a list of alternative translations unless the user explicitly asks for the aliases. Some `nameZh` values are deliberately Latin (`ROKI`, `Next Nest`): those are the accepted Chinese-display titles, so keep them verbatim instead of inventing a Chinese rendering.
 - **Do not copy Japanese over the user's language.** When the payload has a matching name or title, use that and drop the Japanese. Series names and 演出 names come only in Japanese/VocaDB form, so translate them yourself (マジカルミライ → 魔法未来 / Magical Mirai; MIKU WITH YOU → 未来有你; シンフォニー → 交响乐) and keep the city and year in the user's language.
 - **When the Japanese is genuinely needed, put it in parentheses after the local term.** Use it for disambiguation, for searching elsewhere, or for a song with no translated title in the payload: 融化（メルト）, 东京（東京）, 初音未来交响乐 2026 东京场（初音ミクシンフォニー 2026 東京）. Give it once per answer, not after every mention. A Chinese or English name first, Japanese second — never the reverse.
 
@@ -142,6 +143,8 @@ Resolve names and ids with `filters.json` or `search` first. Never guess a serie
 ```
 
 Songs are ordered exact title first, then prefix, then substring; popularity breaks ties. If several different songs match and none is an exact title match, name the candidates and ask which one the user means.
+
+Search matches `nameZh` and the Chinese aliases recorded for it, but every response carries only the canonical `nameZh` — read that field for the title you show. Traditional-character spellings and translations nobody has recorded are not indexed: when such a query returns no song, retry once with the primary Chinese title or the original/Japanese name before telling the user the catalogue has no record of it.
 
 ## 2. `GET /api/v1/songs/{id}.json`
 
@@ -438,6 +441,7 @@ Every song, 演出, 系列, and producer payload carries a site `url`. When an a
 
 - [ ] Wrote the answer without ids, field names, or storage details; any id stayed inside a link target.
 - [ ] Used the user's language for names the API localizes, and put Japanese only in parentheses after the local term.
+- [ ] Used `nameZh` as the Chinese song title and did not substitute an alias, alternate translation, or meme name for it.
 - [ ] Took catalogue numbers from `/api/v1`; did not scrape the site's HTML or download its SQLite files.
 - [ ] Preferred this API over memory or other sources; used `show` when no counting mode was named.
 - [ ] Sent a normal `User-Agent`; a 403 on an otherwise valid request means the default library agent was blocked.

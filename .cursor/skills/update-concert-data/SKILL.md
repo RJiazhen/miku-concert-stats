@@ -33,7 +33,8 @@ disable-model-invocation: true
 | `scripts/wiki_tour_tables.py` | 手抄的城市级表（EXPO 2014–2020、Live Party、鼓童、未来有你、魔法未来 2014） | 手改 |
 | `data/wiki-setlists.json` | 逐行数据（`title` + `when`） | `wiki-setlists-source.py` |
 | `data/wiki-title-aliases.json` | 百科写法 → catalog 写法 | 手改 |
-| `data/song-titles.zh-CN.json` | 歌曲中文名（`id → { title, source, comment }`），页眉开关控制显示 | 手改，见 §5「中文译名与英文名」 |
+| `data/song-titles.zh-CN.json` | 歌曲中文名（`id → { title, aliases?, source, comment? }`），页眉开关控制显示 | 手改，见 §5「中文译名与英文名」 |
+| `data/song-titles.zh-Hant.json` | 歌曲繁体中文名（同结构），暂不显示 | 手改，见 §5「中文译名与英文名」 |
 | `data/increments/0015-song-english-names.sql` | VocaDB 没给英文名的 `songs.name_en` 补写 | 手改 |
 | `data/wiki-songs.json` | catalog 里没有的歌（VocaDB 能查到） | `fetch-wiki-songs.py` |
 | `data/increments/0009-wiki-songs.sql` | 上面那些歌的 `INSERT OR IGNORE` | `fetch-wiki-songs.py` |
@@ -166,7 +167,7 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
 
 ### 中文译名与英文名
 
-中文曲名不走 catalog，写在 `data/song-titles.zh-CN.json`（`id → { title, source, comment }`）；
+中文曲名不走 catalog，写在 `data/song-titles.zh-CN.json`（`id → { title, aliases?, source, comment? }`）；
 英文名走 `songs.name_en`，VocaDB 没给时补在 `data/increments/0015-song-english-names.sql`（`UPDATE`，可重复执行）。
 新歌单第一次出现的歌，逐首查 `data/song-titles.zh-CN.json` 有没有它的 id，没有就按下面的顺序补，
 **不许因为查不到就跳过**：
@@ -184,14 +185,17 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
 补充规则：
 
 - **假名形式的英文词直接保留英文**：曲名本身是英文语句的假名写法时（`クリスタルスノウ` → `Crystal Snow`、
-  `サンドリヨン` → `Cendrillon`、`ダンスロボットダンス` → `Dance Robot Dance`），
+  `サンドリヨン` → `Cendrillon`、`ダンスロボットダンス` → `Dance Robot Dance`、`ネクストネスト` → `Next Nest`），
   中文显示名直接用这个英文，不再译成中文；同时把它写进 `songs.name_en`，让 `shared/lookup.ts` 的检索也能命中。
-  判断标准是原曲有没有官方英文名，不要自行把片假名音译成英文。
+  官方给了罗马字名的同理（`ロキ` → `ROKI`）。判断标准是原曲有没有官方英文名，不要自行把片假名音译成英文。
 - 资料给的是 `中文/English` 混排时按这个拆：前半进 `title`，英文进 `name_en`，**不要**把英文留在中文名里，
   也不要塞进 `comment`。
-- 一个 id 只留一个显示名；第二种通行写法写进 `comment`（`另译：…`）。
+- **一个 id 只留一个显示名**：其他通行中文译名写进 `aliases`（数组），站内不显示、只给搜索命中；
+  不要再写 `comment: "另译：…"`。别名与 `title` 相同或彼此重复会让 `tests/song-titles.test.ts` 失败。
+- **繁体写法不进 `aliases`**：写到 `data/song-titles.zh-Hant.json`（同结构，暂不显示、不检索），
+  简体条目里也不再保留繁体字作为别名。简繁混用的同一译名，简体那一个留在 `zh-CN`。
 - 中文名与日文原名完全相同的（`心拍数♯0822`、`再教育`、`巴`）不要登记：`formatSongTitle` 遇到同名只显示原名，
-  写进去只会虚增映射条数。
+  写进去只会虚增映射条数。例外：有需要参与检索的别名时保留条目（`番凩` 的「落叶秋风」「对霜风」）。
 - 非 VOCALOID 曲目换来源：古典曲目查 zh.wikipedia 的条目名（`第5号钢琴协奏曲 (贝多芬)`、`Sleigh Ride` → `滑雪橇`），
   鼓童这类器乐曲多半是汉字同名，只需简繁转换（`LION（獅子吼）` → `LION（狮子吼）`，`source` 写 `简繁转换`）。
 - 键按数值升序，`title` 与 `source` 不能为空，id 必须真的在 catalog 里，否则 `tests/song-titles.test.ts` 会挂；

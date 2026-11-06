@@ -27,7 +27,8 @@ const searchType = (raw: unknown): SearchType => {
 
 /**
  * Scores a song against one query.
- * 0 exact title, 1 title starts with the query, 2 title contains it, null no match.
+ * 0 exact title, 1 title starts with the query, 2 title contains it or an alias matches, null no match.
+ * Aliases never outrank a primary title, so a search shows the canonical Chinese name first.
  */
 const scoreSong = (song: ApiSongRow, query: string): number | null => {
   const titles = [song.name, song.nameJa, song.nameEn, song.nameZh]
@@ -41,6 +42,9 @@ const scoreSong = (song: ApiSongRow, query: string): number | null => {
       continue
     }
     if (value.includes(query) && best === null) best = 2
+  }
+  for (const alias of song.nameZhAliases ?? []) {
+    if (normalizeTitle(alias).includes(query) && best === null) best = 2
   }
   return best
 }
@@ -68,8 +72,8 @@ const seriesHit = (row: ApiSeriesOption): ApiSeriesOption & { url: string } => (
 
 /**
  * `GET /api/v1/search?q=&type=all|songs|producers|series` — resolve a song, producer, or series.
- * Song titles match the original, Japanese, English, and Chinese names; producers and series
- * match their names as a case-insensitive substring.
+ * Song titles match the original, Japanese, English, and Chinese names, plus recorded Chinese aliases;
+ * producers and series match their names as a case-insensitive substring.
  */
 const search = async (event: H3Event) => {
   const params = getQuery(event)

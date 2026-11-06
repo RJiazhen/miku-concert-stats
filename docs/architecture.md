@@ -427,7 +427,11 @@ flowchart TD
 
 ### `data/song-titles.zh-CN.json`
 
-对象。键是 VocaDB 歌曲 id，值含非空 `title`、非空 `source` 与可选 `comment`。
+对象。键是 VocaDB 歌曲 id，值含非空 `title`、非空 `source`、可选 `aliases`（其他通行中文名，只参与搜索匹配、不参与显示）与可选 `comment`。繁体写法不进这里，放到 `data/song-titles.zh-Hant.json`，结构与这里相同，暂不参与显示。
+
+### `data/song-titles.zh-Hant.json`
+
+对象。键同样是 VocaDB 歌曲 id，记录同一首歌的繁体中文名，结构与 `song-titles.zh-CN.json` 相同。暂不参与显示与检索，只作为日后切换或对照的资料；`tests/song-titles.test.ts` 只校验格式与 id 是否存在。
 
 ### `data/place-names.zh-CN.json`
 

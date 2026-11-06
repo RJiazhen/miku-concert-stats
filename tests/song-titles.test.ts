@@ -19,9 +19,19 @@ describe('Chinese song titles', () => {
     expect(formatSongTitle('Tell Your World', null, 'zh')).toEqual({ primary: 'Tell Your World', originalNote: null })
   })
 
+  it('keeps alias lists valid and separate from the displayed title', () => {
+    const titles = parseSongTitles({
+      '20': { title: '世末舞厅', aliases: ['世界末日舞厅'], source: 'vocadb-alias' },
+    })
+    expect(songTitleFor(titles, 20)?.aliases).toEqual(['世界末日舞厅'])
+    expect(songTitleFor(parseSongTitles({ '20': { title: '世末舞厅', source: 'vocadb-alias' } }), 20)?.aliases).toBeUndefined()
+    expect(() => parseSongTitles({ '20': { title: '世末舞厅', aliases: '', source: 'vocadb-alias' } })).toThrow(/aliases is not a list/)
+    expect(() => parseSongTitles({ '20': { title: '世末舞厅', aliases: [' '], source: 'vocadb-alias' } })).toThrow(/alias is empty/)
+    expect(() => parseSongTitles({ '20': { title: '世末舞厅', aliases: ['世末舞厅'], source: 'vocadb-alias' } })).toThrow(/repeats the title/)
+    expect(() => parseSongTitles({ '20': { title: '世末舞厅', aliases: ['世界末日舞厅', '世界末日舞厅'], source: 'vocadb-alias' } })).toThrow(/duplicated/)
+  })
+
   it('only keeps catalog songs with a non-empty title and a source', () => {
-    const raw = JSON.parse(readFileSync(new URL('../data/song-titles.zh-CN.json', import.meta.url), 'utf8')) as unknown
-    const titles = parseSongTitles(raw)
     const db = new Database(':memory:')
     try {
       applyCatalogSql(db)
@@ -30,10 +40,13 @@ describe('Chinese song titles', () => {
         all: (sql: string) => db.prepare(sql).all() as SqlRow[],
       })
       const ids = new Set(catalog.songs.map((song) => song.id))
-      for (const [id, entry] of Object.entries(titles)) {
-        expect(ids.has(Number(id))).toBe(true)
-        expect(entry.title.trim().length).toBeGreaterThan(0)
-        expect(entry.source.trim().length).toBeGreaterThan(0)
+      for (const file of ['../data/song-titles.zh-CN.json', '../data/song-titles.zh-Hant.json']) {
+        const raw = JSON.parse(readFileSync(new URL(file, import.meta.url), 'utf8')) as unknown
+        for (const [id, entry] of Object.entries(parseSongTitles(raw))) {
+          expect(ids.has(Number(id))).toBe(true)
+          expect(entry.title.trim().length).toBeGreaterThan(0)
+          expect(entry.source.trim().length).toBeGreaterThan(0)
+        }
       }
     } finally {
       db.close()

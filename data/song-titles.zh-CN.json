@@ -1,13 +1,17 @@
 {
   "20": {
-    "title": "世界末日舞厅",
-    "source": "vocadb-alias",
-    "comment": "另有别名：世末舞厅"
+    "title": "世末舞厅",
+    "aliases": [
+      "世界末日舞厅"
+    ],
+    "source": "vocadb-alias"
   },
   "298": {
     "title": "缝合者",
-    "source": "vocawiki",
-    "comment": "另译：留守人"
+    "aliases": [
+      "留守人"
+    ],
+    "source": "vocawiki"
   },
   "383": {
     "title": "黄泉樱",
@@ -31,10 +35,19 @@
   },
   "1032": {
     "title": "罗密欧与灰姑娘",
+    "aliases": [
+      "罗密欧与辛德瑞拉（仙杜瑞拉）",
+      "罪色童话"
+    ],
     "source": "萌娘百科"
   },
   "1047": {
-    "title": "星屑下的理想乡",
+    "title": "星屑乌托邦",
+    "aliases": [
+      "星屑下的理想乡",
+      "星尘乌托邦",
+      "群星乌托邦"
+    ],
     "source": "vocawiki"
   },
   "1088": {
@@ -44,6 +57,9 @@
   },
   "1320": {
     "title": "恋爱战争",
+    "aliases": [
+      "恋爱是战争"
+    ],
     "source": "vocadb-alias"
   },
   "1322": {
@@ -52,6 +68,10 @@
   },
   "1326": {
     "title": "世界第一公主殿下",
+    "aliases": [
+      "世界属于我",
+      "世界第一的公主殿下"
+    ],
     "source": "萌娘百科"
   },
   "1327": {
@@ -125,6 +145,9 @@
   },
   "1932": {
     "title": "假借分身",
+    "aliases": [
+      "乔装Gengar"
+    ],
     "source": "vocawiki"
   },
   "1949": {
@@ -197,7 +220,10 @@
     "source": "萌娘百科"
   },
   "3015": {
-    "title": "恋色病房",
+    "title": "恋色病栋",
+    "aliases": [
+      "恋色病房"
+    ],
     "source": "萌娘百科"
   },
   "3019": {
@@ -234,6 +260,10 @@
   },
   "4129": {
     "title": "忧郁",
+    "aliases": [
+      "忧郁的心情",
+      "忧郁症患者"
+    ],
     "source": "萌娘百科"
   },
   "5393": {
@@ -254,6 +284,9 @@
   },
   "7235": {
     "title": "我的时间",
+    "aliases": [
+      "只属于我的时间"
+    ],
     "source": "萌娘百科"
   },
   "7238": {
@@ -277,9 +310,12 @@
     "source": "萌娘百科"
   },
   "8241": {
-    "title": "落叶秋风",
-    "source": "vocawiki",
-    "comment": "另译：对霜风"
+    "title": "番凩",
+    "aliases": [
+      "落叶秋风",
+      "对霜风"
+    ],
+    "source": "vocawiki"
   },
   "8246": {
     "title": "六分之一",
@@ -332,6 +368,9 @@
   },
   "10951": {
     "title": "最初的声音",
+    "aliases": [
+      "初次的音色"
+    ],
     "source": "vocawiki"
   },
   "11073": {
@@ -381,11 +420,16 @@
   },
   "17294": {
     "title": "某名娼妇之恋",
-    "source": "vocawiki",
-    "comment": "另译：某个娼妇的恋情"
+    "aliases": [
+      "某个娼妇的恋情"
+    ],
+    "source": "vocawiki"
   },
   "17678": {
     "title": "就这样死了也太没出息了",
+    "aliases": [
+      "死掉就太可怜了"
+    ],
     "source": "vocawiki"
   },
   "18083": {
@@ -394,6 +438,11 @@
   },
   "18479": {
     "title": "孑然妒火",
+    "aliases": [
+      "独孤嫉妒",
+      "羡妒的独角戏",
+      "充满嫉妒的一人捉迷藏"
+    ],
     "source": "vocawiki"
   },
   "19094": {
@@ -450,6 +499,10 @@
   },
   "38835": {
     "title": "脑内革命少女",
+    "aliases": [
+      "脑内革命Girl",
+      "脑内革命女孩"
+    ],
     "source": "萌娘百科"
   },
   "42733": {
@@ -462,8 +515,7 @@
   },
   "47354": {
     "title": "喜欢！雪！真实的魔法",
-    "source": "vocadb-alias",
-    "comment": "另有别名：喜歡！雪！真實的魔法"
+    "source": "vocadb-alias"
   },
   "49871": {
     "title": "海百合海底谭",
@@ -491,6 +543,9 @@
   },
   "66265": {
     "title": "坚定的Eye",
+    "aliases": [
+      "坚定的爱"
+    ],
     "source": "vocadb-alias"
   },
   "68091": {
@@ -502,7 +557,12 @@
     "source": "人工核定"
   },
   "79100": {
-    "title": "阳炎Days",
+    "title": "阳炎眩乱",
+    "aliases": [
+      "阳炎日",
+      "阳炎Days",
+      "蜉蝣Days"
+    ],
     "source": "vocawiki"
   },
   "82385": {
@@ -522,11 +582,17 @@
     "source": "vocadb-alias"
   },
   "109873": {
-    "title": "在雪融化之前",
+    "title": "融雪之前",
+    "aliases": [
+      "在雪融化之前"
+    ],
     "source": "萌娘百科"
   },
   "112085": {
     "title": "幽灵法则",
+    "aliases": [
+      "幽灵守则"
+    ],
     "source": "vocadb-alias"
   },
   "124436": {
@@ -542,9 +608,11 @@
     "source": "萌娘百科"
   },
   "129109": {
-    "title": "太阳系迪斯科",
-    "source": "vocadb-alias",
-    "comment": "另有别名：太阳系disco"
+    "title": "太阳系DISCO",
+    "aliases": [
+      "太阳系迪斯科"
+    ],
+    "source": "vocadb-alias"
   },
   "131351": {
     "title": "VOCALOID们只是在喊叫",
@@ -583,7 +651,12 @@
     "source": "萌娘百科"
   },
   "157860": {
-    "title": "砂之行星",
+    "title": "砂之惑星",
+    "aliases": [
+      "砂之行星",
+      "沙漠星球",
+      "沙之行星"
+    ],
     "source": "vocawiki"
   },
   "161199": {
@@ -592,6 +665,9 @@
   },
   "164074": {
     "title": "火花",
+    "aliases": [
+      "花火"
+    ],
     "source": "vocadb-alias"
   },
   "164107": {
@@ -623,11 +699,15 @@
     "source": "萌娘百科"
   },
   "173702": {
-    "title": "起锚",
+    "title": "起航",
     "source": "萌娘百科"
   },
   "178433": {
-    "title": "把方形的地球变圆",
+    "title": "把方方的地球变圆",
+    "aliases": [
+      "把方形的地球变圆",
+      "将四方形的世界踏成相遇的圆"
+    ],
     "source": "萌娘百科"
   },
   "182121": {
@@ -639,7 +719,7 @@
     "source": "萌娘百科"
   },
   "185363": {
-    "title": "洛基",
+    "title": "ROKI",
     "source": "萌娘百科"
   },
   "186877": {
@@ -660,8 +740,10 @@
   },
   "219144": {
     "title": "暴力扳机",
-    "source": "vocawiki",
-    "comment": "另译：暴力触发"
+    "aliases": [
+      "暴力触发"
+    ],
+    "source": "vocawiki"
   },
   "221277": {
     "title": "苦巧克力装饰",
@@ -729,13 +811,12 @@
     "source": "萌娘百科"
   },
   "269364": {
-    "title": "洛基",
+    "title": "ROKI",
     "source": "萌娘百科"
   },
   "271920": {
     "title": "未来最终战争",
-    "source": "vocawiki",
-    "comment": "另译：Future Final Wars"
+    "source": "vocawiki"
   },
   "275708": {
     "title": "诶？啊，这样。- 10th Anniversary Edition -",
@@ -787,8 +868,10 @@
   },
   "341383": {
     "title": "坎特雷拉",
-    "source": "vocawiki",
-    "comment": "另译：禁断之毒"
+    "aliases": [
+      "禁断之毒"
+    ],
+    "source": "vocawiki"
   },
   "343868": {
     "title": "初音天地开辟神话",
@@ -796,6 +879,9 @@
   },
   "354245": {
     "title": "像神一样呐",
+    "aliases": [
+      "像神一样啊"
+    ],
     "source": "vocadb-alias"
   },
   "360978": {
@@ -831,7 +917,7 @@
     "source": "vocawiki"
   },
   "406200": {
-    "title": "下一巢穴 (Magical Mirai 10th edit)",
+    "title": "Next Nest (Magical Mirai 10th edit)",
     "source": "vocawiki"
   },
   "415813": {
@@ -861,6 +947,9 @@
   },
   "471960": {
     "title": "king妃jack跃",
+    "aliases": [
+      "欣喜雀跃"
+    ],
     "source": "萌娘百科"
   },
   "480295": {
@@ -882,6 +971,9 @@
   },
   "525396": {
     "title": "蓝色星球",
+    "aliases": [
+      "蔚蓝星球"
+    ],
     "source": "萌娘百科"
   },
   "525760": {
@@ -902,7 +994,11 @@
     "source": "vocawiki"
   },
   "538028": {
-    "title": "口袋里的怪物",
+    "title": "口袋里的妖怪",
+    "aliases": [
+      "口袋里的怪物",
+      "精灵宝可梦"
+    ],
     "source": "萌娘百科"
   },
   "542682": {
@@ -919,8 +1015,10 @@
   },
   "560308": {
     "title": "与你一同翱翔天际",
-    "source": "vocawiki",
-    "comment": "另译：与你飞向天空"
+    "aliases": [
+      "与你飞向天空"
+    ],
+    "source": "vocawiki"
   },
   "563199": {
     "title": "捉到你了！",
@@ -1002,8 +1100,7 @@
   },
   "840401": {
     "title": "时代错误遗物",
-    "source": "vocawiki",
-    "comment": "另译：OOPARTS"
+    "source": "vocawiki"
   },
   "853916": {
     "title": "心跳不已！",

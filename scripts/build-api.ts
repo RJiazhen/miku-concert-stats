@@ -704,12 +704,13 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const groupSongs = groupSongsOf(song)
     const summary = baseSummaries.get(song.id) ?? emptySummary()
     const alt = broadcastSummaries.get(song.id)
+    const zh = titlesZh[String(song.id)]
     const row: ApiSongRow = {
       id: song.id,
       name: song.name,
       nameJa: song.name_ja,
       nameEn: song.name_en,
-      nameZh: titlesZh[String(song.id)]?.title ?? null,
+      nameZh: zh?.title ?? null,
       producer: producersOf(groupSongs).join(', ') || null,
       category: song.category,
       show: summary.show,
@@ -724,6 +725,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       firstSeries: Object.fromEntries([...summary.firstSeries].map(([id, year]) => [String(id), year])),
     }
     if (alt !== undefined && !sameCounts(summary, alt)) row.withBroadcast = altCountsOf(alt)
+    if (zh?.aliases !== undefined && zh.aliases.length > 0) row.nameZhAliases = zh.aliases
     return row
   })
 

@@ -191,13 +191,15 @@ flowchart LR
 {
   "1326": {
     "title": "世界第一公主殿下",
+    "aliases": ["世界属于我", "世界第一的公主殿下"],
     "source": "vocadb-alias",
     "comment": "可选"
   }
 }
 ```
 
-`title` 非空。`source` 记录出处，优先级也是这个顺序：`官方中译`（官方频道 / 官方专辑的中文曲名）> `vocawiki` / `萌娘百科` / `vocadb-alias`（民间通行译名）> `人工核定`（自己翻译）；`简繁转换` 只给汉字同名的器乐曲。曲名是英文词的假名写法时（`クリスタルスノウ` → `Crystal Snow`、`サンドリヨン` → `Cendrillon`）中文位直接用英文，并把英文写进 `songs.name_en`（VocaDB 没给时补在 `data/increments/0015-song-english-names.sql`），不要把英文混进中文名或 `comment`。`comment` 可省略，第二种通行译名写成 `另译：…`。中文名与 `songs.name` 完全相同时不登记：显示结果一样，只会虚增映射条数。`shared/song-titles.ts` 校验并按 id 取出。测试要求每个 id 都在已提交目录里。
+`title` 非空，是站内唯一显示的中文名。`aliases` 可省略，列出其他通行中文译名：站内不显示，只让搜索能命中（例如搜「世界末日舞厅」仍能找到 `title` 为「世末舞厅」的歌）；同一个别名不要重复，也不要与 `title` 相同。繁体写法不进 `aliases`，写到暂不参与显示的 `data/song-titles.zh-Hant.json`（同样的 `title` / `aliases` / `source` 结构）。
+`source` 记录出处，优先级也是这个顺序：`官方中译`（官方频道 / 官方专辑的中文曲名）> `vocawiki` / `萌娘百科` / `vocadb-alias`（民间通行译名）> `人工核定`（自己翻译）；`简繁转换` 只给汉字同名的器乐曲。曲名是英文词的假名写法时（`クリスタルスノウ` → `Crystal Snow`、`サンドリヨン` → `Cendrillon`、`ネクストネスト` → `Next Nest`），中文位直接用英文，并把英文写进 `songs.name_en`（VocaDB 没给时补在 `data/increments/0015-song-english-names.sql`），不要把英文混进中文名或 `comment`；官方罗马字名同理（`ロキ` → `ROKI`）。`comment` 可省略，只写 `title` 与 `aliases` 放不下的说明。中文名与 `songs.name` 完全相同时不登记：显示结果一样，只会虚增映射条数；例外是原曲名虽相同、但有需要参与检索的别名（`番凩` 的「落叶秋风」「对霜风」）。`shared/song-titles.ts` 校验并按 id 取出。测试要求每个 id 都在已提交目录里。
 
 顶栏用「中文歌名」开关（`USwitch`）控制是否显示中文，记在 `localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`）。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，译文作主标题，原文用灰色小字换行显示在译文下方；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
 
