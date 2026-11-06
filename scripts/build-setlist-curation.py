@@ -13,6 +13,7 @@ import re
 import sqlite3
 import unicodedata
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "public" / "data" / "catalog.sqlite"
@@ -56,6 +57,28 @@ def wiki(url: str, title: str, note: str) -> dict:
 def official_page(url: str, title: str, note: str) -> dict:
     """One official source that is not a magicalmirai.com ticket path, e.g. a web archive copy."""
     return {"url": url, "title": title, "accessedAt": ACCESSED, "confidence": "high", "note": note}
+
+
+# Host suffix -> display name. The trailing space on the wiki entry keeps the generated
+# sentences unchanged (`歌单来自初音ミク Wiki 的逐曲表`).
+SITE_LABELS = (
+    ("w.atwiki.jp", "初音ミク Wiki "),
+    ("moegirl.org.cn", "萌娘百科"),
+    ("fandom.com", "VocaDB Fandom"),
+)
+
+
+def source_site_label(url: str) -> str:
+    """Names the site a setlist table came from, for the generated title and 演出 note.
+
+    Returns the display name with the separator that sentence needs; unknown hosts fall back
+    to the bare host so a table read from any page still cites where it came from.
+    """
+    host = urlparse(url).netloc.lower()
+    for suffix, label in SITE_LABELS:
+        if host == suffix or host.endswith(f".{suffix}"):
+            return label
+    return host or "外部来源"
 
 
 def source_note(list_id: int, position: int) -> str:
@@ -918,12 +941,13 @@ for item in WIKI_SETLISTS["entries"]:
     unattributed = item.get("unattributed") or []
     outside = non_vocaloid_titles(rows)
     label = item["label"] or "本场"
+    site = source_site_label(item["source"])
     if len(slots) > 1:
-        note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），按场次分 {len(slots)} 份"
+        note = f"歌单来自{site}的逐曲表（{label}），按场次分 {len(slots)} 份"
     elif slots:
-        note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），{len(songs)} 行，另有 1 场单独一份"
+        note = f"歌单来自{site}的逐曲表（{label}），{len(songs)} 行，另有 1 场单独一份"
     else:
-        note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），{len(songs)} 行"
+        note = f"歌单来自{site}的逐曲表（{label}），{len(songs)} 行"
     if outside:
         categories = sorted({WIKI_REPERTOIRE[title]["category"] for title in outside})
         kinds = "、".join(CATEGORY_LABELS[category] for category in categories)
@@ -932,7 +956,7 @@ for item in WIKI_SETLISTS["entries"]:
         note += f"；百科对这 {len(unattributed)} 首只标了 ※、没写属于哪些城市，无法归位：" + quote_titles(unattributed)
     if skipped:
         note += f"；另有 {len(skipped)} 首未登记（同曲再演或检索未命中），未计入：" + quote_titles(skipped)
-    title = f"初音ミク Wiki：{performance_name(pid)}（{label}）"
+    title = f"{site.strip()}：{performance_name(pid)}（{label}）"
     source_entry = {
         "url": item["source"],
         "title": title,

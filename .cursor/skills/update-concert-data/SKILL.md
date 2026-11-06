@@ -8,6 +8,10 @@ disable-model-invocation: true
 
 > Cursor 专用内部流程，不发布到仓库根的 `skills/`（那是给外部 agent 的公开 skill）。
 
+> 用户只给了一个网址 / 页面元素 / 贴过来的表格，要录入或核对**单场**歌单时，走
+> [../ingest-setlist-from-page/SKILL.md](../ingest-setlist-from-page/SKILL.md)；
+> 本文件负责从系列层面把整段巡演补齐。
+
 一条歌单从百科表格到站点显示要过五道工序：**抓表 → 定归属 → 对曲名 → 展开场次 → 出报告**。
 每一步都有脚本，手改中间产物会在下一次生成时被覆盖。
 

@@ -679,14 +679,19 @@ def slot_token(day: int | None, half: str | None) -> str:
 
 
 def raw_entries() -> list[dict]:
-    """Builds entries from the saved cell grids under data/wiki-raw."""
+    """Builds entries from the saved cell grids under data/wiki-raw.
+
+    A grid names its source either as an atwiki `page` id or, for a table read from another
+    site the user pointed at, a full `url`; the row-marker rules are the same for both.
+    """
     entries: list[dict] = []
     for key, spec in RAW_SPEC.items():
         path = RAW_DIR / f"{key}.json"
         if not path.exists():
             raise SystemExit(f"{key}: missing {path}")
         payload = json.loads(path.read_text(encoding="utf-8"))
-        url = f"https://w.atwiki.jp/hmiku/pages/{payload['page']}.html"
+        # atwiki pages are addressed by page id; a table read from another site carries `url`.
+        url = payload.get("url") or f"https://w.atwiki.jp/hmiku/pages/{payload['page']}.html"
         grid = payload["rows"]
         header = grid[0]
         if "曲名" not in header:

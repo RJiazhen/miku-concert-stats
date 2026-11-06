@@ -84,7 +84,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 **百科逐曲表是外包数据的主力。** 181 个演出里有 169 个的曲目逐条来自「初音ミク Wiki」（atwiki）的逐曲表；其余 12 个仍用 VocaDB 歌单，配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`，逐曲表行的 `songs.source_url` 指向印有该曲名的那一页。数据分三处：
 
-- `data/wiki-raw/<key>.json`：页面表格的原始单元格（含表头），由浏览器抓取时原样落盘，便于复核。
+- `data/wiki-raw/<key>.json`：页面表格的原始单元格（含表头），由浏览器抓取时原样落盘，便于复核。atwiki 页面用 `page` 记页号，其他站点用 `url` 记完整来源；两种都能进同一套逐行解析。
 - `scripts/wiki_raw_spec.py`：声明每张表的公演替标记选中哪些演出，标记可写成 `6516`、`6516#2`（第 2 个日期）、`*#1:day`（任意演出的第 1 个日期日场）等；没有 `公演替` 列、昼夜写在 `備考` 的表用 `noteMarkers`。
 - `scripts/wiki_tour_tables.py`：早期手工抄录的城市级表格（交响乐、2014–2020 的 EXPO / Live Party / 鼓童）。
 
@@ -218,7 +218,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`）。
 
-仓库内部的歌单采编流程（抓百科逐曲表 → 对曲名 → 展开场次 → 出报告）见 [`.cursor/skills/update-concert-data/SKILL.md`](../.cursor/skills/update-concert-data/SKILL.md)；它只作为 Cursor 内部 skill 使用，不对外发布。
+仓库内部的歌单采编流程（抓百科逐曲表 → 对曲名 → 展开场次 → 出报告）见 [`.cursor/skills/update-concert-data/SKILL.md`](../.cursor/skills/update-concert-data/SKILL.md)；只给一个网址 / 页面元素时的单场录入与冲突核对见 [`.cursor/skills/ingest-setlist-from-page/SKILL.md`](../.cursor/skills/ingest-setlist-from-page/SKILL.md)。这两个只作为 Cursor 内部 skill 使用，不对外发布。
 
 `app/pages/catalog.vue`、`compare.vue`、`windows.vue`、`correlation.vue` 保留实现，但都带 `definePageMeta({ middleware: 'retired' })`，直接访问会重定向到首页。`app/middleware/retired.ts` 是唯一的重定向实现；拿到播放量快照后删掉页面上的这一行并恢复导航项即可。
 
