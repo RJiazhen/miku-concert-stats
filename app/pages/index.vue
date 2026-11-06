@@ -449,6 +449,8 @@ const yearToItems = computed(() =>
             :items="characterItems"
             value-key="value"
             multiple
+            search-input
+            :filter-fields="['label']"
             placeholder="全部角色"
             size="sm"
             class="w-36"
@@ -461,6 +463,8 @@ const yearToItems = computed(() =>
             :items="producerItems"
             value-key="value"
             multiple
+            search-input
+            :filter-fields="['label']"
             placeholder="全部制作人"
             size="sm"
             class="w-40"
