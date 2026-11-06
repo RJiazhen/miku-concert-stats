@@ -177,9 +177,16 @@ for index, row in enumerate(pending_schedule, start=1):
     if state == "missing":
         detail = f"已查：百科没有「{page}」这一条目（该年只有日本 / 北美页），也没有逐日时刻"
         link = ""
-    else:
+    elif state == "only range":
         detail = f"已查：VocaDB Fandom「{page}」，只写日期区间，没有逐日时刻"
         link = f"https://vocaloid.fandom.com/wiki/{page.replace(' ', '_')}"
+    elif row["source_titles"]:
+        # Newer entries record their own sources; use them instead of an empty Fandom page.
+        detail = f"已查：{row['source_titles']}，只写日期区间或未写每日场次数，没有逐日时刻"
+        link = row["source_url"] or ""
+    else:
+        detail = "已查：现有来源只写日期区间，没有逐日时刻"
+        link = ""
     out.append(f"**2.{index} · {row['name']}**（演出 {row['id']}，{row['start_date']} – {row['end_date']}，当前 {row['shows']} 场 × {row['items']} 首）")
     out.append("")
     out.append(f"- {detail}")

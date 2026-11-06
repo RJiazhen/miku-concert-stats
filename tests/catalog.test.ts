@@ -153,8 +153,30 @@ describe('committed catalog', () => {
       const withList = catalog.performances.filter((row) => row.song_list_id !== null)
       const wikiOnly = catalog.performanceSetlists.filter((row) => row.source_list_id === null)
       expect(catalog.performanceSetlists).toHaveLength(withList.length + wikiOnly.length)
-      expect(wikiOnly.map((row) => row.performance_id)).toEqual([12713, 12714, 12739, 13120])
+      expect(wikiOnly.map((row) => row.performance_id)).toEqual([
+        12713,
+        12714,
+        12739,
+        13120,
+        3000000002,
+        3000000003,
+        3000000004,
+        3000000005,
+        3000000006,
+        3000000007,
+        3000000008,
+        3000000009,
+      ])
       expect(wikiOnly.every((row) => row.source_kind === 'wiki')).toBe(true)
+      // The standalone lives added from atwiki / official reports keep their per-show split.
+      const pokemiku = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3000000009)
+      expect(pokemiku).toHaveLength(6)
+      expect(pokemiku.every((row) => row.item_count === 27)).toBe(true)
+      const lawson = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3000000008)
+      expect(lawson).toHaveLength(3)
+      expect(lawson.every((row) => row.item_count === 24)).toBe(true)
+      const mikufes2009 = catalog.performanceShowSetlists.find((row) => row.performance_id === 3000000002)
+      expect(mikufes2009?.item_count).toBe(28)
       // 2023 Osaka carried 39 source rows, but no single show played more than 24.
       const osaka = catalog.performanceShowSetlists.filter((row) => row.performance_id === 6045)
       expect(osaka).toHaveLength(6)

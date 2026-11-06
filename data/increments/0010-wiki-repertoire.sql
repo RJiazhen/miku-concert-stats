@@ -24,4 +24,9 @@ INSERT OR IGNORE INTO songs (id, name, name_ja, name_en, artist_string, song_typ
 (2000000020, '嗚呼、素晴らしきニャン生', '嗚呼、素晴らしきニャン生', NULL, 'Nem', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/80354.html', '2026-11-06T00:00:00.000Z'),
 (2000000021, 'おちゃめ機能', 'おちゃめ機能', NULL, 'コジマジP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/80287.html', '2026-11-06T00:00:00.000Z'),
 (2000000022, 'Nyan Cat', 'Nyan Cat', NULL, 'daniwellP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/80237.html', '2026-11-06T00:00:00.000Z'),
-(2000000023, '乙女解剖', '乙女解剖', NULL, 'DECO*27', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/72956.html', '2026-11-06T00:00:00.000Z');
+(2000000023, '乙女解剖', '乙女解剖', NULL, 'DECO*27', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/72956.html', '2026-11-06T00:00:00.000Z'),
+(2000000024, '電気の恋人-I am Programmer''s Song-', '電気の恋人-I am Programmer''s Song-', NULL, 'MOSAIC.WAV', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
+(2000000025, 'HATUNEtive', 'HATUNEtive', NULL, 'MOSAIC.WAV', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
+(2000000026, 'intro (デP Megamix)', 'intro (デP Megamix)', NULL, 'デッドボールP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
+(2000000027, '既成事実三部作Megamix', '既成事実三部作Megamix', NULL, 'デッドボールP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
+(2000000028, '恋は戦争(future retro remix by kz)', '恋は戦争(future retro remix by kz)', NULL, 'ryo', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z');

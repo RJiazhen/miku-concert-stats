@@ -81,6 +81,37 @@ COMPOSERS = {
     "愛迷エレジー (Reloaded)": "DECO*27", "シンデレラ": "DECO*27", "アニマル": "DECO*27",
     "モニタリング": "DECO*27", "妄想税": "DECO*27", "マシュマロ": "DECO*27",
     "テレパシ": "DECO*27", "ハートアラモード": "DECO*27", "ハオ": "DECO*27",
+    # ミクFES '09（夏）: the wiki credits the producer of each block; VocaDB has many同名 covers.
+    "電気の恋人-I am Programmer's Song-": "MOSAIC.WAV", "HATUNEtive": "MOSAIC.WAV",
+    "私は人間じゃないから。": "デッドボールP", "とある娼婦の恋": "デッドボールP",
+    "牛乳飲め！": "デッドボールP", "木枯らしの朝": "デッドボールP", "筆おろし": "デッドボールP",
+    "ファインダー(DSLR remix-re:edit)": "kz", "Far Away": "kz", "Heart Beat": "kz",
+    "Crosslight": "kz", "またね": "ryo",
+    # 初音ミク GALAXY LIVE 2020 / 2021
+    "水色侵略": "ナユタン星人", "バイオレンストリガー": "八王子P", "マカロン": "ATOLS",
+    "世界の真ん中を歩く": "夏代孝明", "カガリビト": "millstones", "未来最終戦争": "DIVELA",
+    "ロンリーユニバース": "Aqu3ra",
+    # MIKU FES '24（春） / LAWSON 50th / 夏祭初音鑑
+    "THUNDERBOLT": "jon-YAKITORY", "プシ": "r-906", "アイドル戦士": "Mitchie M",
+    "シアンブルー": "ポリスピカデリー", "インビテーション！": "加賀", "Mad Lovers": "八王子P",
+    # ポケモン feat. 初音ミク VOLTAGE Live！
+    "ミライどんなだろう": "Mitchie M", "エスパーエスパー": "ナユタン星人",
+    "戦闘！初音ミク": "cosMo", "メロメロイド": "かいりきベア",
+    "ゴー！ビッパ団": "ワンダフル☆オポチュニティ！", "ガッチュー！": "Giga",
+    "俺ゴーストタイプ": "syudou", "ひゅ〜どろどろ": "栗山夕璃",
+    "ファサード・クエスチョン": "サツキ", "PARTY ROCK ETERNITY": "八王子P",
+    "チャンピオン": "Kanaria", "オーパーツ": "煮ル果実", "Encounter": "Orangestar",
+    "きみとそらをとぶ": "傘村トータ", "むげんのチケット": "まらしぃ",
+    "しんかしんかしんか": "原口沙輔", "ドキドキ！": "すりぃ", "たびのまえ、たびのあと": "いよわ",
+    "ポケットのモンスター": "ピノキオピー", "ボルテッカー": "DECO*27", "電気予報": "稲葉曇",
+    "JUVENILE": "じん", "スパイラル・メロディーズ": "Omoi", "Glorious Day": "Eve",
+    "アフターエポックス": "sasakure.UK", "たびだちのうた": "烏屋茶房",
+    "クロスロード": "kz",
+    # Aliases above rewrite these to the VocaDB spelling before the composer check.
+    "ファインダー": "kz", "ヘッドフォン・アディクション": "KEI",
+    # The VocaDB credit uses a different romanisation/name for the same producer.
+    "インビテーション！": "ネギシャワーP", "ゴー！ビッパ団": "じーざすP",
+    "たびだちのうた": "カラスヤサボウ",
 }
 
 

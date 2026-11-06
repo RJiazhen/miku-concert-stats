@@ -4,6 +4,11 @@
     "source": "vocadb-alias",
     "comment": "另有别名：世末舞厅"
   },
+  "298": {
+    "title": "缝合者",
+    "source": "vocawiki",
+    "comment": "另译：留守人"
+  },
   "383": {
     "title": "黄泉樱",
     "source": "vocawiki"
@@ -44,9 +49,21 @@
     "title": "世界第一公主殿下",
     "source": "萌娘百科"
   },
+  "1327": {
+    "title": "初恋终结之时",
+    "source": "vocawiki"
+  },
+  "1331": {
+    "title": "拜拜，明天见",
+    "source": "vocawiki"
+  },
   "1354": {
     "title": "時光機",
     "source": "vocadb-alias"
+  },
+  "1355": {
+    "title": "把你给MIKUMIKU掉",
+    "source": "vocawiki"
   },
   "1357": {
     "title": "心",
@@ -116,6 +133,15 @@
     "title": "纺歌",
     "source": "vocadb-alias"
   },
+  "2440": {
+    "title": "Finder",
+    "source": "vocawiki",
+    "comment": "原名 ファインダー；官方英文名"
+  },
+  "2477": {
+    "title": "开笔",
+    "source": "vocawiki"
+  },
   "2716": {
     "title": "诶？啊，这样。",
     "source": "萌娘百科"
@@ -180,6 +206,10 @@
     "title": "才不是脱了就好",
     "source": "vocawiki"
   },
+  "3312": {
+    "title": "白如雪的公主啊",
+    "source": "vocawiki"
+  },
   "3387": {
     "title": "遥控器",
     "source": "vocadb-alias"
@@ -216,6 +246,10 @@
     "title": "灰姑娘",
     "source": "vocawiki"
   },
+  "7839": {
+    "title": "恋爱中的VOC@LOID",
+    "source": "vocawiki"
+  },
   "8093": {
     "title": "双子",
     "source": "萌娘百科"
@@ -227,6 +261,15 @@
   "8215": {
     "title": "初音未来的激唱（LONG VERSION）",
     "source": "萌娘百科"
+  },
+  "8241": {
+    "title": "落叶秋风",
+    "source": "vocawiki",
+    "comment": "另译：对霜风"
+  },
+  "8290": {
+    "title": "将来的梦想",
+    "source": "vocawiki"
   },
   "8394": {
     "title": "千本樱",
@@ -243,6 +286,10 @@
   "8741": {
     "title": "樱之雨",
     "source": "萌娘百科"
+  },
+  "8787": {
+    "title": "因为我又不是人",
+    "source": "vocawiki"
   },
   "8809": {
     "title": "心脏民主",
@@ -284,6 +331,10 @@
     "title": "普通不过的世界征服",
     "source": "vocawiki"
   },
+  "13418": {
+    "title": "背德之花",
+    "source": "vocawiki"
+  },
   "13728": {
     "title": "再教育",
     "source": "人工核定"
@@ -291,6 +342,24 @@
   "14435": {
     "title": "吉原哀歌",
     "source": "vocawiki"
+  },
+  "15565": {
+    "title": "马卡龙",
+    "source": "vocawiki"
+  },
+  "15662": {
+    "title": "梦想碎片",
+    "source": "vocawiki"
+  },
+  "16943": {
+    "title": "大家一起MIKUMIKU",
+    "source": "人工核定",
+    "comment": "与「把你给MIKUMIKU掉」区分；直译"
+  },
+  "17294": {
+    "title": "某名娼妇之恋",
+    "source": "vocawiki",
+    "comment": "另译：某个娼妇的恋情"
   },
   "17678": {
     "title": "就这样死了也太没出息了",
@@ -312,6 +381,15 @@
     "title": "马口铁之舞",
     "source": "vocawiki"
   },
+  "25665": {
+    "title": "耳机成瘾",
+    "source": "人工核定",
+    "comment": "直译"
+  },
+  "25666": {
+    "title": "学园×∀ssassinatioИ",
+    "source": "简繁转换"
+  },
   "26010": {
     "title": "即使那是你的幸福",
     "source": "萌娘百科"
@@ -323,6 +401,11 @@
   "29120": {
     "title": "完全性情结",
     "source": "萌娘百科"
+  },
+  "29749": {
+    "title": "Colorful Pop Beat",
+    "source": "vocawiki",
+    "comment": "原名 カラフルポップビート；官方英文名"
   },
   "35256": {
     "title": "笼中花",
@@ -458,6 +541,10 @@
     "title": "一二粉丝俱乐部",
     "source": "vocawiki"
   },
+  "152288": {
+    "title": "走在世界的正中央",
+    "source": "vocawiki"
+  },
   "156001": {
     "title": "无梦之梦",
     "source": "萌娘百科"
@@ -538,6 +625,15 @@
     "title": "幸运☆天体",
     "source": "vocawiki"
   },
+  "219144": {
+    "title": "暴力扳机",
+    "source": "vocawiki",
+    "comment": "另译：暴力触发"
+  },
+  "221277": {
+    "title": "苦巧克力装饰",
+    "source": "vocawiki"
+  },
   "228773": {
     "title": "没能成为超级猫咪",
     "source": "vocawiki"
@@ -557,6 +653,11 @@
   "232031": {
     "title": "超真人实境秀",
     "source": "vocawiki"
+  },
+  "232181": {
+    "title": "Lonely Universe",
+    "source": "vocawiki",
+    "comment": "原名 ロンリーユニバース；官方英文名"
   },
   "234901": {
     "title": "祝福你的呼吸",
@@ -597,6 +698,11 @@
   "269364": {
     "title": "洛基",
     "source": "萌娘百科"
+  },
+  "271920": {
+    "title": "未来最终战争",
+    "source": "vocawiki",
+    "comment": "另译：Future Final Wars"
   },
   "275708": {
     "title": "诶？啊，这样。- 10th Anniversary Edition -",
@@ -702,6 +808,19 @@
     "title": "文化",
     "source": "萌娘百科"
   },
+  "460547": {
+    "title": "Ψ",
+    "source": "vocawiki",
+    "comment": "原名 プシ"
+  },
+  "469831": {
+    "title": "寒风吹拂的早上",
+    "source": "vocawiki"
+  },
+  "470132": {
+    "title": "喝牛奶吧！",
+    "source": "vocawiki"
+  },
   "471960": {
     "title": "king妃jack跃",
     "source": "萌娘百科"
@@ -713,6 +832,11 @@
   "495802": {
     "title": "天乐 -双响-",
     "source": "萌娘百科"
+  },
+  "501614": {
+    "title": "Invitation!",
+    "source": "vocawiki",
+    "comment": "原名 インビテーション！；官方英文名"
   },
   "522024": {
     "title": "给初音未来的生日歌",
@@ -726,6 +850,19 @@
     "title": "混沌布吉",
     "source": "萌娘百科"
   },
+  "532518": {
+    "title": "伏特攻击",
+    "source": "官方中译",
+    "comment": "宝可梦招式 Volt Tackle 的官方中文名"
+  },
+  "534385": {
+    "title": "电气预报",
+    "source": "vocawiki"
+  },
+  "536349": {
+    "title": "未来将会如何",
+    "source": "vocawiki"
+  },
   "538028": {
     "title": "口袋里的怪物",
     "source": "萌娘百科"
@@ -738,9 +875,51 @@
     "title": "Happy Cheat Day",
     "source": "人工核定"
   },
+  "557560": {
+    "title": "战斗！初音未来",
+    "source": "vocawiki"
+  },
+  "560308": {
+    "title": "与你一同翱翔天际",
+    "source": "vocawiki",
+    "comment": "另译：与你飞向天空"
+  },
+  "563199": {
+    "title": "捉到你了！",
+    "source": "vocawiki"
+  },
+  "579184": {
+    "title": "我是幽灵属性",
+    "source": "vocawiki"
+  },
+  "581632": {
+    "title": "上吧！大牙狸团",
+    "source": "vocawiki"
+  },
+  "584100": {
+    "title": "咻～黏黏答答",
+    "source": "vocawiki"
+  },
   "586830": {
     "title": "无限船票",
     "source": "vocawiki"
+  },
+  "592083": {
+    "title": "旅行之前，旅行之后",
+    "source": "vocawiki"
+  },
+  "593626": {
+    "title": "超能力超能力",
+    "source": "vocawiki"
+  },
+  "594927": {
+    "title": "着迷之音",
+    "source": "vocawiki"
+  },
+  "625986": {
+    "title": "After Epochs",
+    "source": "vocawiki",
+    "comment": "原名 アフターエポックス；官方英文名"
   },
   "629064": {
     "title": "招架",
@@ -750,12 +929,20 @@
     "title": "天线39",
     "source": "萌娘百科"
   },
+  "650687": {
+    "title": "冠军",
+    "source": "vocawiki"
+  },
   "657591": {
     "title": "都说了让你闭嘴去摇滚 (niconico ver.)",
     "source": "萌娘百科"
   },
   "703459": {
     "title": "水晶之雪",
+    "source": "vocawiki"
+  },
+  "709668": {
+    "title": "进化进化进化",
     "source": "vocawiki"
   },
   "746114": {
@@ -766,12 +953,47 @@
     "title": "莎乐美",
     "source": "萌娘百科"
   },
+  "760683": {
+    "title": "偶像战士",
+    "source": "人工核定",
+    "comment": "直译"
+  },
+  "771172": {
+    "title": "表象疑问",
+    "source": "vocawiki"
+  },
+  "840401": {
+    "title": "时代错误遗物",
+    "source": "vocawiki",
+    "comment": "另译：OOPARTS"
+  },
+  "853916": {
+    "title": "心跳不已！",
+    "source": "vocawiki"
+  },
+  "887891": {
+    "title": "Cyan Blue",
+    "source": "vocawiki",
+    "comment": "原名 シアンブルー；官方英文名"
+  },
+  "906978": {
+    "title": "启程之歌",
+    "source": "vocawiki"
+  },
   "915394": {
     "title": "爱言叶V",
     "source": "vocawiki"
   },
   "920269": {
     "title": "德罗斯桑托斯",
+    "source": "vocawiki"
+  },
+  "925294": {
+    "title": "螺旋旋律",
+    "source": "vocawiki"
+  },
+  "929916": {
+    "title": "交叉路口",
     "source": "vocawiki"
   },
   "954657": {
@@ -841,5 +1063,19 @@
   "2000000021": {
     "title": "天真烂漫机能",
     "source": "vocawiki"
+  },
+  "2000000024": {
+    "title": "电子恋人",
+    "source": "vocawiki"
+  },
+  "2000000027": {
+    "title": "既成事实三部曲Megamix",
+    "source": "人工核定",
+    "comment": "简繁转换 + 意译"
+  },
+  "2000000028": {
+    "title": "恋爱战争（future retro remix by kz）",
+    "source": "人工核定",
+    "comment": "主曲 1320 已有中文名「恋爱战争」"
   }
 }

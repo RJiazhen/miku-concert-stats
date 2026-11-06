@@ -22,9 +22,11 @@
 
 `data/increments/0011-manual-performances.sql` 收录 **VocaDB 没有 event 的演出**。第一条是未来有你 2026 成都站（2026-12-26，id `3000000001`）：上游系列 173 只有上海站，成都站在上海站收官时公布，只能人工补行。这类 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `LOCAL_PERFORMANCE_ID_BASE`），`source_url` 指向日程／公告来源而不是 `vocadb.net/E/{id}`，`vocadb_status` 为 `NULL`；演出页据此把按钮显示成「演出来源」。它们同样用 `INSERT OR IGNORE` 写在 0001 之后，因为 `pnpm collect` 会先清空 `performances`。尚未举行的场次在 `data/performance-setlists.json` 的 `statuses.<id>` 写 `upcoming`，派生进 `performance_status`。
 
+`data/increments/0016-standalone-lives.sql` 继续补 **VocaDB 完全没有 event 的独自演出**：ミクFES '09（夏）/ MIKU FES '24（春）、夏の終わりの39祭り、夏祭初音鑑、GALAXY LIVE 2020 / 2021、LAWSON 50th Anniversary Special LIVE、ポケモン feat. 初音ミク VOLTAGE Live。id 为 `3000000002`–`3000000009`，本地系列 id 从 `900000001` 起；逐曲表来自 `data/wiki-raw/` 下对应的 8 个文件，日程与场次从百科或官方 after report 写入 `0008`。
+
 `data/increments/0012-performance-name-fixes.sql` 只做**显示名更正**：上游 13120 只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站后两者无法区分，所以用 `UPDATE` 把 `name` / `name_ja` / `series_suffix` 改成 `MIKU WITH YOU 2026 in Shanghai`。它同样写在 `0001` 之后，`pnpm collect` 重写 `0001` 后仍然生效；只改这三列，不动日期、场馆与 `song_list_id`。
 
-`data/increments/0015-song-english-names.sql` 补 **VocaDB 没给英文名的四首已演出歌曲**：`サンドリヨン` → `Cendrillon`、`タイムリミット` → `Time Limit`、`ダンスロボットダンス` → `Dance Robot Dance`、`クリスタルスノウ` → `Crystal Snow`。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文；该文件同样在 `0001` 之后用 `UPDATE`，可重复执行。
+`data/increments/0015-song-english-names.sql` 补 **VocaDB 没给英文名的四首已演出歌曲**：`サンドリヨン` → `Cendrillon`、`タイムリミット` → `Time Limit`、`ダンスロボットダンス` → `Dance Robot Dance`、`クリスタルスノウ` → `Crystal Snow`。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文；该文件同样在 `0001` 之后用 `UPDATE`，可重复执行。`data/increments/0017-standalone-song-english-names.sql` 用同样的方式补 `0016` 新增演出的英文名；它排在 `0010` 之后，所以也能更新手工登记的本地曲目（`2000000024`–`2000000028`）。
 
 ## 技术栈
 
@@ -86,7 +88,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `performances.<id>` 的 `dayNight` / `singleShowDates` / `halves` 也接受字符串 `all`，表示按演出的日期区间展开，用于「该城每天都有一场」或「每天昼夜各一场」这类整段结论。
 
-**百科逐曲表是外包数据的主力。** 182 个演出里有 170 个的曲目逐条来自「初音ミク Wiki」（atwiki）的逐曲表；其余 12 个仍用 VocaDB 歌单，配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`，逐曲表行的 `songs.source_url` 指向印有该曲名的那一页。数据分三处：
+**百科逐曲表是外包数据的主力。** 190 个演出里有 178 个的曲目逐条来自「初音ミク Wiki」（atwiki）或官方逐曲表；其余 12 个仍用 VocaDB 歌单，配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`，逐曲表行的 `songs.source_url` 指向印有该曲名的那一页。数据分三处：
 
 - `data/wiki-raw/<key>.json`：页面表格的原始单元格（含表头），由浏览器抓取时原样落盘，便于复核。atwiki 页面用 `page` 记页号，其他站点用 `url` 记完整来源；两种都能进同一套逐行解析。
 - `scripts/wiki_raw_spec.py`：声明每张表的公演替标记选中哪些演出，标记可写成 `6516`、`6516#2`（第 2 个日期）、`*#1:day`（任意演出的第 1 个日期日场）等；没有 `公演替` 列、昼夜写在 `備考` 的表用 `noteMarkers`。
@@ -166,7 +168,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `resolution` 取值 `vocadb-note`（备注到日期/半场）、`vocadb-shared`（整份无备注，含专辑补位）、`external`（外部来源定位）、`unresolved`（都没有）。`pending_review` 只在归属真的悬空时为 1：没有来源定位到这一场（`unresolved`）或来源之间互相矛盾（`conflict`）。`conflict` 表示与 VocaDB 或 `docs/data-issues.md` 的既有结论不一致且未裁决。
 - `catalogDayNight` / `catalogSchedules` / `derivedItemSongIds` / `showSongIds` 供页面与统计共用，避免各自再解析一遍。
 - `showCountsByPerformance` 给索引页（`/series`、`/series/{id}`、`/cities`）算每个演出的场次数：派生层有行就用派生层（含人工核实的昼夜拆分与剔除的展览日），没有就回退 `performanceSchedules`。`/shows` 与索引页因此在同一场演出上给出同一个数字。
-- `setlistPerformanceIds` 判断一个演出「有没有歌单」：VocaDB 的 `song_list_id` 或派生层任一条。只有 `song_list_id` 会把 170 个百科来源的演出错报成「无歌单」。
+- `setlistPerformanceIds` 判断一个演出「有没有歌单」：VocaDB 的 `song_list_id` 或派生层任一条。只有 `song_list_id` 会把 178 个百科来源的演出错报成「无歌单」。
 
 `shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正，以及 F 数据来源记录（已采用，不需要确认）。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
 

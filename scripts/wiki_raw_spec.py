@@ -222,6 +222,48 @@ RAW_SPEC: dict[str, dict] = {
             "2日目昼": ["*#2:day"], "2日目夜": ["*#2:night"],
         },
     },
+    "mikufes2009": {
+        "performances": [3000000002],
+        "labels": {3000000002: "东京"},
+        "markers": {},
+    },
+    "mikufes2024": {
+        "performances": [3000000003],
+        "labels": {3000000003: "东京"},
+        "markers": {},
+    },
+    "matsuri39": {
+        "performances": [3000000004],
+        "labels": {3000000004: "横滨"},
+        "markers": {},
+    },
+    "mikugan2013": {
+        "performances": [3000000005],
+        "labels": {3000000005: "大阪"},
+        "markers": {},
+    },
+    "galaxy2020": {
+        "performances": [3000000006],
+        "labels": {3000000006: "线上"},
+        "markers": {},
+    },
+    "galaxy2021": {
+        "performances": [3000000007],
+        "labels": {3000000007: "线上"},
+        "markers": {},
+    },
+    "lawson2026": {
+        "performances": [3000000008],
+        "labels": {3000000008: "横滨"},
+        "markers": {
+            "1日目昼": ["*#1:day"], "1日目夜": ["*#1:night"], "2日目昼": ["*#2:day"],
+        },
+    },
+    "pokemiku-voltage2026": {
+        "performances": [3000000009],
+        "labels": {3000000009: "千叶"},
+        "markers": {},
+    },
     "decomiku2026": {
         "performances": [9401],
         "labels": {9401: "代代木"},

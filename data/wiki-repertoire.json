@@ -129,6 +129,36 @@
       "artist": "DECO*27",
       "note": "DECO*27 的原创曲；VocaDB 检索只返回同名翻唱，没有可直接对应的原创条目"
     },
+    "電気の恋人-I am Programmer's Song-": {
+      "id": 2000000024,
+      "category": "vocaloid",
+      "artist": "MOSAIC.WAV",
+      "note": "MOSAIC.WAV 的初音ミク原创曲；VocaDB 只有同名翻唱，没有可直接对应的原创条目，按百科标题登记"
+    },
+    "HATUNEtive": {
+      "id": 2000000025,
+      "category": "vocaloid",
+      "artist": "MOSAIC.WAV",
+      "note": "MOSAIC.WAV 的初音ミク原创曲；VocaDB 没有对应条目，按百科标题登记"
+    },
+    "intro (デP Megamix)": {
+      "id": 2000000026,
+      "category": "vocaloid",
+      "artist": "デッドボールP",
+      "note": "デッドボールP 曲目的开场 MegaMix；VocaDB 没有对应条目，按百科标题整体登记，不拆分"
+    },
+    "既成事実三部作Megamix": {
+      "id": 2000000027,
+      "category": "vocaloid",
+      "artist": "デッドボールP",
+      "note": "由「既成事実」「続・既成事実」「真・既成事実」三曲合成的 MegaMix；整体登记，不拆分"
+    },
+    "恋は戦争(future retro remix by kz)": {
+      "id": 2000000028,
+      "category": "vocaloid",
+      "artist": "ryo",
+      "note": "「恋は戦争」的 future retro remix（kz），同一场里先演 remix 再演原曲；VocaDB 没有单独条目，按百科标题登记"
+    },
     "ぽっぴっぽー（Grand Finale）": {
       "id": null,
       "skip": true,

@@ -65,6 +65,8 @@ SITE_LABELS = (
     ("w.atwiki.jp", "初音ミク Wiki "),
     ("moegirl.org.cn", "萌娘百科"),
     ("fandom.com", "VocaDB Fandom"),
+    ("sanka-gets.hatenablog.com", "Sanka Blog "),
+    ("project-voltage.jp", "VOLTAGE Live！官方"),
 )
 
 
@@ -687,6 +689,101 @@ add(
     note="百科：2026-02-14 单日昼夜 2 场，每场 27 首",
 )
 
+# ---------------------------------------------------------------- 系列外单场演出（官方页 / 百科逐曲表）
+# VocaDB 的七个系列之外，还有一批单独举办、只在百科或官方报告里留下逐曲表的演出。
+# 它们由 data/increments/0016-standalone-lives.sql 补进目录，曲目来自 data/wiki-raw/ 下的表。
+add(
+    3000000002,
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/67185.html",
+            "初音ミク Wiki：ミクFES '09（夏）",
+            "2009-08-31 新木場STUDIO COAST 单场，28 首",
+        )
+    ],
+    note="2009-08-31 新木場STUDIO COAST 单场，28 首",
+)
+add(
+    3000000003,
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/67186.html",
+            "初音ミク Wiki：MIKU FES '24（春）",
+            "2024-03-31 日本武道館 单场，23 首；另有 4 段 DJ 表演未计入",
+        )
+    ],
+    note="2024-03-31 日本武道館 单场，23 首；4 段 DJ 表演不计入曲目",
+)
+add(
+    3000000004,
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/vocalive/pages/167.html",
+            "初音ミクライブ総合 Wiki：夏の終わりの39祭り",
+            "2012-08-29 19:00 横滨赤レンガ倉庫水幕舞台，单场 4 首",
+        )
+    ],
+    note="2012-08-29 19:00 横滨赤レンガ倉庫水幕舞台，单场 4 首",
+)
+add(
+    3000000005,
+    sources=[
+        wiki(
+            "https://sanka-gets.hatenablog.com/entry/ar308119",
+            "Sanka Blog：夏祭初音鑑 大阪公演レポート",
+            "2013-08-03–07 グランフロント大阪 ナレッジシアター；报道只给出大阪公演曲目，未写每日场次数",
+        )
+    ],
+    note="2013-08-03–07 グランフロント大阪 ナレッジシアター；报道未写每日场次数，按每天 1 场计",
+)
+add(
+    3000000006,
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/67209.html",
+            "初音ミク Wiki：初音ミク GALAXY LIVE 2020",
+            "2020-09-26–27 在线演唱会，两天同一套 8 首",
+        )
+    ],
+    note="2020-09-26–27 在线演唱会，两天同一套 8 首",
+)
+add(
+    3000000007,
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/67211.html",
+            "初音ミク Wiki：初音ミク GALAXY LIVE 2021",
+            "2021-12-18–19 在线演唱会，两天同一套 12 首",
+        )
+    ],
+    note="2021-12-18–19 在线演唱会，两天同一套 12 首",
+)
+add(
+    3000000008,
+    day_night=["2026-01-17"],
+    halves={"2026-01-18": ["day"]},
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/68447.html",
+            "初音ミク Wiki：初音ミク LAWSON 50th Anniversary Special LIVE",
+            "2026-01-17 昼+夜、01-18 仅昼，共 3 场；每场 24 首，第 8 首按场次替换",
+        )
+    ],
+    note="2026-01-17 横浜アリーナ 昼+夜、01-18 仅昼，共 3 场；每场 24 首，第 8 首按场次替换",
+)
+add(
+    3000000009,
+    day_night="all",
+    sources=[
+        wiki(
+            "https://www.project-voltage.jp/live2026/afterreport.html",
+            "VOLTAGE Live！ 官方 AFTER REPORT",
+            "2026-03-20–22 LaLa arena TOKYO-BAY，每天昼 12:00 + 夜 18:00，共 6 场；官方歌单 27 首",
+        )
+    ],
+    note="2026-03-20–22 LaLa arena TOKYO-BAY，每天昼 12:00 + 夜 18:00，共 6 场；每场 27 首",
+)
+
 # ---------------------------------------------------------------- 演出状态（取消 / 延期）
 # VocaDB 只有 Finished / Approved / Draft，没有「已取消」，所以这 13 场在索引里只显示「日期未知」。
 # 来源取该演出 performance_links 里的取消公告，原文写得很清楚。
@@ -828,7 +925,12 @@ def translate_rows(rows: list[dict], prefer: set[int]) -> tuple[list[dict], list
         if repertoire is not None and repertoire.get("skip"):
             unresolved.append(title)
             continue
-        song_id = resolve_song(title, prefer)
+        # A hand-registered row keeps its reserved id even when its normalized title collides with
+        # a VocaDB original (e.g. `恋は戦争(future retro remix by kz)` vs `恋は戦争`).
+        if repertoire is not None and repertoire.get("id") is not None:
+            song_id = repertoire["id"]
+        else:
+            song_id = resolve_song(title, prefer)
         if song_id is None:
             unresolved.append(title)
             continue
@@ -997,11 +1099,65 @@ for item in WIKI_SETLISTS["entries"]:
 # 逐曲表循环会用表格说明覆盖 note；只看日程的百科证据在这里补回，避免昼夜结构无处留档。
 SCHEDULE_NOTES = {
     9401: "2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首；VocaDB 歌单 24530 只录了前 10 行，但同样把《ストリーミングハート》标成 Daytime、《キメラ》标成 Nighttime，昼夜结构一致",
+    3000000002: "2009-08-31 新木場STUDIO COAST 单场，28 首，约 2 小时 30 分",
+    3000000003: "2024-03-31 日本武道館 单场，23 首，另有 4 段 DJ 表演",
+    3000000004: "2012-08-29 19:00 横滨赤レンガ倉庫水幕舞台，单场 4 首",
+    3000000005: "2013-08-03–07 グランフロント大阪 ナレッジシアター，报道未写每日场次数，按每天 1 场计",
+    3000000006: "2020-09-26–27 在线演唱会，两天同一套 8 首",
+    3000000007: "2021-12-18–19 在线演唱会，两天同一套 12 首",
+    3000000008: "2026-01-17 昼+夜、01-18 仅昼，共 3 场；每场 24 首，第 8 首按场次替换",
+    3000000009: "2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场；每场 27 首",
 }
 for pid, schedule_note in SCHEDULE_NOTES.items():
     entry = performances.get(str(pid))
     if entry is not None:
         entry["note"] = f"{entry.get('note', '')}；百科日程：{schedule_note}"
+
+# 逐曲表循环只保留表本身的来源；官方日程页另有信息，追加在演出来源里。
+EXTRA_SOURCES = {
+    "3000000002": [
+        official_page(
+            "https://blog.piapro.net/2009/09/fes09.html",
+            "初音ミク公式ブログ：ミクFES '09（夏）アフターリポート",
+            "2009-08-31 新木場STUDIO COAST",
+        )
+    ],
+    "3000000003": [
+        official_page("https://mikufes24spring.jp/", "MIKU FES '24（春）公式サイト", "2024-03-31 日本武道館")
+    ],
+    "3000000004": [
+        wiki(
+            "https://dengekionline.com/elem/000/000/528/528109/index-2.html",
+            "電撃オンライン：夏の終わりの39祭り レポート",
+            "2012-08-29 横滨赤レンガ倉庫，水幕舞台",
+        )
+    ],
+    "3000000005": [
+        official_page("http://kc-i.jp/hatsuap/", "夏祭初音鑑 公式特設ページ", "2013-08-03–07 大阪・梅田")
+    ],
+    "3000000006": [official_page("https://galaxy-live.net/", "初音ミク GALAXY LIVE 公式サイト", "2020 在线演唱会")],
+    "3000000007": [official_page("https://galaxy-live.net/", "初音ミク GALAXY LIVE 公式サイト", "2021 在线演唱会")],
+    "3000000008": [
+        official_page(
+            "https://l-tike.com/lawson50thmiku/",
+            "ローソン 50th Anniversary Special LIVE 特設サイト",
+            "2026-01-17 昼+夜、01-18 仅昼",
+        )
+    ],
+    "3000000009": [
+        official_page(
+            "https://www.project-voltage.jp/live2026/",
+            "ポケモン feat. 初音ミク VOLTAGE Live！ 公式サイト",
+            "2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场",
+        )
+    ],
+}
+for pid, extra in EXTRA_SOURCES.items():
+    entry = performances.get(pid)
+    if entry is not None:
+        for source in extra:
+            source["accessedAt"] = "2026-11-06"
+        entry["sources"] = extra + entry.get("sources", [])
 
 # 神戸 2023 比横浜多一首「白い雪のプリンセスは」（ダブルアンコール，神戸限定），
 # 所以两地的曲目数本来就不同；记下原因后不再报长度警告。

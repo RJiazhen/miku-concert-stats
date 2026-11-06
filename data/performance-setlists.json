@@ -26846,6 +26846,1168 @@
         ]
       }
     },
+    "3000000002": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），28 行；百科日程：2009-08-31 新木場STUDIO COAST 单场，28 首，约 2 小时 30 分",
+      "sources": [
+        {
+          "url": "https://blog.piapro.net/2009/09/fes09.html",
+          "title": "初音ミク公式ブログ：ミクFES '09（夏）アフターリポート",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2009-08-31 新木場STUDIO COAST"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67185.html",
+          "title": "初音ミク Wiki：ミクFES '09（夏）（东京）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；28 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67185.html",
+        "title": "初音ミク Wiki：ミクFES '09（夏）（东京）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "东京",
+        "songs": [
+          {
+            "id": 1355,
+            "title": "みくみくにしてあげる♪",
+            "note": "初披露"
+          },
+          {
+            "id": 2000000024,
+            "title": "電気の恋人-I am Programmer's Song-",
+            "note": "特別披露"
+          },
+          {
+            "id": 2000000025,
+            "title": "HATUNEtive",
+            "note": "特別披露"
+          },
+          {
+            "id": 16943,
+            "title": "みんなみくみくにしてあげる♪",
+            "note": "先行披露※"
+          },
+          {
+            "id": 2000000026,
+            "title": "intro (デP Megamix)"
+          },
+          {
+            "id": 8787,
+            "title": "私は人間じゃないから。"
+          },
+          {
+            "id": 17294,
+            "title": "とある娼婦の恋"
+          },
+          {
+            "id": 470132,
+            "title": "牛乳飲め！"
+          },
+          {
+            "id": 469831,
+            "title": "木枯らしの朝"
+          },
+          {
+            "id": 2477,
+            "title": "筆おろし"
+          },
+          {
+            "id": 2000000027,
+            "title": "既成事実三部作Megamix",
+            "note": "※"
+          },
+          {
+            "id": 7839,
+            "title": "恋スルVOC@LOID",
+            "note": "初披露"
+          },
+          {
+            "id": 1032,
+            "title": "ロミオとシンデレラ",
+            "note": "初披露"
+          },
+          {
+            "id": 3015,
+            "title": "恋色病棟"
+          },
+          {
+            "id": 3478,
+            "title": "Dear",
+            "note": "初披露"
+          },
+          {
+            "id": 2000000028,
+            "title": "恋は戦争(future retro remix by kz)"
+          },
+          {
+            "id": 2440,
+            "title": "ファインダー(DSLR remix-re:edit)"
+          },
+          {
+            "id": 8396,
+            "title": "Far Away"
+          },
+          {
+            "id": 5232,
+            "title": "Heart Beat"
+          },
+          {
+            "id": 1465,
+            "title": "Crosslight"
+          },
+          {
+            "id": 2432,
+            "title": "Packaged(kisk baker's yogamix)",
+            "note": "初披露"
+          },
+          {
+            "id": 2443,
+            "title": "Last Night, Good Night(mf_4sk cutup edit)",
+            "note": "初披露"
+          },
+          {
+            "id": 1331,
+            "title": "またね"
+          },
+          {
+            "id": 1320,
+            "title": "恋は戦争",
+            "note": "初披露"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン",
+            "note": "初披露"
+          },
+          {
+            "id": 1323,
+            "title": "ブラック★ロックシューター"
+          },
+          {
+            "id": 1327,
+            "title": "初めての恋が終わる時",
+            "note": "初披露"
+          },
+          {
+            "id": 1322,
+            "title": "メルト",
+            "note": "初披露"
+          }
+        ]
+      }
+    },
+    "3000000003": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），23 行；百科日程：2024-03-31 日本武道館 单场，23 首，另有 4 段 DJ 表演",
+      "sources": [
+        {
+          "url": "https://mikufes24spring.jp/",
+          "title": "MIKU FES '24（春）公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2024-03-31 日本武道館"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67186.html",
+          "title": "初音ミク Wiki：MIKU FES '24（春）（东京）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67186.html",
+        "title": "初音ミク Wiki：MIKU FES '24（春）（东京）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "东京",
+        "songs": [
+          {
+            "id": 16943,
+            "title": "みんなみくみくにしてあげる♪"
+          },
+          {
+            "id": 28549,
+            "title": "ラズベリー＊モンスター"
+          },
+          {
+            "id": 8809,
+            "title": "心臓デモクラシー"
+          },
+          {
+            "id": 2924,
+            "title": "＊ハロー、プラネット。"
+          },
+          {
+            "id": 4083,
+            "title": "ぽっぴっぽー"
+          },
+          {
+            "id": 8735,
+            "title": "深海少女"
+          },
+          {
+            "id": 156001,
+            "title": "ドリームレス・ドリームス"
+          },
+          {
+            "id": 3022,
+            "title": "炉心融解"
+          },
+          {
+            "id": 127169,
+            "title": "脱法ロック"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT"
+          },
+          {
+            "id": 1363,
+            "title": "からくりピエロ"
+          },
+          {
+            "id": 8241,
+            "title": "番凩"
+          },
+          {
+            "id": 445823,
+            "title": "カルチャ"
+          },
+          {
+            "id": 112085,
+            "title": "ゴーストルール"
+          },
+          {
+            "id": 295872,
+            "title": "初音ミクの消失"
+          },
+          {
+            "id": 247035,
+            "title": "アルビノ -revive-"
+          },
+          {
+            "id": 1435,
+            "title": "ルカルカ★ナイトフィーバー"
+          },
+          {
+            "id": 1032,
+            "title": "ロミオとシンデレラ"
+          },
+          {
+            "id": 8394,
+            "title": "千本桜"
+          },
+          {
+            "id": 1322,
+            "title": "メルト"
+          },
+          {
+            "id": 10951,
+            "title": "ハジメテノオト"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 8741,
+            "title": "桜ノ雨"
+          }
+        ]
+      }
+    },
+    "3000000004": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（横滨），4 行；百科日程：2012-08-29 19:00 横滨赤レンガ倉庫水幕舞台，单场 4 首",
+      "sources": [
+        {
+          "url": "https://dengekionline.com/elem/000/000/528/528109/index-2.html",
+          "title": "電撃オンライン：夏の終わりの39祭り レポート",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "2012-08-29 横滨赤レンガ倉庫，水幕舞台"
+        },
+        {
+          "url": "https://w.atwiki.jp/vocalive/pages/167.html",
+          "title": "初音ミク Wiki：夏の終わりの39祭り（横滨）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；4 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/vocalive/pages/167.html",
+        "title": "初音ミク Wiki：夏の終わりの39祭り（横滨）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "横滨",
+        "songs": [
+          {
+            "id": 15047,
+            "title": "Weekender Girl"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 1354,
+            "title": "タイムマシン"
+          },
+          {
+            "id": 14480,
+            "title": "39"
+          }
+        ]
+      }
+    },
+    "3000000005": {
+      "note": "歌单来自Sanka Blog 的逐曲表（大阪），11 行；百科日程：2013-08-03–07 グランフロント大阪 ナレッジシアター，报道未写每日场次数，按每天 1 场计",
+      "sources": [
+        {
+          "url": "http://kc-i.jp/hatsuap/",
+          "title": "夏祭初音鑑 公式特設ページ",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2013-08-03–07 大阪・梅田"
+        },
+        {
+          "url": "https://sanka-gets.hatenablog.com/entry/ar308119",
+          "title": "Sanka Blog：夏祭初音鑑（大阪）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；11 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://sanka-gets.hatenablog.com/entry/ar308119",
+        "title": "Sanka Blog：夏祭初音鑑（大阪）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "大阪",
+        "songs": [
+          {
+            "id": 95875,
+            "title": "Atturpore",
+            "note": "OP，鏡音レン"
+          },
+          {
+            "id": 1500,
+            "title": "アンハッピーリフレイン"
+          },
+          {
+            "id": 29749,
+            "title": "カラフルポップビート"
+          },
+          {
+            "id": 25666,
+            "title": "学園×∀ssassinatioИ"
+          },
+          {
+            "id": 13418,
+            "title": "背徳の花",
+            "note": "鏡音リン・鏡音レン"
+          },
+          {
+            "id": 2886,
+            "title": "Mad Lovers",
+            "note": "巡音ルカ"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 8394,
+            "title": "千本桜"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 2432,
+            "title": "Packaged"
+          },
+          {
+            "id": 25665,
+            "title": "ヘッドフォン アディクション"
+          }
+        ]
+      }
+    },
+    "3000000006": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（线上），8 行；百科日程：2020-09-26–27 在线演唱会，两天同一套 8 首",
+      "sources": [
+        {
+          "url": "https://galaxy-live.net/",
+          "title": "初音ミク GALAXY LIVE 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2020 在线演唱会"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67209.html",
+          "title": "初音ミク Wiki：初音ミク GALAXY LIVE 2020（线上）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；8 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67209.html",
+        "title": "初音ミク Wiki：初音ミク GALAXY LIVE 2020（线上）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "线上",
+        "songs": [
+          {
+            "id": 294036,
+            "title": "水色侵略",
+            "note": "GALAXY LIVE'20 テーマソング初披露※"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 219144,
+            "title": "バイオレンストリガー",
+            "note": "初披露"
+          },
+          {
+            "id": 15565,
+            "title": "マカロン",
+            "note": "初披露"
+          },
+          {
+            "id": 221277,
+            "title": "ビターチョコデコレーション",
+            "note": "初披露※"
+          },
+          {
+            "id": 164074,
+            "title": "ヒバナ"
+          },
+          {
+            "id": 152288,
+            "title": "世界の真ん中を歩く",
+            "note": "初披露※"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World",
+            "note": "※"
+          }
+        ]
+      }
+    },
+    "3000000007": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（线上），12 行；百科日程：2021-12-18–19 在线演唱会，两天同一套 12 首",
+      "sources": [
+        {
+          "url": "https://galaxy-live.net/",
+          "title": "初音ミク GALAXY LIVE 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2021 在线演唱会"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67211.html",
+          "title": "初音ミク Wiki：初音ミク GALAXY LIVE 2021（线上）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；12 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67211.html",
+        "title": "初音ミク Wiki：初音ミク GALAXY LIVE 2021（线上）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "线上",
+        "songs": [
+          {
+            "id": 294036,
+            "title": "水色侵略",
+            "note": "GALAXY LIVE'20 テーマソング"
+          },
+          {
+            "id": 157860,
+            "title": "砂の惑星"
+          },
+          {
+            "id": 152288,
+            "title": "世界の真ん中を歩く"
+          },
+          {
+            "id": 219144,
+            "title": "バイオレンストリガー"
+          },
+          {
+            "id": 15565,
+            "title": "マカロン"
+          },
+          {
+            "id": 298,
+            "title": "カガリビト",
+            "note": "初披露"
+          },
+          {
+            "id": 230401,
+            "title": "ヒバナ -Reloaded-",
+            "note": "Reloadedとしては初"
+          },
+          {
+            "id": 221277,
+            "title": "ビターチョコデコレーション"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 271920,
+            "title": "未来最終戦争",
+            "note": "初披露※"
+          },
+          {
+            "id": 232181,
+            "title": "ロンリーユニバース",
+            "note": "初披露※"
+          },
+          {
+            "id": 360978,
+            "title": "ノヴァ",
+            "note": "GALAXY LIVE'21 テーマソング初披露※"
+          }
+        ]
+      }
+    },
+    "3000000008": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（横滨），按场次分 3 份；百科日程：2026-01-17 昼+夜、01-18 仅昼，共 3 场；每场 24 首，第 8 首按场次替换",
+      "dayNight": [
+        "2026-01-17"
+      ],
+      "halves": {
+        "2026-01-18": [
+          "day"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://l-tike.com/lawson50thmiku/",
+          "title": "ローソン 50th Anniversary Special LIVE 特設サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2026-01-17 昼+夜、01-18 仅昼"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/68447.html",
+          "title": "初音ミク Wiki：初音ミク LAWSON 50th Anniversary Special LIVE（横滨）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；26 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/68447.html",
+        "title": "初音ミク Wiki：初音ミク LAWSON 50th Anniversary Special LIVE（横滨）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "横滨",
+        "songs": [
+          {
+            "id": 1383,
+            "title": "Sweet Devil"
+          },
+          {
+            "id": 3312,
+            "title": "白い雪のプリンセスは"
+          },
+          {
+            "id": 161199,
+            "title": "テオ"
+          },
+          {
+            "id": 19094,
+            "title": "ロストワンの号哭"
+          },
+          {
+            "id": 1949,
+            "title": "右肩の蝶"
+          },
+          {
+            "id": 1435,
+            "title": "ルカルカ★ナイトフィーバー"
+          },
+          {
+            "id": 460547,
+            "title": "プシ"
+          },
+          {
+            "id": 15047,
+            "title": "Weekender Girl"
+          },
+          {
+            "id": 13351,
+            "title": "ありふれたせかいせいふく"
+          },
+          {
+            "id": 5364,
+            "title": "FREELY TOMORROW"
+          },
+          {
+            "id": 8735,
+            "title": "深海少女"
+          },
+          {
+            "id": 503050,
+            "title": "Call!!"
+          },
+          {
+            "id": 9034,
+            "title": "ピアノ×フォルテ×スキャンダル"
+          },
+          {
+            "id": 1327,
+            "title": "初めての恋が終わる時"
+          },
+          {
+            "id": 760683,
+            "title": "アイドル戦士",
+            "note": "初披露※"
+          },
+          {
+            "id": 234902,
+            "title": "Jump for Joy"
+          },
+          {
+            "id": 8241,
+            "title": "番凩"
+          },
+          {
+            "id": 11593,
+            "title": "shake it！"
+          },
+          {
+            "id": 164107,
+            "title": "アンノウン・マザーグース",
+            "note": "※"
+          },
+          {
+            "id": 2927,
+            "title": "初音ミクの激唱"
+          },
+          {
+            "id": 460669,
+            "title": "SnowMix♪",
+            "note": "雪ミク'23 テーマソング"
+          },
+          {
+            "id": 284993,
+            "title": "愛されなくても君がいる",
+            "note": "MM'20 テーマソング※"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World",
+            "note": "※"
+          },
+          {
+            "id": 887891,
+            "title": "シアンブルー",
+            "note": "ローソンライブ テーマソング・初披露※"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 501614,
+            "title": "インビテーション！",
+            "note": "MM’13 メモリアルソング・初披露"
+          }
+        ],
+        "slots": [
+          {
+            "match": "3000000008:2026-01-17:day",
+            "songs": [
+              {
+                "id": 1383,
+                "title": "Sweet Devil"
+              },
+              {
+                "id": 3312,
+                "title": "白い雪のプリンセスは"
+              },
+              {
+                "id": 161199,
+                "title": "テオ"
+              },
+              {
+                "id": 19094,
+                "title": "ロストワンの号哭"
+              },
+              {
+                "id": 1949,
+                "title": "右肩の蝶"
+              },
+              {
+                "id": 1435,
+                "title": "ルカルカ★ナイトフィーバー"
+              },
+              {
+                "id": 460547,
+                "title": "プシ"
+              },
+              {
+                "id": 15047,
+                "title": "Weekender Girl"
+              },
+              {
+                "id": 8735,
+                "title": "深海少女"
+              },
+              {
+                "id": 503050,
+                "title": "Call!!"
+              },
+              {
+                "id": 9034,
+                "title": "ピアノ×フォルテ×スキャンダル"
+              },
+              {
+                "id": 1327,
+                "title": "初めての恋が終わる時"
+              },
+              {
+                "id": 760683,
+                "title": "アイドル戦士",
+                "note": "初披露※"
+              },
+              {
+                "id": 234902,
+                "title": "Jump for Joy"
+              },
+              {
+                "id": 8241,
+                "title": "番凩"
+              },
+              {
+                "id": 11593,
+                "title": "shake it！"
+              },
+              {
+                "id": 164107,
+                "title": "アンノウン・マザーグース",
+                "note": "※"
+              },
+              {
+                "id": 2927,
+                "title": "初音ミクの激唱"
+              },
+              {
+                "id": 460669,
+                "title": "SnowMix♪",
+                "note": "雪ミク'23 テーマソング"
+              },
+              {
+                "id": 284993,
+                "title": "愛されなくても君がいる",
+                "note": "MM'20 テーマソング※"
+              },
+              {
+                "id": 8395,
+                "title": "Tell Your World",
+                "note": "※"
+              },
+              {
+                "id": 887891,
+                "title": "シアンブルー",
+                "note": "ローソンライブ テーマソング・初披露※"
+              },
+              {
+                "id": 8290,
+                "title": "ゆめゆめ",
+                "note": "※"
+              },
+              {
+                "id": 501614,
+                "title": "インビテーション！",
+                "note": "MM’13 メモリアルソング・初披露"
+              }
+            ]
+          },
+          {
+            "match": "3000000008:2026-01-17:night",
+            "songs": [
+              {
+                "id": 1383,
+                "title": "Sweet Devil"
+              },
+              {
+                "id": 3312,
+                "title": "白い雪のプリンセスは"
+              },
+              {
+                "id": 161199,
+                "title": "テオ"
+              },
+              {
+                "id": 19094,
+                "title": "ロストワンの号哭"
+              },
+              {
+                "id": 1949,
+                "title": "右肩の蝶"
+              },
+              {
+                "id": 1435,
+                "title": "ルカルカ★ナイトフィーバー"
+              },
+              {
+                "id": 460547,
+                "title": "プシ"
+              },
+              {
+                "id": 13351,
+                "title": "ありふれたせかいせいふく"
+              },
+              {
+                "id": 8735,
+                "title": "深海少女"
+              },
+              {
+                "id": 503050,
+                "title": "Call!!"
+              },
+              {
+                "id": 9034,
+                "title": "ピアノ×フォルテ×スキャンダル"
+              },
+              {
+                "id": 1327,
+                "title": "初めての恋が終わる時"
+              },
+              {
+                "id": 760683,
+                "title": "アイドル戦士",
+                "note": "初披露※"
+              },
+              {
+                "id": 234902,
+                "title": "Jump for Joy"
+              },
+              {
+                "id": 8241,
+                "title": "番凩"
+              },
+              {
+                "id": 11593,
+                "title": "shake it！"
+              },
+              {
+                "id": 164107,
+                "title": "アンノウン・マザーグース",
+                "note": "※"
+              },
+              {
+                "id": 2927,
+                "title": "初音ミクの激唱"
+              },
+              {
+                "id": 460669,
+                "title": "SnowMix♪",
+                "note": "雪ミク'23 テーマソング"
+              },
+              {
+                "id": 284993,
+                "title": "愛されなくても君がいる",
+                "note": "MM'20 テーマソング※"
+              },
+              {
+                "id": 8395,
+                "title": "Tell Your World",
+                "note": "※"
+              },
+              {
+                "id": 887891,
+                "title": "シアンブルー",
+                "note": "ローソンライブ テーマソング・初披露※"
+              },
+              {
+                "id": 8290,
+                "title": "ゆめゆめ",
+                "note": "※"
+              },
+              {
+                "id": 501614,
+                "title": "インビテーション！",
+                "note": "MM’13 メモリアルソング・初披露"
+              }
+            ]
+          },
+          {
+            "match": "3000000008:2026-01-18:day",
+            "songs": [
+              {
+                "id": 1383,
+                "title": "Sweet Devil"
+              },
+              {
+                "id": 3312,
+                "title": "白い雪のプリンセスは"
+              },
+              {
+                "id": 161199,
+                "title": "テオ"
+              },
+              {
+                "id": 19094,
+                "title": "ロストワンの号哭"
+              },
+              {
+                "id": 1949,
+                "title": "右肩の蝶"
+              },
+              {
+                "id": 1435,
+                "title": "ルカルカ★ナイトフィーバー"
+              },
+              {
+                "id": 460547,
+                "title": "プシ"
+              },
+              {
+                "id": 5364,
+                "title": "FREELY TOMORROW"
+              },
+              {
+                "id": 8735,
+                "title": "深海少女"
+              },
+              {
+                "id": 503050,
+                "title": "Call!!"
+              },
+              {
+                "id": 9034,
+                "title": "ピアノ×フォルテ×スキャンダル"
+              },
+              {
+                "id": 1327,
+                "title": "初めての恋が終わる時"
+              },
+              {
+                "id": 760683,
+                "title": "アイドル戦士",
+                "note": "初披露※"
+              },
+              {
+                "id": 234902,
+                "title": "Jump for Joy"
+              },
+              {
+                "id": 8241,
+                "title": "番凩"
+              },
+              {
+                "id": 11593,
+                "title": "shake it！"
+              },
+              {
+                "id": 164107,
+                "title": "アンノウン・マザーグース",
+                "note": "※"
+              },
+              {
+                "id": 2927,
+                "title": "初音ミクの激唱"
+              },
+              {
+                "id": 460669,
+                "title": "SnowMix♪",
+                "note": "雪ミク'23 テーマソング"
+              },
+              {
+                "id": 284993,
+                "title": "愛されなくても君がいる",
+                "note": "MM'20 テーマソング※"
+              },
+              {
+                "id": 8395,
+                "title": "Tell Your World",
+                "note": "※"
+              },
+              {
+                "id": 887891,
+                "title": "シアンブルー",
+                "note": "ローソンライブ テーマソング・初披露※"
+              },
+              {
+                "id": 8290,
+                "title": "ゆめゆめ",
+                "note": "※"
+              },
+              {
+                "id": 501614,
+                "title": "インビテーション！",
+                "note": "MM’13 メモリアルソング・初披露"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "3000000009": {
+      "note": "歌单来自VOLTAGE Live！官方的逐曲表（千叶），27 行；百科日程：2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场；每场 27 首",
+      "dayNight": [
+        "2026-03-20",
+        "2026-03-21",
+        "2026-03-22"
+      ],
+      "sources": [
+        {
+          "url": "https://www.project-voltage.jp/live2026/",
+          "title": "ポケモン feat. 初音ミク VOLTAGE Live！ 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场"
+        },
+        {
+          "url": "https://www.project-voltage.jp/live2026/afterreport.html",
+          "title": "VOLTAGE Live！官方：ポケモン feat. 初音ミク VOLTAGE Live！（千叶）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；27 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://www.project-voltage.jp/live2026/afterreport.html",
+        "title": "VOLTAGE Live！官方：ポケモン feat. 初音ミク VOLTAGE Live！（千叶）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "千叶",
+        "songs": [
+          {
+            "id": 536349,
+            "title": "ミライどんなだろう"
+          },
+          {
+            "id": 593626,
+            "title": "エスパーエスパー"
+          },
+          {
+            "id": 557560,
+            "title": "戦闘！初音ミク"
+          },
+          {
+            "id": 594927,
+            "title": "メロメロイド"
+          },
+          {
+            "id": 581632,
+            "title": "ゴー！ビッパ団"
+          },
+          {
+            "id": 563199,
+            "title": "ガッチュー！"
+          },
+          {
+            "id": 579184,
+            "title": "俺ゴーストタイプ"
+          },
+          {
+            "id": 584100,
+            "title": "ひゅ〜どろどろ"
+          },
+          {
+            "id": 771172,
+            "title": "ファサード・クエスチョン"
+          },
+          {
+            "id": 589291,
+            "title": "PARTY ROCK ETERNITY"
+          },
+          {
+            "id": 650687,
+            "title": "チャンピオン"
+          },
+          {
+            "id": 840401,
+            "title": "オーパーツ"
+          },
+          {
+            "id": 586628,
+            "title": "Encounter"
+          },
+          {
+            "id": 560308,
+            "title": "きみとそらをとぶ"
+          },
+          {
+            "id": 586830,
+            "title": "むげんのチケット"
+          },
+          {
+            "id": 709668,
+            "title": "しんかしんかしんか"
+          },
+          {
+            "id": 853916,
+            "title": "ドキドキ！"
+          },
+          {
+            "id": 592083,
+            "title": "たびのまえ、たびのあと"
+          },
+          {
+            "id": 538028,
+            "title": "ポケットのモンスター"
+          },
+          {
+            "id": 532518,
+            "title": "ボルテッカー"
+          },
+          {
+            "id": 534385,
+            "title": "電気予報"
+          },
+          {
+            "id": 566239,
+            "title": "JUVENILE"
+          },
+          {
+            "id": 925294,
+            "title": "スパイラル・メロディーズ"
+          },
+          {
+            "id": 598025,
+            "title": "Glorious Day"
+          },
+          {
+            "id": 625986,
+            "title": "アフターエポックス",
+            "note": "安可"
+          },
+          {
+            "id": 906978,
+            "title": "たびだちのうた",
+            "note": "安可"
+          },
+          {
+            "id": 929916,
+            "title": "クロスロード",
+            "note": "安可"
+          }
+        ]
+      }
+    },
     "1584": {
       "setlist": {
         "source": "https://w.atwiki.jp/hmiku/pages/67137.html",

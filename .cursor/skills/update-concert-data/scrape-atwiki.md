@@ -101,5 +101,11 @@ location.href = 'https://w.atwiki.jp/hmiku/pages/80099.html'
 `expo2017-my` `expo2018-us` `expo2018-eu` `expo2019-tw-hk` `expo2024-na` `expo2024-eu`
 `expo2024-au` `expo2025-asia` `expo2026-na` `mwy2018` `mwy2019` `mwy2024` `mwy2026`
 `mm2018` `mm2021` `mm10th` `mm2023` `mm2024` `mm2025` `mm2026` `symphony2627`
+`mikufes2009` `mikufes2024` `matsuri39` `mikugan2013` `galaxy2020` `galaxy2021`
+`lawson2026` `pokemiku-voltage2026` `decomiku2026`
+
+新增的 8 个中，`matsuri39` 来自 `w.atwiki.jp/vocalive`，`mikugan2013` 来自 Sanka Blog，
+`pokemiku-voltage2026` 来自 VOLTAGE Live 官方 after report；其余是 hmiku 页面。不是 hmiku 页面的
+三个在 JSON 里用 `url` 而不是 `page`。
 
 新增巡演时按 `<系列>-<年份>` 起名。同一巡演的续办（如 EXPO 2027）另建一个文件，不要覆盖旧表。
