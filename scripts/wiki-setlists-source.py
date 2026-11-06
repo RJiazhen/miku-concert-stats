@@ -694,6 +694,8 @@ def raw_entries() -> list[dict]:
         title_at = header.index("曲名")
         marker_at = header.index("公演替") if "公演替" in header else None
         note_at = header.index("備考") if "備考" in header else None
+        # Some tables put the day/night split in 備考 instead of 公演替, e.g. `夜公演限定`.
+        note_markers: dict[str, list[str]] = spec.get("noteMarkers", {})
         rows = grid[1:]
 
         ids = spec["performances"]
@@ -713,6 +715,11 @@ def raw_entries() -> list[dict]:
                 continue
             if cleaned and cleaned not in spec["markers"]:
                 raise SystemExit(f"{key}: unknown marker {marker!r} on {title!r}")
+            # A 備考 hint narrows a row further; it wins because 公演替 left the row unscoped.
+            for needle in note_markers:
+                if needle in note:
+                    cleaned = needle
+                    break
             parsed.append((cleaned, title, note))
 
         for pid in ids:
@@ -721,7 +728,7 @@ def raw_entries() -> list[dict]:
                 if cleaned == "":
                     return [""]
                 found: list[str] = []
-                for text in spec["markers"][cleaned]:
+                for text in spec["markers"].get(cleaned) or note_markers[cleaned]:
                     row_ids, day, half = parse_constraint(text, ids)
                     if pid not in row_ids:
                         continue

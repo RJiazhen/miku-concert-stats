@@ -164,6 +164,51 @@ RAW_SPEC: dict[str, dict] = {
             "昼公演": ["*:day"], "夜公演": ["*:night"],
         },
     },
+    "expo2017-my": {
+        "performances": [1584],
+        "labels": {1584: "吉隆坡"},
+        "markers": {},
+    },
+    "mwy2017-cn": {
+        "performances": [1619],
+        "labels": {1619: "北京"},
+        "markers": {"昼公演": ["*:day"], "夜公演": ["*:night"]},
+    },
+    "mm2013": {
+        "performances": [2519],
+        "labels": {2519: "横浜"},
+        "markers": {},
+        # 公演替 列不存在时，昼夜差异只写在 備考 里。
+        "noteMarkers": {"夜公演限定": ["*:night"]},
+    },
+    "lp2011-sg": {
+        "performances": [2527],
+        "labels": {2527: "新加坡"},
+        "markers": {},
+    },
+    "expo2021-online": {
+        "performances": [3224],
+        "labels": {3224: "线上"},
+        "markers": {},
+    },
+    "expo2022-rewind": {
+        "performances": [4114],
+        "labels": {4114: "线上"},
+        "markers": {},
+    },
+    "expo2022-rewind-plus": {
+        "performances": [4490],
+        "labels": {4490: "线上"},
+        "markers": {},
+    },
+    "mwy2025": {
+        "performances": [9644],
+        "labels": {9644: "上海"},
+        "markers": {
+            "1日目昼": ["*#1:day"], "1日目夜": ["*#1:night"],
+            "2日目昼": ["*#2:day"], "2日目夜": ["*#2:night"],
+        },
+    },
     "symphony2627": {
         "performances": [12739],
         "labels": {12739: "横浜"},

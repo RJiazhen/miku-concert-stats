@@ -101,6 +101,17 @@ SELECT id, name, start_date FROM performances WHERE name LIKE '%2027%' ORDER BY 
 多个约束可以并列，一行命中多个就展开成多行。`公演替` 里只有 `※` 的行表示百科没写哪些城市唱，
 **不要猜**：脚本会把它记进 `unattributed`，最终写进演出层 `note`。
 
+没有 `公演替` 列、昼夜差异只写在 `備考` 的表（如魔法未来 2013 的 `夜公演限定`）用 `noteMarkers`：
+
+```python
+"mm2013": {
+    "performances": [2519],
+    "labels": {2519: "横浜"},
+    "markers": {},
+    "noteMarkers": {"夜公演限定": ["*:night"]},
+},
+```
+
 小表（单城市、无日程切分）也可以直接手抄进 `wiki_tour_tables.py` 的 `TOUR_ROWS`，
 标记写成城市名或 `day` / `night` / `2023-06-04`。
 
@@ -184,6 +195,17 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
 
 `fetch-wiki-songs.py` 会在某个手工登记的曲名后来出现在 catalog 里时打印 `NOTE … is now in the catalog`，
 看到就把它从 `data/wiki-repertoire.json` 删掉，避免同一首歌两条记录。
+
+每个演出都必须至少有一条来源（`performance_setlist_sources`）。下面的查询有结果就是漏登记：
+
+```sql
+SELECT ps.performance_id, p.name FROM performance_setlists ps
+  JOIN performances p ON p.id = ps.performance_id
+ WHERE NOT EXISTS (SELECT 1 FROM performance_setlist_sources s WHERE s.performance_id = ps.performance_id);
+```
+
+`source_kind='vocadb'` 的演出用 VocaDB 歌单本身配日程来源（官方票务页 / Fandom / 萌娘），
+`source_kind='wiki'` 的演出用逐曲表页面；两者都要有链接。
 
 演出层 `note` 里不应再出现「未计入」的曲名（同曲再演的 `skip` 除外）——那说明有一条歌单行没登记。
 曲目页对非 VOCALOID 行显示「非 VocaDB 曲目・类别」并要求 `songs.category <> 'vocaloid'`。

@@ -134,6 +134,18 @@ def add(pid: int, *, day_night=(), no_show=(), single_show=(), halves=None, conf
 # Official ticket pages list the live shows per day; a day absent from that list is
 # exhibition-only and must not be counted as a 場次.
 add(
+    2519,
+    day_night=["2013-08-30"],
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/67111.html",
+            "初音ミク Wiki：初音ミク「マジカルミライ 2013」",
+            "8/30 横浜アリーナ 昼・夜各 1 场，共 2 场；24 曲，夜公演限定 3 曲",
+        )
+    ],
+    note="百科：8/30 单日昼夜 2 场，24 曲；Weekender Girl、FREELY TOMORROW、1/6 -out of the gravity- 为夜公演限定",
+)
+add(
     2514,
     day_night=["2015-09-05"],
     no_show=["2015-09-06"],
@@ -889,8 +901,10 @@ for item in WIKI_SETLISTS["entries"]:
     unattributed = item.get("unattributed") or []
     outside = non_vocaloid_titles(rows)
     label = item["label"] or "本场"
-    if slots:
+    if len(slots) > 1:
         note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），按场次分 {len(slots)} 份"
+    elif slots:
+        note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），{len(songs)} 行，另有 1 场单独一份"
     else:
         note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），{len(songs)} 行"
     if outside:

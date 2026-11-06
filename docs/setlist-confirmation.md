@@ -6,8 +6,8 @@
 
 ## 0. 一句话现状
 
-- 目录里 181 个演出已展开成 **363 个场次**、9020 条曲目。
-- 来源记录 173 个演出：官方页 10 条、百科 164 条，全部已直接采用。
+- 目录里 181 个演出已展开成 **364 个场次**、9041 条曲目。
+- 来源记录 181 个演出：官方页 10 条、百科 172 条，全部已直接采用。
 - 待核实归属 0 个、冲突 0 个、带不确定标记的场次 0 个。
 - 另有 16 首不是 VOCALOID 歌曲的曲目（古典改编、鼓童器乐曲、民谣）已按普通曲目登记，没有歌手、来源写百科，演出页会标「非 VocaDB」。
 - 还剩 **0 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
@@ -21,6 +21,7 @@
 
 | 演出 | 系列 | 日期 | 场次 × 曲目 | 归属 | 置信度 | 来源 |
 | --- | --- | --- | --- | --- | --- | --- |
+| 初音ミク「マジカルミライ 2013」in YOKOHAMA（2519） | 魔法未来 | 2013-08-30 | 2 × 24 | external | medium | [初音ミク Wiki：初音ミク「マジカルミライ 2013」in YOKOHAMA（横浜）](https://w.atwiki.jp/hmiku/pages/67111.html)（2026-11-06） |
 | 初音ミク「マジカルミライ 2014」in OSAKA（2517） | 魔法未来 | 2014-08-30 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミク「マジカルミライ 2014」in OSAKA（大阪）](https://w.atwiki.jp/hmiku/pages/67113.html)（2026-11-06） |
 | 初音ミク「マジカルミライ 2014」in TOKYO（2518） | 魔法未来 | 2014-09-20 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミク「マジカルミライ 2014」in TOKYO（东京）](https://w.atwiki.jp/hmiku/pages/67113.html)（2026-11-06） |
 | 初音ミク「マジカルミライ 2015」in TOKYO（2514） | 魔法未来 | 2015-09-04 | 3 × 27 | vocadb-note | high | [マジカルミライ 2015 チケット](https://magicalmirai.com/2015/ticket.html)（2026-11-05） |
@@ -70,6 +71,7 @@
 | MIKU EXPO 2016 New Taipei City（1941） | MIKU EXPO | 2016-06-25 | 3 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2016 New Taipei City（台北）](https://w.atwiki.jp/hmiku/pages/67135.html)（2026-11-06） |
 | MIKU EXPO 2016 Shanghai（1943） | MIKU EXPO | 2016-12-03 | 4 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2016 Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67136.html)（2026-11-06） |
 | MIKU EXPO 2016 Beijing（1942） | MIKU EXPO | 2016-12-10 | 4 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2016 Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67136.html)（2026-11-06） |
+| MIKU EXPO 2017 Kuala Lumpur（1584） | MIKU EXPO | 2017-12-16 | 1 × 27 | external | medium | [初音ミク Wiki：MIKU EXPO 2017 Kuala Lumpur（吉隆坡）](https://w.atwiki.jp/hmiku/pages/67137.html)（2026-11-06） |
 | MIKU EXPO 2018 Los Angeles（1673） | MIKU EXPO | 2018-06-29 | 1 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2018 Los Angeles（洛杉矶）](https://w.atwiki.jp/hmiku/pages/67060.html)（2026-11-06） |
 | MIKU EXPO 2018 San Jose（1674） | MIKU EXPO | 2018-07-01 | 1 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2018 San Jose（圣何塞）](https://w.atwiki.jp/hmiku/pages/67060.html)（2026-11-06） |
 | MIKU EXPO 2018 Dallas（1675） | MIKU EXPO | 2018-07-06 | 1 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2018 Dallas（达拉斯）](https://w.atwiki.jp/hmiku/pages/67060.html)（2026-11-06） |
@@ -86,6 +88,9 @@
 | MIKU EXPO 2020 Paris（2787） | MIKU EXPO | 2020-01-16 | 1 × 25 | external | medium | [初音ミク Wiki：MIKU EXPO 2020 Paris（巴黎）](https://w.atwiki.jp/hmiku/pages/67140.html)（2026-11-06） |
 | MIKU EXPO 2020 Berlin（2788） | MIKU EXPO | 2020-01-20 | 1 × 25 | external | medium | [初音ミク Wiki：MIKU EXPO 2020 Berlin（柏林）](https://w.atwiki.jp/hmiku/pages/67140.html)（2026-11-06） |
 | MIKU EXPO 2020 Amsterdam（2789） | MIKU EXPO | 2020-01-24 | 1 × 25 | external | medium | [初音ミク Wiki：MIKU EXPO 2020 Amsterdam（阿姆斯特丹）](https://w.atwiki.jp/hmiku/pages/67140.html)（2026-11-06） |
+| MIKU EXPO 2021 Online（3224） | MIKU EXPO | 2021-06-06 | 1 × 16 | external | medium | [初音ミク Wiki：MIKU EXPO 2021 Online（线上）](https://w.atwiki.jp/hmiku/pages/67074.html)（2026-11-06） |
+| MIKU EXPO 2022 Rewind（4114） | MIKU EXPO | 2022-06-05 | 1 × 18 | external | medium | [初音ミク Wiki：MIKU EXPO 2022 Rewind（线上）](https://w.atwiki.jp/hmiku/pages/67141.html)（2026-11-06） |
+| MIKU EXPO 2022 Rewind+（4490） | MIKU EXPO | 2022-11-06 | 1 × 28 | external | medium | [初音ミク Wiki：MIKU EXPO 2022 Rewind+（线上）](https://w.atwiki.jp/hmiku/pages/67142.html)（2026-11-06） |
 | MIKU EXPO 2023 VR（5751） | MIKU EXPO | 2023-11-12 | 1 × 14 | external | medium | [初音ミク Wiki：MIKU EXPO 2023 VR（线上）](https://w.atwiki.jp/hmiku/pages/67143.html)（2026-11-06） |
 | MIKU EXPO 2024 Vancouver（6516） | MIKU EXPO | 2024-04-04 | 1 × 24 | external | medium | [初音ミク Wiki：MIKU EXPO 2024 Vancouver（温哥华）](https://w.atwiki.jp/hmiku/pages/67090.html)（2026-11-06） |
 | MIKU EXPO 2024 Portland（6517） | MIKU EXPO | 2024-04-06 | 1 × 24 | external | medium | [初音ミク Wiki：MIKU EXPO 2024 Portland（波特兰）](https://w.atwiki.jp/hmiku/pages/67090.html)（2026-11-06） |
@@ -138,6 +143,7 @@
 | MIKU EXPO 2026 Boston（9823） | MIKU EXPO | 2026-05-10 | 2 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2026 Boston（波士顿）](https://w.atwiki.jp/hmiku/pages/68848.html)（2026-11-06） |
 | MIKU EXPO 2026 Hamilton（9824） | MIKU EXPO | 2026-05-13 | 1 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2026 Hamilton（哈密尔顿）](https://w.atwiki.jp/hmiku/pages/68848.html)（2026-11-06） |
 | MIKU EXPO 2026 Mexico City（9825） | MIKU EXPO | 2026-05-19 | 1 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2026 Mexico City（墨西哥城）](https://w.atwiki.jp/hmiku/pages/68848.html)（2026-11-06） |
+| HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（1619） | 未来有你 | 2017-11-25 | 2 × 26 | external | medium | [初音ミク Wiki：HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（北京）](https://w.atwiki.jp/hmiku/pages/67160.html)（2026-11-06） |
 | MIKU WITH YOU 2018 in Beijing（2085） | 未来有你 | 2018-10-13 | 2 × 25 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2018 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67175.html)（2026-11-06） |
 | MIKU WITH YOU 2018 in Chengdu（2086） | 未来有你 | 2018-10-20 | 2 × 25 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2018 in Chengdu（成都）](https://w.atwiki.jp/hmiku/pages/67175.html)（2026-11-06） |
 | MIKU WITH YOU 2018 in Shanghai（2087） | 未来有你 | 2018-10-27 | 4 × 25 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2018 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67175.html)（2026-11-06） |
@@ -150,6 +156,7 @@
 | MIKU WITH YOU 2024 in Shanghai（7673） | 未来有你 | 2024-07-13 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2024 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67183.html)（2026-11-06） |
 | MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 2024-07-20 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2024 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67183.html)（2026-11-06） |
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 2024-07-27 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2024 in Guangzhou（广州）](https://w.atwiki.jp/hmiku/pages/67183.html)（2026-11-06） |
+| MIKU WITH YOU 2025（9644） | 未来有你 | 2025-12-20 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2025（上海）](https://w.atwiki.jp/hmiku/pages/68149.html)（2026-11-06） |
 | MIKU WITH YOU 2026（13120） | 未来有你 | 2026-10-31 | 4 × 24 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html)（2026-11-06） |
 | SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set（3792） | SNOW MIKU | 2015-02-07 | 4 × 27 | vocadb-note | high | [SNOW MIKU LIVE! 2015 公式チケット页](https://snowmiku.com/2015/live_ticket.html)（2026-11-05） |
 | SNOW MIKU LIVE! 2018（1618） | SNOW MIKU | 2018-02-09 | 4 × 26 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2018](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2018)（2026-11-05） |
@@ -157,6 +164,7 @@
 | ミクの日感謝祭39's Giving Day（2520） | Live Party | 2010-03-09 | 1 × 40 | external | medium | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html)（2026-11-06） |
 | 初音ミクライブパーティー 2011 Tokyo（2523） | Live Party | 2011-03-09 | 1 × 39 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2011 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67149.html)（2026-11-06） |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2011-08-16 | 2 × 26 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2011 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67150.html)（2026-11-06） |
+| 初音ミクライブパーティー 2011 Singapore（2527） | Live Party | 2011-11-11 | 1 × 27 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2011 Singapore（新加坡）](https://w.atwiki.jp/hmiku/pages/67151.html)（2026-11-06） |
 | 初音ミクライブパーティー 2012 Tokyo（4056） | Live Party | 2012-03-08 | 1 × 33 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2012 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67152.html)（2026-11-06） |
 | 初音ミクライブパーティー 2012 Hong Kong（2524） | Live Party | 2012-10-02 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2012 Hong Kong（香港）](https://w.atwiki.jp/hmiku/pages/67153.html)（2026-11-06） |
 | 初音ミクライブパーティー 2012 Taiwan（2525） | Live Party | 2012-10-06 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2012 Taiwan（台北）](https://w.atwiki.jp/hmiku/pages/67153.html)（2026-11-06） |
@@ -195,7 +203,7 @@
 | 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 2026-07-05 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
 | 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 2026-10-10 | 1 × 16 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html)（2026-11-06） |
 
-共 173 个演出、174 条来源记录。
+共 181 个演出、182 条来源记录。
 
 ---
 
@@ -311,7 +319,7 @@
 
 ---
 
-## 4b. 曲目逐条来自百科逐曲表的演出（161 个）
+## 4b. 曲目逐条来自百科逐曲表的演出（169 个）
 
 这些演出改用「初音ミク Wiki」的逐曲表：VocaDB 的 songList 要么是几个城市共用的整份表、
 要么根本没有（交响乐全部是专辑 tracklist）。逐曲表按公演替 / 昼夜 / 场次把差别分开，
@@ -319,6 +327,7 @@
 
 | 演出 | 系列 | 场次 × 曲目 | 说明 | 来源 |
 | --- | --- | --- | --- | --- |
+| 初音ミク「マジカルミライ 2013」in YOKOHAMA（2519） | 魔法未来 | 2 × 45 | 歌单来自初音ミク Wiki 的逐曲表（横浜），按场次分 2 份 | [初音ミク Wiki：初音ミク「マジカルミライ 2013」in YOKOHAMA（横浜）](https://w.atwiki.jp/hmiku/pages/67111.html) |
 | 初音ミク「マジカルミライ 2014」in OSAKA（2517） | 魔法未来 | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（大阪），25 行 | [初音ミク Wiki：初音ミク「マジカルミライ 2014」in OSAKA（大阪）](https://w.atwiki.jp/hmiku/pages/67113.html) |
 | 初音ミク「マジカルミライ 2014」in TOKYO（2518） | 魔法未来 | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（东京），25 行 | [初音ミク Wiki：初音ミク「マジカルミライ 2014」in TOKYO（东京）](https://w.atwiki.jp/hmiku/pages/67113.html) |
 | 初音ミク「マジカルミライ 2018」in OSAKA（1561） | 魔法未来 | 4 × 104 | 歌单来自初音ミク Wiki 的逐曲表（大阪），26 行 | [初音ミク Wiki：初音ミク「マジカルミライ 2018」in OSAKA（大阪）](https://w.atwiki.jp/hmiku/pages/67122.html) |
@@ -359,6 +368,7 @@
 | MIKU EXPO 2016 New Taipei City（1941） | MIKU EXPO | 3 × 78 | 歌单来自初音ミク Wiki 的逐曲表（台北），按场次分 3 份 | [初音ミク Wiki：MIKU EXPO 2016 New Taipei City（台北）](https://w.atwiki.jp/hmiku/pages/67135.html) |
 | MIKU EXPO 2016 Shanghai（1943） | MIKU EXPO | 4 × 104 | 歌单来自初音ミク Wiki 的逐曲表（上海），26 行 | [初音ミク Wiki：MIKU EXPO 2016 Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67136.html) |
 | MIKU EXPO 2016 Beijing（1942） | MIKU EXPO | 4 × 104 | 歌单来自初音ミク Wiki 的逐曲表（北京），26 行 | [初音ミク Wiki：MIKU EXPO 2016 Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67136.html) |
+| MIKU EXPO 2017 Kuala Lumpur（1584） | MIKU EXPO | 1 × 27 | 歌单来自初音ミク Wiki 的逐曲表（吉隆坡），27 行 | [初音ミク Wiki：MIKU EXPO 2017 Kuala Lumpur（吉隆坡）](https://w.atwiki.jp/hmiku/pages/67137.html) |
 | MIKU EXPO 2018 Los Angeles（1673） | MIKU EXPO | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（洛杉矶），26 行；百科对这 2 首只标了 ※、没写属于哪些城市，无法归位：「Miku」、「Sharing The World（Spanish ver.）」 | [初音ミク Wiki：MIKU EXPO 2018 Los Angeles（洛杉矶）](https://w.atwiki.jp/hmiku/pages/67060.html) |
 | MIKU EXPO 2018 San Jose（1674） | MIKU EXPO | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（圣何塞），26 行；百科对这 2 首只标了 ※、没写属于哪些城市，无法归位：「Miku」、「Sharing The World（Spanish ver.）」 | [初音ミク Wiki：MIKU EXPO 2018 San Jose（圣何塞）](https://w.atwiki.jp/hmiku/pages/67060.html) |
 | MIKU EXPO 2018 Dallas（1675） | MIKU EXPO | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（达拉斯），26 行；百科对这 2 首只标了 ※、没写属于哪些城市，无法归位：「Miku」、「Sharing The World（Spanish ver.）」 | [初音ミク Wiki：MIKU EXPO 2018 Dallas（达拉斯）](https://w.atwiki.jp/hmiku/pages/67060.html) |
@@ -375,6 +385,9 @@
 | MIKU EXPO 2020 Paris（2787） | MIKU EXPO | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（巴黎），25 行 | [初音ミク Wiki：MIKU EXPO 2020 Paris（巴黎）](https://w.atwiki.jp/hmiku/pages/67140.html) |
 | MIKU EXPO 2020 Berlin（2788） | MIKU EXPO | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（柏林），25 行 | [初音ミク Wiki：MIKU EXPO 2020 Berlin（柏林）](https://w.atwiki.jp/hmiku/pages/67140.html) |
 | MIKU EXPO 2020 Amsterdam（2789） | MIKU EXPO | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（阿姆斯特丹），25 行 | [初音ミク Wiki：MIKU EXPO 2020 Amsterdam（阿姆斯特丹）](https://w.atwiki.jp/hmiku/pages/67140.html) |
+| MIKU EXPO 2021 Online（3224） | MIKU EXPO | 1 × 16 | 歌单来自初音ミク Wiki 的逐曲表（线上），16 行 | [初音ミク Wiki：MIKU EXPO 2021 Online（线上）](https://w.atwiki.jp/hmiku/pages/67074.html) |
+| MIKU EXPO 2022 Rewind（4114） | MIKU EXPO | 1 × 18 | 歌单来自初音ミク Wiki 的逐曲表（线上），18 行 | [初音ミク Wiki：MIKU EXPO 2022 Rewind（线上）](https://w.atwiki.jp/hmiku/pages/67141.html) |
+| MIKU EXPO 2022 Rewind+（4490） | MIKU EXPO | 1 × 28 | 歌单来自初音ミク Wiki 的逐曲表（线上），28 行 | [初音ミク Wiki：MIKU EXPO 2022 Rewind+（线上）](https://w.atwiki.jp/hmiku/pages/67142.html) |
 | MIKU EXPO 2023 VR（5751） | MIKU EXPO | 1 × 14 | 歌单来自初音ミク Wiki 的逐曲表（线上），14 行 | [初音ミク Wiki：MIKU EXPO 2023 VR（线上）](https://w.atwiki.jp/hmiku/pages/67143.html) |
 | MIKU EXPO 2024 Vancouver（6516） | MIKU EXPO | 1 × 24 | 歌单来自初音ミク Wiki 的逐曲表（温哥华），24 行；百科对这 1 首只标了 ※、没写属于哪些城市，无法归位：「Sharing The World（Spanish ver.）」 | [初音ミク Wiki：MIKU EXPO 2024 Vancouver（温哥华）](https://w.atwiki.jp/hmiku/pages/67090.html) |
 | MIKU EXPO 2024 Portland（6517） | MIKU EXPO | 1 × 24 | 歌单来自初音ミク Wiki 的逐曲表（波特兰），24 行；百科对这 1 首只标了 ※、没写属于哪些城市，无法归位：「Sharing The World（Spanish ver.）」 | [初音ミク Wiki：MIKU EXPO 2024 Portland（波特兰）](https://w.atwiki.jp/hmiku/pages/67090.html) |
@@ -427,6 +440,7 @@
 | MIKU EXPO 2026 Boston（9823） | MIKU EXPO | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（波士顿），按场次分 2 份 | [初音ミク Wiki：MIKU EXPO 2026 Boston（波士顿）](https://w.atwiki.jp/hmiku/pages/68848.html) |
 | MIKU EXPO 2026 Hamilton（9824） | MIKU EXPO | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（哈密尔顿），26 行 | [初音ミク Wiki：MIKU EXPO 2026 Hamilton（哈密尔顿）](https://w.atwiki.jp/hmiku/pages/68848.html) |
 | MIKU EXPO 2026 Mexico City（9825） | MIKU EXPO | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（墨西哥城），26 行 | [初音ミク Wiki：MIKU EXPO 2026 Mexico City（墨西哥城）](https://w.atwiki.jp/hmiku/pages/68848.html) |
+| HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（1619） | 未来有你 | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（北京），按场次分 2 份 | [初音ミク Wiki：HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（北京）](https://w.atwiki.jp/hmiku/pages/67160.html) |
 | MIKU WITH YOU 2018 in Beijing（2085） | 未来有你 | 2 × 50 | 歌单来自初音ミク Wiki 的逐曲表（北京），25 行 | [初音ミク Wiki：MIKU WITH YOU 2018 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67175.html) |
 | MIKU WITH YOU 2018 in Chengdu（2086） | 未来有你 | 2 × 50 | 歌单来自初音ミク Wiki 的逐曲表（成都），25 行 | [初音ミク Wiki：MIKU WITH YOU 2018 in Chengdu（成都）](https://w.atwiki.jp/hmiku/pages/67175.html) |
 | MIKU WITH YOU 2018 in Shanghai（2087） | 未来有你 | 4 × 100 | 歌单来自初音ミク Wiki 的逐曲表（上海），25 行 | [初音ミク Wiki：MIKU WITH YOU 2018 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67175.html) |
@@ -439,10 +453,12 @@
 | MIKU WITH YOU 2024 in Shanghai（7673） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67183.html) |
 | MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（北京），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67183.html) |
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（广州），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Guangzhou（广州）](https://w.atwiki.jp/hmiku/pages/67183.html) |
+| MIKU WITH YOU 2025（9644） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2025（上海）](https://w.atwiki.jp/hmiku/pages/68149.html) |
 | MIKU WITH YOU 2026（13120） | 未来有你 | 4 × 96 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html) |
 | ミクの日感謝祭39's Giving Day（2520） | Live Party | 1 × 40 | 歌单来自初音ミク Wiki 的逐曲表（东京），40 行 | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html) |
 | 初音ミクライブパーティー 2011 Tokyo（2523） | Live Party | 1 × 39 | 歌单来自初音ミク Wiki 的逐曲表（东京），39 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67149.html) |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（札幌），26 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67150.html) |
+| 初音ミクライブパーティー 2011 Singapore（2527） | Live Party | 1 × 27 | 歌单来自初音ミク Wiki 的逐曲表（新加坡），27 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Singapore（新加坡）](https://w.atwiki.jp/hmiku/pages/67151.html) |
 | 初音ミクライブパーティー 2012 Tokyo（4056） | Live Party | 1 × 33 | 歌单来自初音ミク Wiki 的逐曲表（东京），33 行 | [初音ミク Wiki：初音ミクライブパーティー 2012 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67152.html) |
 | 初音ミクライブパーティー 2012 Hong Kong（2524） | Live Party | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（香港），25 行 | [初音ミク Wiki：初音ミクライブパーティー 2012 Hong Kong（香港）](https://w.atwiki.jp/hmiku/pages/67153.html) |
 | 初音ミクライブパーティー 2012 Taiwan（2525） | Live Party | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（台北），25 行 | [初音ミク Wiki：初音ミクライブパーティー 2012 Taiwan（台北）](https://w.atwiki.jp/hmiku/pages/67153.html) |

@@ -713,6 +713,255 @@
       ]
     },
     {
+      "performanceId": 1584,
+      "label": "吉隆坡",
+      "source": "https://w.atwiki.jp/hmiku/pages/67137.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "千本桜",
+          "when": ""
+        },
+        {
+          "title": "ラズベリー＊モンスター",
+          "when": ""
+        },
+        {
+          "title": "ゴーストルール",
+          "when": ""
+        },
+        {
+          "title": "ヒビカセ",
+          "when": ""
+        },
+        {
+          "title": "Weekender Girl",
+          "when": ""
+        },
+        {
+          "title": "Glass Wall",
+          "when": ""
+        },
+        {
+          "title": "右肩の蝶",
+          "when": ""
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "ドクター＝ファンクビート",
+          "when": ""
+        },
+        {
+          "title": "忘却心中",
+          "when": ""
+        },
+        {
+          "title": "Chentaku",
+          "when": "",
+          "note": "特別披露※"
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "when": ""
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": ""
+        },
+        {
+          "title": "Venus di Ujung Jari",
+          "when": ""
+        },
+        {
+          "title": "8HIT",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "リモコン",
+          "when": ""
+        },
+        {
+          "title": "いーあるふぁんくらぶ（Chinese ver.）",
+          "when": "",
+          "note": "中国語版※"
+        },
+        {
+          "title": "Just Be Friends",
+          "when": ""
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "when": ""
+        },
+        {
+          "title": "気まぐれメルシィ",
+          "when": ""
+        },
+        {
+          "title": "初音ミクの激唱",
+          "when": ""
+        },
+        {
+          "title": "39",
+          "when": ""
+        },
+        {
+          "title": "メルト",
+          "when": ""
+        },
+        {
+          "title": "Satisfaction",
+          "when": ""
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "歌に形はないけれど",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "performanceId": 1619,
+      "label": "北京",
+      "source": "https://w.atwiki.jp/hmiku/pages/67160.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "ゴーストルール",
+          "when": ""
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "when": ""
+        },
+        {
+          "title": "Strangers",
+          "when": "day"
+        },
+        {
+          "title": "すろぉもぉしょん",
+          "when": "night"
+        },
+        {
+          "title": "恋愛裁判",
+          "when": "day"
+        },
+        {
+          "title": "からくりピエロ",
+          "when": "night"
+        },
+        {
+          "title": "你好",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "脱法ロック",
+          "when": ""
+        },
+        {
+          "title": "メランコリック",
+          "when": ""
+        },
+        {
+          "title": "リモコン",
+          "when": ""
+        },
+        {
+          "title": "ドクター＝ファンクビート",
+          "when": ""
+        },
+        {
+          "title": "忘却心中",
+          "when": ""
+        },
+        {
+          "title": "サイハテ",
+          "when": "day"
+        },
+        {
+          "title": "えれくとりっく・えんじぇぅ",
+          "when": "night"
+        },
+        {
+          "title": "初嵐",
+          "when": "",
+          "note": "初登場"
+        },
+        {
+          "title": "Shining Star",
+          "when": "",
+          "note": "特別披露※"
+        },
+        {
+          "title": "桜ノ雨",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "どりーみんチュチュ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "when": ""
+        },
+        {
+          "title": "気まぐれメルシィ",
+          "when": ""
+        },
+        {
+          "title": "ラズベリー＊モンスター",
+          "when": ""
+        },
+        {
+          "title": "初音ミクの激唱",
+          "when": ""
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "歌に形はないけれど",
+          "when": ""
+        },
+        {
+          "title": "Satisfaction",
+          "when": ""
+        },
+        {
+          "title": "いーあるふぁんくらぶ（Chinese ver.）",
+          "when": "",
+          "note": "中国語版"
+        },
+        {
+          "title": "ハジメテノオト",
+          "when": ""
+        },
+        {
+          "title": "メルト",
+          "when": ""
+        }
+      ]
+    },
+    {
       "performanceId": 1673,
       "label": "洛杉矶",
       "source": "https://w.atwiki.jp/hmiku/pages/67060.html",
@@ -5194,6 +5443,132 @@
       ]
     },
     {
+      "performanceId": 2519,
+      "label": "横浜",
+      "source": "https://w.atwiki.jp/hmiku/pages/67111.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Sweet Devil",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "二次元ドリームフィーバー",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "キャットフード",
+          "when": "",
+          "note": "フルサイズは初"
+        },
+        {
+          "title": "からくりピエロ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ありふれたせかいせいふく",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "どうぶつ占い",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "深海少女",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Hello, Worker",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "erase or zero",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ピアノ×フォルテ×スキャンダル",
+          "when": ""
+        },
+        {
+          "title": "スキキライ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "shake it！",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Weekender Girl",
+          "when": "night",
+          "note": "初披露・夜公演限定※"
+        },
+        {
+          "title": "FREELY TOMORROW",
+          "when": "night",
+          "note": "初披露・夜公演限定※"
+        },
+        {
+          "title": "Last Night, Good Night（Re:Dialed）",
+          "when": "",
+          "note": "Re:Dialedは初"
+        },
+        {
+          "title": "Leia",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "東京テディベア",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "glow",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "39",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "1/6 -out of the gravity-",
+          "when": "night",
+          "note": "夜公演限定※"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        }
+      ]
+    },
+    {
       "performanceId": 2520,
       "label": "东京",
       "source": "https://w.atwiki.jp/hmiku/pages/67147.html",
@@ -5919,6 +6294,124 @@
           "title": "Starduster",
           "when": "",
           "note": "安可，首次披露"
+        }
+      ]
+    },
+    {
+      "performanceId": 2527,
+      "label": "新加坡",
+      "source": "https://w.atwiki.jp/hmiku/pages/67151.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "初めての恋が終わる時",
+          "when": ""
+        },
+        {
+          "title": "ローリンガール",
+          "when": ""
+        },
+        {
+          "title": "二息歩行",
+          "when": ""
+        },
+        {
+          "title": "アルビノ",
+          "when": ""
+        },
+        {
+          "title": "恋色病棟",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "え？あぁ、そう。",
+          "when": ""
+        },
+        {
+          "title": "結ンデ開イテ羅刹ト骸",
+          "when": ""
+        },
+        {
+          "title": "初音ミクの激唱",
+          "when": ""
+        },
+        {
+          "title": "RIP=RELEASE",
+          "when": ""
+        },
+        {
+          "title": "ダブルラリアット",
+          "when": ""
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "when": ""
+        },
+        {
+          "title": "私の時間",
+          "when": ""
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "when": ""
+        },
+        {
+          "title": "＊ハロー、プラネット。",
+          "when": ""
+        },
+        {
+          "title": "こっち向いて Baby",
+          "when": ""
+        },
+        {
+          "title": "Yellow",
+          "when": ""
+        },
+        {
+          "title": "カラフル×メロディ",
+          "when": ""
+        },
+        {
+          "title": "メランコリック",
+          "when": ""
+        },
+        {
+          "title": "ココロ",
+          "when": ""
+        },
+        {
+          "title": "右肩の蝶",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "いろは唄",
+          "when": ""
+        },
+        {
+          "title": "タイムマシン",
+          "when": ""
+        },
+        {
+          "title": "ARiA",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "みくみくにしてあげる♪",
+          "when": ""
+        },
+        {
+          "title": "歌に形はないけれど",
+          "when": ""
+        },
+        {
+          "title": "メルト",
+          "when": ""
         }
       ]
     },
@@ -7750,6 +8243,88 @@
       ]
     },
     {
+      "performanceId": 3224,
+      "label": "线上",
+      "source": "https://w.atwiki.jp/hmiku/pages/67074.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "when": ""
+        },
+        {
+          "title": "Drag the ground",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "無頼ック自己ライザー",
+          "when": "",
+          "note": "初披露・楽曲指定枠※"
+        },
+        {
+          "title": "アングレイデイズ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "幽霊東京",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Thousand Little Voices",
+          "when": "",
+          "note": "楽曲コンテ'21 GP・初披露※"
+        },
+        {
+          "title": "Highway Lover",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "からくりピエロ",
+          "when": ""
+        },
+        {
+          "title": "ロミオとシンデレラ",
+          "when": ""
+        },
+        {
+          "title": "不適切淑女",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Reload Words",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "テオ",
+          "when": ""
+        },
+        {
+          "title": "すきなことだけでいいです",
+          "when": ""
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": "",
+          "note": "EXPO'19 テーマソング※"
+        },
+        {
+          "title": "Highlight",
+          "when": "",
+          "note": "EXPO'21 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
       "performanceId": 3250,
       "label": "线上",
       "source": "https://w.atwiki.jp/hmiku/pages/67178.html",
@@ -9079,6 +9654,96 @@
       ]
     },
     {
+      "performanceId": 4114,
+      "label": "线上",
+      "source": "https://w.atwiki.jp/hmiku/pages/67141.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Sharing The World",
+          "when": "",
+          "note": "EXPO'14 LA&NY テーマソング"
+        },
+        {
+          "title": "Glass Wall",
+          "when": ""
+        },
+        {
+          "title": "Ten Thousand Stars",
+          "when": "",
+          "note": "楽曲コンテ'16 GP"
+        },
+        {
+          "title": "Blue Star",
+          "when": "",
+          "note": "EXPO'16 テーマソング"
+        },
+        {
+          "title": "いーあるふぁんくらぶ（Chinese ver.）",
+          "when": "",
+          "note": "中国語版"
+        },
+        {
+          "title": "Venus di Ujung Jari",
+          "when": ""
+        },
+        {
+          "title": "魔法みたいなミュージック！",
+          "when": "",
+          "note": "EXPO'18 Europe テーマソング"
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": "",
+          "note": "EXPO'19 テーマソング"
+        },
+        {
+          "title": "Decade",
+          "when": "",
+          "note": "EXPO'18 US&Mex テーマソング"
+        },
+        {
+          "title": "Miku",
+          "when": ""
+        },
+        {
+          "title": "無頼ック自己ライザー",
+          "when": ""
+        },
+        {
+          "title": "アングレイデイズ",
+          "when": ""
+        },
+        {
+          "title": "不適切淑女",
+          "when": ""
+        },
+        {
+          "title": "Reload Words",
+          "when": ""
+        },
+        {
+          "title": "Highway Lover",
+          "when": ""
+        },
+        {
+          "title": "Highlight",
+          "when": "",
+          "note": "EXPO'21 テーマソング"
+        },
+        {
+          "title": "Thousand Little Voices",
+          "when": "",
+          "note": "楽曲コンテ'21 GP"
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": "",
+          "note": "EXPO'19 テーマソング"
+        }
+      ]
+    },
+    {
       "performanceId": 4233,
       "label": "大阪",
       "source": "https://w.atwiki.jp/hmiku/pages/66656.html",
@@ -9571,6 +10236,135 @@
           "title": "ハジメテノオト",
           "when": "",
           "note": "東京 夜"
+        }
+      ]
+    },
+    {
+      "performanceId": 4490,
+      "label": "线上",
+      "source": "https://w.atwiki.jp/hmiku/pages/67142.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Sharing The World",
+          "when": "",
+          "note": "EXPO'14 LA&NY テーマソング"
+        },
+        {
+          "title": "Glass Wall",
+          "when": ""
+        },
+        {
+          "title": "ココロ",
+          "when": ""
+        },
+        {
+          "title": "Ten Thousand Stars",
+          "when": "",
+          "note": "楽曲コンテ'16 GP"
+        },
+        {
+          "title": "Blue Star",
+          "when": "",
+          "note": "EXPO'16 テーマソング"
+        },
+        {
+          "title": "ゴーストルール",
+          "when": ""
+        },
+        {
+          "title": "いーあるふぁんくらぶ（Chinese ver.）",
+          "when": "",
+          "note": "中国語版"
+        },
+        {
+          "title": "Venus di Ujung Jari",
+          "when": ""
+        },
+        {
+          "title": "忘却心中",
+          "when": ""
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "when": ""
+        },
+        {
+          "title": "アンノウン・マザーグース",
+          "when": ""
+        },
+        {
+          "title": "ドクター＝ファンクビート",
+          "when": ""
+        },
+        {
+          "title": "ロミオとシンデレラ",
+          "when": ""
+        },
+        {
+          "title": "魔法みたいなミュージック！",
+          "when": "",
+          "note": "EXPO'18 Europe テーマソング"
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "右肩の蝶",
+          "when": ""
+        },
+        {
+          "title": "Cybernetic",
+          "when": ""
+        },
+        {
+          "title": "Miku",
+          "when": ""
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": "",
+          "note": "EXPO'19 テーマソング"
+        },
+        {
+          "title": "Decade",
+          "when": "",
+          "note": "EXPO'18 US&Mex テーマソング"
+        },
+        {
+          "title": "Thousand Little Voices",
+          "when": "",
+          "note": "楽曲コンテ'21 GP"
+        },
+        {
+          "title": "無頼ック自己ライザー",
+          "when": ""
+        },
+        {
+          "title": "アングレイデイズ",
+          "when": ""
+        },
+        {
+          "title": "不適切淑女",
+          "when": ""
+        },
+        {
+          "title": "Reload Words",
+          "when": ""
+        },
+        {
+          "title": "Highway Lover",
+          "when": ""
+        },
+        {
+          "title": "Highlight",
+          "when": "",
+          "note": "EXPO'21 テーマソング"
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
         }
       ]
     },
@@ -17013,6 +17807,128 @@
         },
         {
           "title": "メルト",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "performanceId": 9644,
+      "label": "上海",
+      "source": "https://w.atwiki.jp/hmiku/pages/68149.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Mag1c",
+          "when": "",
+          "note": "WITH YOU'25 テーマソング初披露※※"
+        },
+        {
+          "title": "Baby Maniacs -Eight Mix-",
+          "when": ""
+        },
+        {
+          "title": "梦色星球",
+          "when": "",
+          "note": "WITH YOU'24 テーマソング"
+        },
+        {
+          "title": "COME BACK〜重返巅峰〜",
+          "when": "",
+          "note": "楽曲コンテ'19 GP"
+        },
+        {
+          "title": "ハイパーリアリティショウ",
+          "when": ""
+        },
+        {
+          "title": "リモコン",
+          "when": ""
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "when": ""
+        },
+        {
+          "title": "番凩",
+          "when": ""
+        },
+        {
+          "title": "ドクター＝ファンクビート",
+          "when": ""
+        },
+        {
+          "title": "どりーみんチュチュ",
+          "when": ""
+        },
+        {
+          "title": "跨时空日记",
+          "when": ""
+        },
+        {
+          "title": "快晴",
+          "when": "d1:day"
+        },
+        {
+          "title": "星のカケラ",
+          "when": "d1:night"
+        },
+        {
+          "title": "ウミユリ海底譚",
+          "when": "d2:day"
+        },
+        {
+          "title": "僕が夢を捨てて大人になるまで",
+          "when": "d2:night"
+        },
+        {
+          "title": "踏步, 出发",
+          "when": "",
+          "note": "楽曲コンテ'20 GP"
+        },
+        {
+          "title": "ロミオとシンデレラ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "月西江",
+          "when": "",
+          "note": "※※"
+        },
+        {
+          "title": "Satisfaction",
+          "when": ""
+        },
+        {
+          "title": "39",
+          "when": ""
+        },
+        {
+          "title": "My Stage With You",
+          "when": "",
+          "note": "WITH YOU'21 テーマソング"
+        },
+        {
+          "title": "Pick Me Up",
+          "when": "",
+          "note": "楽曲コンテ'18 GP※"
+        },
+        {
+          "title": "ブループラネット",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "メルト",
+          "when": ""
+        },
+        {
+          "title": "ポケットのモンスター",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Blessing",
           "when": ""
         }
       ]
