@@ -42,7 +42,7 @@ Try the API first, then judge the gap:
 2. **Covered but empty** — `hasSetlist: false`, empty `shows[]`, `latestSnapshot: null`, or another `null` field. Report the gap as a catalogue gap, not as "no such thing", and only then reach for another source if it helps.
 3. **Outside the catalogue's scope** — release dates, labels, lyricists, chart positions, tour announcements, non-Miku artists, personal news. Answer with other tools directly; a catalogue lookup is pointless here.
 4. **A producer's song missing from their page** — the producer pages list only songs this catalogue has recorded in concert setlists, never the producer's full discography. If a known song is absent, say the catalogue never recorded it, not that the producer did not write it, and use outside sources for the rest of their works.
-5. **A setlist line with no count behind it** — some 演出 show a setlist but are excluded from every song and producer count (see "Setlists that are displayed but not counted" below). Do not add the printed lines up yourself to "fix" the number; report the catalogue's number and say that this 演出 is outside it.
+5. **A setlist line that is not a counted song** — a medley row is expanded into its parts, and a classical or instrumental programme item is kept as its own catalogue row with no VOCALOID vocalist credit. Do not add the printed lines up yourself to "fix" a number; report the catalogue's number.
 6. **Needs a different cut of the data** — a chart, a comparison, or a statistic the endpoints do not expose. Compute it yourself from the API response (say so), or use another tool; never invent numbers.
 
 When you mix sources, put the API-sourced numbers first and keep the outside material visibly separate — a one-line note such as 「以下为站外来源」 plus the link is enough. The counting rules in this document still apply to anything taken from this API.
@@ -112,7 +112,7 @@ After the demo, answer follow-up questions normally using the endpoints below.
 | `GET /api/v1/reports/quality.json` | Data-quality report (missing PVs, album fallbacks, doubts) |
 | `GET /api/v1/reports/setlist-differences.json` | Setlist difference report by series year |
 
-Resolve names and ids with `filters.json` or `search` first. Never guess a series id, character name, or producer name. Ids of `900000000` and above are local placeholders for one-off lives that have no VocaDB series (ミクFES, 夏祭初音鑑, GALAXY LIVE, …), so never treat them as VocaDB ids or build one yourself.
+Resolve names and ids with `filters.json` or `search` first. Never guess a series id, character name, or producer name. Ids are this catalogue's own: they follow VocaDB where a matching entry exists, but a local entry can carry a reserved id instead, so never assume an id is valid on VocaDB. Ids of `900000000` and above are local placeholders for one-off lives that have no VocaDB series (ミクFES, 夏祭初音鑑, GALAXY LIVE, …), and songs / 演出 can likewise use a local id when VocaDB has no entry — never build one yourself.
 
 ## 1. `GET /api/v1/search?q=<text>`
 
@@ -282,11 +282,11 @@ Songs whose first recorded appearance was that year. "Debut" here means the firs
 - `items` is already in printed order. Medley rows use `medleyId`, `medleyName`, and `songs` instead of `songId`; list the medley as one item unless the user asks for its parts.
 - `albumFallback` is non-null when the setlist is a Blu-ray/CD/DVD tracklist instead of the event's own list. Use its `notice` text and `albumUrl`, and never present it as an upstream event setlist.
 - `setlist.status`, `resolution`, `pendingReview`, `shows[].uncertain`, and `shows[].reasons` carry the attribution quality. State them when they are not clean.
-- A listed setlist does not guarantee counted songs: see "Setlists that are displayed but not counted". `hasSetlist` is about the page, not about the counts.
+- Every 演出 with a recorded setlist is counted: the catalogue now derives its per-場次 rows from whichever source recorded the list, including 演出 whose only list is a transcribed wiki table with no upstream VocaDB entry. `hasSetlist` and the counts agree.
 
 ## 6. `GET /api/v1/producers.json` and `GET /api/v1/producers/{id}.json`
 
-Producer pages (and these two endpoints) list **only the songs this catalogue has recorded**, i.e. songs credited to that producer that appear in this site's concert setlists, with their merged variants. They are **not** the producer's complete discography: a producer with a long career may show a handful of songs here, and one of their well-known works can be absent because no setlist row — or only an uncounted one — includes it. Say that plainly instead of implying the producer's other songs do not exist, and use outside sources for the full works list.
+Producer pages (and these two endpoints) list **only the songs this catalogue has recorded**, i.e. songs credited to that producer that appear in this site's concert setlists, with their merged variants. They are **not** the producer's complete discography: a producer with a long career may show a handful of songs here, and one of their well-known works can be absent because no recorded setlist includes it. Say that plainly instead of implying the producer's other songs do not exist, and use outside sources for the full works list.
 
 `producers.json` ranks producers by credited songs.
 
@@ -351,7 +351,7 @@ Always say which mode you used. When the user does not specify, use `show`, beca
 
 Exclusions and flags already applied by the API:
 
-- `showCount: 0` means no counted 場次, not "never performed" — for example the only printed appearance may be in an uncounted 演出 (next subsection). Roughly a sixth of the song rows sit at 0, and `songs.json` is not a discography either: it lists songs the catalogue has a setlist row for.
+- `showCount: 0` means no counted 場次, not "never performed" — the song may appear only in medley components or in a 演出 whose list the catalogue never recorded. Roughly a sixth of the song rows sit at 0, and `songs.json` is not a discography either: it lists songs the catalogue has a setlist row for.
 - Broadcasts / livestreams / online / VR shows are excluded from song counts unless `includeBroadcast=1`. `broadcast: true` marks them in series, performance, and flat-index payloads.
 - Medley rows are expanded into their parts rather than counted as one song, and quarantined unsplittable mashups are never counted.
 - Variants are merged only as listed in the song's `variants` array; do not merge songs by title similarity yourself.
@@ -359,14 +359,13 @@ Exclusions and flags already applied by the API:
 - `category` other than `vocaloid` means the catalogue row is classical, traditional, or instrumental repertoire kept so a 場次 shows its full programme. It has no VOCALOID vocalist credit.
 - The API has no view estimates. Use `videos[].latestSnapshot` when it is present, and say "no snapshot" when it is `null`; if the user needs a current number, fetch it elsewhere and label it as an outside source.
 
-### Setlists that are displayed but not counted
+### Every recorded setlist counts
 
-A few 演出 have `hasSetlist: true` and a full `shows[].items` list, yet none of their songs enter `showCount` / `eventCount`, a song's `performances[]`, or a producer's appearance record. They are 演出 with no VocaDB/album song list behind them, only a curated wiki table: recent examples are 初音ミクシンフォニー 2026 (札幌 / 東京 / 横浜), MIKU WITH YOU 2026 in Shanghai, ミクFES '09 and '24, 夏の終わりの39祭り, 夏祭初音鑑, GALAXY LIVE 2020/2021, LAWSON 2026, and ポケモン VOLTAGE Live. About a dozen 演出 are in this state, so 再教育 reports `showCount: 0` although the シンフォニー 2026 setlist prints it.
+The catalogue no longer treats VocaDB as the only source of truth. It records a setlist from whatever source proves it — the upstream VocaDB/album list, an official page, or a transcribed wiki table — and every 演出 with a recorded list enters the song, 演出, series, producer, and city numbers. 初音ミクシンフォニー 2026 (札幌 / 東京 / 横浜), MIKU WITH YOU 2026 in Shanghai, ミクFES '09 and '24, 夏の終わりの39祭り, 夏祭初音鑑, GALAXY LIVE 2020/2021, LAWSON 2026, and ポケモン VOLTAGE Live are counted like any other 演出.
 
-- Their **場次 still count at the 演出 / series / city level**; only the song-level and producer-level numbers skip them.
-- Detect them by contradiction: a song is in `shows[].items`, but its own `songs/{id}.json` `performances[]` does not contain that 演出 id.
-- Report `showCount` as it is and, when it matters, add one clause such as 「按本站统计口径，该演出的曲目未计入次数」. Never sum setlist lines yourself to produce a "corrected" total.
-- This also means a producer's 出场记录 can omit a 演出 they played; say the record covers counted 演出 only.
+- If a song is in a 演出's `shows[].items`, that song's own `songs/{id}.json` `performances[]` contains the 演出, and the producer record credits it.
+- Only 演出 with no recorded list at all stay out of the counts; say the catalogue has no record of that setlist instead of naming a counting rule.
+- Never sum setlist lines yourself to produce a different total from the API.
 
 ## Workflows
 
@@ -376,7 +375,7 @@ A few 演出 have `hasSetlist: true` and a full `shows[].items` list, yet none o
 2. Read `showCount` and `eventCount`. Quote both or state the chosen mode.
 3. For a breakdown, `GET /api/v1/songs/{id}.json` and use `bySeries` / `byYear`.
 4. If `approximate` is true, report it and its reasons.
-5. If the user names a 演出 that appears to have played the song but is missing from `performances[]`, check its `shows[].items`; when it is there, explain that the 演出 is outside the counted set rather than treating the song page as wrong.
+5. If the user names a 演出 that played the song but is missing from `performances[]`, check its `shows[].items`; if the item is there, the two payloads disagree and the catalogue has a bug worth reporting — every recorded list counts now.
 
 **"Which shows did song X play, and was it at every 場次?"**
 
@@ -451,7 +450,7 @@ Every song, 演出, 系列, and producer payload carries a site `url`. When an a
 - [ ] Did not claim a setlist exists when `hasSetlist` is false or `shows` is empty.
 - [ ] Did not count broadcast shows as live appearances unless the user asked for them.
 - [ ] Treated a producer page's songs and counts as songs recorded in concert setlists, not a discography, and said so when the answer could imply completeness.
-- [ ] Did not sum setlist lines to "correct" a `showCount`; reported the API number and noted when a displayed 演出 is outside the counted set.
+- [ ] Did not sum setlist lines to "correct" a `showCount`; reported the API number, which now includes every 演出 with a recorded setlist.
 - [ ] Did not invent view counts, producers, vocalists, cities, or missing songs, including when filling gaps from other tools.
 - [ ] Included the relevant `url` (`/songs/{id}`, `/shows/{id}`, `/series/{id}`, `/producers/{name}`) under a final `参考链接` list, with any outside source listed separately.
 - [ ] Answered the two demo questions when no question was asked, and added the install command only if the skill was not installed locally.

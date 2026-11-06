@@ -277,6 +277,16 @@ id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优�
 - `curated` 目前 **0 行**，但类型与 UI 标签都保留了它；它同时可能出现在「有 source_position」（人工 assign）和「无 source_position」（人工补行）两种形态。
 - `performance_setlists.change = 'curated'` 是**另一个字段**（179 行），含义是「整份被替换过」，不要与行级 `evidence` 混淆。
 
+### 3.8 id 对齐与「不因 VocaDB 回改」
+
+**口径**：VocaDB 与官网、萌娘百科、初音ミク Wiki 同级，是参考源而不是权威（`.cursor/rules/data-sources.mdc`）。
+
+- 已有 VocaDB id 的演出、系列、歌曲照旧使用，便于外部互操作。
+- VocaDB 没有条目时用保留区间：歌曲 `2_000_000_000` 起（`LOCAL_SONG_ID_BASE`）、演出 `3_000_000_000` 起（`LOCAL_PERFORMANCE_ID_BASE`）、系列 `900_000_000` 起。这些行不等 VocaDB 补条目，也不为了换成 VocaDB id 去改已有引用。
+- VocaDB 之后改名、改日期、删掉 event、补上与百科不同的歌单，都不自动改写本项目记录：人工补录与逐曲表写在 `0001` 之后（`INSERT OR IGNORE` / `UPDATE`），`pnpm collect` 重写 `0001` 时仍保留。
+- 两个 id 指向同一对象属于重复项，按 §4.5 / `data/song-variants.json` / `data/setlist-merges.json` 人工裁决并记录，不用「上游有就用上游」自动替换。
+- 复核 `pnpm collect` 的改动时，先对比演出数、场次数与 `pnpm derive:setlists --check`；少了一场就先查是不是 VocaDB 删了 event，而不要跟着删本地数据。
+
 ## 四、采集流程的注意点
 
 ### 4.1 缓存会让上游更新失效

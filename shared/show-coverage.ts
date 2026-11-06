@@ -87,9 +87,10 @@ export const showCoverage = (
   }
 
   for (const performance of catalog.performances) {
-    if (performance.song_list_id === null) continue
     const shows = schedulesOf(performance.id)
     if (shows.length === 0) continue
+    // A 演出 counts when either layer recorded a setlist; the derived layer covers wiki-only 演出.
+    if (!derivedPerformances.has(performance.id) && performance.song_list_id === null) continue
     const covered = coveredByPerformance.get(performance.id) ?? new Set<string>()
     const played = shows.filter((show) => covered.has(show.key))
     result.set(performance.id, {

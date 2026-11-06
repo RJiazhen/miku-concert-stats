@@ -42,7 +42,9 @@ npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g   # 全局安�
 
 ## 数据从哪来
 
-演出、歌单、曲名和投稿链接来自 [VocaDB 公共 API](https://vocadb.net/api/)。转载这些数据库内容时请链回 [VocaDB](https://vocadb.net/)，许可说明见 [VocaDB License](https://wiki.vocadb.net/docs/license)。本站不下载封面、歌词或官方标识。
+演出、歌单、曲名和投稿链接最初来自 [VocaDB 公共 API](https://vocadb.net/api/)，但 VocaDB 只是**和其他百科同级的参考来源**：曲目以官方页与初音ミク Wiki 的逐曲表为准，VocaDB 只补曲名与歌曲 id。转载 VocaDB 的数据库内容时请链回 [VocaDB](https://vocadb.net/)，许可说明见 [VocaDB License](https://wiki.vocadb.net/docs/license)。本站不下载封面、歌词或官方标识。
+
+数据库 id 尽量与 VocaDB 对齐（演出、系列、歌曲）。VocaDB 没有对应条目时用本地保留区间（歌曲 `2_000_000_000` 起、演出 `3_000_000_000` 起、系列 `900_000_000` 起），并且**不会因为 VocaDB 缺这一条或写法不同就删掉、改回已采集的记录**。口径见 `.cursor/rules/data-sources.mdc`。
 
 播放量只来自每周一次的 YouTube Data API `videos.list` 快照，且只有配置了 `YOUTUBE_API_KEY` 才会采集。没有密钥时工作流仍更新目录，并跳过播放量，不会填入估计值。
 

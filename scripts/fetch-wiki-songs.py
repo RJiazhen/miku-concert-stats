@@ -300,13 +300,14 @@ def main() -> None:
     extra = repertoire()
     unresolved: list[str] = []
 
-    # VocaDB keeps growing: a title registered by hand can gain a real entry later. Say so instead
-    # of quietly keeping two rows for one song.
+    # VocaDB keeps growing: a title registered by hand can gain a real entry later. Report it so a
+    # human can decide whether the two rows are the same song; never drop a hand-registered song
+    # just because VocaDB now has one (see `.cursor/rules/data-sources.mdc`).
     for title, entry in extra.items():
         if entry.get("skip"):
             continue
         if norm(title) in known:
-            print(f"NOTE  {title} is now in the catalog; drop it from data/wiki-repertoire.json")
+            print(f"NOTE  {title} now also has a catalog row; merge the ids deliberately, do not drop it just because VocaDB has one")
 
     for title in wanted_titles():
         key = norm(title)

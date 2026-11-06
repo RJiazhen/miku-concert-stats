@@ -50,7 +50,7 @@ description: Reads a concert setlist from a URL, DOM path, CSS selector, or past
 | 初音ミク Wiki（`w.atwiki.jp/hmiku`） | 是 | 逐曲表主力，`confidence: medium` |
 | 官方站（magicalmirai.com、mikuexpo.com、jvcmusic / FlyingDog、KARENT、官方票务页） | 是 | 日程与曲目，`confidence: high` |
 | 萌娘百科、VocaDB Fandom | 是 | 带 CC BY-SA 署名 |
-| VocaDB 公共 API | 是 | 只作曲名 / id 字典，不作曲目来源 |
+| VocaDB 公共 API | 是 | 与其他 wiki 同级：补曲名与歌曲 id，不决定曲目来源；已采集的数据不因它不同而改 |
 | setlist.fm | **否** | 使用条款禁止保留副本（只能短暂缓存），也禁止抓取；只可在线核对 |
 | LiveFans | **否** | `robots.txt` 屏蔽 AI 爬虫（GPTBot / ClaudeBot / GrokBot 等），不要自动抓 |
 | Concert Archives / Discogs / VGMdb / 个人博客 / 视频简介 | 仅核对 | 可以把链接记成来源，但不整表照抄 |

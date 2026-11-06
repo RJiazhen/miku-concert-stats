@@ -150,14 +150,27 @@ export const countedSongIds = (
   return [...ids].sort((left, right) => left - right)
 }
 
-/** Canonical song ids on one performance's setlist. Performances without a list contribute nothing. */
+/**
+ * Canonical song ids on one performance's setlist.
+ * The derived 場次 layer wins whenever it has rows, so a 演出 whose setlist only exists in
+ * this project's own records (no upstream VocaDB list) still contributes its songs.
+ */
 export const songIdsForPerformance = (
   catalog: Catalog,
   performanceId: number,
   variants: SongVariantIndex = emptySongVariantIndex(),
 ): number[] => {
   const performance = catalog.performances.find((row) => row.id === performanceId)
-  if (!performance || performance.song_list_id === null) return []
+  if (!performance) return []
+  const ids = new Set<number>()
+  let derivedRows = 0
+  for (const item of catalog.performanceShowSetlistItems) {
+    if (item.performance_id !== performanceId) continue
+    derivedRows += 1
+    for (const songId of derivedItemSongIds(catalog, item)) ids.add(variants.canonicalSongId(songId))
+  }
+  if (derivedRows > 0) return [...ids].sort((left, right) => left - right)
+  if (performance.song_list_id === null) return []
   return countedSongIds(catalog, [performance.song_list_id], variants)
 }
 
@@ -208,6 +221,8 @@ const groupLabel = (catalog: Catalog, grouping: CompareGrouping, key: string): s
 /**
  * Unique counted songs per series, series year, or performance calendar year.
  * Series-year groups use series_number (内部仍叫 edition). Year groups use the performance start_date year.
+ * A 演出 contributes through the derived 場次 layer when it has one, so a setlist recorded only
+ * in this project counts the same as an upstream VocaDB list.
  */
 export const compareBy = (
   catalog: Catalog,
@@ -215,6 +230,12 @@ export const compareBy = (
   grouping: CompareGrouping,
   variants: SongVariantIndex = emptySongVariantIndex(),
 ): CompareRow[] => {
+  const derivedByPerformance = new Map<number, number[]>()
+  for (const item of catalog.performanceShowSetlistItems) {
+    const bucket = derivedByPerformance.get(item.performance_id) ?? []
+    for (const songId of derivedItemSongIds(catalog, item)) bucket.push(songId)
+    derivedByPerformance.set(item.performance_id, bucket)
+  }
   const buckets = new Map<string, Set<number>>()
   for (const performance of catalog.performances) {
     let key: string | null = null
@@ -223,10 +244,15 @@ export const compareBy = (
       if (performance.series_number === null) continue
       key = `${performance.series_id}:${performance.series_number}`
     } else if (performance.start_date) key = performance.start_date.slice(0, 4)
-    if (key === null || performance.song_list_id === null) continue
+    if (key === null) continue
     const songs = buckets.get(key) ?? new Set<number>()
-    for (const songId of countedSongIds(catalog, [performance.song_list_id], variants)) songs.add(songId)
-    buckets.set(key, songs)
+    const derived = derivedByPerformance.get(performance.id)
+    if (derived !== undefined) {
+      for (const songId of derived) songs.add(variants.canonicalSongId(songId))
+    } else if (performance.song_list_id !== null) {
+      for (const songId of countedSongIds(catalog, [performance.song_list_id], variants)) songs.add(songId)
+    }
+    if (songs.size > 0) buckets.set(key, songs)
   }
   const rows: CompareRow[] = []
   for (const [key, songIds] of buckets) {
@@ -354,13 +380,15 @@ export const performanceYear = (startDate: string | null): number | null => {
 /**
  * Whether a performance can contribute to the ranking.
  * An empty series id list means every known series. A year bound drops performances with no start date.
+ * A 演出 needs a setlist recorded somewhere — upstream or in this project's derived layer — but that
+ * check happens where the rows are read, so a wiki-only 演出 is not dropped here.
  */
 const performanceIncluded = (
   performance: PerformanceRow,
   options: RankingOptions,
   knownSeries: ReadonlySet<number>,
 ): boolean => {
-  if (!knownSeries.has(performance.series_id) || performance.song_list_id === null) return false
+  if (!knownSeries.has(performance.series_id)) return false
   const seriesIds = options.seriesIds
   if (seriesIds && seriesIds.length > 0 && !seriesIds.includes(performance.series_id)) return false
   const yearFrom = options.yearFrom ?? null
@@ -397,6 +425,10 @@ type RankingBucket = {
  * A setlist line is attributed to the 场次 of one 演出 with `showsForNotes`: a note naming a day
  * or half narrows the line, otherwise the line counts for every 场次 of that run. Undated
  * performances have no 场次 and therefore contribute nothing in `show` mode.
+ *
+ * The derived 場次 layer is read first, so a 演出 whose setlist is recorded only in this project
+ * (a wiki table with no upstream VocaDB list) counts exactly like one with an upstream list.
+ * Only a 演出 without derived rows falls back to the source list and `showsForNotes`.
  *
  * Direct lines use role `listed`. Role `component` is included only when `includeMedleyComponents` is true.
  */
@@ -446,8 +478,6 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
 
   for (const performance of catalog.performances) {
     if (!performanceIncluded(performance, options, knownSeries)) continue
-    const listId = performance.song_list_id
-    if (listId === null) continue
     const year = performanceYear(performance.start_date)
     const shows = schedules.get(performance.id) ?? []
     const derived = derivedByPerformance.get(performance.id)
@@ -462,6 +492,9 @@ export const rankSongAppearances = (catalog: Catalog, options: RankingOptions = 
       }
       continue
     }
+    // Without derived rows the source layer is the only record; a 演出 with neither contributes nothing.
+    const listId = performance.song_list_id
+    if (listId === null) continue
     for (const link of catalog.setlistItemSongs) {
       if (link.song_list_id !== listId || !itemKeys.has(`${link.song_list_id}:${link.position}`)) continue
       if (link.role !== 'listed' && options.includeMedleyComponents !== true) continue

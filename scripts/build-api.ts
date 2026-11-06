@@ -181,8 +181,9 @@ const buildAppearances = (
   const appearances: SongAppearances = new Map()
   for (const performance of catalog.performances) {
     if (!knownSeries.has(performance.series_id)) continue
-    if (performance.song_list_id === null) continue
     if (options.includeBroadcast !== true && isBroadcastAppearance(performance)) continue
+    // The derived 場次 layer is the primary record, so a 演出 whose setlist only exists in this
+    // project (wiki table, no upstream VocaDB song list) contributes its songs too.
     const items = itemsByPerformance.get(performance.id) ?? []
     for (const item of items) {
       const show = showByKey.get(item.show_key)

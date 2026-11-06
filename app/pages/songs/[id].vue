@@ -13,6 +13,7 @@ import { displayArtistString } from '~~/shared/credit.ts'
 import { producerNamesFor } from '~~/shared/producer-options.ts'
 import { producerPath } from '~~/shared/producers.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
+import { derivedItemSongIds } from '~~/shared/performance-setlists.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
 import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
@@ -176,7 +177,8 @@ const appearances = computed(() => {
   // the derived 場次 layer is the only place its 出场记录 can come from.
   const covered = new Set(rows.map((row) => row.performanceId))
   for (const item of catalog.value.performanceShowSetlistItems) {
-    if (item.song_id === null || !ids.has(item.song_id)) continue
+    const matched = derivedItemSongIds(catalog.value, item).find((songId) => ids.has(songId))
+    if (matched === undefined) continue
     if (covered.has(item.performance_id)) continue
     const performance = catalog.value.performances.find((row) => row.id === item.performance_id)
     if (!performance) continue
@@ -184,9 +186,9 @@ const appearances = computed(() => {
     const series = catalog.value.series.find((row) => row.id === performance.series_id)
     const seriesName = series?.name ?? String(performance.series_id)
     const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, [])
-    const noteParts = appearanceNoteParts(versionNoteOf(item.song_id), coverage)
+    const noteParts = appearanceNoteParts(versionNoteOf(matched), coverage)
     rows.push({
-      key: `${performance.id}:${item.song_id}:${item.show_key}`,
+      key: `${performance.id}:${matched}:${item.show_key}`,
       seriesId: performance.series_id,
       seriesName,
       seriesLabel: localizeSeries(seriesName),

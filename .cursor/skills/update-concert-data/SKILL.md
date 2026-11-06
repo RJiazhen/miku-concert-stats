@@ -22,7 +22,10 @@ disable-model-invocation: true
 - 同一份 VocaDB songList 常被十几个演出共用，且没有分场备注 —— 这正是要换成百科逐曲表的原因。
 - 百科逐曲表在「区分」列标出差异：`公演替`（城市 / 日程）、`備考`（首日·次日、昼·夜）。
   没标的行 = 该表所有演出都唱。
-- VocaDB 只是个曲名与歌曲 id 的字典；**曲目本身不再以它为准**。
+- VocaDB 和这些 wiki 是**同级参考源**，不是权威：只在需要曲名或歌曲 id 时查它。
+  已采集的数据不因为 VocaDB 缺条目、改名、改日期或后来补了歌单而删除或回改；
+  id 尽量对齐 VocaDB，对不上就用保留区间。完整口径见
+  [`.cursor/rules/data-sources.mdc`](../../rules/data-sources.mdc)。
 
 ## 1. 数据放在哪
 
@@ -237,8 +240,10 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
 … 0 pending review, 0 conflicts
 ```
 
-`fetch-wiki-songs.py` 会在某个手工登记的曲名后来出现在 catalog 里时打印 `NOTE … is now in the catalog`，
-看到就把它从 `data/wiki-repertoire.json` 删掉，避免同一首歌两条记录。
+`fetch-wiki-songs.py` 会在某个手工登记的曲名后来出现在 catalog 里时打印 `NOTE … now also has a catalog row`。
+不要因为它出现就删掉手工条目：先判断两边是不是同一首歌，是的话一次性把引用改到同一个 id
+（`0008` 派生层与 `0009` / `0010` 一起改），不是同一首就两条都留，并在
+`data/wiki-repertoire.json` 的 `note` 里写清区别。见 `.cursor/rules/data-sources.mdc`。
 
 每个演出都必须至少有一条来源（`performance_setlist_sources`）。下面的查询有结果就是漏登记：
 

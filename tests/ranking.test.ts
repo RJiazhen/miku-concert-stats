@@ -224,6 +224,42 @@ describe('song appearance ranking', () => {
     expect(rankSongAppearances(rows, { mode: 'event' }).every((row) => row.count === 1)).toBe(true)
   })
 
+  it('counts a 演出 whose setlist exists only in the derived layer', () => {
+    // シンフォニー 2026 and MIKU WITH YOU 2026 上海 have no upstream VocaDB song list; the only
+    // record is this project's wiki-sourced 場次 rows. They count like any other 演出.
+    const rows = catalog()
+    rows.songs = [song(1, 'Symphony', 'a')]
+    rows.performances = [
+      performance({ id: 1, series_id: 256, song_list_id: null, start_date: '2026-06-20' }),
+    ]
+    rows.performanceShowSetlistItems = [
+      {
+        performance_id: 1,
+        show_key: '1:2026-06-20',
+        position: 1,
+        source_position: null,
+        song_id: 1,
+        medley_id: null,
+        evidence: 'wiki',
+        notes: null,
+      },
+    ]
+    rows.performanceShowSetlists = [
+      {
+        performance_id: 1,
+        show_key: '1:2026-06-20',
+        date: '2026-06-20',
+        half: null,
+        item_count: 1,
+        omitted_count: 0,
+        uncertain: 0,
+        reasons: '[]',
+      },
+    ]
+    expect(rankSongAppearances(rows, { mode: 'event' })).toMatchObject([{ songId: 1, count: 1, performanceCount: 1 }])
+    expect(rankSongAppearances(rows, { mode: 'show' })).toMatchObject([{ songId: 1, count: 1 }])
+  })
+
   it('attributes lines to the 场次 the parser narrows to', () => {
     const rows = catalog()
     rows.songs = [song(1, 'Shared', 'a'), song(2, 'Tokyo only', 'b'), song(3, 'Saihate', 'Onyx')]

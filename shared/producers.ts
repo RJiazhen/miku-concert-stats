@@ -215,9 +215,8 @@ const songAppearances = (catalog: Catalog, options: ProducerIndexOptions): Map<n
   for (const [performanceId, items] of derived) {
     const performance = performanceById.get(performanceId)
     if (performance === undefined) continue
-    // The song ranking only counts 演出 with an upstream song list, so a wiki-only 演出
-    // contributes nothing there; keeping the same rule makes the two counts comparable.
-    if (performance.song_list_id === null) continue
+    // The derived 場次 layer records every setlist this project tracks, including 演出 whose
+    // list only exists here (a wiki table with no upstream VocaDB list), so both count.
     if (options.includeBroadcast !== true && isBroadcastAppearance(performance)) continue
     for (const item of items) {
       for (const songId of derivedItemSongIds(catalog, item)) addAppearance(appearances, songId, item.show_key, performanceId)

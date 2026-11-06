@@ -231,7 +231,7 @@ describe('producer index', () => {
       producerPerformance({ id: 1, series_id: 1, song_list_id: 100, start_date: '2020-01-01' }),
       producerPerformance({ id: 2, series_id: 1, song_list_id: 101, start_date: '2022-02-02' }),
       producerPerformance({ id: 3, series_id: 1, song_list_id: 102, start_date: '2023-03-03', role: 'broadcast' }),
-      // A wiki-only 演出 has no upstream song list and is left out like the song ranking does.
+      // A wiki-only 演出 has no upstream song list but its derived rows are a recorded setlist.
       producerPerformance({ id: 4, series_id: 1, song_list_id: null, start_date: '2024-04-04' }),
     ]
     rows.performanceShowSetlistItems = [
@@ -249,11 +249,11 @@ describe('producer index', () => {
       artistId: 89,
       songCount: 3,
       performedSongCount: 3,
-      appearanceCount: 4,
-      performanceCount: 2,
-      showCount: 2,
+      appearanceCount: 5,
+      performanceCount: 3,
+      showCount: 3,
       firstYear: 2020,
-      lastYear: 2022,
+      lastYear: 2024,
     })
     expect(kz?.roles).toEqual({ producer: 2, composer: 1, arranger: 1, voicemanipulator: 0 })
     expect(kz?.topSongIds).toEqual([1, 2, 3])

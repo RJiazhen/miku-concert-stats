@@ -44,7 +44,7 @@
 
 **SQL 增量文件是源，SQLite 是构建产物。** 规范要求把可审查的 SQL 提交到 Git。浏览器用 sql.js 只读打开构建出的 `catalog.sqlite`，再在本地用同一套 TypeScript 聚合。聚合不写第二套 SQL，避免 wasm SQL 与测试 SQL 漂移。代价是浏览器要下载整库；以当前六系列的规模（约两百场）可以接受。服务端不跑 better-sqlite3，原生模块进不了 Workers。Cloudflare 不压缩 sqlite 类型，所以构建同时写出 `catalog.sqlite.gz`，浏览器下载后自己解压。
 
-**目录以 VocaDB 公共 REST API 为准。** `https://vocadb.net/api/`，JSON，自定义 User-Agent，请求间隔 ≥ 300ms，并缓存原始响应。数据库内容按 [VocaDB License](https://wiki.vocadb.net/docs/license) 为 CC BY，页面给出返回链接。官方站点（如 magicalmirai.com）只作为演出上已有的 web link 保存，不另爬 HTML。代价是开演钟点多数缺失，日期精度停在「日」。
+**VocaDB 是同级参考源，不是标准。** `https://vocadb.net/api/`，JSON，自定义 User-Agent，请求间隔 ≥ 300ms，并缓存原始响应。数据库内容按 [VocaDB License](https://wiki.vocadb.net/docs/license) 为 CC BY，页面给出返回链接。取数顺序是「官网 → 萌娘百科 → 初音ミク Wiki → VocaDB」；`performances.id` / `series.id` / `songs.id` 尽量沿用 VocaDB 的 id，VocaDB 没有条目时用本地保留区间，VocaDB 与本项目不一致时保留已采集的数据，不改上游也不回改自己。只要本项目记录了某个演出的歌单，该演出就进入统计，不再要求上游歌单存在。代价是开演钟点多数缺失，日期精度停在「日」。
 
 **YouTube Data API v3 `videos.list`（`part=statistics`，每次最多 50 个 id）仅在密钥存在时调用。** 这是历史曲线的采样起点；每周工作流追加快照。密钥缺失时工作流仍更新目录，并在日志中说明跳过播放量。
 
@@ -149,13 +149,15 @@ flowchart LR
 
 ## 歌曲出现次数排行
 
-在播放量区间之外，首页按歌曲统计「出现过多少次」。聚合仍是 `shared/stats.ts` 里的纯函数，读已加载的目录行（`setlist_item_songs`、`setlist_items`、`songs`、`performances`、`series`），不另写 SQL。
+在播放量区间之外，首页按歌曲统计「出现过多少次」。聚合仍是 `shared/stats.ts` 里的纯函数，读已加载的目录行（场次层 `performance_show_setlist_items` 优先，没有展开行时回退 `setlist_item_songs` / `setlist_items`，以及 `songs`、`performances`、`series`），不另写 SQL。
+
+计数不以上游 VocaDB 为准：只要本项目记录了某个演出的歌单（上游歌单、专辑补位，或只有百科逐曲表、`song_list_id` 为空的演出），该演出的曲目就进入排行、单曲出场记录与制作人统计。
 
 三级单位与 VocaDB 对齐：系列（`series`）> 演出（一条 `performances` 行 = 一个 VocaDB release event = 一个城市站）> 场次（一天，或同一天日场 / 夜场各一场）。
 
 两种计数：
 
-- `show`（按场次，默认）：按 `shared/event-schedule.ts` 推导的场次计数。三日巡演计 3；同日日场 + 夜场计 2；没有日期的演出没有场次。备注写了天 / 半天 / 场次号时只计对应场次，否则一行计入该演出的全部场次。解析不了的场次仍给出约数，并标不确定。
+- `show`（按场次，默认）：读场次层 `performance_show_setlist_items`，按 `show_key` 去重。三日巡演计 3；同日日场 + 夜场计 2；没有日期的演出没有场次。没有展开行的旧目录回退到 `event-schedule.ts` 推导与歌单备注解析（备注写了天 / 半天 / 场次号时只计对应场次，否则一行计入该演出的全部场次）；解析不了的场次仍给出约数，并标不确定。
 - `event`（按演出）：每条 `performances` 行最多计 1。同一年大阪与东京各计一次，不再按 `series_id` + `series_number` 合并。
 
 筛选：
@@ -213,9 +215,9 @@ flowchart LR
 
 `shared/credit.ts` 负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都会丢掉 VocaDB 的名字占位（`Unknown producer(s)`、`Unknown artist` 等，不指向任何作者），只由占位组成的署名返回 `null`，页面显示「未记录」。页头、站内搜索结果与 `/raw` 的歌曲表都走这两个函数；单曲页的「其他版本」卡片按下面的制作人规则取值。排行的「制作人」列先取结构化的 `song_producers` 名单，只有该行（含合并的版本组）没有任何结构化署名时才退回 `producerCredit`；Publisher、Illustrator、厂牌 / 社团等署名不是制作人，`VoiceManipulator`（調声 / 調音）保留。
 
-制作人署名以歌曲条目为准：`song_producers`（VocaDB `fields=Artists` 里的制作侧署名）是权威名单，`artist_string` 只在歌曲条目没有任何制作人记录时作为回退；两者冲突时显示仍用结构化名单，并把差异写进由 `pnpm report:producers` 生成的 `docs/reports/producer-conflicts.md`，维护者确认后才改。
+制作人署名以证据强度排序：官方专辑 / 官方页的署名优先，其次是 VocaDB `fields=Artists` 里的制作侧署名 `song_producers`，`artist_string` 只在歌曲条目没有任何制作人记录时作为回退。VocaDB 的结构化名单与别的来源冲突时不自动采用任一方：显示仍用结构化名单，差异写进由 `pnpm report:producers` 生成的 `docs/reports/producer-conflicts.md`，维护者确认后才改。
 
-制作人页（`/producers` 与 `/producers/{name}`）沿用同一份名单，不再另写一套规则。曲目数是不同歌曲 id 数，变体版本分别计数、不合并版本组；「演出曲目」与「表演次数」读场次层，旧目录回退到源歌单备注解析，串烧展开为组成曲；演出数是不同 `performances` 行数，场次按 `show_key` 去重；配信、线上与 VR 演出默认剔除，`song_list_id` 为空的百科演出与排行一样不计入出场统计，这样「演出曲目」和「表演次数」与首页同一制作人筛选后的行数、次数合计一致。自由文本署名没有 `artist_id` 时只显示名字，不编造 VocaDB 链接；没有出场记录的制作人仍然列出。页面用曲目数降序作为默认排序，页眉主导航、首页「制作人」列、单曲页「其他版本」和页眉搜索都链到 `/producers/{name}`。因为自由文本回退与排行完全一致，`DECO*27`、`kz` 这类同时出现在没有结构化署名的歌里的名字，曲目数会高于 `song_producers` 的单表 SQL，这是预期行为。
+制作人页（`/producers` 与 `/producers/{name}`）沿用同一份名单，不再另写一套规则。曲目数是不同歌曲 id 数，变体版本分别计数、不合并版本组；「演出曲目」与「表演次数」读场次层，旧目录回退到源歌单备注解析，串烧展开为组成曲；演出数是不同 `performances` 行数，场次按 `show_key` 去重；配信、线上与 VR 演出默认剔除。场次层里有歌单的演出都计入，包括 `song_list_id` 为空、歌单只来自百科逐曲表的演出，这样「演出曲目」和「表演次数」与首页同一制作人筛选后的行数、次数合计一致。自由文本署名没有 `artist_id` 时只显示名字，不编造 VocaDB 链接；没有出场记录的制作人仍然列出。页面用曲目数降序作为默认排序，页眉主导航、首页「制作人」列、单曲页「其他版本」和页眉搜索都链到 `/producers/{name}`。因为自由文本回退与排行完全一致，`DECO*27`、`kz` 这类同时出现在没有结构化署名的歌里的名字，曲目数会高于 `song_producers` 的单表 SQL，这是预期行为。
 
 ## 实现步骤
 
