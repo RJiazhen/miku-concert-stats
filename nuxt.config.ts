@@ -23,6 +23,12 @@ export default defineNuxtConfig({
   // Cloudflare does not compress the sqlite content type, so ship a gzip copy
   // and cache both files by their own content hash or default validators.
   routeRules: {
+    // The generated read-only JSON API changes with each deploy, not within one.
+    '/api/v1/**': {
+      headers: {
+        'cache-control': 'public, max-age=300',
+      },
+    },
     '/data/catalog.sqlite.gz': {
       headers: {
         'content-type': 'application/gzip',
@@ -51,7 +57,11 @@ export default defineNuxtConfig({
     // Serve the repository's agent skill as plain text from `/skill.md`.
     // Bundling it as a server asset keeps `skills/query-concert-stats/SKILL.md`
     // the only copy and works on Cloudflare Workers (no runtime filesystem).
-    serverAssets: [{ baseName: 'skill', dir: resolve(process.cwd(), 'skills') }],
+    serverAssets: [
+      { baseName: 'skill', dir: resolve(process.cwd(), 'skills') },
+      // Compact song counts for the search and ranking routes, generated before build.
+      { baseName: 'api', dir: resolve(process.cwd(), 'server', 'assets', 'api') },
+    ],
   },
   // Follow the operating system until the visitor picks a theme.
   colorMode: {

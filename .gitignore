@@ -8,6 +8,8 @@ data/cache
 public/data/catalog.sqlite
 public/data/catalog.sqlite.gz
 public/sql-wasm.wasm
+public/api
+server/assets/api
 *.log
 .env
 .env.*

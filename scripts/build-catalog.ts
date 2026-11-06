@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { gzipSync } from 'node:zlib'
 import Database from 'better-sqlite3'
 import { fileURLToPath } from 'node:url'
+import { buildApiFiles } from './build-api.ts'
 
 const require = createRequire(import.meta.url)
 
@@ -75,4 +76,5 @@ if (isDirectRun) {
   }
   console.log(`Wrote ${target}`)
   console.log(`Wrote ${compressed}`)
+  buildApiFiles()
 }
