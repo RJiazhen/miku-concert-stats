@@ -208,7 +208,7 @@ SELECT performance_id, GROUP_CONCAT(show_key, ' ') FROM performance_show_setlist
 
 **影响**：这些曲目挂在冷门条目上，排行与「合并版本」的归属可能让读者困惑；质量报告会把它们列为疑似重复。
 
-**建议**：在 `data/song-variants.json` 里人工合并到熟悉的条目，逐条核对。这是人工判定，不要写通用规则去猜。
+**建议**：在 `data/song-variants.json` 里人工合并到熟悉的条目，逐条核对。这是人工判定，不要写通用规则去猜。跟踪：<https://github.com/RJiazhen/miku-concert-stats/issues/23>。
 
 ### 3.4 过渡性增量 SQL
 
@@ -305,7 +305,7 @@ SELECT performance_id, GROUP_CONCAT(show_key, ' ') FROM performance_show_setlist
 | 已完成 | 4.2 取消场次标注 | `performance_status` 表，13 条 `cancelled` |
 | 已完成 | 曲目改由百科逐曲表提供（3.5） | 169 / 181 个演出；地区差异不再靠备注 |
 | 已完成 | 非 VOCALOID 曲目登记（3.6） | 20 条，演出页曲目不再缺行 |
-| 中 | 3.3 版本链根节点人工合并 | 影响单曲归属与读者理解 |
+| 中 | 3.3 版本链根节点人工合并（[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)） | 影响单曲归属与读者理解；已独立建 issue |
 | 中 | 3.5 的原始表格回溯 | 52 个被引用的 atwiki 页没有留档，只留了 URL 与逐行曲目 |
 | 低 | 1.1 交响乐剩余 3 场歌单 | 演出尚未发生，等百科更新 |
 | 低 | 4.4 39 感谢祭独立成系列 | 需要新建系列并改标题，收益有限 |
