@@ -28,6 +28,11 @@ const seriesView = computed(() =>
   series.value ? seriesTitle(series.value.name) : { primary: `系列 ${seriesId.value}`, originalNote: null },
 )
 
+/** Source button label: a local series points at its own site, not at a VocaDB series page. */
+const seriesSourceLabel = computed(() =>
+  (series.value?.source_url ?? '').startsWith('https://vocadb.net/') ? 'VocaDB 系列' : '系列来源',
+)
+
 /** 演出 name with its series label and place in the site language. */
 const performanceLabel = (performance: PerformanceRow): string => {
   return localizePlace(localizePerformanceSeries(performance.name, series.value?.name ?? '', performance.series_number))
@@ -99,7 +104,7 @@ const yearRange = computed(() => {
             全部系列
           </UButton>
           <UButton :to="series.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            VocaDB 系列
+            {{ seriesSourceLabel }}
           </UButton>
         </div>
       </header>

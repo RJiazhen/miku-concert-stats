@@ -73,6 +73,14 @@ COMPOSERS = {
     "嗚呼、素晴らしきニャン生": "Nem", "Snow Song Show": "sasakure.UK",
     "Crazy ∞ nighT": "ひとしずく", "Twilight ∞ nighT": "ひとしずく", "EveR ∞ LastinG ∞ NighT": "ひとしずく",
     "ちがう!!!": "カルロス袴田", "吉原ラメント": "亜沙", "Ievan Polkka": "Otomania",
+    # デコミク LIVE『Hello』(9401) 的 DECO*27 曲目：同名翻唱很多，必须用作曲者把原创挑出来。
+    "Reunion": "DECO*27", "アンドロイドガール": "DECO*27", "キメラ": "DECO*27",
+    "サラマンダー": "DECO*27", "ラビットホール (Reloaded)": "DECO*27", "おじゃま虫": "DECO*27",
+    "チェリーポップ": "DECO*27", "妄想感傷代償連盟": "DECO*27",
+    "弱虫モンブラン (Reloaded)": "DECO*27", "モザイクロール (Reloaded)": "DECO*27",
+    "愛迷エレジー (Reloaded)": "DECO*27", "シンデレラ": "DECO*27", "アニマル": "DECO*27",
+    "モニタリング": "DECO*27", "妄想税": "DECO*27", "マシュマロ": "DECO*27",
+    "テレパシ": "DECO*27", "ハートアラモード": "DECO*27", "ハオ": "DECO*27",
 }
 
 

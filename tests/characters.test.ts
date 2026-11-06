@@ -67,7 +67,8 @@ describe('character names', () => {
       for (const song of catalog.songs) {
         for (const name of assignCharacters(rules, { artistString: song.artist_string }).unmatched) unmatched.add(name)
       }
-      expect([...unmatched].sort()).toEqual(['Mes', 'various'])
+      // しぐれうい is a human guest vocalist on DECO*27's チェリーポップ, not a synth character.
+      expect([...unmatched].sort()).toEqual(['Mes', 'various', 'しぐれうい'])
       const dark = catalog.songs.find((song) => song.artist_string?.includes('初音ミク Append (Dark)'))
       expect(assignCharacters(rules, { artistString: dark?.artist_string }).characters).toContain('初音ミク')
     } finally {

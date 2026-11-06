@@ -84,7 +84,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `performances.<id>` 的 `dayNight` / `singleShowDates` / `halves` 也接受字符串 `all`，表示按演出的日期区间展开，用于「该城每天都有一场」或「每天昼夜各一场」这类整段结论。
 
-**百科逐曲表是外包数据的主力。** 181 个演出里有 169 个的曲目逐条来自「初音ミク Wiki」（atwiki）的逐曲表；其余 12 个仍用 VocaDB 歌单，配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`，逐曲表行的 `songs.source_url` 指向印有该曲名的那一页。数据分三处：
+**百科逐曲表是外包数据的主力。** 182 个演出里有 170 个的曲目逐条来自「初音ミク Wiki」（atwiki）的逐曲表；其余 12 个仍用 VocaDB 歌单，配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`，逐曲表行的 `songs.source_url` 指向印有该曲名的那一页。数据分三处：
 
 - `data/wiki-raw/<key>.json`：页面表格的原始单元格（含表头），由浏览器抓取时原样落盘，便于复核。atwiki 页面用 `page` 记页号，其他站点用 `url` 记完整来源；两种都能进同一套逐行解析。
 - `scripts/wiki_raw_spec.py`：声明每张表的公演替标记选中哪些演出，标记可写成 `6516`、`6516#2`（第 2 个日期）、`*#1:day`（任意演出的第 1 个日期日场）等；没有 `公演替` 列、昼夜写在 `備考` 的表用 `noteMarkers`。
@@ -164,7 +164,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `resolution` 取值 `vocadb-note`（备注到日期/半场）、`vocadb-shared`（整份无备注，含专辑补位）、`external`（外部来源定位）、`unresolved`（都没有）。`pending_review` 只在归属真的悬空时为 1：没有来源定位到这一场（`unresolved`）或来源之间互相矛盾（`conflict`）。`conflict` 表示与 VocaDB 或 `docs/data-issues.md` 的既有结论不一致且未裁决。
 - `catalogDayNight` / `catalogSchedules` / `derivedItemSongIds` / `showSongIds` 供页面与统计共用，避免各自再解析一遍。
 - `showCountsByPerformance` 给索引页（`/series`、`/series/{id}`、`/cities`）算每个演出的场次数：派生层有行就用派生层（含人工核实的昼夜拆分与剔除的展览日），没有就回退 `performanceSchedules`。`/shows` 与索引页因此在同一场演出上给出同一个数字。
-- `setlistPerformanceIds` 判断一个演出「有没有歌单」：VocaDB 的 `song_list_id` 或派生层任一条。只有 `song_list_id` 会把 169 个百科来源的演出错报成「无歌单」。
+- `setlistPerformanceIds` 判断一个演出「有没有歌单」：VocaDB 的 `song_list_id` 或派生层任一条。只有 `song_list_id` 会把 170 个百科来源的演出错报成「无歌单」。
 
 `shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正，以及 F 数据来源记录（已采用，不需要确认）。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
 

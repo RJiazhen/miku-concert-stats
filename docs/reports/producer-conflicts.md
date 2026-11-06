@@ -17,12 +17,12 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
 | 分类 | 歌曲数 | 含义 |
 | --- | --- | --- |
 | 双方各有对方没有的制作人 | 4 | 两边都有自己的名字，任何一边都不是另一边的子集 |
-| 自由文本多出制作人 | 67 | 自由文本给出结构化名单没有的名字（Publisher、社团、厂牌等常落在这里） |
+| 自由文本多出制作人 | 86 | 自由文本给出结构化名单没有的名字（Publisher、社团、厂牌等常落在这里） |
 | 结构化多出制作人 | 1 | 结构化名单比自由文本多出名字，自由文本只覆盖了一部分 |
 | 只有结构化署名 | 0 | 歌曲条目有结构化署名，自由文本没有给出任何制作人 |
 | 两边一致 | 408 | 两边解析出的名字集合相同 |
 
-另有 21 首歌两边都没有制作人署名，未分类。
+另有 22 首歌两边都没有制作人署名，未分类。
 
 ## 双方各有对方没有的制作人（4 首）
 
@@ -45,7 +45,7 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 自由文本（`artist_string`）：`Various artists`
   - 差异：自由文本多出 `Various artists`；结构化多出 `Jamie Paige`、`Vane Lily`、`rice`
 
-## 自由文本多出制作人（67 首）
+## 自由文本多出制作人（86 首）
 
 如何处理：显示仍以结构化名单为准；自由文本多出的名字通常是 Publisher、社团或厂牌署名，请维护者确认不是制作人，必要时修正 VocaDB 的歌曲署名，而不是改本报告的结论。
 
@@ -65,6 +65,10 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：`ryo`（producer）
   - 自由文本（`artist_string`）：`ryo`、`supercell`
   - 差异：自由文本多出 `supercell`
+- **モザイクロール**（[vocadb.net/S/1381](https://vocadb.net/S/1381)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`
+  - 差异：自由文本多出 `DECO*27`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **闇色アリス**（[vocadb.net/S/1434](https://vocadb.net/S/1434)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`samfree`
@@ -173,14 +177,26 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`ジミーサムP`
   - 差异：自由文本多出 `ジミーサムP`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **妄想税**（[vocadb.net/S/38916](https://vocadb.net/S/38916)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`kous`
+  - 差异：自由文本多出 `DECO*27`、`kous`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **DECORATOR**（[vocadb.net/S/45245](https://vocadb.net/S/45245)，`Original`）
   - 结构化（`song_producers`）：`kz`（producer）
   - 自由文本（`artist_string`）：`kz`、`livetune`
   - 差异：自由文本多出 `livetune`
+- **おじゃま虫**（[vocadb.net/S/48030](https://vocadb.net/S/48030)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`kous`
+  - 差异：自由文本多出 `DECO*27`、`kous`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **EveR ∞ LastinG ∞ NighT**（[vocadb.net/S/63660](https://vocadb.net/S/63660)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`ひとしずくP`、`やま△`
   - 差异：自由文本多出 `ひとしずくP`、`やま△`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **ハートアラモード**（[vocadb.net/S/67964](https://vocadb.net/S/67964)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`
+  - 差异：自由文本多出 `DECO*27`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **二人の白地図**（[vocadb.net/S/71629](https://vocadb.net/S/71629)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`PolyphonicBranch`
@@ -189,6 +205,10 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`Anamanaguchi`
   - 差异：自由文本多出 `Anamanaguchi`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **妄想感傷代償連盟**（[vocadb.net/S/131090](https://vocadb.net/S/131090)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`emon(Tes.)`
+  - 差异：自由文本多出 `DECO*27`、`emon(Tes.)`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **ちがう!!!**（[vocadb.net/S/140137](https://vocadb.net/S/140137)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`カルロス袴田`
@@ -221,10 +241,18 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`ゆよゆっぺ`
   - 差异：自由文本多出 `ゆよゆっぺ`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **Reunion**（[vocadb.net/S/230396](https://vocadb.net/S/230396)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`Rockwell`、`DECO*27`
+  - 差异：自由文本多出 `Rockwell`、`DECO*27`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **ヒバナ -Reloaded-**（[vocadb.net/S/230401](https://vocadb.net/S/230401)，`Remaster`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`DECO*27`、`Rockwell`
   - 差异：自由文本多出 `DECO*27`、`Rockwell`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **アンドロイドガール**（[vocadb.net/S/230406](https://vocadb.net/S/230406)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Rockwell`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Rockwell`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **ジターバグ**（[vocadb.net/S/256954](https://vocadb.net/S/256954)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`栗山夕璃`、`端倉鑛`
@@ -245,18 +273,34 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`ピノキオピー`
   - 差异：自由文本多出 `ピノキオピー`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **シンデレラ**（[vocadb.net/S/346457](https://vocadb.net/S/346457)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Rockwell`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Rockwell`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **ショウタイム・ルーラー**（[vocadb.net/S/363262](https://vocadb.net/S/363262)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`カラスヤサボウ`
   - 差异：自由文本多出 `カラスヤサボウ`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **アニマル**（[vocadb.net/S/371426](https://vocadb.net/S/371426)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Rockwell`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Rockwell`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **君色マリンスノウ**（[vocadb.net/S/371523](https://vocadb.net/S/371523)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`カルロス袴田`
   - 差异：自由文本多出 `カルロス袴田`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **サラマンダー**（[vocadb.net/S/376689](https://vocadb.net/S/376689)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Rockwell`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Rockwell`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **フューチャー・イヴ**（[vocadb.net/S/391129](https://vocadb.net/S/391129)，`Original`）
   - 结构化（`song_producers`）：`sasakure.UK`（producer, composer）
   - 自由文本（`artist_string`）：`sasakure.UK`、`有形ランペイジ`
   - 差异：自由文本多出 `有形ランペイジ`
+- **キメラ**（[vocadb.net/S/396081](https://vocadb.net/S/396081)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Rockwell`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Rockwell`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **Tell Your World**（[vocadb.net/S/399060](https://vocadb.net/S/399060)，`Original`）
   - 结构化（`song_producers`）：`kz`（producer, composer）
   - 自由文本（`artist_string`）：`kz`、`Google`
@@ -285,6 +329,18 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`宮守文学`
   - 差异：自由文本多出 `宮守文学`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **ハオ**（[vocadb.net/S/640212](https://vocadb.net/S/640212)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Hayato Yamamoto`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Hayato Yamamoto`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **ラビットホール (Reloaded)**（[vocadb.net/S/668053](https://vocadb.net/S/668053)，`Remaster`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **モニタリング**（[vocadb.net/S/668055](https://vocadb.net/S/668055)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Hayato Yamamoto`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Hayato Yamamoto`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **クリスタルスノウ**（[vocadb.net/S/703459](https://vocadb.net/S/703459)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`Aqu3ra`
@@ -293,10 +349,30 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：`びび`（producer, voicemanipulator）、`Nanao`（producer, composer）
   - 自由文本（`artist_string`）：`Nanao`、`びび`、`Teary Planet`
   - 差异：自由文本多出 `Teary Planet`
+- **テレパシ**（[vocadb.net/S/752940](https://vocadb.net/S/752940)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`tepe`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`tepe`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **弱虫モンブラン (Reloaded)**（[vocadb.net/S/777659](https://vocadb.net/S/777659)，`Remaster`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Hayato Yamamoto`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Hayato Yamamoto`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **チェリーポップ**（[vocadb.net/S/816725](https://vocadb.net/S/816725)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Hayato Yamamoto`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Hayato Yamamoto`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **マシュマロ**（[vocadb.net/S/848354](https://vocadb.net/S/848354)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`Hayato Yamamoto`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`Hayato Yamamoto`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **SHIAWASE FOR YOU!**（[vocadb.net/S/862431](https://vocadb.net/S/862431)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`いよわ`
   - 差异：自由文本多出 `いよわ`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **愛迷エレジー (Reloaded)**（[vocadb.net/S/878206](https://vocadb.net/S/878206)，`Remaster`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DECO*27`、`kemu`、`OTOIRO`
+  - 差异：自由文本多出 `DECO*27`、`kemu`、`OTOIRO`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **愛言葉V**（[vocadb.net/S/915394](https://vocadb.net/S/915394)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`DECO*27`、`kz`、`OTOIRO`

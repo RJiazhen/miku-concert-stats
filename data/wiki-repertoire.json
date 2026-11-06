@@ -123,6 +123,12 @@
       "artist": "daniwellP",
       "note": "VOCALOID 歌曲；VocaDB 检索只返回同名翻唱，暂按百科标题登记"
     },
+    "乙女解剖": {
+      "id": 2000000023,
+      "category": "vocaloid",
+      "artist": "DECO*27",
+      "note": "DECO*27 的原创曲；VocaDB 检索只返回同名翻唱，没有可直接对应的原创条目"
+    },
     "ぽっぴっぽー（Grand Finale）": {
       "id": null,
       "skip": true,

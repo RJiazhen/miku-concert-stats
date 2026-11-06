@@ -17705,6 +17705,134 @@
       ]
     },
     {
+      "performanceId": 9401,
+      "label": "代代木",
+      "source": "https://w.atwiki.jp/hmiku/pages/72956.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Reunion",
+          "when": ""
+        },
+        {
+          "title": "アンドロイドガール",
+          "when": ""
+        },
+        {
+          "title": "ヒバナ (Reloaded)",
+          "when": ""
+        },
+        {
+          "title": "ゴーストルール",
+          "when": ""
+        },
+        {
+          "title": "ストリーミングハート",
+          "when": "d1:day",
+          "note": "昼"
+        },
+        {
+          "title": "キメラ",
+          "when": "d1:night",
+          "note": "夜"
+        },
+        {
+          "title": "サラマンダー",
+          "when": ""
+        },
+        {
+          "title": "ラビットホール (Reloaded)",
+          "when": ""
+        },
+        {
+          "title": "おじゃま虫",
+          "when": ""
+        },
+        {
+          "title": "チェリーポップ",
+          "when": ""
+        },
+        {
+          "title": "妄想感傷代償連盟",
+          "when": ""
+        },
+        {
+          "title": "乙女解剖",
+          "when": ""
+        },
+        {
+          "title": "弱虫モンブラン (Reloaded)",
+          "when": ""
+        },
+        {
+          "title": "二息歩行 (Reloaded)",
+          "when": ""
+        },
+        {
+          "title": "モザイクロール (Reloaded)",
+          "when": ""
+        },
+        {
+          "title": "愛迷エレジー (Reloaded)",
+          "when": ""
+        },
+        {
+          "title": "ヴァンパイア",
+          "when": ""
+        },
+        {
+          "title": "シンデレラ",
+          "when": ""
+        },
+        {
+          "title": "アニマル",
+          "when": ""
+        },
+        {
+          "title": "モニタリング",
+          "when": ""
+        },
+        {
+          "title": "妄想税",
+          "when": ""
+        },
+        {
+          "title": "マシュマロ",
+          "when": ""
+        },
+        {
+          "title": "ボルテッカー",
+          "when": ""
+        },
+        {
+          "title": "テレパシ",
+          "when": ""
+        },
+        {
+          "title": "ハートアラモード",
+          "when": ""
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "d1:day",
+          "note": "昼"
+        },
+        {
+          "title": "ブループラネット",
+          "when": "d1:night",
+          "note": "夜"
+        },
+        {
+          "title": "ハオ",
+          "when": ""
+        },
+        {
+          "title": "愛言葉V",
+          "when": ""
+        }
+      ]
+    },
+    {
       "performanceId": 9555,
       "label": "台北",
       "source": "https://w.atwiki.jp/hmiku/pages/67470.html",

@@ -671,6 +671,22 @@ add(2947, halves={"2017-03-04": ["night"], "2017-03-05": ["day"]},
     sources=[wiki(MOE_KODO, "萌娘百科：初音未来×鼓童特别演唱会", "3/4 开演 19:00；3/5 开演 13:00")],
     note="萌娘百科：3/4 只有夜场 19:00，3/5 只有昼场 13:00，共 2 场")
 
+# ---------------------------------------------------------------- デコミク LIVE『Hello』（初音ミク Wiki）
+# VocaDB event 9401 不属于任何收录的系列，由 data/increments/0015-decomiku-hello.sql 补进目录；
+# 逐曲表在 data/wiki-raw/decomiku2026.json。百科写明单日昼夜 2 场、每场 27 首。
+add(
+    9401,
+    day_night=["2026-02-14"],
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/72956.html",
+            "初音ミク Wiki：デコミク LIVE starring 初音ミク『Hello』",
+            "2/14 国立代々木競技場第一体育館 昼・夜各 1 场，共 2 场，每场 27 首",
+        )
+    ],
+    note="百科：2026-02-14 单日昼夜 2 场，每场 27 首",
+)
+
 # ---------------------------------------------------------------- 演出状态（取消 / 延期）
 # VocaDB 只有 Finished / Approved / Draft，没有「已取消」，所以这 13 场在索引里只显示「日期未知」。
 # 来源取该演出 performance_links 里的取消公告，原文写得很清楚。
@@ -977,6 +993,15 @@ for item in WIKI_SETLISTS["entries"]:
         existing["setlist"]["slots"] = slots
     existing["sources"] = [source_entry]
     existing["note"] = note
+
+# 逐曲表循环会用表格说明覆盖 note；只看日程的百科证据在这里补回，避免昼夜结构无处留档。
+SCHEDULE_NOTES = {
+    9401: "2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首",
+}
+for pid, schedule_note in SCHEDULE_NOTES.items():
+    entry = performances.get(str(pid))
+    if entry is not None:
+        entry["note"] = f"{entry.get('note', '')}；百科日程：{schedule_note}"
 
 # 神戸 2023 比横浜多一首「白い雪のプリンセスは」（ダブルアンコール，神戸限定），
 # 所以两地的曲目数本来就不同；记下原因后不再报长度警告。

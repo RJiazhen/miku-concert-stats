@@ -336,6 +336,177 @@
       "publishDate": "2026-09-23",
       "lengthSeconds": 221,
       "sourceUrl": "https://vocadb.net/S/1037976"
+    },
+    "Reunion": {
+      "id": 230396,
+      "title": "Reunion",
+      "artistString": "Rockwell, DECO*27",
+      "songType": "Original",
+      "publishDate": "2019-05-22",
+      "lengthSeconds": 37,
+      "sourceUrl": "https://vocadb.net/S/230396"
+    },
+    "アンドロイドガール": {
+      "id": 230406,
+      "title": "アンドロイドガール",
+      "artistString": "DECO*27, Rockwell, OTOIRO feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2019-05-02",
+      "lengthSeconds": 216,
+      "sourceUrl": "https://vocadb.net/S/230406"
+    },
+    "キメラ": {
+      "id": 396081,
+      "title": "キメラ",
+      "artistString": "DECO*27, Rockwell, OTOIRO feat. 初音ミク V4X (Original)",
+      "songType": "Original",
+      "publishDate": "2022-04-02",
+      "lengthSeconds": 164,
+      "sourceUrl": "https://vocadb.net/S/396081"
+    },
+    "サラマンダー": {
+      "id": 376689,
+      "title": "サラマンダー",
+      "artistString": "DECO*27, Rockwell, OTOIRO feat. 初音ミク V4X (Original)",
+      "songType": "Original",
+      "publishDate": "2022-01-07",
+      "lengthSeconds": 156,
+      "sourceUrl": "https://vocadb.net/S/376689"
+    },
+    "ラビットホール (Reloaded)": {
+      "id": 668053,
+      "title": "ラビットホール (Reloaded)",
+      "artistString": "DECO*27, OTOIRO feat. 初音ミク",
+      "songType": "Remaster",
+      "publishDate": "2024-11-27",
+      "lengthSeconds": 160,
+      "sourceUrl": "https://vocadb.net/S/668053"
+    },
+    "おじゃま虫": {
+      "id": 48030,
+      "title": "おじゃま虫",
+      "artistString": "DECO*27, kous feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2014-02-14",
+      "lengthSeconds": 217,
+      "sourceUrl": "https://vocadb.net/S/48030"
+    },
+    "チェリーポップ": {
+      "id": 816725,
+      "title": "チェリーポップ",
+      "artistString": "DECO*27, Hayato Yamamoto, OTOIRO feat. 初音ミク, しぐれうい",
+      "songType": "Original",
+      "publishDate": "2025-07-25",
+      "lengthSeconds": 138,
+      "sourceUrl": "https://vocadb.net/S/816725"
+    },
+    "妄想感傷代償連盟": {
+      "id": 131090,
+      "title": "妄想感傷代償連盟",
+      "artistString": "DECO*27, emon(Tes.) feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2016-09-27",
+      "lengthSeconds": 270,
+      "sourceUrl": "https://vocadb.net/S/131090"
+    },
+    "弱虫モンブラン (Reloaded)": {
+      "id": 777659,
+      "title": "弱虫モンブラン (Reloaded)",
+      "artistString": "DECO*27, Hayato Yamamoto, OTOIRO feat. 初音ミク",
+      "songType": "Remaster",
+      "publishDate": "2025-04-15",
+      "lengthSeconds": 233,
+      "sourceUrl": "https://vocadb.net/S/777659"
+    },
+    "愛迷エレジー (Reloaded)": {
+      "id": 878206,
+      "title": "愛迷エレジー (Reloaded)",
+      "artistString": "DECO*27, kemu, OTOIRO feat. 初音ミク",
+      "songType": "Remaster",
+      "publishDate": "2025-12-01",
+      "lengthSeconds": 169,
+      "sourceUrl": "https://vocadb.net/S/878206"
+    },
+    "シンデレラ": {
+      "id": 346457,
+      "title": "シンデレラ",
+      "artistString": "DECO*27, Rockwell, OTOIRO feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2021-08-05",
+      "lengthSeconds": 154,
+      "sourceUrl": "https://vocadb.net/S/346457"
+    },
+    "アニマル": {
+      "id": 371426,
+      "title": "アニマル",
+      "artistString": "DECO*27, Rockwell, OTOIRO feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2021-12-15",
+      "lengthSeconds": 152,
+      "sourceUrl": "https://vocadb.net/S/371426"
+    },
+    "モニタリング": {
+      "id": 668055,
+      "title": "モニタリング",
+      "artistString": "DECO*27, Hayato Yamamoto, OTOIRO feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2024-11-22",
+      "lengthSeconds": 176,
+      "sourceUrl": "https://vocadb.net/S/668055"
+    },
+    "妄想税": {
+      "id": 38916,
+      "title": "妄想税",
+      "artistString": "DECO*27, kous feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2013-09-07",
+      "lengthSeconds": 216,
+      "sourceUrl": "https://vocadb.net/S/38916"
+    },
+    "マシュマロ": {
+      "id": 848354,
+      "title": "マシュマロ",
+      "artistString": "DECO*27, Hayato Yamamoto, OTOIRO feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2025-10-08",
+      "lengthSeconds": 178,
+      "sourceUrl": "https://vocadb.net/S/848354"
+    },
+    "テレパシ": {
+      "id": 752940,
+      "title": "テレパシ",
+      "artistString": "DECO*27, tepe, OTOIRO feat. 初音ミク V4X (Original)",
+      "songType": "Original",
+      "publishDate": "2025-02-21",
+      "lengthSeconds": 145,
+      "sourceUrl": "https://vocadb.net/S/752940"
+    },
+    "ハートアラモード": {
+      "id": 67964,
+      "title": "ハートアラモード",
+      "artistString": "DECO*27 feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2014-09-15",
+      "lengthSeconds": 239,
+      "sourceUrl": "https://vocadb.net/S/67964"
+    },
+    "ハオ": {
+      "id": 640212,
+      "title": "ハオ",
+      "artistString": "DECO*27, Hayato Yamamoto, OTOIRO feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2024-06-14",
+      "lengthSeconds": 182,
+      "sourceUrl": "https://vocadb.net/S/640212"
+    },
+    "モザイクロール": {
+      "id": 1381,
+      "title": "モザイクロール",
+      "artistString": "DECO*27 feat. GUMI",
+      "songType": "Original",
+      "publishDate": "2010-07-15",
+      "lengthSeconds": 182,
+      "sourceUrl": "https://vocadb.net/S/1381"
     }
   }
 }

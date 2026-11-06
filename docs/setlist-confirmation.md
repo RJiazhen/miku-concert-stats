@@ -6,8 +6,8 @@
 
 ## 0. 一句话现状
 
-- 目录里 181 个演出已展开成 **364 个场次**、9041 条曲目。
-- 来源记录 181 个演出：官方页 10 条、百科 172 条，全部已直接采用。
+- 目录里 182 个演出已展开成 **366 个场次**、9095 条曲目。
+- 来源记录 182 个演出：官方页 10 条、百科 173 条，全部已直接采用。
 - 待核实归属 0 个、冲突 0 个、带不确定标记的场次 0 个。
 - 另有 16 首不是 VOCALOID 歌曲的曲目（古典改编、鼓童器乐曲、民谣）已按普通曲目登记，没有歌手、来源写百科，演出页会标「非 VocaDB」。
 - 还剩 **0 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
@@ -157,7 +157,7 @@
 | MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 2024-07-20 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2024 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67183.html)（2026-11-06） |
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 2024-07-27 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2024 in Guangzhou（广州）](https://w.atwiki.jp/hmiku/pages/67183.html)（2026-11-06） |
 | MIKU WITH YOU 2025（9644） | 未来有你 | 2025-12-20 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2025（上海）](https://w.atwiki.jp/hmiku/pages/68149.html)（2026-11-06） |
-| MIKU WITH YOU 2026 in Shanghai（13120） | 未来有你 | 2026-10-31 | 4 × 24 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html)（2026-11-06） |
+| MIKU WITH YOU 2026 in Shanghai（13120） | 未来有你 | 2026-10-31 | 4 × 24 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2026 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/79886.html)（2026-11-06） |
 | SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set（3792） | SNOW MIKU | 2015-02-07 | 4 × 27 | vocadb-note | high | [SNOW MIKU LIVE! 2015 公式チケット页](https://snowmiku.com/2015/live_ticket.html)（2026-11-05） |
 | SNOW MIKU LIVE! 2018（1618） | SNOW MIKU | 2018-02-09 | 4 × 26 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2018](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2018)（2026-11-05） |
 | SNOW MIKU LIVE! 2019（2422） | SNOW MIKU | 2019-02-09 | 4 × 26 | vocadb-note | medium | [萌娘百科：SNOW MIKU LIVE! 2019](https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019)（2026-11-05） |
@@ -202,8 +202,9 @@
 | 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 2026-06-20 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
 | 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 2026-07-05 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
 | 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 2026-10-10 | 1 × 16 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html)（2026-11-06） |
+| デコミク LIVE starring 初音ミク『Hello』（9401） | 900000000 | 2026-02-14 | 2 × 27 | external | medium | [初音ミク Wiki：デコミク LIVE starring 初音ミク『Hello』（代代木）](https://w.atwiki.jp/hmiku/pages/72956.html)（2026-11-06） |
 
-共 181 个演出、182 条来源记录。
+共 182 个演出、183 条来源记录。
 
 ---
 
@@ -319,7 +320,7 @@
 
 ---
 
-## 4b. 曲目逐条来自百科逐曲表的演出（169 个）
+## 4b. 曲目逐条来自百科逐曲表的演出（170 个）
 
 这些演出改用「初音ミク Wiki」的逐曲表：VocaDB 的 songList 要么是几个城市共用的整份表、
 要么根本没有（交响乐全部是专辑 tracklist）。逐曲表按公演替 / 昼夜 / 场次把差别分开，
@@ -454,7 +455,7 @@
 | MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（北京），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67183.html) |
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（广州），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Guangzhou（广州）](https://w.atwiki.jp/hmiku/pages/67183.html) |
 | MIKU WITH YOU 2025（9644） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2025（上海）](https://w.atwiki.jp/hmiku/pages/68149.html) |
-| MIKU WITH YOU 2026 in Shanghai（13120） | 未来有你 | 4 × 96 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html) |
+| MIKU WITH YOU 2026 in Shanghai（13120） | 未来有你 | 4 × 96 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2026 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/79886.html) |
 | ミクの日感謝祭39's Giving Day（2520） | Live Party | 1 × 40 | 歌单来自初音ミク Wiki 的逐曲表（东京），40 行 | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html) |
 | 初音ミクライブパーティー 2011 Tokyo（2523） | Live Party | 1 × 39 | 歌单来自初音ミク Wiki 的逐曲表（东京），39 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67149.html) |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（札幌），26 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67150.html) |
@@ -496,6 +497,7 @@
 | 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（札幌公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
 | 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
 | 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 1 × 16 | 歌单来自初音ミク Wiki 的逐曲表（横浜），16 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html) |
+| デコミク LIVE starring 初音ミク『Hello』（9401） | 900000000 | 2 × 54 | 歌单来自初音ミク Wiki 的逐曲表（代代木），按场次分 2 份；百科日程：2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首 | [初音ミク Wiki：デコミク LIVE starring 初音ミク『Hello』（代代木）](https://w.atwiki.jp/hmiku/pages/72956.html) |
 
 ---
 

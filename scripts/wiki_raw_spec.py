@@ -222,6 +222,13 @@ RAW_SPEC: dict[str, dict] = {
             "2日目昼": ["*#2:day"], "2日目夜": ["*#2:night"],
         },
     },
+    "decomiku2026": {
+        "performances": [9401],
+        "labels": {9401: "代代木"},
+        "markers": {},
+        # 这张表没有 公演替 列，昼夜差异只写在 備考：第 5 首与第 25 首在昼 / 夜各换一首。
+        "noteMarkers": {"昼": ["*#1:day"], "夜": ["*#1:night"]},
+    },
     "mm10th": {
         "performances": [4233, 4234],
         "labels": {4233: "大阪", 4234: "东京"},
