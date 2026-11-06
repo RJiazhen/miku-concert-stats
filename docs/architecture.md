@@ -90,7 +90,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `when` 语法：`day`/`night`、`dN`（第 N 个日期）、`dN:day|night`、或不带标记（所有场次）。
 
-曲名与 catalog 写法不同的（`DECORATER`、`右肩の蝶[39's Giving Day Edition]`、`キミぺディア`）记在 `data/wiki-title-aliases.json`。catalog 里没有的歌由 `scripts/fetch-wiki-songs.py` 按标题检索 VocaDB、用作曲者排除同名翻唱后写成 `data/wiki-songs.json` 与 `data/increments/0009-wiki-songs.sql`（`INSERT OR IGNORE`，`pnpm collect` 重写 `0001` 后仍在）。仍匹配不到的行不丢弃：`data/wiki-repertoire.json` 逐条给出类别（`classical` / `traditional` / `instrumental`，或确认是 VOCALOID 歌但检索只返回翻唱时的 `vocaloid`）、作曲者和备注，`fetch-wiki-songs.py` 据此写成 `data/increments/0010-wiki-repertoire.sql`：id 从 2,000,000,000 起免与 VocaDB 冲突，`songs.category` 标记不是 VOCALOID 歌曲，`artist_string` 只放作曲者、没有歌手，`source_url` 指向百科。这样一场演出点开就是完整曲目，界面对这些行显示「非 VocaDB 曲目・类别」而不是假装缺歌手。同曲再演（`ぽっぴっぽー（Grand Finale）`）标 `skip`，只写进演出 `note`，避免重复计数。
+曲名与 catalog 写法不同的（`DECORATER`、`右肩の蝶[39's Giving Day Edition]`、`キミぺディア`）记在 `data/wiki-title-aliases.json`。catalog 里没有的歌由 `scripts/fetch-wiki-songs.py` 按标题检索 VocaDB、用作曲者排除同名翻唱后写成 `data/wiki-songs.json` 与 `data/increments/0009-wiki-songs.sql`（`INSERT OR IGNORE`，`pnpm collect` 重写 `0001` 后仍在）。仍匹配不到的行不丢弃：`data/wiki-repertoire.json` 逐条给出类别（`classical` / `traditional` / `instrumental`，或确认是 VOCALOID 歌但检索只返回翻唱时的 `vocaloid`）、作曲者和备注，`fetch-wiki-songs.py` 据此写成 `data/increments/0010-wiki-repertoire.sql`：id 从 2,000,000,000 起免与 VocaDB 冲突，`songs.category` 标记不是 VOCALOID 歌曲，`artist_string` 只放作曲者、没有歌手，`source_url` 指向**印有该曲名的那一页**百科（不是索引页）。这样一场演出点开就是完整曲目，界面对这些行显示「非 VocaDB 曲目・类别」而不是假装缺歌手。同曲再演（`ぽっぴっぽー（Grand Finale）`）标 `skip`，只写进演出 `note`，避免重复计数。
 
 演出没有 VocaDB 歌单但有百科逐曲表时（如交响乐 2026），`performance_setlists.source_list_id` 为 `NULL`、`source_kind = 'wiki'`，页头改为「百科逐曲表」并且不链 VocaDB。
 
