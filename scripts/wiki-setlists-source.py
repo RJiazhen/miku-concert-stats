@@ -7,8 +7,8 @@ token belongs to every 演出 of that table. This script applies that rule once 
 city-level tables, per 場次 for the tables that split a day — and writes the list the loader
 consumes, so the filtering is reviewable and never repeated at runtime.
 
-Lines marked with `#` are repertoire VocaDB has no song entry for (classical pieces or
-public-domain arrangements). They are kept out of the row list and recorded in the 演出 note.
+Rows are kept even when VocaDB has no song for them: data/wiki-repertoire.json registers such
+repertoire (classical pieces, Kodo instrumentals) as ordinary songs, so a 場次 stays complete.
 
 Run: uv run scripts/wiki-setlists-source.py
 """
@@ -69,7 +69,7 @@ TABLES: dict[str, tuple[str, dict[str, int | None]]] = {
 }
 
 # `|title|note`; the note is also the 区分 marker, so a city name in it scopes the row.
-# A leading `#` on the title marks repertoire VocaDB has no song entry for.
+# Non-VocaDB repertoire is a normal row here; data/wiki-repertoire.json registers it by title.
 ROWS: dict[str, str] = {}
 
 ROWS["2016"] = """
@@ -189,11 +189,11 @@ ROWS["2019"] = """
 |ピアノ×フォルテ×スキャンダル|MEIKO 15th Anniversary
 |ハッピーシンセサイザ|メドレー横浜公演：ピアノ五重奏
 |いーあるふぁんくらぶ|メドレー横浜公演
-|#スーパートルコ行進曲|メドレー横浜公演（VocaDB 无条目）
+|スーパートルコ行進曲|メドレー横浜公演
 |嗚呼、素晴らしきニャン生|メドレー横浜公演
-|#そりすべり|メドレー大阪公演：Christmas special（VocaDB 无条目）
-|#White Christmas|メドレー大阪公演（VocaDB 无条目）
-|#ジングルベル|メドレー大阪公演（VocaDB 无条目）
+|そりすべり|メドレー大阪公演：Christmas special（管弦乐小品）
+|White Christmas|メドレー大阪公演（圣诞歌曲）
+|ジングルベル|メドレー大阪公演（圣诞歌曲）
 |Snow Song Show|メドレー大阪公演
 |Catch the Wave|
 |ODDS&ENDS|
@@ -538,10 +538,10 @@ ROWS["2025-横浜神戸"] = """
 |悪ノ召使|アンコール：10th メドレー
 |ヴィーナス|アンコール：10th メドレー
 |39|アンコール：10th メドレー
-|#ぽっぴっぽー（Grand Finale）|アンコール：10th メドレー（同曲の再演）
+|ぽっぴっぽー（Grand Finale）|アンコール：10th メドレー（同曲の再演）
 |プレイオン|アンコール
 |メルト|アンコール・横浜
-|#交響曲第9番|アンコール・神戸（VocaDB 无条目）
+|交響曲第9番|アンコール・神戸（管弦乐）
 """
 
 ROWS["2026"] = """
@@ -552,8 +552,8 @@ ROWS["2026"] = """
 |げんてん|札幌
 |青炎|東京
 |命に嫌われている。|
-|#ピアノ協奏曲 第5番「皇帝」第1楽章|札幌：ピアノコンチェルト特集（VocaDB 无条目）
-|#ピアノ協奏曲 第2番 第1楽章|東京：ピアノコンチェルト特集（VocaDB 无条目）
+|ピアノ協奏曲 第5番「皇帝」第1楽章|札幌：ピアノコンチェルト特集
+|ピアノ協奏曲 第2番 第1楽章|東京：ピアノコンチェルト特集
 |天樂 -双響-|協奏曲札幌
 |ツギハギスタッカート|協奏曲札幌
 |メルティランドナイトメア|協奏曲札幌
@@ -636,13 +636,9 @@ def tour_entries() -> list[dict]:
             raise SystemExit(f"{key}: table names no default 演出")
         for pid in every:
             rows_out: list[dict] = []
-            skipped: list[str] = []
             for marker, title, note in rows:
                 ids, token = row_scope(marker, markers, key)
                 if ids is not None and pid not in ids:
-                    continue
-                if title.startswith("#"):
-                    skipped.append(title.lstrip("#"))
                     continue
                 entry = {"title": title, "when": token or ""}
                 if note:
@@ -657,8 +653,6 @@ def tour_entries() -> list[dict]:
                 "accessedAt": ACCESSED,
                 "rows": rows_out,
             }
-            if skipped:
-                item["notInVocaDB"] = skipped
             entries.append(item)
     return entries
 
@@ -783,13 +777,9 @@ def main() -> None:
             if pid is None:
                 continue
             songs = []
-            skipped = []
             for marker, title, note in rows:
                 named = cities_in(marker)
                 if named and city not in named:
-                    continue
-                if title.startswith("#"):
-                    skipped.append(title.lstrip("#"))
                     continue
                 entry = {"title": title}
                 # A note that only names the city carries no programme information.
@@ -813,8 +803,6 @@ def main() -> None:
                 "accessedAt": ACCESSED,
                 "rows": [{"title": song["title"], "when": "", **({"note": song["note"]} if "note" in song else {})} for song in songs],
             }
-            if skipped:
-                item["notInVocaDB"] = skipped
             entries.append(item)
     entries.extend(tour_entries())
     entries.extend(raw_entries())
@@ -837,7 +825,7 @@ def main() -> None:
         scoped = sum(1 for row in item["rows"] if row["when"])
         print(
             f"  {item['performanceId']:6d} {item['label'][:10]:10s} rows={len(item['rows']):3d}"
-            f" scoped={scoped:2d} skipped={len(item.get('notInVocaDB', []))}"
+            f" scoped={scoped:2d}"
         )
 
 

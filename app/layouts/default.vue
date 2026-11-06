@@ -10,7 +10,9 @@
         <p>
           曲目、演出和歌单来自
           <ULink to="https://vocadb.net/" target="_blank" class="text-primary">VocaDB</ULink>
-          公共 API。转载这些数据库内容时请链回 VocaDB。许可说明见
+          公共 API；VocaDB 没有收录的曲目（古典改编、器乐曲等）按
+          <ULink to="https://w.atwiki.jp/hmiku/" target="_blank" class="text-primary">初音ミク Wiki</ULink>
+          的逐曲表登记，页内会标注。转载这些数据库内容时请链回 VocaDB。许可说明见
           <ULink to="https://wiki.vocadb.net/docs/license" target="_blank" class="text-primary">VocaDB License</ULink>。
         </p>
       </div>

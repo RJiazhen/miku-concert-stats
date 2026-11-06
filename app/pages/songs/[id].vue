@@ -15,6 +15,7 @@ import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { latestSnapshot } from '~~/shared/stats.ts'
+import { catalogBadge, fromVocaDB, isVocaloidSong, repertoireExplanation } from '~~/shared/repertoire.ts'
 import {
   nextAppearanceSort,
   sortAppearances,
@@ -26,7 +27,7 @@ import type { Platform } from '~~/shared/types.ts'
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
-const { songById } = useSongLookup()
+const { songById, songHref, songHrefTarget } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { language, translationFor } = useSongLanguage()
@@ -171,6 +172,35 @@ const appearances = computed(() => {
       })
     }
   }
+  // A repertoire song registered from a wiki table never appears in the VocaDB source layer, so
+  // the derived 場次 layer is the only place its 出场记录 can come from.
+  const covered = new Set(rows.map((row) => row.performanceId))
+  for (const item of catalog.value.performanceShowSetlistItems) {
+    if (item.song_id === null || !ids.has(item.song_id)) continue
+    if (covered.has(item.performance_id)) continue
+    const performance = catalog.value.performances.find((row) => row.id === item.performance_id)
+    if (!performance) continue
+    const show = catalog.value.performanceShowSetlists.find((row) => row.show_key === item.show_key)
+    const series = catalog.value.series.find((row) => row.id === performance.series_id)
+    const seriesName = series?.name ?? String(performance.series_id)
+    const showNote = show === undefined ? '百科逐曲表' : `百科逐曲表 · ${show.half === null ? '单场' : show.half === 'day' ? '日场' : '夜场'}`
+    const noteParts: NotePart[] = [{ text: showNote, warning: false }]
+    rows.push({
+      key: `${performance.id}:${item.song_id}:${item.show_key}`,
+      seriesId: performance.series_id,
+      seriesName,
+      seriesLabel: localizeSeries(seriesName),
+      seriesNumber: performance.series_number,
+      performanceId: performance.id,
+      performanceName: localizePlace(localizePerformanceSeries(performance.name, seriesName, performance.series_number)),
+      date: show?.date ?? performance.start_date,
+      role: performance.role,
+      noteText: noteParts.map((part) => part.text).join('；'),
+      uncertain: show?.uncertain === 1,
+      noteParts,
+    })
+    covered.add(performance.id)
+  }
   rows.sort((left, right) => (left.date ?? '').localeCompare(right.date ?? '') || left.performanceId - right.performanceId)
   return rows
 })
@@ -237,10 +267,26 @@ const hasSnapshots = computed(() => (catalog.value?.snapshots.length ?? 0) > 0)
 const characters = computed(() => charactersText(song.value ?? null))
 
 /** Muted facts under the title: 投稿日期 and 演出角色 of the canonical song. */
+/** Whether the catalog registered this song from a wiki setlist rather than VocaDB. */
+const outsideVocaDB = computed(() => {
+  const current = song.value
+  return current !== null && !fromVocaDB(current)
+})
+
+/** Badge text for a song VocaDB does not list, e.g. `非 VocaDB 曲目・古典・管弦乐曲`. */
+const outsideLabel = computed(() => catalogBadge(song.value))
+
+/** One sentence explaining why the entry exists and whether it has a singer. */
+const outsideExplanation = computed(() => {
+  const current = song.value
+  return current === null || fromVocaDB(current) ? '' : repertoireExplanation(current)
+})
+
 const headerFacts = computed(() => {
   const facts: string[] = []
   if (song.value?.publish_date) facts.push(`投稿日期 ${song.value.publish_date}`)
-  facts.push(`演出角色 ${characters.value}`)
+  // A non-VOCALOID piece has no 演出角色 by definition, so the line would only repeat "未记录".
+  if (!outsideVocaDB.value || isVocaloidSong(song.value)) facts.push(`演出角色 ${characters.value}`)
   return facts.join(' · ')
 })
 </script>
@@ -269,12 +315,26 @@ const headerFacts = computed(() => {
           <SongTitle :song-id="canonicalId" :original="song.name" />
         </h1>
         <div class="flex flex-wrap items-center gap-2 text-xs">
-          <UBadge color="primary" variant="subtle">{{ song.song_type }}</UBadge>
-          <UBadge v-if="variantIds.length > 0" color="secondary" variant="subtle">共 {{ groupIds.length }} 个版本</UBadge>
-          <span class="text-muted">{{ displayArtistString(song.artist_string) ?? '未记录' }}</span>
-          <ULink :to="song.source_url" target="_blank" class="text-primary">VocaDB</ULink>
+          <UBadge v-if="outsideLabel" color="warning" variant="subtle">{{ outsideLabel }}</UBadge>
+          <template v-else>
+            <UBadge color="primary" variant="subtle">{{ song.song_type }}</UBadge>
+            <UBadge v-if="variantIds.length > 0" color="secondary" variant="subtle">共 {{ groupIds.length }} 个版本</UBadge>
+          </template>
+          <span class="text-muted">
+            {{ outsideVocaDB && !isVocaloidSong(song) ? `作曲 ${displayArtistString(song.artist_string) ?? '未记录'}` : displayArtistString(song.artist_string) ?? '未记录' }}
+          </span>
+          <ULink :to="song.source_url" target="_blank" class="text-primary">
+            {{ outsideVocaDB ? '初音ミク Wiki' : 'VocaDB' }}
+          </ULink>
         </div>
-        <p class="text-sm text-muted">{{ headerFacts }}</p>
+        <p v-if="headerFacts" class="text-sm text-muted">{{ headerFacts }}</p>
+        <UAlert
+          v-if="outsideExplanation"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-info"
+          :description="outsideExplanation"
+        />
       </header>
 
       <UCard v-if="variantRows.length > 0">
@@ -285,7 +345,7 @@ const headerFacts = computed(() => {
           <li v-for="row in variantRows" :key="row.id" class="space-y-1">
             <div class="flex flex-wrap items-baseline gap-2">
               <UBadge color="secondary" variant="subtle" size="sm">{{ row.kindLabel }}</UBadge>
-              <ULink :to="`https://vocadb.net/S/${row.id}`" target="_blank" class="text-highlighted">{{ row.name }}</ULink>
+              <ULink :to="songHref(row.id)" :target="songHrefTarget(row.id)" class="text-highlighted">{{ row.name }}</ULink>
             </div>
             <p v-if="row.meta" class="text-xs text-muted">{{ row.meta }}</p>
           </li>
@@ -358,7 +418,9 @@ const headerFacts = computed(() => {
             <h2 class="text-base font-semibold text-highlighted">相关投稿</h2>
           </div>
         </template>
-        <p v-if="videos.length === 0" class="text-sm text-muted">VocaDB 上没有登记投稿链接。</p>
+        <p v-if="videos.length === 0" class="text-sm text-muted">
+          {{ outsideVocaDB ? '这首曲目不在 VocaDB 上，没有登记投稿链接。' : 'VocaDB 上没有登记投稿链接。' }}
+        </p>
         <div v-else class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="text-left text-xs tracking-wide text-muted uppercase">

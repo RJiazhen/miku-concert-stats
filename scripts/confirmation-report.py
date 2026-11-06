@@ -124,6 +124,12 @@ out.append("")
 out.append(f"- 目录里 {perf_total} 个演出已展开成 **{shows_total} 个场次**、{items_total} 条曲目。")
 out.append(f"- 来源记录 {len(source_rows)} 个演出：官方页 {official} 条、百科 {wiki_count} 条，全部已直接采用。")
 out.append(f"- 待核实归属 {pending_review} 个、冲突 {conflicts} 个、带不确定标记的场次 {uncertain_shows} 个。")
+outside_total = rows("SELECT COUNT(*) AS n FROM songs WHERE category <> 'vocaloid'")[0]["n"]
+if outside_total:
+    out.append(
+        f"- 另有 {outside_total} 首不是 VOCALOID 歌曲的曲目（古典改编、鼓童器乐曲、民谣）已按普通曲目登记，"
+        "没有歌手、来源写百科，演出页会标「非 VocaDB」。"
+    )
 out.append(f"- 还剩 **{len(pending_schedule)} 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。")
 out.append("")
 out.append("---")

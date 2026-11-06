@@ -14,7 +14,7 @@ import { countedSongIds } from '~~/shared/stats.ts'
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const merges = useSetlistMerges()
-const { songName } = useSongLookup()
+const { songName, songHref, songHrefTarget } = useSongLookup()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -207,9 +207,9 @@ const tables = computed<RawTable[]>(() => {
       rows: catalog.value.setlistItems.map((row) => [
         { text: String(row.song_list_id) },
         { text: String(row.position) },
-        { text: songNameOf(row.listed_song_id), href: `https://vocadb.net/S/${row.listed_song_id}` },
+        { text: songNameOf(row.listed_song_id), href: songHref(row.listed_song_id) },
         { text: row.notes ?? '' },
-        { text: 'VocaDB', href: `https://vocadb.net/S/${row.listed_song_id}` },
+        { text: songHrefTarget(row.listed_song_id) ? 'VocaDB' : '站内', href: songHref(row.listed_song_id) },
       ]),
     },
     {
@@ -221,13 +221,13 @@ const tables = computed<RawTable[]>(() => {
         { text: String(row.position) },
         { text: songNameOf(row.song_id) },
         { text: row.role },
-        { text: 'VocaDB', href: `https://vocadb.net/S/${row.song_id}` },
+        { text: songHrefTarget(row.song_id) ? 'VocaDB' : '站内', href: songHref(row.song_id) },
       ]),
     },
     {
       id: 'songs',
       label: '歌曲',
-      headers: ['id', '名称', '日文名', '制作人', '歌手', '类型', '投稿日期', 'VocaDB'],
+      headers: ['id', '名称', '日文名', '制作人', '歌手', '类型', '类别', '投稿日期', '来源'],
       rows: catalog.value.songs.map((row) => [
         { text: String(row.id) },
         { text: row.name },
@@ -235,8 +235,9 @@ const tables = computed<RawTable[]>(() => {
         { text: producerCredit(row.artist_string) ?? '—' },
         { text: formatCharacters(row) },
         { text: row.song_type },
+        { text: row.category === 'vocaloid' ? 'VOCALOID' : songCategoryLabels[row.category] },
         { text: row.publish_date ?? '—' },
-        { text: row.source_url, href: row.source_url },
+        { text: row.category === 'vocaloid' ? 'VocaDB' : '初音ミク Wiki', href: row.source_url },
       ]),
     },
     {
@@ -245,7 +246,7 @@ const tables = computed<RawTable[]>(() => {
       headers: ['PV id', '歌曲', '平台', '标题', '类型', '日期', '链接'],
       rows: catalog.value.videos.map((row) => [
         { text: String(row.vocadb_pv_id) },
-        { text: songNameOf(row.song_id), href: `https://vocadb.net/S/${row.song_id}` },
+        { text: songNameOf(row.song_id), href: songHref(row.song_id) },
         { text: row.platform },
         { text: row.title ?? '—' },
         { text: row.pv_type ?? '—' },
@@ -272,7 +273,7 @@ const tables = computed<RawTable[]>(() => {
       rows: catalog.value.medleyQuarantine.map((row) => [
         { text: String(row.song_list_id) },
         { text: String(row.position) },
-        { text: songNameOf(row.listed_song_id), href: `https://vocadb.net/S/${row.listed_song_id}` },
+        { text: songNameOf(row.listed_song_id), href: songHref(row.listed_song_id) },
         { text: row.reason },
       ]),
     },
@@ -315,11 +316,11 @@ const tables = computed<RawTable[]>(() => {
   return tables
 })
 
-/** Songs that have no PV link at all. */
+/** VocaDB songs that have no PV link at all; the wiki repertoire has none by definition. */
 const songsWithoutVideo = computed(() => {
   if (!catalog.value) return []
   const withVideo = new Set(catalog.value.videos.map((row) => row.song_id))
-  return catalog.value.songs.filter((song) => !withVideo.has(song.id))
+  return catalog.value.songs.filter((song) => fromVocaDB(song) && !withVideo.has(song.id))
 })
 
 /** Performances that cannot contribute a setlist. */
@@ -635,7 +636,7 @@ const editionSongCount = computed(() => {
             <span class="text-muted">
               <template v-for="(song, index) in group.songs" :key="song.id">
                 <span v-if="index > 0"> · </span>
-                <ULink :to="`https://vocadb.net/S/${song.id}`" target="_blank" class="text-primary">{{ song.id }} {{ song.name }}</ULink>
+                <ULink :to="songHref(song.id)" :target="songHrefTarget(song.id)" class="text-primary">{{ song.id }} {{ song.name }}</ULink>
               </template>
             </span>
           </li>

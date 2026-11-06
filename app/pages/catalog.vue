@@ -3,12 +3,14 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
 import { playbackForSongs, songById, songIdsForPerformance, summarizeBands } from '~~/shared/stats.ts'
+import { useSongLookup } from '~/composables/useSongLookup.ts'
 import type { Platform } from '~~/shared/types.ts'
 
 // No playback snapshot is published yet, so the navigation keeps this page out.
 definePageMeta({ middleware: 'retired' })
 
 const { catalog, error, pending, load } = useCatalog()
+const { songHref, songHrefTarget } = useSongLookup()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -137,7 +139,7 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
           <tbody>
             <tr v-for="row in playbacks" :key="row.songId" class="border-t border-default/40">
               <td class="px-2 py-1.5">
-                <ULink :to="`https://vocadb.net/S/${row.songId}`" target="_blank" class="text-primary">
+                <ULink :to="songHref(row.songId)" :target="songHrefTarget(row.songId)" class="text-primary">
                   <SongTitle :song-id="row.songId" :original="songName(row.songId)" />
                 </ULink>
               </td>

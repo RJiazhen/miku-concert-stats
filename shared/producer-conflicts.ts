@@ -1,4 +1,5 @@
 import { isUnknownArtist, producerCredit } from './credit.ts'
+import { fromVocaDB } from './repertoire.ts'
 import type { Catalog, SongRow } from './types.ts'
 
 /**
@@ -139,8 +140,12 @@ const classify = (structured: readonly string[], text: readonly string[]): Produ
   return 'conflicting'
 }
 
-/** Builds one comparison row, or null when neither source names a producer. */
+/**
+ * Builds one comparison row, or null when neither source names a producer.
+ * A wiki-registered row has no VocaDB credit pair to compare, so it is skipped.
+ */
 const rowForSong = (song: SongRow): ProducerConflictRow | null => {
+  if (!fromVocaDB(song)) return null
   const structured = structuredCredits(song)
   const text = freeTextNames(song)
   const structuredNames = structured.map((credit) => credit.name)

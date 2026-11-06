@@ -8,6 +8,40 @@ import type { SqlRow } from '../shared/types.ts'
 import { applyCatalogSql } from '../scripts/build-catalog.ts'
 
 describe('committed catalog', () => {
+  it('registers the non-VOCALOID repertoire so a 場次 shows its full programme', () => {
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      const outside = catalog.songs.filter((song) => song.category !== 'vocaloid')
+      expect(outside.length).toBeGreaterThan(0)
+      // A classical piece: no vocalist, no producer credit, and the wiki is the source.
+      const ninth = catalog.songs.find((song) => song.name === '交響曲第9番')
+      expect(ninth?.category).toBe('classical')
+      expect(ninth?.artist_string).toBe('ベートーヴェン')
+      expect(ninth?.vocalists).toEqual([])
+      expect(ninth?.source_url.startsWith('https://w.atwiki.jp/hmiku/')).toBe(true)
+      // The Kodo 2023 programme keeps its instrumental and folk pieces per 場次.
+      const kodo = catalog.performanceShowSetlistItems.filter((row) => row.performance_id === 5910)
+      const kodoSongIds = new Set(kodo.map((row) => row.song_id))
+      const kodoOutside = outside.filter((song) => kodoSongIds.has(song.id))
+      expect(kodoOutside.length).toBeGreaterThan(0)
+      expect(kodoOutside.every((song) => song.category === 'instrumental')).toBe(true)
+      const firstShow = kodo.filter((row) => row.show_key === '5910:2023-06-03:day')
+      expect(firstShow.length).toBeGreaterThan(19)
+      // A VOCALOID song VocaDB only lists as covers is registered too, still marked `vocaloid`.
+      const fukkireta = catalog.songs.find((song) => song.name === 'おちゃめ機能')
+      expect(fukkireta?.category).toBe('vocaloid')
+      expect(fukkireta?.id).toBeGreaterThan(1_000_000_000)
+      expect(fukkireta?.vocalists).toEqual([])
+    } finally {
+      db.close()
+    }
+  })
+
   it('records the 2014 Magical Mirai premiere as Osaka and stores no guessed playback', () => {
     const db = new Database(':memory:')
     try {

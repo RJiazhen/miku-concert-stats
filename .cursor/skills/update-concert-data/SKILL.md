@@ -29,8 +29,10 @@ disable-model-invocation: true
 | `scripts/wiki_tour_tables.py` | 手抄的城市级表（EXPO 2014–2020、Live Party、鼓童、未来有你、魔法未来 2014） | 手改 |
 | `data/wiki-setlists.json` | 逐行数据（`title` + `when`） | `wiki-setlists-source.py` |
 | `data/wiki-title-aliases.json` | 百科写法 → catalog 写法 | 手改 |
-| `data/wiki-songs.json` | catalog 里没有的歌 | `fetch-wiki-songs.py` |
+| `data/wiki-songs.json` | catalog 里没有的歌（VocaDB 能查到） | `fetch-wiki-songs.py` |
 | `data/increments/0009-wiki-songs.sql` | 上面那些歌的 `INSERT OR IGNORE` | `fetch-wiki-songs.py` |
+| `data/wiki-repertoire.json` | catalog 和 VocaDB 都没有的曲目：类别、作曲者、备注、保留 id | **手改** |
+| `data/increments/0010-wiki-repertoire.sql` | 上面那些曲目的 `INSERT OR IGNORE`（带 `category`） | `fetch-wiki-songs.py` |
 | `data/performance-setlists.json` | 每个演出的 `setlist` / `slots` / `sources` / `note` | `build-setlist-curation.py` |
 | `data/increments/0008-performance-setlists.sql` | 派生层（`performance_setlists` 等 4 张表） | `pnpm derive:setlists` |
 
@@ -120,14 +122,30 @@ catalog 里没有的歌由 `fetch-wiki-songs.py` 去 VocaDB 找：标题必须�
 `artistString` 要含百科写的作曲者（同名翻唱极多，只靠标题会挂错）。规则都在 `COMPOSERS` 里，
 新曲名补一条。搜不到就不写 —— **宁可缺，不要错**。
 
-catalog 里没有、也不该有的：
+VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页的歌单是残的。逐条加进
+`data/wiki-repertoire.json`：
 
-- 古典 / 民谣改编（`ピアノ協奏曲…`、`交響曲第9番`、`White Christmas`、`そりすべり`）
-- 鼓童原创器乐曲（`巴`、`三宅`、`巡 -MEGURU-`、`BURNING`…）
-- 同场再演一遍的曲目（`ぽっぴっぽー（Grand Finale）`）—— 会重复计数，用 `#` 排除
-- 舞台段落行（`MC…`、`《アンコール》`、`バンドメンバー紹介`、`…パート`）—— 脚本已跳过
+```json
+"交響曲第9番": {
+  "id": 2000000003,
+  "category": "classical",
+  "artist": "ベートーヴェン",
+  "note": "贝多芬《第九交响曲》，神戸公演安可的管弦乐版"
+},
+"ぽっぴっぽー（Grand Finale）": { "id": null, "skip": true, "category": "vocaloid", "artist": "ラマーズP", "note": "…" }
+```
 
-这些一律写进演出层 `note`，标题用「」包起来（含 `、` 的曲名才读得断）。
+- `id` 从 2,000,000,000 起（`shared/repertoire.ts` 的 `LOCAL_SONG_ID_BASE`），**只分配一次**，
+  保证不与 VocaDB 的 song id 冲突。这些 id 没有 VocaDB 页面，`collect:producers` / `collect:vocalists`
+  已经按上界跳过它们；新增调用 VocaDB 歌曲接口的脚本也要照做。
+- `category`：`classical`（古典・管弦乐）、`traditional`（民谣・圣诞曲等传统曲）、
+  `instrumental`（鼓童原创器乐曲）、`vocaloid`（确实是 VOCALOID 歌，只是 VocaDB 只返回同名翻唱）。
+  前三类没有歌手，`artist` 填作曲者；`songs.artist_string` 只有名字、不带 `feat.`。
+- `skip: true` 只给「同一场里再演一遍同一首」（会重复计数），它会写进演出 `note` 但不进曲目。
+- `note` 是中文说明，会显示在曲目页，讲清类别和出处。
+
+舞台段落行（`MC…`、`《アンコール》`、`バンドメンバー紹介`、`…パート`）不是曲目，
+`wiki-setlists-source.py` 已经跳过，不要登记。
 
 ## 6. 展开场次
 
@@ -163,6 +181,12 @@ catalog 里没有、也不该有的：
 ```
 … 0 pending review, 0 conflicts
 ```
+
+`fetch-wiki-songs.py` 会在某个手工登记的曲名后来出现在 catalog 里时打印 `NOTE … is now in the catalog`，
+看到就把它从 `data/wiki-repertoire.json` 删掉，避免同一首歌两条记录。
+
+演出层 `note` 里不应再出现「未计入」的曲名（同曲再演的 `skip` 除外）——那说明有一条歌单行没登记。
+曲目页对非 VOCALOID 行显示「非 VocaDB 曲目・类别」并要求 `songs.category <> 'vocaloid'`。
 
 再加两条 SQL：
 

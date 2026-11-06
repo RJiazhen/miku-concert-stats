@@ -78,6 +78,11 @@ CREATE TABLE songs (
   name_en TEXT,
   artist_string TEXT,
   song_type TEXT NOT NULL,
+  -- `vocaloid` for a synth-voice song. Every other value marks repertoire VocaDB does not list,
+  -- registered from a wiki setlist so a 場次 keeps its complete programme: `classical` for art
+  -- music, `traditional` for folk and carols, `instrumental` for an instrumental original.
+  -- Those rows have no vocalists and their source_url points at the wiki, not VocaDB.
+  category TEXT NOT NULL DEFAULT 'vocaloid',
   publish_date TEXT,
   length_seconds INTEGER,
   source_url TEXT NOT NULL,

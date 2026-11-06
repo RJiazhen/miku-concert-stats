@@ -6,9 +6,10 @@
 
 ## 0. 一句话现状
 
-- 目录里 181 个演出已展开成 **363 个场次**、8968 条曲目。
+- 目录里 181 个演出已展开成 **363 个场次**、9020 条曲目。
 - 来源记录 173 个演出：官方页 10 条、百科 164 条，全部已直接采用。
 - 待核实归属 0 个、冲突 0 个、带不确定标记的场次 0 个。
+- 另有 16 首不是 VOCALOID 歌曲的曲目（古典改编、鼓童器乐曲、民谣）已按普通曲目登记，没有歌手、来源写百科，演出页会标「非 VocaDB」。
 - 还剩 **0 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
 
 ---
@@ -161,16 +162,16 @@
 | 初音ミクライブパーティー 2012 Taiwan（2525） | Live Party | 2012-10-06 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2012 Taiwan（台北）](https://w.atwiki.jp/hmiku/pages/67153.html)（2026-11-06） |
 | 初音ミクライブパーティー 2013 Sapporo（2510） | Live Party | 2013-02-09 | 4 × 26 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2013 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67154.html)（2026-11-06） |
 | 初音ミクライブパーティー 2013 Kansai（2511） | Live Party | 2013-03-09 | 1 × 39 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2013 Kansai（关西）](https://w.atwiki.jp/hmiku/pages/66967.html)（2026-11-06） |
-| 初音ミク×鼓童スペシャルライブ（2947） | 鼓童 | 2017-03-04 | 2 × 19 | external | medium | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67219.html)（2026-11-06） |
-| 初音ミク×鼓童スペシャルライブ２０１８（2948） | 鼓童 | 2018-06-02 | 3 × 20 | external | medium | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０１８（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67230.html)（2026-11-06） |
-| 初音ミク×鼓童スペシャルライブ２０２３ ～結～（5910） | 鼓童 | 2023-06-03 | 3 × 19 | external | medium | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０２３ ～結～（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67232.html)（2026-11-06） |
+| 初音ミク×鼓童スペシャルライブ（2947） | 鼓童 | 2017-03-04 | 2 × 22 | external | medium | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67219.html)（2026-11-06） |
+| 初音ミク×鼓童スペシャルライブ２０１８（2948） | 鼓童 | 2018-06-02 | 3 × 26 | external | medium | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０１８（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67230.html)（2026-11-06） |
+| 初音ミク×鼓童スペシャルライブ２０２３ ～結～（5910） | 鼓童 | 2023-06-03 | 3 × 24 | external | medium | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０２３ ～結～（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67232.html)（2026-11-06） |
 | 初音ミクシンフォニー 2016 東京都（2957） | 交响乐 | 2016-08-26 | 1 × 29 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2016 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80167.html)（2026-11-06） |
-| 初音ミクシンフォニー 2017 大阪市（2958） | 交响乐 | 2017-11-17 | 1 × 27 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2017 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80237.html)（2026-11-06） |
-| 初音ミクシンフォニー 2017 東京都（2959） | 交响乐 | 2017-11-29 | 1 × 28 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2017 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80237.html)（2026-11-06） |
-| 初音ミクシンフォニー 2018-2019 東京都（2504） | 交响乐 | 2018-11-24 | 1 × 24 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80287.html)（2026-11-06） |
-| 初音ミクシンフォニー 2018-2019 大阪市（2960） | 交响乐 | 2019-01-25 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80287.html)（2026-11-06） |
-| 初音ミクシンフォニー 2019 横浜市（2870） | 交响乐 | 2019-10-14 | 1 × 26 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2019 横浜市（横浜公演）](https://w.atwiki.jp/hmiku/pages/80354.html)（2026-11-06） |
-| 初音ミクシンフォニー 2019 大阪市（2871） | 交响乐 | 2019-12-23 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80354.html)（2026-11-06） |
+| 初音ミクシンフォニー 2017 大阪市（2958） | 交响乐 | 2017-11-17 | 1 × 28 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2017 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80237.html)（2026-11-06） |
+| 初音ミクシンフォニー 2017 東京都（2959） | 交响乐 | 2017-11-29 | 1 × 29 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2017 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80237.html)（2026-11-06） |
+| 初音ミクシンフォニー 2018-2019 東京都（2504） | 交响乐 | 2018-11-24 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80287.html)（2026-11-06） |
+| 初音ミクシンフォニー 2018-2019 大阪市（2960） | 交响乐 | 2019-01-25 | 1 × 26 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80287.html)（2026-11-06） |
+| 初音ミクシンフォニー 2019 横浜市（2870） | 交响乐 | 2019-10-14 | 1 × 28 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2019 横浜市（横浜公演）](https://w.atwiki.jp/hmiku/pages/80354.html)（2026-11-06） |
+| 初音ミクシンフォニー 2019 大阪市（2871） | 交响乐 | 2019-12-23 | 1 × 28 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80354.html)（2026-11-06） |
 | 初音ミクシンフォニー 2020 〜5th Anniversary〜 東京都（2954） | 交响乐 | 2020-09-21 | 1 × 23 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2020 〜5th Anniversary〜 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80404.html)（2026-11-06） |
 | 初音ミクシンフォニー 2020 〜5th Anniversary〜 横浜市（2955） | 交响乐 | 2020-10-17 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2020 〜5th Anniversary〜 横浜市（横浜公演）](https://w.atwiki.jp/hmiku/pages/80404.html)（2026-11-06） |
 | 初音ミクシンフォニー 2020 〜5th Anniversary〜 大阪市（2956） | 交响乐 | 2020-11-17 | 1 × 18 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2020 〜5th Anniversary〜 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80404.html)（2026-11-06） |
@@ -189,10 +190,10 @@
 | 初音ミクシンフォニー 2025 〜10th Anniversary〜 大阪（8710） | 交响乐 | 2025-04-12 | 1 × 16 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 大阪（大阪公演）](https://w.atwiki.jp/hmiku/pages/80551.html)（2026-11-06） |
 | 初音ミクシンフォニー 2025 〜10th Anniversary〜 東京（8711） | 交响乐 | 2025-07-06 | 1 × 17 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80551.html)（2026-11-06） |
 | 初音ミクシンフォニー 2025 〜10th Anniversary〜 横浜（9267） | 交响乐 | 2025-10-04 | 1 × 30 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 横浜（横浜公演）](https://w.atwiki.jp/hmiku/pages/80551.html)（2026-11-06） |
-| 初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（9276） | 交响乐 | 2025-12-27 | 1 × 29 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（神戸公演）](https://w.atwiki.jp/hmiku/pages/80551.html)（2026-11-06） |
-| 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 2026-06-20 | 1 × 18 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
-| 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 2026-07-05 | 1 × 18 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
-| 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 2026-10-10 | 1 × 15 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html)（2026-11-06） |
+| 初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（9276） | 交响乐 | 2025-12-27 | 1 × 30 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（神戸公演）](https://w.atwiki.jp/hmiku/pages/80551.html)（2026-11-06） |
+| 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 2026-06-20 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
+| 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 2026-07-05 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
+| 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 2026-10-10 | 1 × 16 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html)（2026-11-06） |
 
 共 173 个演出、174 条来源记录。
 
@@ -447,16 +448,16 @@
 | 初音ミクライブパーティー 2012 Taiwan（2525） | Live Party | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（台北），25 行 | [初音ミク Wiki：初音ミクライブパーティー 2012 Taiwan（台北）](https://w.atwiki.jp/hmiku/pages/67153.html) |
 | 初音ミクライブパーティー 2013 Sapporo（2510） | Live Party | 4 × 104 | 歌单来自初音ミク Wiki 的逐曲表（札幌），26 行 | [初音ミク Wiki：初音ミクライブパーティー 2013 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67154.html) |
 | 初音ミクライブパーティー 2013 Kansai（2511） | Live Party | 1 × 39 | 歌单来自初音ミク Wiki 的逐曲表（关西），39 行 | [初音ミク Wiki：初音ミクライブパーティー 2013 Kansai（关西）](https://w.atwiki.jp/hmiku/pages/66967.html) |
-| 初音ミク×鼓童スペシャルライブ（2947） | 鼓童 | 2 × 38 | 歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），19 行；另有 3 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「巴」、「蜂の風」、「SHAKE」 | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67219.html) |
-| 初音ミク×鼓童スペシャルライブ２０１８（2948） | 鼓童 | 3 × 60 | 歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），20 行；另有 6 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「三宅」、「南部牛追歌」、「能菅＋平胴」、「巴」、「巡 -MEGURU-」、「族」 | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０１８（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67230.html) |
-| 初音ミク×鼓童スペシャルライブ２０２３ ～結～（5910） | 鼓童 | 3 × 57 | 歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），19 行；另有 6 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「いのち もやしてたたけよ」、「巴」、「三宅」、「LION（獅子吼）」、「BURNING」、「巡 -MEGURU-」 | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０２３ ～結～（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67232.html) |
+| 初音ミク×鼓童スペシャルライブ（2947） | 鼓童 | 2 × 44 | 歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），22 行；其中 3 首不是 VOCALOID 歌曲（器乐曲、民谣・传统曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67219.html) |
+| 初音ミク×鼓童スペシャルライブ２０１８（2948） | 鼓童 | 3 × 78 | 歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），26 行；其中 5 首不是 VOCALOID 歌曲（器乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０１８（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67230.html) |
+| 初音ミク×鼓童スペシャルライブ２０２３ ～結～（5910） | 鼓童 | 3 × 72 | 歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），按场次分 3 份；其中 5 首不是 VOCALOID 歌曲（器乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミク×鼓童スペシャルライブ２０２３ ～結～（NHK 大厅）](https://w.atwiki.jp/hmiku/pages/67232.html) |
 | 初音ミクシンフォニー 2016 東京都（2957） | 交响乐 | 1 × 29 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），29 行 | [初音ミク Wiki：初音ミクシンフォニー 2016 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80167.html) |
-| 初音ミクシンフォニー 2017 大阪市（2958） | 交响乐 | 1 × 27 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），27 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「Nyan Cat」 | [初音ミク Wiki：初音ミクシンフォニー 2017 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80237.html) |
-| 初音ミクシンフォニー 2017 東京都（2959） | 交响乐 | 1 × 28 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），28 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「Nyan Cat」 | [初音ミク Wiki：初音ミクシンフォニー 2017 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80237.html) |
-| 初音ミクシンフォニー 2018-2019 東京都（2504） | 交响乐 | 1 × 24 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），24 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「おちゃめ機能」 | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80287.html) |
-| 初音ミクシンフォニー 2018-2019 大阪市（2960） | 交响乐 | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），25 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「おちゃめ機能」 | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80287.html) |
-| 初音ミクシンフォニー 2019 横浜市（2870） | 交响乐 | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（横浜公演），26 行；另有 2 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「スーパートルコ行進曲」、「嗚呼、素晴らしきニャン生」 | [初音ミク Wiki：初音ミクシンフォニー 2019 横浜市（横浜公演）](https://w.atwiki.jp/hmiku/pages/80354.html) |
-| 初音ミクシンフォニー 2019 大阪市（2871） | 交响乐 | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），25 行；另有 3 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「そりすべり」、「White Christmas」、「ジングルベル」 | [初音ミク Wiki：初音ミクシンフォニー 2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80354.html) |
+| 初音ミクシンフォニー 2017 大阪市（2958） | 交响乐 | 1 × 28 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），28 行 | [初音ミク Wiki：初音ミクシンフォニー 2017 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80237.html) |
+| 初音ミクシンフォニー 2017 東京都（2959） | 交响乐 | 1 × 29 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），29 行 | [初音ミク Wiki：初音ミクシンフォニー 2017 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80237.html) |
+| 初音ミクシンフォニー 2018-2019 東京都（2504） | 交响乐 | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），25 行 | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80287.html) |
+| 初音ミクシンフォニー 2018-2019 大阪市（2960） | 交响乐 | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），26 行 | [初音ミク Wiki：初音ミクシンフォニー 2018-2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80287.html) |
+| 初音ミクシンフォニー 2019 横浜市（2870） | 交响乐 | 1 × 28 | 歌单来自初音ミク Wiki 的逐曲表（横浜公演），28 行 | [初音ミク Wiki：初音ミクシンフォニー 2019 横浜市（横浜公演）](https://w.atwiki.jp/hmiku/pages/80354.html) |
+| 初音ミクシンフォニー 2019 大阪市（2871） | 交响乐 | 1 × 28 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），28 行；其中 3 首不是 VOCALOID 歌曲（古典・管弦乐曲、民谣・传统曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2019 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80354.html) |
 | 初音ミクシンフォニー 2020 〜5th Anniversary〜 東京都（2954） | 交响乐 | 1 × 23 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），23 行 | [初音ミク Wiki：初音ミクシンフォニー 2020 〜5th Anniversary〜 東京都（東京公演）](https://w.atwiki.jp/hmiku/pages/80404.html) |
 | 初音ミクシンフォニー 2020 〜5th Anniversary〜 横浜市（2955） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（横浜公演），19 行 | [初音ミク Wiki：初音ミクシンフォニー 2020 〜5th Anniversary〜 横浜市（横浜公演）](https://w.atwiki.jp/hmiku/pages/80404.html) |
 | 初音ミクシンフォニー 2020 〜5th Anniversary〜 大阪市（2956） | 交响乐 | 1 × 18 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），18 行 | [初音ミク Wiki：初音ミクシンフォニー 2020 〜5th Anniversary〜 大阪市（大阪公演）](https://w.atwiki.jp/hmiku/pages/80404.html) |
@@ -474,11 +475,11 @@
 | 初音ミクシンフォニー 2025 〜10th Anniversary〜 札幌（8037） | 交响乐 | 1 × 27 | 歌单来自初音ミク Wiki 的逐曲表（札幌公演），27 行 | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80551.html) |
 | 初音ミクシンフォニー 2025 〜10th Anniversary〜 大阪（8710） | 交响乐 | 1 × 16 | 歌单来自初音ミク Wiki 的逐曲表（大阪公演），16 行 | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 大阪（大阪公演）](https://w.atwiki.jp/hmiku/pages/80551.html) |
 | 初音ミクシンフォニー 2025 〜10th Anniversary〜 東京（8711） | 交响乐 | 1 × 17 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），17 行 | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80551.html) |
-| 初音ミクシンフォニー 2025 〜10th Anniversary〜 横浜（9267） | 交响乐 | 1 × 30 | 歌单来自初音ミク Wiki 的逐曲表（横浜公演），30 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「ぽっぴっぽー（Grand Finale）」 | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 横浜（横浜公演）](https://w.atwiki.jp/hmiku/pages/80551.html) |
-| 初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（9276） | 交响乐 | 1 × 29 | 歌单来自初音ミク Wiki 的逐曲表（神戸公演），29 行；另有 2 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「ぽっぴっぽー（Grand Finale）」、「交響曲第9番」 | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（神戸公演）](https://w.atwiki.jp/hmiku/pages/80551.html) |
-| 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 1 × 18 | 歌单来自初音ミク Wiki 的逐曲表（札幌公演），18 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「ピアノ協奏曲 第5番「皇帝」第1楽章」 | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
-| 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 1 × 18 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），18 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「ピアノ協奏曲 第2番 第1楽章」 | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
-| 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 1 × 15 | 歌单来自初音ミク Wiki 的逐曲表（横浜），15 行；另有 1 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：「ピアノソナタ 第11番イ長調 K.331 第3楽章（トルコ行進曲）」 | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html) |
+| 初音ミクシンフォニー 2025 〜10th Anniversary〜 横浜（9267） | 交响乐 | 1 × 30 | 歌单来自初音ミク Wiki 的逐曲表（横浜公演），30 行；另有 1 首未登记（同曲再演或检索未命中），未计入：「ぽっぴっぽー（Grand Finale）」 | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 横浜（横浜公演）](https://w.atwiki.jp/hmiku/pages/80551.html) |
+| 初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（9276） | 交响乐 | 1 × 30 | 歌单来自初音ミク Wiki 的逐曲表（神戸公演），30 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手；另有 1 首未登记（同曲再演或检索未命中），未计入：「ぽっぴっぽー（Grand Finale）」 | [初音ミク Wiki：初音ミクシンフォニー 2025 〜10th Anniversary〜 神戸（神戸公演）](https://w.atwiki.jp/hmiku/pages/80551.html) |
+| 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（札幌公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
+| 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
+| 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 1 × 16 | 歌单来自初音ミク Wiki 的逐曲表（横浜），16 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html) |
 
 ---
 

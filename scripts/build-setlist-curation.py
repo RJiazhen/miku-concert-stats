@@ -688,6 +688,13 @@ for pid, name in CANCELLED.items():
 WIKI_SETLISTS = json.loads((ROOT / "data" / "wiki-setlists.json").read_text(encoding="utf-8"))
 WIKI_SONGS = json.loads((ROOT / "data" / "wiki-songs.json").read_text(encoding="utf-8"))["songs"]
 WIKI_ALIASES = json.loads((ROOT / "data" / "wiki-title-aliases.json").read_text(encoding="utf-8"))["aliases"]
+WIKI_REPERTOIRE = json.loads((ROOT / "data" / "wiki-repertoire.json").read_text(encoding="utf-8"))["songs"]
+CATEGORY_LABELS = {
+    "classical": "古典・管弦乐曲",
+    "traditional": "民谣・传统曲",
+    "instrumental": "器乐曲",
+    "vocaloid": "VOCALOID 歌曲",
+}
 
 
 def song_ids_by_title() -> dict[str, list[int]]:
@@ -706,6 +713,12 @@ def song_ids_by_title() -> dict[str, list[int]]:
     for entry in WIKI_SONGS.values():
         key = normalize_title(entry["title"])
         if key:
+            index.setdefault(key, []).append(entry["id"])
+    # Repertoire rows are in the catalog after 0010, but index them anyway so the build does not
+    # depend on the order of the two increments.
+    for title, entry in WIKI_REPERTOIRE.items():
+        key = normalize_title(title)
+        if key and entry.get("id") is not None:
             index.setdefault(key, []).append(entry["id"])
     return index
 
@@ -734,19 +747,40 @@ def resolve_song(title: str, prefer: set[int]) -> int | None:
 
 
 def translate_rows(rows: list[dict], prefer: set[int]) -> tuple[list[dict], list[str]]:
-    """Maps wiki titles to catalog song ids, collecting the ones that do not resolve."""
+    """Maps wiki titles to catalog song ids, collecting the ones that do not resolve.
+
+    A repertoire entry marked `skip` is a repeat of a song already on the same list, so it stays
+    out of the rows and is reported instead of double counting.
+    """
     songs: list[dict] = []
     unresolved: list[str] = []
     for song in rows:
-        song_id = resolve_song(song["title"], prefer)
-        if song_id is None:
-            unresolved.append(song["title"])
+        title = song["title"]
+        repertoire = WIKI_REPERTOIRE.get(title)
+        if repertoire is not None and repertoire.get("skip"):
+            unresolved.append(title)
             continue
-        entry = {"id": song_id, "title": song["title"]}
+        song_id = resolve_song(title, prefer)
+        if song_id is None:
+            unresolved.append(title)
+            continue
+        entry = {"id": song_id, "title": title}
         if song.get("note"):
             entry["note"] = song["note"]
         songs.append(entry)
     return songs, unresolved
+
+
+def non_vocaloid_titles(rows: list[dict]) -> list[str]:
+    """Titles of the rows the catalog registered outside VocaDB, in first-seen order."""
+    seen: list[str] = []
+    for row in rows:
+        entry = WIKI_REPERTOIRE.get(row["title"])
+        if entry is None or entry.get("skip") or entry.get("category") == "vocaloid":
+            continue
+        if row["title"] not in seen:
+            seen.append(row["title"])
+    return seen
 
 
 def quote_titles(titles: list[str]) -> str:
@@ -851,17 +885,22 @@ for item in WIKI_SETLISTS["entries"]:
         for title in union_unresolved:
             if title not in unresolved:
                 unresolved.append(title)
-    skipped = list(item.get("notInVocaDB", [])) + unresolved
+    skipped = unresolved
     unattributed = item.get("unattributed") or []
+    outside = non_vocaloid_titles(rows)
     label = item["label"] or "本场"
     if slots:
         note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），按场次分 {len(slots)} 份"
     else:
         note = f"歌单来自初音ミク Wiki 的逐曲表（{label}），{len(songs)} 行"
+    if outside:
+        categories = sorted({WIKI_REPERTOIRE[title]["category"] for title in outside})
+        kinds = "、".join(CATEGORY_LABELS[category] for category in categories)
+        note += f"；其中 {len(outside)} 首不是 VOCALOID 歌曲（{kinds}），按普通曲目登记、没有对应歌手"
     if unattributed:
         note += f"；百科对这 {len(unattributed)} 首只标了 ※、没写属于哪些城市，无法归位：" + quote_titles(unattributed)
     if skipped:
-        note += f"；另有 {len(skipped)} 首未能匹配到 VocaDB 条目（古典改编或检索未命中），未计入：" + quote_titles(skipped)
+        note += f"；另有 {len(skipped)} 首未登记（同曲再演或检索未命中），未计入：" + quote_titles(skipped)
     title = f"初音ミク Wiki：{performance_name(pid)}（{label}）"
     source_entry = {
         "url": item["source"],

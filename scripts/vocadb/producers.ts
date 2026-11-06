@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import Database from 'better-sqlite3'
 import { isUnknownArtist } from '../../shared/credit.ts'
+import { LOCAL_SONG_ID_BASE } from '../../shared/repertoire.ts'
 import type { SongProducerCredit, SongProducerRow, SqlRow } from '../../shared/types.ts'
 import { applyCatalogSql, repoRoot } from '../build-catalog.ts'
 import { chunkInsertsIgnoring } from '../sql/emit.ts'
@@ -19,7 +20,8 @@ export const catalogSongIds = (root = repoRoot()): number[] => {
   const db = new Database(':memory:')
   try {
     applyCatalogSql(db, root)
-    return db.prepare('SELECT id FROM songs ORDER BY id').all().map((raw) => {
+    // A wiki-registered row has a reserved id and no VocaDB page, so the API cannot be asked.
+    return db.prepare('SELECT id FROM songs WHERE id < ? ORDER BY id').all(LOCAL_SONG_ID_BASE).map((raw) => {
       const row = raw as SqlRow
       const id = row.id
       if (typeof id !== 'number') throw new Error('songs.id is not a number')

@@ -66,6 +66,7 @@ const song = (id: number, name: string, artists: string | null): SongRow => ({
   name_en: null,
   artist_string: artists,
   song_type: 'Original',
+  category: 'vocaloid',
   publish_date: null,
   length_seconds: null,
   source_url: `https://vocadb.net/S/${id}`,

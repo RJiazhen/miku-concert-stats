@@ -6,6 +6,7 @@ import { songCharacters, characterColor } from '~/composables/useCharacters.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { splitCharacterChips } from '~~/shared/character-chips.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
@@ -24,6 +25,7 @@ const UButton = resolveComponent('UButton')
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
+const { songHref, songHrefTarget } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
@@ -495,10 +497,10 @@ const yearToItems = computed(() =>
               </UBadge>
             </UTooltip>
             <ULink
-              :to="`https://vocadb.net/S/${row.original.songId}`"
-              target="_blank"
+              :to="songHref(row.original.songId)"
+              :target="songHrefTarget(row.original.songId)"
               class="shrink-0 text-dimmed hover:text-primary"
-              aria-label="在 VocaDB 查看"
+              :aria-label="songHrefTarget(row.original.songId) ? '在 VocaDB 查看' : '在站内查看'"
             >
               <UIcon name="i-lucide-external-link" class="size-3.5" />
             </ULink>

@@ -1,4 +1,5 @@
 import { useCatalog } from './useCatalog.ts'
+import { fromVocaDB } from '~~/shared/repertoire.ts'
 import type { SongRow } from '~~/shared/types.ts'
 
 /** Song lookups backed by the shared catalog state. */
@@ -16,5 +17,18 @@ export const useSongLookup = () => {
     return song?.name_ja || song?.name || String(songId)
   }
 
-  return { catalog, songById, songName }
+  /**
+   * Where a song id should link: VocaDB for a normal entry, the catalogue page for repertoire
+   * VocaDB does not list (its reserved id has no VocaDB page).
+   */
+  const songHref = (songId: number): string => {
+    return fromVocaDB(songById(songId)) ? `https://vocadb.net/S/${songId}` : `/songs/${songId}`
+  }
+
+  /** Only a VocaDB entry opens in a new tab. */
+  const songHrefTarget = (songId: number): string | undefined => {
+    return songHref(songId).startsWith('http') ? '_blank' : undefined
+  }
+
+  return { catalog, songById, songName, songHref, songHrefTarget }
 }

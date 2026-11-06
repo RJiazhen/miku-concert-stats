@@ -4,6 +4,7 @@ import { derivedItemSongIds } from '~~/shared/performance-setlists.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
+import { catalogBadge, catalogSourceNote, fromVocaDB } from '~~/shared/repertoire.ts'
 
 const props = defineProps<{
   catalog: Catalog
@@ -11,7 +12,7 @@ const props = defineProps<{
   items: PerformanceShowSetlistItemRow[]
 }>()
 
-const { songById, songName } = useSongLookup()
+const { songById, songName, songHref: songHrefOf, songHrefTarget } = useSongLookup()
 
 /** Song ids of one row, with a medley expanded to its parts. */
 const songIdsOf = (item: PerformanceShowSetlistItemRow): number[] => derivedItemSongIds(props.catalog, item)
@@ -42,12 +43,30 @@ const EVIDENCE_LABEL: Record<PerformanceShowSetlistItemRow['evidence'], string> 
   wiki: '来自百科的逐曲表',
 }
 
-/** Explanation cell: the evidence kind, plus the raw note when there is one. */
-const explanationOf = (item: PerformanceShowSetlistItemRow): string => {
-  const label = EVIDENCE_LABEL[item.evidence]
-  if (item.notes === null || item.notes.trim() === '') return label
-  return `${label}（原备注：${item.notes}）`
+/** Provenance note for a row the catalog registered outside VocaDB; null for a normal song. */
+const repertoireNoteOf = (item: PerformanceShowSetlistItemRow): string | null => {
+  const notes = new Set<string>()
+  for (const songId of songIdsOf(item)) {
+    const note = catalogSourceNote(songById(songId))
+    if (note !== null) notes.add(note)
+  }
+  return notes.size === 0 ? null : [...notes].join('、')
 }
+
+/** Explanation cell: the evidence kind, the category note when it applies, then the raw note. */
+const explanationOf = (item: PerformanceShowSetlistItemRow): string => {
+  const parts = [EVIDENCE_LABEL[item.evidence]]
+  const repertoire = repertoireNoteOf(item)
+  if (repertoire !== null) parts.push(repertoire)
+  if (item.notes !== null && item.notes.trim() !== '') parts.push(`原备注：${item.notes}`)
+  return parts.join('；')
+}
+
+/** Catalog page for repertoire VocaDB does not list, VocaDB entry otherwise. */
+const songHref = songHrefOf
+
+/** Whether a title is an outside entry that the badge should mark. */
+const outsideEntry = (songId: number): boolean => !fromVocaDB(songById(songId))
 
 /** Parsed reason codes, shown once under the table. */
 const reasons = computed<string[]>(() => {
@@ -89,9 +108,18 @@ const reasons = computed<string[]>(() => {
               <span v-else class="flex flex-wrap items-baseline gap-x-1">
                 <template v-for="(songId, index) in songIdsOf(item)" :key="songId">
                   <span v-if="index > 0" class="text-muted">/</span>
-                  <ULink :to="`https://vocadb.net/S/${songId}`" target="_blank" class="text-highlighted hover:text-primary">
+                  <ULink :to="songHref(songId)" :target="songHrefTarget(songId)" class="text-highlighted hover:text-primary">
                     <SongTitle :song-id="songId" :original="songName(songId)" />
                   </ULink>
+                  <UBadge
+                    v-if="outsideEntry(songId)"
+                    color="warning"
+                    variant="subtle"
+                    size="sm"
+                    :title="catalogBadge(songById(songId)) ?? undefined"
+                  >
+                    非 VocaDB
+                  </UBadge>
                 </template>
               </span>
             </td>

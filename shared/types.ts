@@ -129,6 +129,12 @@ export type SongRow = {
   name_en: string | null
   artist_string: string | null
   song_type: string
+  /**
+   * `vocaloid` for a synth-voice song. `classical`, `traditional`, and `instrumental` mark
+   * repertoire VocaDB does not list, registered from a wiki setlist so the programme is complete;
+   * those rows have no vocalist credit.
+   */
+  category: SongCategory
   publish_date: string | null
   length_seconds: number | null
   /** Credited vocalists from VocaDB's artists list; empty when the song has no structured credit. */
@@ -138,6 +144,9 @@ export type SongRow = {
   source_url: string
   retrieved_at: string
 }
+
+/** Whether a song is a synth-voice song, or which repertoire class replaces it. */
+export type SongCategory = 'vocaloid' | 'classical' | 'traditional' | 'instrumental'
 
 /** One printed setlist line before medley splitting. */
 export type SetlistItemRow = {

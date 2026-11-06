@@ -59,6 +59,7 @@ const song = (id: number, name: string): SongRow => ({
   name_en: null,
   artist_string: 'artist feat. 初音ミク',
   song_type: 'Original',
+  category: 'vocaloid',
   publish_date: null,
   length_seconds: null,
   source_url: `https://vocadb.net/S/${id}`,

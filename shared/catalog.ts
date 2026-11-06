@@ -25,6 +25,7 @@ import type {
   SetlistResolution,
   SetlistSource,
   SongListRow,
+  SongCategory,
   SongProducerCredit,
   SongRow,
   SourceRow,
@@ -107,6 +108,15 @@ const derivedSourceKind = (row: SqlRow): SetlistSource => {
   const value = text(row, 'source_kind')
   if (value === 'vocadb' || value === 'album' || value === 'wiki') return value
   throw new Error(`Unknown derived source kind ${value}`)
+}
+
+/** Narrows `songs.category`; an unknown value is a build error, not a silent bucket. */
+const songCategory = (row: SqlRow): SongCategory => {
+  const value = text(row, 'category')
+  if (value === 'vocaloid' || value === 'classical' || value === 'traditional' || value === 'instrumental') {
+    return value
+  }
+  throw new Error(`Unknown song category ${value}`)
 }
 
 /** Narrows a stored 演出 status value. */
@@ -242,6 +252,7 @@ export const loadCatalog = (db: Queryable): Catalog => {
     name_en: textOrNull(row, 'name_en'),
     artist_string: textOrNull(row, 'artist_string'),
     song_type: text(row, 'song_type'),
+    category: songCategory(row),
     publish_date: textOrNull(row, 'publish_date'),
     length_seconds: intOrNull(row, 'length_seconds'),
     vocalists: vocalistsBySong.get(int(row, 'id')) ?? [],

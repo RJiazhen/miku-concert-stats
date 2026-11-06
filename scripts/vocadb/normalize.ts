@@ -108,6 +108,8 @@ export const normalizeSong = (song: ApiSong, retrievedAt: string): SongRow => {
     name_en: nameIn(song.names, 'English'),
     artist_string: song.artistString ?? null,
     song_type: song.songType ?? 'Unspecified',
+    // Everything VocaDB returns is a synth-voice song; the wiki-only repertoire is written elsewhere.
+    category: 'vocaloid',
     publish_date: vocadbDay(song.publishDate),
     length_seconds: song.lengthSeconds ?? null,
     source_url: songUrl(song.id),
