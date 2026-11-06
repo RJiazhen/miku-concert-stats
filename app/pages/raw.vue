@@ -9,6 +9,7 @@ import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setl
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { producerCredit } from '~~/shared/credit.ts'
 import { formatCharacters } from '~/composables/useCharacters.ts'
+import { setlistPerformanceIds } from '~~/shared/performance-setlists.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
 
 const { catalog, error, pending, load } = useCatalog()
@@ -323,10 +324,11 @@ const songsWithoutVideo = computed(() => {
   return catalog.value.songs.filter((song) => fromVocaDB(song) && !withVideo.has(song.id))
 })
 
-/** Performances that cannot contribute a setlist. */
+/** Performances that cannot contribute a setlist: no setlist at all, or no date to place shows. */
 const incompletePerformances = computed(() => {
   if (!catalog.value) return []
-  return catalog.value.performances.filter((row) => row.song_list_id === null || row.start_date === null)
+  const withSetlist = setlistPerformanceIds(catalog.value)
+  return catalog.value.performances.filter((row) => !withSetlist.has(row.id) || row.start_date === null)
 })
 
 /** Performances whose setlist came from an album tracklist instead of the event. */

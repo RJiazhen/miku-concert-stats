@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
-import { performanceSchedules } from '~~/shared/event-schedule.ts'
+import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 import type { PerformanceRow } from '~~/shared/types.ts'
@@ -35,11 +35,14 @@ const performanceLabel = (performance: PerformanceRow): string => {
 
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
 
-/** 场次 per 演出, including day/night halves proved by the setlist notes. */
-const schedules = computed(() => {
-  if (!catalog.value || !review.value) return null
-  return performanceSchedules(catalog.value, review.value)
+/** 场次 count per 演出: the derived layer first, then the note-derived schedule for the rest. */
+const showCounts = computed(() => {
+  if (!catalog.value || !review.value) return new Map<number, number>()
+  return showCountsByPerformance(catalog.value, review.value)
 })
+
+/** 演出 ids that have a setlist, including a wiki-sourced one with no `song_list_id`. */
+const setlistIds = computed(() => (catalog.value ? setlistPerformanceIds(catalog.value) : new Set<number>()))
 
 /** 演出 of this series, newest first; one row per city stop. */
 const performances = computed(() => {
@@ -54,7 +57,8 @@ const entries = computed(() =>
     label: performanceLabel(performance),
     dates: performanceHeaderFacts(performance).dates,
     venue: performance.venue_name,
-    showCount: schedules.value?.get(performance.id)?.length ?? 0,
+    showCount: showCounts.value.get(performance.id) ?? 0,
+    hasSetlist: setlistIds.value.has(performance.id),
   })),
 )
 
@@ -117,7 +121,7 @@ const yearRange = computed(() => {
                 {{ entry.dates ?? '日期未知' }}
                 <template v-if="entry.venue">· {{ entry.venue }}</template>
                 · {{ entry.showCount }} 个场次
-                <template v-if="entry.performance.song_list_id === null">· 无歌单</template>
+                <template v-if="!entry.hasSetlist">· 无歌单</template>
               </p>
             </div>
             <ULink

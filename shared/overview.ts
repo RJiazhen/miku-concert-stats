@@ -124,10 +124,14 @@ export const buildSeriesOverview = (
  * Every 演出 as one flat row for the overview table.
  * Dated 演出 come newest first, and undated rows sink to the end so the first screen
  * shows the most recent concerts instead of unknown ones.
+ *
+ * `setlistIds` names the 演出 that have a setlist at all, including a wiki-sourced one that
+ * leaves `song_list_id` empty; omit it to fall back to the VocaDB column alone.
  */
 export const buildPerformanceOverview = (
   performances: readonly OverviewPerformance[],
   showCounts?: ShowCounts,
+  setlistIds?: ReadonlySet<number>,
 ): PerformanceOverviewRow[] => {
   return [...performances]
     .sort((left, right) => compareNewestFirst(left.start_date, right.start_date) || right.id - left.id)
@@ -140,6 +144,6 @@ export const buildPerformanceOverview = (
       dates: performanceHeaderFacts(performance).dates,
       venue: performance.venue_name,
       shows: showsOf(performance, showCounts),
-      hasSetlist: performance.song_list_id !== null,
+      hasSetlist: setlistIds === undefined ? performance.song_list_id !== null : setlistIds.has(performance.id),
     }))
 }

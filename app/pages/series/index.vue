@@ -4,8 +4,8 @@ import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
-import { performanceSchedules } from '~~/shared/event-schedule.ts'
 import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overview.ts'
+import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const UButton = resolveComponent('UButton')
@@ -22,18 +22,21 @@ onMounted(startLoad)
 
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
 
-/** 场次 counts per 演出, including a day split into 日场 / 夜场 by the setlist notes. */
+/** 场次 counts per 演出, including a day split into 日场 / 夜场 by the drawn-up schedule. */
 const showCounts = computed(() => {
   if (!catalog.value || !review.value) return undefined
-  return new Map([...performanceSchedules(catalog.value, review.value)].map(([id, shows]) => [id, shows.length]))
+  return showCountsByPerformance(catalog.value, review.value)
 })
+
+/** 演出 ids that have a setlist, so a wiki-sourced stop is not badged 暂无歌单. */
+const setlistIds = computed(() => (catalog.value ? setlistPerformanceIds(catalog.value) : undefined))
 
 const seriesOverview = computed(() =>
   catalog.value ? buildSeriesOverview(catalog.value.series, catalog.value.performances, showCounts.value) : [],
 )
 
 const performanceOverview = computed(() =>
-  catalog.value ? buildPerformanceOverview(catalog.value.performances, showCounts.value) : [],
+  catalog.value ? buildPerformanceOverview(catalog.value.performances, showCounts.value, setlistIds.value) : [],
 )
 
 /** Series lookup used to translate the series tag inside each 演出 name. */

@@ -1203,6 +1203,10 @@ const curatedSetlistSongs = (setlist: CuratedSetlist, show: PerformanceShow): Cu
   return setlist.songs
 }
 
+/**
+ * 場次 of every 演出 read from the derived layer, only for 演出 that have derived rows.
+ * The keys are the same `PerformanceShow` objects the pages print.
+ */
 export const catalogSchedules = (catalog: Catalog): Map<number, PerformanceShow[]> => {
   const map = new Map<number, PerformanceShow[]>()
   for (const row of catalog.performanceShowSetlists) {
@@ -1220,6 +1224,34 @@ export const catalogSchedules = (catalog: Catalog): Map<number, PerformanceShow[
     bucket.sort((left, right) => left.date.localeCompare(right.date) || (left.half ?? '').localeCompare(right.half ?? ''))
   }
   return map
+}
+
+/**
+ * 場次 count per 演出 for the index pages.
+ *
+ * The derived layer wins wherever it has rows, because it carries the hand-checked day/night
+ * split and the exhibition-only days that were removed. 演出 without derived rows fall back to
+ * the note-derived schedule, so the indexes and `/shows` always agree on one number.
+ */
+export const showCountsByPerformance = (catalog: Catalog, review: RotationReview): Map<number, number> => {
+  const counts = new Map<number, number>()
+  for (const [id, shows] of performanceSchedules(catalog, review)) counts.set(id, shows.length)
+  for (const [id, shows] of catalogSchedules(catalog)) counts.set(id, shows.length)
+  return counts
+}
+
+/**
+ * Ids of 演出 that have a setlist at all: VocaDB's own `songList` or a derived wiki / curated
+ * one. A wiki-sourced 演出 has no `song_list_id`, so checking that column alone would call every
+ * Wikipedia-only stop "无歌单".
+ */
+export const setlistPerformanceIds = (catalog: Catalog): Set<number> => {
+  const ids = new Set<number>()
+  for (const row of catalog.performances) {
+    if (row.song_list_id !== null) ids.add(row.id)
+  }
+  for (const row of catalog.performanceSetlists) ids.add(row.performance_id)
+  return ids
 }
 
 /** Most common value. Ties keep the larger one, matching the rotation review. */

@@ -5,7 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames } from '~/composables/usePlaceNames.ts'
 import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
 import { buildCityIndex, rankCities } from '~~/shared/cities.ts'
-import { performanceSchedules } from '~~/shared/event-schedule.ts'
+import { showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const UButton = resolveComponent('UButton')
@@ -39,10 +39,10 @@ type RankedCity = {
 
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
 
-/** 场次 counts per 演出, including a day split into 日场 / 夜场 by the setlist notes. */
+/** 场次 counts per 演出, including a day split into 日场 / 夜场 by the drawn-up schedule. */
 const showCounts = computed(() => {
   if (!catalog.value || !review.value) return undefined
-  return new Map([...performanceSchedules(catalog.value, review.value)].map(([id, shows]) => [id, shows.length]))
+  return showCountsByPerformance(catalog.value, review.value)
 })
 
 const ranking = computed(() =>

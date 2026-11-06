@@ -82,4 +82,12 @@ describe('buildPerformanceOverview', () => {
     const rows = buildPerformanceOverview([performance({ id: 1, series_id: 81, song_list_id: null })])
     expect(rows[0]?.hasSetlist).toBe(false)
   })
+
+  it('treats a wiki-sourced 演出 as having a setlist when given the derived ids', () => {
+    const wikiOnly = performance({ id: 1, series_id: 173, song_list_id: null })
+    expect(buildPerformanceOverview([wikiOnly])[0]?.hasSetlist).toBe(false)
+    expect(buildPerformanceOverview([wikiOnly], undefined, new Set([1]))[0]?.hasSetlist).toBe(true)
+    // An id absent from the set stays without a setlist.
+    expect(buildPerformanceOverview([wikiOnly], undefined, new Set([2]))[0]?.hasSetlist).toBe(false)
+  })
 })

@@ -3,8 +3,10 @@ import Database from 'better-sqlite3'
 import { albumSongListId } from '../shared/album-setlists.ts'
 import { loadCatalog } from '../shared/catalog.ts'
 import { producerCredit } from '../shared/credit.ts'
+import { setlistPerformanceIds, showCountsByPerformance } from '../shared/performance-setlists.ts'
 import { producerNamesFor } from '../shared/producer-options.ts'
 import { LOCAL_PERFORMANCE_ID_BASE } from '../shared/repertoire.ts'
+import { reviewRotations } from '../shared/rotation.ts'
 import type { SqlRow } from '../shared/types.ts'
 import { applyCatalogSql } from '../scripts/build-catalog.ts'
 
@@ -231,6 +233,32 @@ describe('committed catalog', () => {
       expect(status?.status).toBe('upcoming')
       expect(status?.source_url.startsWith('https://')).toBe(true)
       expect(catalog.performanceSetlists.some((row) => row.performance_id === chengdu?.id)).toBe(false)
+    } finally {
+      db.close()
+    }
+  })
+
+  it('counts 场次 from the derived layer and knows which 演出 have a wiki setlist', () => {
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      // The indexes must print the same 4 shows `/shows/13120` lists, even though VocaDB has no
+      // song list for it: the day/night split lives only in the derived layer.
+      const counts = showCountsByPerformance(catalog, reviewRotations(catalog))
+      expect(counts.get(13120)).toBe(4)
+      // A 演出 that has no derived rows falls back to its date range.
+      expect(counts.get(3000000001)).toBe(1)
+      // A cancelled 演出 has no date at all, so it contributes no 场次.
+      expect(counts.get(2886)).toBe(0)
+      const withSetlist = setlistPerformanceIds(catalog)
+      expect(withSetlist.has(13120)).toBe(true)
+      expect(withSetlist.has(3000000001)).toBe(false)
+      // Every 演出 with derived rows is in the set, whatever its VocaDB column says.
+      for (const row of catalog.performanceSetlists) expect(withSetlist.has(row.performance_id)).toBe(true)
     } finally {
       db.close()
     }
