@@ -332,6 +332,7 @@ export const loadCatalog = (db: Queryable): Catalog => {
     conflict: int(row, 'conflict'),
     pending_review: int(row, 'pending_review'),
     note: textOrNull(row, 'note'),
+    page_note: textOrNull(row, 'page_note'),
   }))
   const performanceSetlistSources = db
     .all('SELECT * FROM performance_setlist_sources ORDER BY performance_id, url')

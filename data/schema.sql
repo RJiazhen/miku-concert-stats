@@ -169,7 +169,11 @@ CREATE TABLE performance_setlists (
   conflict INTEGER NOT NULL,
   -- 1 when the attribution is still open: no source located this 演出, or its sources disagree.
   pending_review INTEGER NOT NULL,
-  note TEXT
+  -- Maintainer-facing provenance and caveats; shown in the reports, not on the 演出 page.
+  note TEXT,
+  -- Reader-facing caveat printed on the 演出 page, e.g. the real number of shows when the
+  -- catalog can only tell day from night, or that a setlist may rotate.
+  page_note TEXT
 );
 
 -- Outside evidence behind one 演出's attribution. A 演出 may cite several URLs.

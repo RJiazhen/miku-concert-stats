@@ -37,6 +37,11 @@
     "title": "星屑下的理想乡",
     "source": "vocawiki"
   },
+  "1088": {
+    "title": "新月骑士",
+    "source": "人工核定",
+    "comment": "直译；voca.wiki 条目名为「新月rider」，VocaDB 英文名 Crescent Moon Rider"
+  },
   "1320": {
     "title": "恋爱战争",
     "source": "vocadb-alias"
@@ -85,6 +90,11 @@
     "title": "甜蜜恶魔",
     "source": "萌娘百科"
   },
+  "1416": {
+    "title": "Hello/How are you?",
+    "source": "vocadb-alias",
+    "comment": "原名 ハロ／ハワユ；VocaDB 英文名"
+  },
   "1434": {
     "title": "暗色爱丽丝",
     "source": "vocawiki"
@@ -108,6 +118,10 @@
   "1590": {
     "title": "恶之娘",
     "source": "萌娘百科"
+  },
+  "1674": {
+    "title": "鸟葬",
+    "source": "vocawiki"
   },
   "1932": {
     "title": "假借分身",
@@ -267,6 +281,11 @@
     "source": "vocawiki",
     "comment": "另译：对霜风"
   },
+  "8246": {
+    "title": "六分之一",
+    "source": "vocawiki",
+    "comment": "原名 1/6 -out of the gravity-"
+  },
   "8290": {
     "title": "将来的梦想",
     "source": "vocawiki"
@@ -302,6 +321,10 @@
   "9035": {
     "title": "钢琴×强音×丑闻",
     "source": "萌娘百科"
+  },
+  "9047": {
+    "title": "月影舞华",
+    "source": "vocawiki"
   },
   "9538": {
     "title": "采访者",
@@ -377,6 +400,11 @@
     "title": "Lost One的号哭",
     "source": "vocawiki"
   },
+  "23276": {
+    "title": "Sugar Bits",
+    "source": "vocadb-alias",
+    "comment": "原名 シュガービッツ；VocaDB 英文名"
+  },
   "24149": {
     "title": "马口铁之舞",
     "source": "vocawiki"
@@ -389,6 +417,11 @@
   "25666": {
     "title": "学园×∀ssassinatioИ",
     "source": "简繁转换"
+  },
+  "25668": {
+    "title": "Orange Crossroads",
+    "source": "vocadb-alias",
+    "comment": "原名 橙交差点；VocaDB 英文名"
   },
   "26010": {
     "title": "即使那是你的幸福",
@@ -752,6 +785,11 @@
     "title": "无呼吸义务",
     "source": "vocawiki"
   },
+  "341383": {
+    "title": "坎特雷拉",
+    "source": "vocawiki",
+    "comment": "另译：禁断之毒"
+  },
   "343868": {
     "title": "初音天地开辟神话",
     "source": "vocadb-alias"
@@ -1077,5 +1115,10 @@
     "title": "恋爱战争（future retro remix by kz）",
     "source": "人工核定",
     "comment": "主曲 1320 已有中文名「恋爱战争」"
+  },
+  "2000000029": {
+    "title": "SWEET MEMORIES",
+    "source": "人工核定",
+    "comment": "松田聖子 1983 年原曲；标题保持英文"
   }
 }

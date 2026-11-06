@@ -21478,6 +21478,104 @@
           "note": "安可"
         }
       ]
+    },
+    {
+      "performanceId": 3000000010,
+      "label": "东京",
+      "source": "http://vocaloid.blog120.fc2.com/blog-entry-16607.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "鳥葬",
+          "when": "",
+          "note": "プロローグ（映像なし）"
+        },
+        {
+          "title": "幸福安心委員会",
+          "when": "",
+          "note": "プロローグ（映像なし）"
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": ""
+        },
+        {
+          "title": "シュガービッツ",
+          "when": ""
+        },
+        {
+          "title": "学園×∀ssassinatioИ",
+          "when": "",
+          "note": "ダンス：ミク・リン・レン"
+        },
+        {
+          "title": "背徳の花",
+          "when": "",
+          "note": "鏡音リン・レン"
+        },
+        {
+          "title": "Mad Lovers",
+          "when": "",
+          "note": "巡音ルカ"
+        },
+        {
+          "title": "秘密警察",
+          "when": ""
+        },
+        {
+          "title": "カンタレラ",
+          "when": "",
+          "note": "ダンス：KAITO・ミク"
+        },
+        {
+          "title": "月・影・舞・華",
+          "when": ""
+        },
+        {
+          "title": "Chaining Intention",
+          "when": ""
+        },
+        {
+          "title": "深海少女",
+          "when": ""
+        },
+        {
+          "title": "ハロ/ハワユ",
+          "when": ""
+        },
+        {
+          "title": "1/6 -out of the gravity-",
+          "when": ""
+        },
+        {
+          "title": "三日月ライダー",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "One Night Girl",
+          "when": "",
+          "note": "アンコール"
+        },
+        {
+          "title": "千本桜",
+          "when": "",
+          "note": "アンコール"
+        },
+        {
+          "title": "SWEET MEMORIES",
+          "when": "",
+          "note": "アンコール，松田聖子のカバー"
+        },
+        {
+          "title": "橙交差点",
+          "when": "",
+          "note": "エンディング（スタッフロール）"
+        }
+      ]
     }
   ]
 }

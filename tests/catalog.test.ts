@@ -166,8 +166,16 @@ describe('committed catalog', () => {
         3000000007,
         3000000008,
         3000000009,
+        3000000010,
       ])
       expect(wikiOnly.every((row) => row.source_kind === 'wiki')).toBe(true)
+      // 夏祭初音鑑 ran twice: 5 days in Osaka (27 shows) and 9 days in Tokyo (38 shows).
+      const mikuganOsaka = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3000000005)
+      const mikuganTokyo = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3000000010)
+      expect(mikuganOsaka).toHaveLength(10)
+      expect(mikuganOsaka.every((row) => row.item_count === 11)).toBe(true)
+      expect(mikuganTokyo).toHaveLength(18)
+      expect(mikuganTokyo.every((row) => row.item_count === 20)).toBe(true)
       // The standalone lives added from atwiki / official reports keep their per-show split.
       const pokemiku = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3000000009)
       expect(pokemiku).toHaveLength(6)

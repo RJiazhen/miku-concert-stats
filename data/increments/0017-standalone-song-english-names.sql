@@ -1,7 +1,8 @@
 -- English display names for songs the standalone setlists introduced. VocaDB leaves `name_en`
 -- NULL for many older or collaboration tracks, so the search index cannot match their English
 -- spelling. These are the names printed by voca.wiki or the song's own official English title.
--- Runs after 0010 so the hand-registered repertoire rows exist; every statement is idempotent.
+-- Covers `0016-standalone-lives.sql` (including 夏祭初音鑑 東京公演), and runs after `0010` so the
+-- hand-registered repertoire rows exist; every statement is idempotent.
 BEGIN;
 UPDATE songs SET name_en = 'Crosslight' WHERE id = 1465;
 UPDATE songs SET name_en = 'Finder' WHERE id = 2440;
@@ -44,4 +45,15 @@ UPDATE songs SET name_en = 'HATUNEtive' WHERE id = 2000000025;
 UPDATE songs SET name_en = 'intro (De P Megamix)' WHERE id = 2000000026;
 UPDATE songs SET name_en = 'Jousei Jijitsu Trilogy Megamix' WHERE id = 2000000027;
 UPDATE songs SET name_en = 'Love War (future retro remix by kz)' WHERE id = 2000000028;
+UPDATE songs SET name_en = 'Sky Burial' WHERE id = 1674;
+UPDATE songs SET name_en = 'Sugar Bits' WHERE id = 23276;
+UPDATE songs SET name_en = 'Moon Shadow Dancing Blossom' WHERE id = 9047;
+UPDATE songs SET name_en = 'Chaining Intention' WHERE id = 2447;
+UPDATE songs SET name_en = 'Hello/How are you?' WHERE id = 1416;
+UPDATE songs SET name_en = 'Crescent Moon Rider' WHERE id = 1088;
+UPDATE songs SET name_en = 'SWEET MEMORIES' WHERE id = 683540;
+UPDATE songs SET name_en = 'Orange Crossroads' WHERE id = 25668;
+UPDATE songs SET name_en = 'ONE NIGHT GIRL' WHERE id = 1089;
+UPDATE songs SET name_en = 'SWEET MEMORIES' WHERE id = 2000000029;
+UPDATE songs SET name_en = 'Corrupted Flower' WHERE id = 13418;
 COMMIT;

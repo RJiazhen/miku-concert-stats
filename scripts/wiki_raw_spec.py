@@ -242,6 +242,11 @@ RAW_SPEC: dict[str, dict] = {
         "labels": {3000000005: "大阪"},
         "markers": {},
     },
+    "mikugan2013-tokyo": {
+        "performances": [3000000010],
+        "labels": {3000000010: "东京"},
+        "markers": {},
+    },
     "galaxy2020": {
         "performances": [3000000006],
         "labels": {3000000006: "线上"},

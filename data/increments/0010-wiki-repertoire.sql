@@ -29,4 +29,5 @@ INSERT OR IGNORE INTO songs (id, name, name_ja, name_en, artist_string, song_typ
 (2000000025, 'HATUNEtive', 'HATUNEtive', NULL, 'MOSAIC.WAV', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
 (2000000026, 'intro (デP Megamix)', 'intro (デP Megamix)', NULL, 'デッドボールP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
 (2000000027, '既成事実三部作Megamix', '既成事実三部作Megamix', NULL, 'デッドボールP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
-(2000000028, '恋は戦争(future retro remix by kz)', '恋は戦争(future retro remix by kz)', NULL, 'ryo', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z');
+(2000000028, '恋は戦争(future retro remix by kz)', '恋は戦争(future retro remix by kz)', NULL, 'ryo', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
+(2000000029, 'SWEET MEMORIES', 'SWEET MEMORIES', NULL, '大村雅朗', 'Original', 'vocaloid', NULL, NULL, 'http://vocaloid.blog120.fc2.com/blog-entry-16607.html', '2026-11-06T00:00:00.000Z');

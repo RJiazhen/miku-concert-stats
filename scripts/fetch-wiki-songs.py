@@ -112,6 +112,11 @@ COMPOSERS = {
     # The VocaDB credit uses a different romanisation/name for the same producer.
     "インビテーション！": "ネギシャワーP", "ゴー！ビッパ団": "じーざすP",
     "たびだちのうた": "カラスヤサボウ",
+    # 夏祭初音鑑 東京公演
+    "鳥葬": "鬱P", "シュガービッツ": "すこっぷ", "カンタレラ": "黒うさ",
+    "月・影・舞・華": "銀河方面P", "Chaining Intention": "Treow",
+    "ハロ／ハワユ": "ナノウ", "三日月ライダー": "40mP",
+    "SWEET MEMORIES": "松田聖子", "橙交差点": "まらしぃ",
 }
 
 

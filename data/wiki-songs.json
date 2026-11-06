@@ -975,6 +975,78 @@
       "publishDate": "2026-01-28",
       "lengthSeconds": 270,
       "sourceUrl": "https://vocadb.net/S/906978"
+    },
+    "鳥葬": {
+      "id": 1674,
+      "title": "鳥葬",
+      "artistString": "鬱P feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2008-11-16",
+      "lengthSeconds": 262,
+      "sourceUrl": "https://vocadb.net/S/1674"
+    },
+    "シュガービッツ": {
+      "id": 23276,
+      "title": "シュガービッツ",
+      "artistString": "すこっぷ feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2012-12-15",
+      "lengthSeconds": 278,
+      "sourceUrl": "https://vocadb.net/S/23276"
+    },
+    "月・影・舞・華": {
+      "id": 9047,
+      "title": "月・影・舞・華",
+      "artistString": "銀河方面P feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2011-11-15",
+      "lengthSeconds": 243,
+      "sourceUrl": "https://vocadb.net/S/9047"
+    },
+    "Chaining Intention": {
+      "id": 2447,
+      "title": "Chaining Intention",
+      "artistString": "Treow feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2008-11-07",
+      "lengthSeconds": 274,
+      "sourceUrl": "https://vocadb.net/S/2447"
+    },
+    "ハロ／ハワユ": {
+      "id": 1416,
+      "title": "ハロ／ハワユ",
+      "artistString": "ナノウ feat. 初音ミク Append (Soft)",
+      "songType": "Original",
+      "publishDate": "2010-07-07",
+      "lengthSeconds": 288,
+      "sourceUrl": "https://vocadb.net/S/1416"
+    },
+    "三日月ライダー": {
+      "id": 1088,
+      "title": "三日月ライダー",
+      "artistString": "40mP feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2010-03-24",
+      "lengthSeconds": 264,
+      "sourceUrl": "https://vocadb.net/S/1088"
+    },
+    "One Night Girl": {
+      "id": 1089,
+      "title": "One Night Girl",
+      "artistString": "ジミーサムP feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2010-03-24",
+      "lengthSeconds": 264,
+      "sourceUrl": "https://vocadb.net/S/1089"
+    },
+    "橙交差点": {
+      "id": 25668,
+      "title": "橙交差点",
+      "artistString": "まらしぃ feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2013-03-15",
+      "lengthSeconds": 358,
+      "sourceUrl": "https://vocadb.net/S/25668"
     }
   }
 }

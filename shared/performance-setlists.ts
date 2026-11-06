@@ -51,7 +51,10 @@ export type PerformanceCuration = {
    * `{ "2025-08-01": ["night"] }` for a first day with only a night show.
    */
   halves?: Record<string, SetlistHalf[]>
+  /** Maintainer-facing note; kept in the reports and off the 演出 page. */
   note?: string
+  /** Reader-facing caveat printed on the 演出 page. */
+  pageNote?: string
   sources?: SetlistSourceEntry[]
   /**
    * A complete ordered setlist from an outside source, used instead of the VocaDB rows.
@@ -239,6 +242,12 @@ const parsePerformanceCuration = (value: unknown, performanceId: number): Perfor
   if (record.note !== undefined) {
     if (typeof record.note !== 'string') throw new Error(`Curation for ${performanceId} note is not text`)
     parsed.note = record.note
+  }
+  if (record.pageNote !== undefined) {
+    if (typeof record.pageNote !== 'string' || record.pageNote.trim() === '') {
+      throw new Error(`Curation for ${performanceId} pageNote must be non-empty text`)
+    }
+    parsed.pageNote = record.pageNote
   }
   if (record.dayNight !== undefined) {
     if (!Array.isArray(record.dayNight) || !record.dayNight.every(isDay)) {
@@ -1011,6 +1020,7 @@ export const buildPerformanceSetlists = (
       conflict,
       pending_review: pendingReview ? 1 : 0,
       note: performanceCuration?.note ?? listCuration?.note ?? null,
+      page_note: performanceCuration?.pageNote ?? null,
     })
     stats.performances += 1
     if (pendingReview) stats.pendingReview += 1

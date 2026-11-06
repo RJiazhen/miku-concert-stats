@@ -79,6 +79,7 @@ export const renderPerformanceSetlists = (build: PerformanceSetlistBuild, retrie
         'conflict',
         'pending_review',
         'note',
+        'page_note',
       ],
       build.setlists.map((row) => [
         row.performance_id,
@@ -94,6 +95,7 @@ export const renderPerformanceSetlists = (build: PerformanceSetlistBuild, retrie
         row.conflict,
         row.pending_review,
         row.note,
+        row.page_note,
       ]),
     ),
   )

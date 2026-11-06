@@ -22,7 +22,7 @@
 
 `data/increments/0011-manual-performances.sql` 收录 **VocaDB 没有 event 的演出**。第一条是未来有你 2026 成都站（2026-12-26，id `3000000001`）：上游系列 173 只有上海站，成都站在上海站收官时公布，只能人工补行。这类 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `LOCAL_PERFORMANCE_ID_BASE`），`source_url` 指向日程／公告来源而不是 `vocadb.net/E/{id}`，`vocadb_status` 为 `NULL`；演出页据此把按钮显示成「演出来源」。它们同样用 `INSERT OR IGNORE` 写在 0001 之后，因为 `pnpm collect` 会先清空 `performances`。尚未举行的场次在 `data/performance-setlists.json` 的 `statuses.<id>` 写 `upcoming`，派生进 `performance_status`。
 
-`data/increments/0016-standalone-lives.sql` 继续补 **VocaDB 完全没有 event 的独自演出**：ミクFES '09（夏）/ MIKU FES '24（春）、夏の終わりの39祭り、夏祭初音鑑、GALAXY LIVE 2020 / 2021、LAWSON 50th Anniversary Special LIVE、ポケモン feat. 初音ミク VOLTAGE Live。id 为 `3000000002`–`3000000009`，本地系列 id 从 `900000001` 起；逐曲表来自 `data/wiki-raw/` 下对应的 8 个文件，日程与场次从百科或官方 after report 写入 `0008`。
+`data/increments/0016-standalone-lives.sql` 继续补 **VocaDB 完全没有 event 的独自演出**：ミクFES '09（夏）/ MIKU FES '24（春）、夏の終わりの39祭り、夏祭初音鑑（大阪公演 / 東京公演两场）、GALAXY LIVE 2020 / 2021、LAWSON 50th Anniversary Special LIVE、ポケモン feat. 初音ミク VOLTAGE Live。id 为 `3000000002`–`3000000010`，本地系列 id 从 `900000001` 起；逐曲表来自 `data/wiki-raw/` 下对应的 9 个文件，日程与场次从百科或官方 after report 写入 `0008`。夏祭初音鑑 是「先行 + 正式」两段：大阪 8/3–8/7（5 天 27 场）与东京 8/21–8/29（9 天 38 场），合计 14 天 65 场，目录按日场/夜场两层折算并在演出 `note` 里写明真实场次数。
 
 `data/increments/0012-performance-name-fixes.sql` 只做**显示名更正**：上游 13120 只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站后两者无法区分，所以用 `UPDATE` 把 `name` / `name_ja` / `series_suffix` 改成 `MIKU WITH YOU 2026 in Shanghai`。它同样写在 `0001` 之后，`pnpm collect` 重写 `0001` 后仍然生效；只改这三列，不动日期、场馆与 `song_list_id`。
 
@@ -82,13 +82,13 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 **源歌单层与场次层。** VocaDB 只为每个 release event 存**一个** `songList` 引用，同一份歌单会被多个演出共用（本目录最多 17 个），地区与场次差异只能写进行内备注。因此目录额外物化一层场次歌单：`scripts/derive-performance-setlists.ts`（`pnpm derive:setlists`）读已提交的 `0001`/`0004` 与 `data/performance-setlists.json`，用 `shared/performance-setlists.ts` 把每个源行展开到它覆盖的场次，写出 `data/increments/0008-performance-setlists.sql`。源层（`song_lists` / `setlist_items` / `setlist_item_songs`）保持 VocaDB 原样，继续供 `/raw` 跨演出对照与 `/report` 使用；场次层供 `/shows`、排行与公开 skill 使用。两者都有 `source_list_id` / `source_position` 可对回。
 
-场次层六张表：`performance_setlists`（每演出一行：源歌单、`change`、`status`、`resolution`、`source_row_count`、`day_night_dates`、`no_show_dates`、`single_show_dates`、`conflict`、`pending_review`、`note`）、`performance_setlist_sources`（外部来源）、`performance_show_setlists`（每场次一行）、`performance_show_setlist_items`（每场次一整串有序曲目，`song_id` 与 `medley_id` 二选一）、`medleys` / `medley_songs`（串烧，当前为空表）。外部来源只记在演出层：检索都以 performance 为基准，逐场次的特殊情况写进 `performance_setlists.note`。
+场次层六张表：`performance_setlists`（每演出一行：源歌单、`change`、`status`、`resolution`、`source_row_count`、`day_night_dates`、`no_show_dates`、`single_show_dates`、`conflict`、`pending_review`、`note`、`page_note`）、`performance_setlist_sources`（外部来源）、`performance_show_setlists`（每场次一行）、`performance_show_setlist_items`（每场次一整串有序曲目，`song_id` 与 `medley_id` 二选一）、`medleys` / `medley_songs`（串烧，当前为空表）。外部来源只记在演出层：检索都以 performance 为基准，逐场次的特殊情况写进 `performance_setlists.note`。`note` 是给维护者看的来源与疑点，只进报告；`page_note` 是给读者看的一句话（例如「5 天共 27 场，本目录只区分日场 / 夜场」），显示在 `/shows/{id}` 页头的提示条里。
 
-`data/performance-setlists.json` 的 `performances.<id>` 支持四组时间修正：`dayNight`（该日昼 + 夜两场）、`noShowDates`（该日只有企划展、没有 live）、`halves`（该日只有昼场或只有夜场，例如首日仅夜场）、`singleShowDates`（该日核实为只有一场）。四者都物化为 `day_night_dates` / `no_show_dates` / `single_show_dates`，场次由 `performanceSchedules` 一次算好，页面与统计直接读 `performance_show_setlists`。
+`data/performance-setlists.json` 的 `performances.<id>` 支持四组时间修正：`dayNight`（该日昼 + 夜两场）、`noShowDates`（该日只有企划展、没有 live）、`halves`（该日只有昼场或只有夜场，例如首日仅夜场）、`singleShowDates`（该日核实为只有一场）。四者都物化为 `day_night_dates` / `no_show_dates` / `single_show_dates`，场次由 `performanceSchedules` 一次算好，页面与统计直接读 `performance_show_setlists`。同一条记录还可以写 `note`（维护者用）与 `pageNote`（读者用），后者显示在演出页的「歌单说明」提示条里；一天有多于两场时（例如夏祭初音鑑 大阪 5 天 27 场）就用它说明真实场次数与本目录的折算方式。
 
 `performances.<id>` 的 `dayNight` / `singleShowDates` / `halves` 也接受字符串 `all`，表示按演出的日期区间展开，用于「该城每天都有一场」或「每天昼夜各一场」这类整段结论。
 
-**百科逐曲表是外包数据的主力。** 190 个演出里有 178 个的曲目逐条来自「初音ミク Wiki」（atwiki）或官方逐曲表；其余 12 个仍用 VocaDB 歌单，配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`，逐曲表行的 `songs.source_url` 指向印有该曲名的那一页。数据分三处：
+**百科逐曲表是外包数据的主力。** 191 个演出里有 179 个的曲目逐条来自「初音ミク Wiki」（atwiki）或官方逐曲表；其余 12 个仍用 VocaDB 歌单，配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`，逐曲表行的 `songs.source_url` 指向印有该曲名的那一页。数据分三处：
 
 - `data/wiki-raw/<key>.json`：页面表格的原始单元格（含表头），由浏览器抓取时原样落盘，便于复核。atwiki 页面用 `page` 记页号，其他站点用 `url` 记完整来源；两种都能进同一套逐行解析。
 - `scripts/wiki_raw_spec.py`：声明每张表的公演替标记选中哪些演出，标记可写成 `6516`、`6516#2`（第 2 个日期）、`*#1:day`（任意演出的第 1 个日期日场）等；没有 `公演替` 列、昼夜写在 `備考` 的表用 `noteMarkers`。
@@ -168,7 +168,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `resolution` 取值 `vocadb-note`（备注到日期/半场）、`vocadb-shared`（整份无备注，含专辑补位）、`external`（外部来源定位）、`unresolved`（都没有）。`pending_review` 只在归属真的悬空时为 1：没有来源定位到这一场（`unresolved`）或来源之间互相矛盾（`conflict`）。`conflict` 表示与 VocaDB 或 `docs/data-issues.md` 的既有结论不一致且未裁决。
 - `catalogDayNight` / `catalogSchedules` / `derivedItemSongIds` / `showSongIds` 供页面与统计共用，避免各自再解析一遍。
 - `showCountsByPerformance` 给索引页（`/series`、`/series/{id}`、`/cities`）算每个演出的场次数：派生层有行就用派生层（含人工核实的昼夜拆分与剔除的展览日），没有就回退 `performanceSchedules`。`/shows` 与索引页因此在同一场演出上给出同一个数字。
-- `setlistPerformanceIds` 判断一个演出「有没有歌单」：VocaDB 的 `song_list_id` 或派生层任一条。只有 `song_list_id` 会把 178 个百科来源的演出错报成「无歌单」。
+- `setlistPerformanceIds` 判断一个演出「有没有歌单」：VocaDB 的 `song_list_id` 或派生层任一条。只有 `song_list_id` 会把 179 个百科来源的演出错报成「无歌单」。
 
 `shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正，以及 F 数据来源记录（已采用，不需要确认）。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
 
@@ -275,6 +275,10 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 `app/composables/useFeedbackDraft.ts` 把描述与来源链接写进 `localStorage` 键 `miku-feedback-draft`，每次输入即写、重新打开弹窗或刷新页面都会恢复；关闭 / 取消都不清除，只有提交成功后才删除。`localStorage` 的读写全部包在 `try/catch` 里，SSR、无痕模式和损坏的 JSON 都退回空草稿。
 
 站内不提供 VocaDB 检索代理。浏览器只读构建好的目录，页内搜索不发起任何站外请求；VocaDB 只由构建期的采集脚本访问。
+
+`server/routes/skill.md.ts` 从 `/skill.md` 以 `text/plain; charset=utf-8` 返回 `skills/query-concert-stats/SKILL.md` 的当前版本，供不想安装 skill 的外部 agent 直接读取。文件由 `nuxt.config.ts` 的 `nitro.serverAssets` 在构建期打包进 Worker（产物是 `chunks/raw/SKILL.mjs`），运行时不读文件系统；响应带 `cache-control: public, max-age=300`，改完 skill 重新部署即更新。页脚与 README 都链接这个地址。
+
+`app/components/AiPromptButton.vue` 是页眉右侧的 `AI` 按钮（`i-lucide-sparkles`）：点击后用 `navigator.clipboard.writeText` 写入一段固定提示词——它指向 `/skill.md`，并附两个需要目录数据才能回答的问题。成功后按钮 4 秒内切换为绿色 `已复制` + 对勾并弹 toast「已复制提示词／粘贴到 AI 对话框即可测试」，失败时只弹 toast 说明可手动让 AI 读取 `/skill.md`；提示词本身不在页面上展示。
 
 `server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
 

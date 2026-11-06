@@ -159,6 +159,12 @@
       "artist": "ryo",
       "note": "「恋は戦争」的 future retro remix（kz），同一场里先演 remix 再演原曲；VocaDB 没有单独条目，按百科标题登记"
     },
+    "SWEET MEMORIES": {
+      "id": 2000000029,
+      "category": "vocaloid",
+      "artist": "大村雅朗",
+      "note": "松田聖子 1983 年的歌曲（大村雅朗作曲）。夏祭初音鑑 东京公演作为安可曲由初音ミク翻唱，VocaDB 只有原曲与翻唱条目，没有这场演出的版本"
+    },
     "ぽっぴっぽー（Grand Finale）": {
       "id": null,
       "skip": true,

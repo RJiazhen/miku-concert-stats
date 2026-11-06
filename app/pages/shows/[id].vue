@@ -75,6 +75,9 @@ const setlistRow = computed(
   () => catalog.value?.performanceSetlists.find((row) => row.performance_id === performanceId.value) ?? null,
 )
 
+/** Reader-facing caveat about this 演出's schedule or setlist, e.g. the real number of shows. */
+const pageNote = computed(() => setlistRow.value?.page_note ?? null)
+
 /** Whether the 演出 itself has a VocaDB event page, false for a row registered from a schedule source. */
 const performanceOnVocaDB = computed(() => fromVocaDB(performance.value))
 
@@ -210,6 +213,14 @@ const showLabelsInHeader = computed<string[]>(() => {
         </div>
       </header>
 
+      <UAlert
+        v-if="pageNote"
+        color="info"
+        variant="subtle"
+        icon="i-lucide-info"
+        title="歌单说明"
+        :description="pageNote"
+      />
       <UAlert
         v-if="statusNote"
         :color="statusNote.status === 'cancelled' ? 'error' : 'warning'"

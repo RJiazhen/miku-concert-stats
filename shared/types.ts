@@ -198,7 +198,10 @@ export type PerformanceSetlistRow = {
   conflict: number
   /** 1 when the attribution is still open: no source located it, or its sources disagree. */
   pending_review: number
+  /** Maintainer-facing provenance and caveats; not printed on the 演出 page. */
   note: string | null
+  /** Reader-facing caveat printed on the 演出 page. */
+  page_note: string | null
 }
 
 /** Outside evidence behind one 演出's attribution. */

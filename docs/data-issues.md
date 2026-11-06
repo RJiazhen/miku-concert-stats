@@ -2,7 +2,7 @@
 
 记录截至 **2026-11-06** 已确认的数据缺陷与模型张力，供后续单独开 agent 逐项修复。每条包含：现象、影响、证据（目录 id）、建议方向；已修复的条目标注「已解决」并给出复核方法。
 
-数据侧的现状一句话：目录里 **217 个演出**，其中 **190 个有歌单**、展开成 **387 个场次 / 9479 条曲目**；这 190 个里 178 个的曲目逐条来自百科 / 官方逐曲表、12 个仍用 VocaDB 歌单。199 条来源记录覆盖全部 190 个有歌单的演出，待核实 / 冲突 / 不确定场次均为 0。剩下 27 个没有歌单的演出里，13 个已标取消、1 个已标尚未举行（未来有你 2026 成都站）、3 个是尚未举行的交响乐、9 个是 MIKU EXPO 2026 欧洲站、1 个是鼓童 2026。
+数据侧的现状一句话：目录里 **218 个演出**，其中 **191 个有歌单**、展开成 **410 个场次 / 9894 条曲目**；这 191 个里 179 个的曲目逐条来自百科 / 官方逐曲表、12 个仍用 VocaDB 歌单。202 条来源记录覆盖全部 191 个有歌单的演出，待核实 / 冲突 / 不确定场次均为 0。剩下 27 个没有歌单的演出里，13 个已标取消、1 个已标尚未举行（未来有你 2026 成都站）、3 个是尚未举行的交响乐、9 个是 MIKU EXPO 2026 欧洲站、1 个是鼓童 2026。
 
 约定引用：
 
@@ -82,7 +82,7 @@ SELECT performance_id, GROUP_CONCAT(show_key, ' ') FROM performance_show_setlist
 
 **现象**：
 
-- `performances.showtime_local` 非空 **2 / 217**（手动补录的「夏の終わりの39祭り」与未来有你 2026 成都站；VocaDB 行仍全部为空）；`time_evidence` 非空 **2**；`time_precision` 全部为 `day`。
+- `performances.showtime_local` 非空 **2 / 218**（手动补录的「夏の終わりの39祭り」与未来有你 2026 成都站；VocaDB 行仍全部为空）；`time_evidence` 非空 **2**；`time_precision` 全部为 `day`。
 - 系列 81（魔法未来）、173（未来有你）里**没有任何同一天的两条 event**，所以不能靠事件拆分识别日夜场。
 - `shared/showtime.ts` 的解析规则只接受**恰好一个** `Showtime`/`開演` 时刻，出现两个就返回 `null`。即使将来解析出单个时刻，`scripts/vocadb/normalize.ts` 也把 `time_precision` 硬编码为 `'day'`，不会变成 `minute`。
 - 目前唯一的日夜证据来自歌单备注（`Daytime Shows`、`Nighttime Shows`、`1st/2nd Show`、`昼夜`），只能证明「某首歌只在日场/夜场唱」，不能给出每天几场、几点开演。
@@ -236,7 +236,7 @@ id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优�
 
 ### 3.4 过渡性增量 SQL
 
-**现状**：`data/increments/0004-standalone-events.sql`（39 感谢祭 2520）、`0005-kodo-series.sql`（鼓童 255）、`0015-decomiku-hello.sql`（デコミク LIVE 9401）与 `0016-standalone-lives.sql`（系列外 8 场单独演出）是为「不跑全量 collect」而做的桥接，全部 `INSERT OR IGNORE`。9401 的情况不同：它是 VocaDB 的 event，但不属于任何收录的系列（`seriesId` 为空），系列循环永远走不到，所以连同本地系列 900000000 与空 song list 24530 一起补进来。`0016` 收录的 8 场（ミクFES '09 / '24、夏の終わりの39祭り、夏祭初音鑑、GALAXY LIVE 2020 / 2021、LAWSON 50th、ポケミク VOLTAGE Live）在 VocaDB 里没有 event，本地系列 id 从 900000001 起。
+**现状**：`data/increments/0004-standalone-events.sql`（39 感谢祭 2520）、`0005-kodo-series.sql`（鼓童 255）、`0015-decomiku-hello.sql`（デコミク LIVE 9401）与 `0016-standalone-lives.sql`（系列外 9 场单独演出）是为「不跑全量 collect」而做的桥接，全部 `INSERT OR IGNORE`。9401 的情况不同：它是 VocaDB 的 event，但不属于任何收录的系列（`seriesId` 为空），系列循环永远走不到，所以连同本地系列 900000000 与空 song list 24530 一起补进来。`0016` 收录的 9 场（ミクFES '09 / '24、夏の終わりの39祭り、夏祭初音鑑 大阪公演 / 東京公演、GALAXY LIVE 2020 / 2021、LAWSON 50th、ポケミク VOLTAGE Live）在 VocaDB 里没有 event，本地系列 id 从 900000001 起。
 
 **后续**：`pnpm collect` 把同样的行写进 `0001` 之后，前三个文件会变成空操作，届时可以删除；`0016` 仍要保留，因为 VocaDB 没有这些 event。删之前先确认 `0001` 已包含 `255` 系列、`2520` 与 `9401`。
 
@@ -244,7 +244,7 @@ id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优�
 
 **背景**：VocaDB 对同一份 `songList` 只存一份，多个城市共用（最多 17 个演出），地区差异只能写在行内备注里；交响乐则完全没有 `songList`。因此曲目改从「初音ミク Wiki」（atwiki）的**逐曲表**逐条登记。
 
-**现状（2026-11-06）**：190 个演出中 **178 个**的曲目逐条来自百科 / 官方逐曲表，其余 12 个仍用 VocaDB 歌单并配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`（199 行、89 个去重 URL），逐条带 `title` / `accessed_at` / `confidence` / `note`。
+**现状（2026-11-06）**：191 个演出中 **179 个**的曲目逐条来自百科 / 官方逐曲表，其余 12 个仍用 VocaDB 歌单并配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`（202 行、91 个去重 URL），逐条带 `title` / `accessed_at` / `confidence` / `note`。
 
 **这个改动的代价（需要知道）**：
 
@@ -272,10 +272,10 @@ id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优�
 
 `performance_show_setlist_items.evidence` 是「归属方式」，**不是链接**，且没有 CHECK 约束（只有 `shared/catalog.ts` 在加载时校验）。按行生成来源按钮时：
 
-- `evidence = 'wiki'` 的行 `source_position` **全部为 NULL**，必须走 `performance_setlist_sources`（演出级）。用 `LEFT JOIN setlist_items ON source_position` 一条 SQL 通吃，会让 8254 / 9479 行（87%）的 URL 静默变成 NULL。
+- `evidence = 'wiki'` 的行 `source_position` **全部为 NULL**，必须走 `performance_setlist_sources`（演出级）。用 `LEFT JOIN setlist_items ON source_position` 一条 SQL 通吃，会让 8669 / 9894 行（88%）的 URL 静默变成 NULL。
 - `note` / `shared` 行的 `source_position` 全部有值，走 `performance_setlists.source_list_id → song_lists.source_url`。
 - `curated` 目前 **0 行**，但类型与 UI 标签都保留了它；它同时可能出现在「有 source_position」（人工 assign）和「无 source_position」（人工补行）两种形态。
-- `performance_setlists.change = 'curated'` 是**另一个字段**（178 行），含义是「整份被替换过」，不要与行级 `evidence` 混淆。
+- `performance_setlists.change = 'curated'` 是**另一个字段**（179 行），含义是「整份被替换过」，不要与行级 `evidence` 混淆。
 
 ## 四、采集流程的注意点
 
@@ -369,7 +369,7 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 | 已完成 | 2.3 日夜场（`data/performance-setlists.json`） | `pending review = 0`、`conflict = 0`、`uncertain = 0` |
 | 已完成 | 2.2 展览日排除 | 5 个已核实的展览日已从场次中剔除 |
 | 已完成 | 4.2 取消场次标注 | `performance_status` 表，13 条 `cancelled` |
-| 已完成 | 曲目改由百科逐曲表提供（3.5） | 178 / 190 个演出；地区差异不再靠备注 |
+| 已完成 | 曲目改由百科逐曲表提供（3.5） | 179 / 191 个演出；地区差异不再靠备注 |
 | 已完成 | 非 VOCALOID 曲目登记（3.6） | 20 条，演出页曲目不再缺行 |
 | — | 3.3 版本链根节点人工合并（[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)） | 已解决：`389595`、`2925` 均从目录删除（0013 / 0014），单曲页新增演奏版本说明 |
 | 中 | 3.5 的原始表格回溯 | 52 个被引用的 atwiki 页没有留档，只留了 URL 与逐行曲目 |
