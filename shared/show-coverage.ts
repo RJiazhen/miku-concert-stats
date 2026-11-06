@@ -16,6 +16,8 @@ export type ShowCoverage = {
   total: number
   /** Those 場次 the song appears in; the numerator. */
   covered: number
+  /** Short labels of the covered 場次, e.g. `8/10 夜场`; absent when only counts are known. */
+  labels?: string[]
 }
 
 /**
@@ -89,20 +91,33 @@ export const showCoverage = (
     const shows = schedulesOf(performance.id)
     if (shows.length === 0) continue
     const covered = coveredByPerformance.get(performance.id) ?? new Set<string>()
+    const played = shows.filter((show) => covered.has(show.key))
     result.set(performance.id, {
       total: shows.length,
-      covered: shows.filter((show) => covered.has(show.key)).length,
+      covered: played.length,
+      labels: played.map(shortShowLabel),
     })
   }
   return result
 }
 
+/** Short 场次 label for an appearance note, e.g. `8/10 夜场`; the year is on the row already. */
+const shortShowLabel = (show: PerformanceShow): string => {
+  const date = show.date
+  if (!date) return show.label
+  const monthDay = `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
+  if (show.half === 'day') return `${monthDay} 日场`
+  if (show.half === 'night') return `${monthDay} 夜场`
+  return monthDay
+}
+
 /**
  * Chinese 备注 text for one appearance row's 演出 coverage, or null to show nothing.
  *
- * Full coverage reads `本演出全部 N 场`; partial coverage reads `N 场中 M 场` so the numbers
- * cannot be misread as show indices. A single-場次 演出 returns null because `本演出全部 1 场`
- * is noise on every row. When the row's own note already failed to pick a show inside one city
+ * Full coverage reads `本演出全部 N 场`; partial coverage reads `N 场中 M 场` and, when the
+ * labels are known, names the 場次 that played it (`6 场中 3 场：8/10 夜场、8/11 日场`).
+ * A single-場次 演出 returns null because `本演出全部 1 场` is noise on every row. When the
+ * row's own note already failed to pick a show inside one city
  * (`city-only when city has several shows: N`), the `共 N 场` warning owns the numbers for that
  * row and this figure is suppressed, so the cell never prints two different totals.
  *
@@ -116,5 +131,6 @@ export const formatShowCoverage = (
   if (coverage === null || coverage.total < 2) return null
   if (reasons.some((reason) => reason.startsWith('city-only when city has several shows'))) return null
   if (coverage.covered >= coverage.total) return `本演出全部 ${coverage.total} 场`
-  return `${coverage.total} 场中 ${coverage.covered} 场`
+  const played = coverage.labels !== undefined && coverage.labels.length > 0 ? `：${coverage.labels.join('、')}` : ''
+  return `${coverage.total} 场中 ${coverage.covered} 场${played}`
 }

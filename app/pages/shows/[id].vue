@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames, usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
-import { albumSetlistSources } from '~~/shared/album-setlists.ts'
+import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { catalogSchedules } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
@@ -64,6 +64,29 @@ const albumSources = computed(() => {
   )
   if (fromWiki) return []
   return albumSetlistSources(catalog.value, [listId])
+})
+
+/** Album page behind the setlist, linked from the 专辑曲目 header button. */
+const albumSource = computed(() => albumSources.value[0] ?? null)
+
+/** Derived setlist row, which tells where the rows came from. */
+const setlistRow = computed(
+  () => catalog.value?.performanceSetlists.find((row) => row.performance_id === performanceId.value) ?? null,
+)
+
+/** VocaDB song-list page, or null when the rows are an album tracklist or a wiki table. */
+const vocaDBListUrl = computed(() => {
+  const row = setlistRow.value
+  if (!row || row.source_kind === 'wiki' || row.source_list_id === null) return null
+  if (albumIdFromSongListId(row.source_list_id) !== null) return null
+  return `https://vocadb.net/L/${row.source_list_id}`
+})
+
+/** Wiki page the rows came from, shown only when the setlist is a wiki table. */
+const wikiSource = computed(() => {
+  if (setlistRow.value?.source_kind !== 'wiki') return null
+  const sources = catalog.value?.performanceSetlistSources.filter((row) => row.performance_id === performanceId.value) ?? []
+  return sources.find((row) => row.url.includes('w.atwiki.jp')) ?? sources[0] ?? null
 })
 
 /** Performance name with its series and place in the site language. */
@@ -147,6 +170,15 @@ const headerLine = computed(() => {
           <UButton :to="performance.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
             VocaDB 演出
           </UButton>
+          <UButton v-if="vocaDBListUrl" :to="vocaDBListUrl" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
+            VocaDB 歌单
+          </UButton>
+          <UButton v-if="albumSource" :to="albumSource.url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
+            专辑曲目
+          </UButton>
+          <UButton v-if="wikiSource" :to="wikiSource.url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
+            初音ミク Wiki
+          </UButton>
         </div>
       </header>
 
@@ -173,7 +205,6 @@ const headerLine = computed(() => {
         description="没有歌单时无法列出曲目。"
       />
       <template v-else>
-        <AlbumSetlistAlert :sources="albumSources" />
         <ShowSetlistSection
           v-if="catalog"
           :catalog="catalog"

@@ -8,14 +8,14 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { songCharacters, type SongCredits } from '~/composables/useCharacters.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
 import { producerNamesFor } from '~~/shared/producer-options.ts'
-import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
+import { reviewRotations } from '~~/shared/rotation.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
 import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { latestSnapshot } from '~~/shared/stats.ts'
-import { catalogBadge, fromVocaDB, isVocaloidSong, repertoireExplanation } from '~~/shared/repertoire.ts'
+import { fromVocaDB, isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
 import {
   nextAppearanceSort,
   sortAppearances,
@@ -27,7 +27,7 @@ import type { Platform } from '~~/shared/types.ts'
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
-const { songById, songHref, songHrefTarget } = useSongLookup()
+const { songById, songHref, vocadbSongUrl } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { language, translationFor } = useSongLanguage()
@@ -58,20 +58,13 @@ type NotePart = {
 }
 
 /**
- * Builds the 备注 parts of one appearance row: variant note, 演出 coverage,
- * rotation warnings, then the parser's muted context text.
+ * Builds the 备注 parts of one appearance row: the version note, then how many 场次
+ * of the 演出 played it.
  */
-const appearanceNoteParts = (
-  versionNote: string,
-  coverage: string | null,
-  reasons: readonly string[],
-  info: readonly string[],
-): NotePart[] => {
+const appearanceNoteParts = (versionNote: string, coverage: string | null): NotePart[] => {
   const parts: NotePart[] = []
   if (versionNote !== '') parts.push({ text: `版本：${versionNote}`, warning: false })
   if (coverage !== null) parts.push({ text: coverage, warning: false })
-  for (const reason of reasons) parts.push({ text: formatRotationReason(reason), warning: true })
-  for (const text of info) parts.push({ text, warning: false })
   return parts
 }
 
@@ -121,6 +114,17 @@ const appearances = computed(() => {
   const coverageByPerformance = showCoverage(catalog.value, review, groupIds.value)
   const canonicalName = song.value?.name ?? ''
   const showVersion = variantIds.value.length > 0
+
+  /** 版本 note of one song id of the group; empty for the canonical version. */
+  const versionNoteOf = (songId: number): string => {
+    const entry = variants.entries.get(songId)
+    if (!entry || !showVersion) return ''
+    const variantSong = songById(songId)
+    // A cover is sung by the variant's own cast, not the canonical song's.
+    const performers = entry.kind === 'cover' ? songCharacters(variantSong ?? null) : []
+    return variantVersionNote(canonicalName, variantSong?.name ?? String(songId), entry.kind, performers)
+  }
+
   const rows: {
     key: string
     seriesId: number
@@ -134,7 +138,6 @@ const appearances = computed(() => {
     role: string
     /** Plain text of the 备注 cell, used by the column sort. */
     noteText: string
-    uncertain: boolean
     /** 备注 cell parts in display order, also concatenated into `noteText`. */
     noteParts: NotePart[]
   }[] = []
@@ -147,15 +150,8 @@ const appearances = computed(() => {
       if (line && !line.performanceIds.includes(performance.id)) continue
       const series = catalog.value.series.find((row) => row.id === performance.series_id)
       const seriesName = series?.name ?? String(performance.series_id)
-      const entry = variants.entries.get(link.song_id)
-      const variantSong = songById(link.song_id)
-      const versionName = variantSong?.name ?? String(link.song_id)
-      // A cover is sung by the variant's own cast, not the canonical song's.
-      const performers = entry?.kind === 'cover' ? songCharacters(variantSong ?? null) : []
-      // The canonical version is the page's default, so only variants need a note.
-      const versionNote = entry && showVersion ? variantVersionNote(canonicalName, versionName, entry.kind, performers) : ''
-      const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, line?.reasons ?? [])
-      const noteParts = appearanceNoteParts(versionNote, coverage, line?.reasons ?? [], line?.info ?? [])
+      const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, [])
+      const noteParts = appearanceNoteParts(versionNoteOf(link.song_id), coverage)
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
         seriesId: performance.series_id,
@@ -167,7 +163,6 @@ const appearances = computed(() => {
         date: performance.start_date,
         role: performance.role,
         noteText: noteParts.map((part) => part.text).join('；'),
-        uncertain: line?.uncertain ?? false,
         noteParts,
       })
     }
@@ -183,8 +178,8 @@ const appearances = computed(() => {
     const show = catalog.value.performanceShowSetlists.find((row) => row.show_key === item.show_key)
     const series = catalog.value.series.find((row) => row.id === performance.series_id)
     const seriesName = series?.name ?? String(performance.series_id)
-    const showNote = show === undefined ? '百科逐曲表' : `百科逐曲表 · ${show.half === null ? '单场' : show.half === 'day' ? '日场' : '夜场'}`
-    const noteParts: NotePart[] = [{ text: showNote, warning: false }]
+    const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, [])
+    const noteParts = appearanceNoteParts(versionNoteOf(item.song_id), coverage)
     rows.push({
       key: `${performance.id}:${item.song_id}:${item.show_key}`,
       seriesId: performance.series_id,
@@ -196,7 +191,6 @@ const appearances = computed(() => {
       date: show?.date ?? performance.start_date,
       role: performance.role,
       noteText: noteParts.map((part) => part.text).join('；'),
-      uncertain: show?.uncertain === 1,
       noteParts,
     })
     covered.add(performance.id)
@@ -273,13 +267,11 @@ const outsideVocaDB = computed(() => {
   return current !== null && !fromVocaDB(current)
 })
 
-/** Badge text for a song VocaDB does not list, e.g. `非 VocaDB 曲目・古典・管弦乐曲`. */
-const outsideLabel = computed(() => catalogBadge(song.value))
-
-/** One sentence explaining why the entry exists and whether it has a singer. */
-const outsideExplanation = computed(() => {
+/** Category badge of a non-VOCALOID piece, e.g. `古典・管弦乐曲`; null for an ordinary song. */
+const categoryLabel = computed(() => {
   const current = song.value
-  return current === null || fromVocaDB(current) ? '' : repertoireExplanation(current)
+  if (current === null || current.category === 'vocaloid') return null
+  return songCategoryLabels[current.category]
 })
 
 const headerFacts = computed(() => {
@@ -315,7 +307,7 @@ const headerFacts = computed(() => {
           <SongTitle :song-id="canonicalId" :original="song.name" />
         </h1>
         <div class="flex flex-wrap items-center gap-2 text-xs">
-          <UBadge v-if="outsideLabel" color="warning" variant="subtle">{{ outsideLabel }}</UBadge>
+          <UBadge v-if="categoryLabel" color="neutral" variant="subtle">{{ categoryLabel }}</UBadge>
           <template v-else>
             <UBadge color="primary" variant="subtle">{{ song.song_type }}</UBadge>
             <UBadge v-if="variantIds.length > 0" color="secondary" variant="subtle">共 {{ groupIds.length }} 个版本</UBadge>
@@ -323,18 +315,11 @@ const headerFacts = computed(() => {
           <span class="text-muted">
             {{ outsideVocaDB && !isVocaloidSong(song) ? `作曲 ${displayArtistString(song.artist_string) ?? '未记录'}` : displayArtistString(song.artist_string) ?? '未记录' }}
           </span>
-          <ULink :to="song.source_url" target="_blank" class="text-primary">
+          <UButton :to="song.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
             {{ outsideVocaDB ? '初音ミク Wiki' : 'VocaDB' }}
-          </ULink>
+          </UButton>
         </div>
         <p v-if="headerFacts" class="text-sm text-muted">{{ headerFacts }}</p>
-        <UAlert
-          v-if="outsideExplanation"
-          color="neutral"
-          variant="subtle"
-          icon="i-lucide-info"
-          :description="outsideExplanation"
-        />
       </header>
 
       <UCard v-if="variantRows.length > 0">
@@ -345,7 +330,16 @@ const headerFacts = computed(() => {
           <li v-for="row in variantRows" :key="row.id" class="space-y-1">
             <div class="flex flex-wrap items-baseline gap-2">
               <UBadge color="secondary" variant="subtle" size="sm">{{ row.kindLabel }}</UBadge>
-              <ULink :to="songHref(row.id)" :target="songHrefTarget(row.id)" class="text-highlighted">{{ row.name }}</ULink>
+              <ULink :to="songHref(row.id)" class="text-highlighted">{{ row.name }}</ULink>
+              <ULink
+                v-if="vocadbSongUrl(row.id)"
+                :to="vocadbSongUrl(row.id) ?? ''"
+                target="_blank"
+                class="text-dimmed hover:text-primary"
+                aria-label="在 VocaDB 查看"
+              >
+                <UIcon name="i-lucide-external-link" class="size-3" />
+              </ULink>
             </div>
             <p v-if="row.meta" class="text-xs text-muted">{{ row.meta }}</p>
           </li>

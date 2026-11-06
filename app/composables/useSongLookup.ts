@@ -17,18 +17,18 @@ export const useSongLookup = () => {
     return song?.name_ja || song?.name || String(songId)
   }
 
+  /** Where a song id links: always the site page, same as the home ranking. */
+  const songHref = (songId: number): string => `/songs/${songId}`
+
   /**
-   * Where a song id should link: VocaDB for a normal entry, the catalogue page for repertoire
-   * VocaDB does not list (its reserved id has no VocaDB page).
+   * VocaDB page of a song, shown next to the title as a separate external link,
+   * or null for repertoire VocaDB does not list.
    */
-  const songHref = (songId: number): string => {
-    return fromVocaDB(songById(songId)) ? `https://vocadb.net/S/${songId}` : `/songs/${songId}`
+  const vocadbSongUrl = (songId: number): string | null => {
+    const song = songById(songId)
+    if (song === null || !fromVocaDB(song)) return null
+    return song.source_url
   }
 
-  /** Only a VocaDB entry opens in a new tab. */
-  const songHrefTarget = (songId: number): string | undefined => {
-    return songHref(songId).startsWith('http') ? '_blank' : undefined
-  }
-
-  return { catalog, songById, songName, songHref, songHrefTarget }
+  return { catalog, songById, songName, songHref, vocadbSongUrl }
 }

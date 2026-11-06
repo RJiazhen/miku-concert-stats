@@ -14,7 +14,7 @@ import { countedSongIds } from '~~/shared/stats.ts'
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const merges = useSetlistMerges()
-const { songName, songHref, songHrefTarget } = useSongLookup()
+const { songName, songHref, vocadbSongUrl } = useSongLookup()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -209,7 +209,7 @@ const tables = computed<RawTable[]>(() => {
         { text: String(row.position) },
         { text: songNameOf(row.listed_song_id), href: songHref(row.listed_song_id) },
         { text: row.notes ?? '' },
-        { text: songHrefTarget(row.listed_song_id) ? 'VocaDB' : '站内', href: songHref(row.listed_song_id) },
+        { text: vocadbSongUrl(row.listed_song_id) === null ? '—' : 'VocaDB', href: vocadbSongUrl(row.listed_song_id) ?? undefined },
       ]),
     },
     {
@@ -219,9 +219,9 @@ const tables = computed<RawTable[]>(() => {
       rows: catalog.value.setlistItemSongs.map((row) => [
         { text: String(row.song_list_id) },
         { text: String(row.position) },
-        { text: songNameOf(row.song_id) },
+        { text: songNameOf(row.song_id), href: songHref(row.song_id) },
         { text: row.role },
-        { text: songHrefTarget(row.song_id) ? 'VocaDB' : '站内', href: songHref(row.song_id) },
+        { text: vocadbSongUrl(row.song_id) === null ? '—' : 'VocaDB', href: vocadbSongUrl(row.song_id) ?? undefined },
       ]),
     },
     {
@@ -305,8 +305,8 @@ const tables = computed<RawTable[]>(() => {
   const variantRows: Cell[][] = []
   for (const [variantId, entry] of variants.entries) {
     variantRows.push([
-      { text: String(variantId), href: `https://vocadb.net/S/${variantId}` },
-      { text: songName(entry.canonical), href: `https://vocadb.net/S/${entry.canonical}` },
+      { text: String(variantId), href: songHref(variantId) },
+      { text: songName(entry.canonical), href: songHref(entry.canonical) },
       { text: entry.kind },
       { text: entry.note ?? '' },
       { text: songName(variantId) },
@@ -520,7 +520,7 @@ const editionSongCount = computed(() => {
         title="这个系列年度没有歌单"
         description="VocaDB 上没有记录歌单，或这个演出没有关联歌单。"
       />
-      <SetlistTable v-else-if="display && review" :display="display" :review="review" />
+      <SetlistTable v-else-if="display" :display="display" />
     </section>
 
     <section v-else-if="tab === 'shows'" class="space-y-4">
@@ -636,7 +636,16 @@ const editionSongCount = computed(() => {
             <span class="text-muted">
               <template v-for="(song, index) in group.songs" :key="song.id">
                 <span v-if="index > 0"> · </span>
-                <ULink :to="songHref(song.id)" :target="songHrefTarget(song.id)" class="text-primary">{{ song.id }} {{ song.name }}</ULink>
+                <ULink :to="songHref(song.id)" class="text-primary">{{ song.id }} {{ song.name }}</ULink>
+                <ULink
+                  v-if="vocadbSongUrl(song.id)"
+                  :to="vocadbSongUrl(song.id) ?? ''"
+                  target="_blank"
+                  class="ml-1 text-dimmed hover:text-primary"
+                  aria-label="在 VocaDB 查看"
+                >
+                  <UIcon name="i-lucide-external-link" class="size-3" />
+                </ULink>
               </template>
             </span>
           </li>

@@ -78,7 +78,7 @@ describe('演出 coverage', () => {
       [item(100, 31, [50])],
     )
     const coverage = showCoverage(catalog, reviewRotations(catalog), [50])
-    expect(coverage.get(1)).toEqual({ total: 3, covered: 3 })
+    expect(coverage.get(1)).toMatchObject({ total: 3, covered: 3 })
     expect(formatShowCoverage(coverage.get(1) ?? null, [])).toBe('本演出全部 3 场')
   })
 
@@ -88,8 +88,8 @@ describe('演出 coverage', () => {
       [item(101, 1, [60], 'Day 2')],
     )
     const coverage = showCoverage(catalog, reviewRotations(catalog), [60])
-    expect(coverage.get(2)).toEqual({ total: 3, covered: 1 })
-    expect(formatShowCoverage(coverage.get(2) ?? null, [])).toBe('3 场中 1 场')
+    expect(coverage.get(2)).toMatchObject({ total: 3, covered: 1, labels: ['9/2'] })
+    expect(formatShowCoverage(coverage.get(2) ?? null, [])).toBe('3 场中 1 场：9/2')
   })
 
   it('counts a day/night pair as two 场次 and credits the half a note names', () => {
@@ -99,7 +99,7 @@ describe('演出 coverage', () => {
     )
     const review = reviewRotations(catalog)
     const coverage = showCoverage(catalog, review, [70, 71, 72])
-    expect(coverage.get(3)).toEqual({ total: 2, covered: 2 })
+    expect(coverage.get(3)).toMatchObject({ total: 2, covered: 2 })
     expect(formatShowCoverage(coverage.get(3) ?? null, [])).toBe('本演出全部 2 场')
     expect(formatShowCoverage({ total: 2, covered: 1 }, [])).toBe('2 场中 1 场')
   })
@@ -113,8 +113,8 @@ describe('演出 coverage', () => {
       [item(103, 24, [80]), item(104, 24, [81])],
     )
     const coverage = showCoverage(catalog, reviewRotations(catalog), [80])
-    expect(coverage.get(4)).toEqual({ total: 3, covered: 3 })
-    expect(coverage.get(5)).toEqual({ total: 3, covered: 0 })
+    expect(coverage.get(4)).toMatchObject({ total: 3, covered: 3 })
+    expect(coverage.get(5)).toMatchObject({ total: 3, covered: 0 })
     expect(formatShowCoverage(coverage.get(5) ?? null, [])).toBe('3 场中 0 场')
   })
 
@@ -124,7 +124,7 @@ describe('演出 coverage', () => {
       [item(105, 1, [90])],
     )
     const coverage = showCoverage(catalog, reviewRotations(catalog), [90])
-    expect(coverage.get(6)).toEqual({ total: 1, covered: 1 })
+    expect(coverage.get(6)).toMatchObject({ total: 1, covered: 1 })
     expect(formatShowCoverage(coverage.get(6) ?? null, [])).toBeNull()
   })
 
@@ -140,7 +140,7 @@ describe('演出 coverage', () => {
     const coverage = showCoverage(catalog, reviewRotations(catalog), [100])
     expect(coverage.has(7)).toBe(false)
     expect(coverage.has(8)).toBe(false)
-    expect(coverage.get(9)).toEqual({ total: 1, covered: 1 })
+    expect(coverage.get(9)).toMatchObject({ total: 1, covered: 1 })
   })
 
   it('lets a city-only warning own the numbers instead of printing a second total', () => {
@@ -164,7 +164,7 @@ describe('演出 coverage', () => {
       [item(109, 1, [120]), item(109, 2, [121])],
     )
     const coverage = showCoverage(catalog, reviewRotations(catalog), [120, 121])
-    expect(coverage.get(12)).toEqual({ total: 3, covered: 3 })
+    expect(coverage.get(12)).toMatchObject({ total: 3, covered: 3 })
     expect(showCoverage(catalog, reviewRotations(catalog), []).size).toBe(0)
   })
 })

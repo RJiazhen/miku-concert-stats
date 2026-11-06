@@ -55,20 +55,6 @@ const lengthSummary = computed<string>(() => {
   if (counts.length === 1) return `每场 ${counts[0]} 首`
   return `每场 ${counts.join(' / ')} 首`
 })
-
-/** Sources cited for this 演出. */
-const sources = computed(() => props.catalog.performanceSetlistSources.filter((row) => row.performance_id === props.performanceId))
-
-/** Whether the attribution is still open, so a reader should not treat the rows as settled. */
-const pendingReview = computed(() => setlist.value?.pending_review === 1)
-
-/** Source with the lowest confidence, used for the badge that says how the rows were located. */
-const bestConfidence = computed(() => {
-  const order = { high: 0, medium: 1, low: 2 } as const
-  const values = sources.value.map((row) => order[row.confidence])
-  if (values.length === 0) return null
-  return Object.entries(order).find(([, rank]) => rank === Math.max(...values))?.[0] ?? null
-})
 </script>
 
 <template>
@@ -85,40 +71,7 @@ const bestConfidence = computed(() => {
       <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
         <UBadge color="neutral" variant="subtle" size="sm">{{ shows.length }} 个场次</UBadge>
         <UBadge color="neutral" variant="subtle" size="sm">{{ lengthSummary }}</UBadge>
-        <UBadge color="neutral" variant="subtle" size="sm">
-          {{ setlist.source_kind === 'wiki' ? '百科逐曲表' : '源歌单' }} {{ setlist.source_row_count }} 行
-        </UBadge>
-        <UBadge v-if="pendingReview" color="warning" variant="subtle" size="sm">场次归属仍待核实</UBadge>
-        <UBadge v-if="bestConfidence" color="neutral" variant="subtle" size="sm">
-          来源置信度 {{ bestConfidence }}
-        </UBadge>
-        <UBadge v-if="setlist.conflict === 1" color="error" variant="subtle" size="sm">与既有结论存在冲突</UBadge>
-        <ULink
-          v-if="setlist.source_kind !== 'wiki' && setlist.source_list_id !== null"
-          :to="`https://vocadb.net/L/${setlist.source_list_id}`"
-          target="_blank"
-          class="text-primary hover:underline"
-        >
-          查看 VocaDB 源歌单
-        </ULink>
-        <span v-else class="text-muted">曲目逐条来自百科逐曲表，见下方来源</span>
       </div>
-
-      <UAlert
-        v-if="setlist.status === 'inherited' && setlist.source_kind !== 'wiki'"
-        color="info"
-        variant="subtle"
-        icon="i-lucide-info"
-        title="本场沿用整份共用歌单"
-        description="VocaDB 的这份歌单没有任何分场备注，因此每个演出都按整份曲目计算，没有逐场证据。"
-      />
-      <UAlert
-        v-if="setlist.note"
-        color="neutral"
-        variant="subtle"
-        icon="i-lucide-notebook-pen"
-        :description="setlist.note"
-      />
 
       <div v-if="mergedRows" class="space-y-2">
         <header class="flex flex-wrap items-baseline justify-between gap-2">
@@ -132,22 +85,10 @@ const bestConfidence = computed(() => {
         <div v-for="show in shows" :key="show.show_key" class="space-y-2">
           <header class="flex flex-wrap items-baseline justify-between gap-2">
             <h2 class="text-base font-semibold text-highlighted">{{ showLabel(show) }}</h2>
-            <p class="text-xs text-muted">{{ show.item_count }} 首 · 省略 {{ show.omitted_count }} 行</p>
+            <p class="text-xs text-muted">{{ show.item_count }} 首</p>
           </header>
-          <ShowSetlistTable :catalog="catalog" :rows="rowsOf(show)" :reasons="show.reasons" />
+          <ShowSetlistTable :catalog="catalog" :rows="rowsOf(show)" />
         </div>
-      </div>
-
-      <div v-if="sources.length > 0" class="rounded-xl border border-default/60 p-3 text-xs text-muted">
-        <p class="mb-1 font-medium text-highlighted">数据来源</p>
-        <ul class="space-y-1">
-          <li v-for="source in sources" :key="source.url">
-            <ULink :to="source.url" target="_blank" class="text-primary hover:underline">{{ source.title }}</ULink>
-            · {{ source.confidence }} · 访问于 {{ source.accessed_at }}
-            <span v-if="source.conflict === 1" class="text-warning">· 与 VocaDB 冲突</span>
-            <span v-if="source.note"> · {{ source.note }}</span>
-          </li>
-        </ul>
       </div>
     </template>
   </section>

@@ -25,7 +25,7 @@ const UButton = resolveComponent('UButton')
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
-const { songHref, songHrefTarget } = useSongLookup()
+const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
@@ -530,10 +530,11 @@ const yearToItems = computed(() =>
               </UBadge>
             </UTooltip>
             <ULink
-              :to="songHref(row.original.songId)"
-              :target="songHrefTarget(row.original.songId)"
+              v-if="vocadbSongUrl(row.original.songId)"
+              :to="vocadbSongUrl(row.original.songId) ?? ''"
+              target="_blank"
               class="shrink-0 text-dimmed hover:text-primary"
-              :aria-label="songHrefTarget(row.original.songId) ? '在 VocaDB 查看' : '在站内查看'"
+              aria-label="在 VocaDB 查看"
             >
               <UIcon name="i-lucide-external-link" class="size-3" />
             </ULink>

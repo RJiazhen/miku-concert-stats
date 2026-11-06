@@ -16,7 +16,7 @@ import {
 
 const { catalog, error, pending, load } = useCatalog()
 const merges = useSetlistMerges()
-const { songName } = useSongLookup()
+const { songName, songHref, vocadbSongUrl } = useSongLookup()
 const { localizeSeries } = useSeriesTitles()
 const toast = useToast()
 
@@ -180,14 +180,16 @@ const copyMarkdown = async (): Promise<void> => {
             <span class="text-highlighted">仅 A：</span>
             <template v-for="(songId, index) in differencesOf(pair).onlyLeft" :key="songId">
               <span v-if="index > 0"> / </span>
-              <ULink :to="`https://vocadb.net/S/${songId}`" target="_blank" class="text-primary">{{ songName(songId) }}</ULink>
+              <ULink :to="songHref(songId)" class="text-primary">{{ songName(songId) }}</ULink>
+              <ULink v-if="vocadbSongUrl(songId)" :to="vocadbSongUrl(songId) ?? ''" target="_blank" class="ml-1 text-dimmed hover:text-primary" aria-label="在 VocaDB 查看"><UIcon name="i-lucide-external-link" class="size-3" /></ULink>
             </template>
           </p>
           <p v-if="differencesOf(pair).onlyRight.length > 0" class="text-muted">
             <span class="text-highlighted">仅 B：</span>
             <template v-for="(songId, index) in differencesOf(pair).onlyRight" :key="songId">
               <span v-if="index > 0"> / </span>
-              <ULink :to="`https://vocadb.net/S/${songId}`" target="_blank" class="text-primary">{{ songName(songId) }}</ULink>
+              <ULink :to="songHref(songId)" class="text-primary">{{ songName(songId) }}</ULink>
+              <ULink v-if="vocadbSongUrl(songId)" :to="vocadbSongUrl(songId) ?? ''" target="_blank" class="ml-1 text-dimmed hover:text-primary" aria-label="在 VocaDB 查看"><UIcon name="i-lucide-external-link" class="size-3" /></ULink>
             </template>
           </p>
         </div>

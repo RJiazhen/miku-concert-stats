@@ -10,7 +10,7 @@ import type { Platform } from '~~/shared/types.ts'
 definePageMeta({ middleware: 'retired' })
 
 const { catalog, error, pending, load } = useCatalog()
-const { songHref, songHrefTarget } = useSongLookup()
+const { songHref, vocadbSongUrl } = useSongLookup()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -139,8 +139,17 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
           <tbody>
             <tr v-for="row in playbacks" :key="row.songId" class="border-t border-default/40">
               <td class="px-2 py-1.5">
-                <ULink :to="songHref(row.songId)" :target="songHrefTarget(row.songId)" class="text-primary">
+                <ULink :to="songHref(row.songId)" class="text-primary">
                   <SongTitle :song-id="row.songId" :original="songName(row.songId)" />
+                </ULink>
+                <ULink
+                  v-if="vocadbSongUrl(row.songId)"
+                  :to="vocadbSongUrl(row.songId) ?? ''"
+                  target="_blank"
+                  class="ml-1 text-dimmed hover:text-primary"
+                  aria-label="在 VocaDB 查看"
+                >
+                  <UIcon name="i-lucide-external-link" class="size-3" />
                 </ULink>
               </td>
               <td class="px-2 py-1.5 text-muted">{{ songCharactersText(row.songId) }}</td>
