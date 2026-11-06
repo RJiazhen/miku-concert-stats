@@ -463,6 +463,8 @@ NUXT_IGNORE_LOCK=1 pnpm build
 
 `pnpm typecheck` 是 `tsc --noEmit` 再加 `nuxt typecheck`。`pnpm test` 是 `vitest run`。`pnpm build` 同样先重建目录，再 `nuxt build`。
 
+测试只覆盖会改变统计数字的纯逻辑、有外部规范依据的解析，以及少量已提交数据的关键口径，不写逐字段复述实现的细粒度测试；功能或数据表删除时，同一次提交里一并删掉对应测试（约定见 `.cursor/rules/testing.mdc`）。
+
 部署到 Cloudflare Workers：
 
 ```bash
@@ -547,5 +549,9 @@ NUXT_IGNORE_LOCK=1 pnpm dev --host 127.0.0.1 --port <port>
 端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
+
+### 样式改动交给用户验收
+
+样式改完不要用截图自查：不起浏览器只为看效果，不跑 `take_screenshot` / `screencapture` 做视觉验收。交付时在回复里说明改了哪个文件与元素、用了哪些具体参数（类名、`w-[236px]`、`max-w-32`、`gap-x-2`、`text-sm`、`sm:` 断点等）、这些参数控制什么、可以怎么微调，由用户自己看和调。用户手动改过的取值以用户为准，后续不要改回去。约定详见 `.cursor/rules/ui-style-review.mdc`。
 
 `.nuxt`、`.output`、`public/data/catalog.sqlite*` 都是构建 / 开发产物，已被 git 忽略，任何时候都不要提交。
