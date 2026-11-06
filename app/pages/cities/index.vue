@@ -139,7 +139,8 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
         :columns="columns"
         :loading="pending"
         sticky
-        class="max-h-[70vh]"
+        class="ranking-scroll max-h-[max(12rem,calc(100dvh-25rem))]"
+        :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5' }"
       >
         <template #rank-cell="{ row }">
           <span class="font-mono text-muted">{{ row.original.rank }}</span>

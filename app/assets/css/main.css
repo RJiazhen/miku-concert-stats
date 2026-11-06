@@ -94,3 +94,29 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* Ranking tables: a thin vertical scrollbar that stays invisible until the table is hovered or focused. */
+.ranking-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.ranking-scroll:hover,
+.ranking-scroll:focus-within {
+  scrollbar-color: color-mix(in oklab, currentColor 28%, transparent) transparent;
+}
+
+.ranking-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.ranking-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: transparent;
+}
+
+.ranking-scroll:hover::-webkit-scrollbar-thumb,
+.ranking-scroll:focus-within::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklab, currentColor 28%, transparent);
+}

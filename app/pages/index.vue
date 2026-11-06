@@ -30,11 +30,8 @@ const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
 
-/** Width the character column may occupy; three chips plus the `+N` button fit inside the `p-4` padding. */
-const CHARACTERS_WIDTH = 276
-
-/** Width the song title may occupy before it is truncated. */
-const NAME_WIDTH = 288
+/** Width the 歌曲 cell may occupy before it truncates; keeps every column visible at 1280px. */
+const NAME_WIDTH = 220
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -186,10 +183,10 @@ const sortableHeader = (label: string) => ({ column }: { column: { getIsSorted: 
 }
 
 const columns = computed<TableColumn<RankedSong>[]>(() => [
-  { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
-  { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true, meta: { class: { td: 'max-w-[288px]' } } },
-  { accessorKey: 'artists', header: '制作人', enableSorting: true, meta: { class: { td: 'max-w-40' } } },
-  { id: 'characters', accessorFn: (row) => row.characterList.join('、'), header: sortableHeader('歌手'), enableSorting: true, meta: { class: { td: 'max-w-[276px]' } } },
+  { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true, meta: { class: { th: 'w-14' } } },
+  { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true, meta: { class: { td: 'max-w-[220px]' } } },
+  { accessorKey: 'artists', header: '制作人', enableSorting: true, meta: { class: { td: 'max-w-32' } } },
+  { id: 'characters', accessorFn: (row) => row.characterList.join('、'), header: sortableHeader('歌手'), enableSorting: true, meta: { class: { td: 'max-w-[200px]' } } },
   { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? '场次数' : '演出数'), enableSorting: true },
   // 按演出统计时 count 已经是演出数，不再重复一列。
   ...(mode.value === 'show'
@@ -511,7 +508,8 @@ const yearToItems = computed(() =>
         :columns="columns"
         :loading="pending"
         sticky
-        class="max-h-[70vh]"
+        class="ranking-scroll max-h-[max(12rem,calc(100dvh-37rem))]"
+        :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5' }"
       >
         <template #rank-cell="{ row }">
           <span class="font-mono text-muted">{{ row.original.rank }}</span>
@@ -527,7 +525,7 @@ const yearToItems = computed(() =>
               </NuxtLink>
             </UTooltip>
             <UTooltip v-if="row.original.variantSongIds.length > 0" :text="`并入：${row.original.variantNames}`">
-              <UBadge color="secondary" variant="subtle" size="sm" class="shrink-0">
+              <UBadge color="secondary" variant="subtle" size="xs" class="shrink-0">
                 含 {{ row.original.versionCount }} 个版本
               </UBadge>
             </UTooltip>
@@ -537,13 +535,13 @@ const yearToItems = computed(() =>
               class="shrink-0 text-dimmed hover:text-primary"
               :aria-label="songHrefTarget(row.original.songId) ? '在 VocaDB 查看' : '在站内查看'"
             >
-              <UIcon name="i-lucide-external-link" class="size-3.5" />
+              <UIcon name="i-lucide-external-link" class="size-3" />
             </ULink>
           </div>
         </template>
         <template #artists-cell="{ row }">
           <UTooltip :text="row.original.artists" :content="{ side: 'top' }">
-            <span class="block max-w-40 truncate text-muted">{{ row.original.artists }}</span>
+            <span class="block max-w-32 truncate text-muted">{{ row.original.artists }}</span>
           </UTooltip>
         </template>
         <template #characters-cell="{ row }">
@@ -554,7 +552,7 @@ const yearToItems = computed(() =>
             <span
               v-for="name in row.original.characterChips"
               :key="name"
-              class="shrink-0 rounded border px-1.5 py-0.5 text-xs"
+              class="shrink-0 rounded border px-1 py-0.5 text-[11px]"
               :style="chipStyle(name)"
             >
               {{ name }}
@@ -567,7 +565,7 @@ const yearToItems = computed(() =>
                 color="neutral"
                 variant="subtle"
                 size="xs"
-                class="shrink-0 rounded border px-1.5 py-0.5 text-xs font-normal"
+                class="shrink-0 rounded border px-1 py-0.5 text-[11px] font-normal"
                 :label="`+${row.original.hiddenCharacterChips.length}`"
               />
               <template #content>
@@ -575,7 +573,7 @@ const yearToItems = computed(() =>
                   <span
                     v-for="name in row.original.hiddenCharacterChips"
                     :key="name"
-                    class="rounded border px-1.5 py-0.5 text-xs"
+                    class="rounded border px-1 py-0.5 text-[11px]"
                     :style="chipStyle(name)"
                   >
                     {{ name }}
