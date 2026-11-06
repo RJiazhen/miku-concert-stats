@@ -1,10 +1,9 @@
 <script setup lang="ts">
-/** Demo prompt pointing at the plain-text skill; kept short so it fits any AI chat box. */
+/** Demo prompt pointing at the plain-text skill; kept to three short lines so it stays easy to skim. */
 const PROMPT = [
-  '请先读取 https://miku-concert-stats.rjiazhen.top/skill.md（纯文本说明），然后按其中的计数规则回答：',
-  '1. メルト 在初音未来演唱会上一共演出过多少次？请分别说明「按场次」和「按演出」两个口径。',
-  '2. マジカルミライ 2024 东京场的歌单有哪些曲目？',
-  '回答时注明计数口径，并给出对应的 VocaDB 来源链接。',
+  '读取 https://miku-concert-stats.rjiazhen.top/skill.md 后回答：',
+  '1. メルト 按场次、按演出各演了多少次？',
+  '2. マジカルミライ 2024 东京场歌单有哪些？',
 ].join('\n')
 
 /** How long the button and the inline hint keep their transient state. */
@@ -49,7 +48,7 @@ onBeforeUnmount(stopReset)
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative flex items-center justify-center">
     <UTooltip :text="hint === 'copied' ? '已复制，粘贴到 AI 对话框测试' : '复制 AI 提示词'">
       <!-- Icon-only: `tabler:ai` is the AI mark itself, so no text label is needed. -->
       <!-- 28px square button (same as `size="sm"`) with a 28px glyph box; `justify-center`
@@ -76,12 +75,12 @@ onBeforeUnmount(stopReset)
         v-if="hint"
         role="status"
         aria-live="polite"
-        class="absolute top-full right-0 z-50 mt-2 w-max max-w-64 rounded-md border px-2.5 py-1.5 text-xs shadow-lg"
+        class="absolute top-full right-0 z-50 mt-6 w-max max-w-64 rounded-md border bg-elevated px-2.5 py-1.5 text-xs shadow-lg"
         :class="hint === 'failed'
-          ? 'border-error/40 bg-error/10 text-error'
-          : 'border-success/40 bg-success/10 text-success'"
+          ? 'border-error/40 text-error'
+          : 'border-success/40 text-success'"
       >
-        {{ hint === 'failed' ? '复制失败，请手动让 AI 读取 /skill.md' : '粘贴到AI对话框中试试吧~' }}
+        {{ hint === 'failed' ? '复制失败，请手动让 AI 读取 /skill.md' : '粘贴到 AI 对话框中试试吧~' }}
       </p>
     </Transition>
   </div>
