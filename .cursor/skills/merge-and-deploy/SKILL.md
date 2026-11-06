@@ -62,26 +62,25 @@ git -C "$MAIN" push origin main
 
 ### 4. 等 Workers Builds 完成
 
-`push` 返回后立刻记下 sha，再轮询这次 commit 的 check run：
+`push` 返回后先记下 sha，然后用**单次短查询**看一次状态，不要一上来就跑十分钟的长循环：
 
 ```bash
 SHA="$(git -C "$MAIN" rev-parse HEAD)"
-for i in $(seq 1 40); do
-  ROW="$(gh api "repos/RJiazhen/miku-concert-stats/commits/$SHA/check-runs" \
-    --jq '.check_runs[] | select(.name | startswith("Workers Builds")) | "\(.status) \(.conclusion)"' | head -1)"
-  echo "$ROW"
-  case "$ROW" in
-    completed*) break ;;
-  esac
-  sleep 15
-done
+gh api "repos/RJiazhen/miku-concert-stats/commits/$SHA/check-runs" \
+  --jq '.check_runs[] | "\(.name) | \(.status) \(.conclusion)"'
 ```
 
-- 刚 push 完 check run 可能还没创建（输出为空），继续轮询即可，不要当成失败。
-- `completed success` → 部署成功，结束。
+- 刚 push 完 check run 可能还没创建（输出里没有 `Workers Builds`），属于正常，过一会儿再看。
+- 还没完成时继续等，但每次只跑**有界的一小段**（约 2–3 分钟，例如 `for i in $(seq 1 12); do ...; sleep 15; done`），每段结束都能拿到一次状态；不要用 `seq 1 40` 这种可能被工具超时打断的长循环。
+
+**状态必须来自实际读到的一次查询。** 轮询命令被中断时（输出为 `Aborted`、`Command failed to spawn`、超时、退出码非 0 且没有打印任何状态行），这不是「还在构建」，而是没有状态：立刻在同一条回合里重跑上面那条单次查询，拿到真实结果再汇报。不要因为中断就挂起回合、说「还在等构建」，也不要凭上一次输出推断当前状态。
+
+- 拿到 `completed success` → 部署成功，结束。
 - `completed failure` → 用 `gh run list --workflow ci.yml` 或 Workers 面板日志找原因，修好重新提交；不要为了绕过失败直接本地 `wrangler deploy`，除非用户明确要求。
-- 超过约 10 分钟仍未完成，报告当前状态让用户决定。
+- 未完成的查询连续超过约 10 分钟 → 带上最后一次真实读到的 `status` / `conclusion` 与等待时长，让用户决定，不要只说「还在跑」。
 
 ### 5. 汇报
 
 一句话说明：合入的提交 sha、check 结论、生产地址。失败时说明卡在哪一步和下一步建议。
+
+汇报里的 check 结论必须是这一步亲手查到的结果，不能写「应该已部署」或「大概率成功」。如果还没查到状态，就先查，再汇报。
