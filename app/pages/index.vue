@@ -410,13 +410,6 @@ const yearToItems = computed(() =>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
         初音未来演唱会<br class="sm:hidden">曲目统计
       </h1>
-      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        按场次或按演出统计每首歌出现的次数。按场次时，一个演出里的每一天各算一次，同一天的日场与夜场也分别计算；
-        按演出时，每个城市站各算一次，不再把同一年同一系列的多个城市合并。
-        例如魔法未来 2020 在大阪与东京各有一个演出：按演出计 2 次，按场次计 6 次。
-        默认不计配信、线上和 VR 演出，也不把串烧的组成歌曲单独计入。
-        同一首歌的 remix、声库与翻唱版本按人工核对的清单合并计数。
-      </p>
     </section>
 
     <UAlert
@@ -495,13 +488,16 @@ const yearToItems = computed(() =>
     </UCard>
 
     <section class="space-y-3">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 class="text-lg font-semibold text-highlighted">
-          排行
-          <span class="ml-1 text-sm font-normal text-muted">{{ filtered.length }} 首</span>
-        </h2>
-        <p class="text-xs text-muted">「含 N 个版本」表示原版与并入的 remix、声库或翻唱版本共 N 个</p>
-      </div>
+      <h2 class="text-lg font-semibold text-highlighted">
+        排行
+        <span class="ml-1 text-sm font-normal text-muted">{{ filtered.length }} 首</span>
+      </h2>
+
+      <ul class="grid gap-1 text-xs leading-relaxed text-muted">
+        <li>「场次数」：每场实际表演计为一次，同一天的日夜场都各自计为一次；</li>
+        <li>「演出数」：每次演出计为一次，单次演出包含多场实际表演也只计为一次；</li>
+        <li>「含 N 个版本」：表示包括原版与 remix、不同声库或翻唱版本共 N 个版本，全部合并计数。</li>
+      </ul>
 
       <UTable
         v-if="catalog"
