@@ -104,10 +104,6 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
         城市演出场次<br class="sm:hidden">排名
       </h1>
-      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        按举办城市统计演出数量。演出是目录里在该城市举办的城市站，一个城市站计一次；
-        场次按天拆分，多日演出因此计为多个场次，同一天有日场 / 夜场时分别计算。配信、线上与 VR 演出不计入城市排名。
-      </p>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
         <UBadge color="primary" variant="subtle" icon="i-lucide-map-pin">按场次排序</UBadge>
         <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">查看曲目排行</UButton>
@@ -131,7 +127,7 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
             {{ rows.length }} 个城市 · {{ totals.concerts }} 个演出 · {{ totals.shows }} 个场次
           </span>
         </h2>
-        <p class="text-xs text-muted">「场次」按目录中的演出日计数，日场 / 夜场分别计数</p>
+        <p class="text-xs text-muted">「场次」按演出日计数，日场 / 夜场分别计数</p>
       </div>
 
       <UTable

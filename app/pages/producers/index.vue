@@ -128,13 +128,6 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
         制作人<br class="sm:hidden">排行榜
       </h1>
-      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        按制作人统计其署名曲目在演唱会中的表现。「曲目数」是该制作人有署名的不同歌曲数，变体版本分别计数；
-        「演出曲目」是其中至少上过一场演唱会的歌曲数，「表演次数」是这些歌曲在不同场次中被表演的次数合计；
-        「演出数」是去重后的演出行数，「场次」按演出日拆分，同一天的日场 / 夜场分别计数。
-        制作人署名优先取结构化的 song_producers 记录，整首歌没有任何结构化署名时才退回署名文本中 feat. 之前的部分；
-        自由文本回退与首页排行一致，因此可能高于只统计 song_producers 的结果。配信、线上与 VR 演出不计入。
-      </p>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
         <UBadge color="primary" variant="subtle" icon="i-lucide-user-round">{{ totals.producers }} 位制作人</UBadge>
         <UBadge color="neutral" variant="subtle">{{ totals.songs }} 首署名曲目</UBadge>
@@ -163,6 +156,12 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
           <UInput v-model="query" icon="i-lucide-search" size="sm" class="w-44" autocomplete="off" />
         </label>
       </div>
+
+      <ul class="grid gap-1 text-xs leading-relaxed text-muted">
+        <li>「曲目数」：有署名的不同歌曲数，不同版本分别计数；</li>
+        <li>「演出曲目」：其中至少上过一场演唱会的歌曲数；</li>
+        <li>「表演次数」按场次累计，「演出数」每场演出计一次，「场次」按天计数、日场 / 夜场分开。</li>
+      </ul>
 
       <UTable
         v-if="catalog"
@@ -228,11 +227,6 @@ const cell = (value: number | null): string => (value === null ? '—' : String(
         </template>
       </UTable>
       <USkeleton v-else class="h-72 w-full rounded-xl" />
-
-      <p class="text-xs text-muted">
-        「演出曲目」与「表演次数」直接读场次层，没有展开行的旧目录回退到歌单备注解析；与首页排行一致，没有上游歌单的百科演出不计入出场统计。
-        没有出场记录的制作人仍然列出，演出数与场次显示 0。
-      </p>
     </section>
   </main>
 </template>

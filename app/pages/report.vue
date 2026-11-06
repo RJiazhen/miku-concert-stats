@@ -89,9 +89,8 @@ const copyMarkdown = async (): Promise<void> => {
     <header class="space-y-3">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Review</p>
       <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">歌单差异核验</h1>
-      <p class="max-w-3xl text-sm leading-relaxed text-muted">
-        同一系列不同演出之间，曲目数量与正片/安可段的编排差异。分级越高越值得优先核对；
-        每一行都附上 VocaDB 歌单链接与差异曲目，方便逐条确认。
+      <p class="max-w-3xl text-sm text-muted">
+        同一系列不同演出之间的曲目数量与编排差异，分级越高越值得优先核对。
       </p>
       <div class="flex flex-wrap gap-2">
         <UButton to="https://github.com/RJiazhen/miku-concert-stats/blob/main/docs/reports/setlist-differences.md" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-file-text">

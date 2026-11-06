@@ -182,10 +182,6 @@ const cell = (value: string | null): string => (value === null || value === '' ?
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
         系列与演出<br class="sm:hidden">总览
       </h1>
-      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        目录里的全部系列与演出。系列是一个演唱会品牌（如魔法未来），演出是一次城市站，场次是演出的每一天；
-        同一天有日场 / 夜场时分别计数。点系列进入系列主页，点演出查看歌单与场次。
-      </p>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
         <UBadge color="primary" variant="subtle" icon="i-lucide-layers">{{ totals.series }} 个系列</UBadge>
         <UBadge color="primary" variant="subtle" icon="i-lucide-calendar-range">{{ totals.performances }} 个演出</UBadge>

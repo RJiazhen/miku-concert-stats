@@ -94,9 +94,6 @@ const yearRange = computed(() => {
           系列主页 · {{ performances.length }} 个演出 · {{ totalShows }} 个场次
           <template v-if="yearRange">· {{ yearRange }}</template>
         </p>
-        <p class="text-xs text-muted">
-          每个演出是一个城市站（VocaDB release event），点进演出查看歌单与场次；场次按天计，同一天有日场 / 夜场时分别计算。
-        </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <UButton to="/series" color="neutral" variant="link" size="xs" icon="i-lucide-layers">
             全部系列

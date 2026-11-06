@@ -453,9 +453,8 @@ const editionSongCount = computed(() => {
     <header class="space-y-3">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Raw Data</p>
       <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">原始数据</h1>
-      <p class="max-w-3xl text-sm leading-relaxed text-muted">
-        这里的每一行都来自 VocaDB 公共 API，并附上可核验的链接。歌单里同一槽位的替换曲目会合并成一行，
-        末尾「演出」列说明这首曲子属于哪个演出；每个演出都演的曲目不写说明。
+      <p class="max-w-3xl text-sm text-muted">
+        每一行都来自 VocaDB 公共 API，并附上可核验的链接。
       </p>
       <div class="flex flex-wrap gap-2">
         <UButton
@@ -489,7 +488,7 @@ const editionSongCount = computed(() => {
 
     <section v-if="tab === 'edition'" class="space-y-4">
       <p class="text-xs text-muted">
-        这里把同一系列年度多个演出的歌单并排对照，方便查看差异；它们仍是各自独立的演出，不是一场演出。
+        同一系列年度的多个演出并排对照；它们各自独立，不是一场演出。
       </p>
       <UCard>
         <div class="flex flex-wrap items-end gap-3">
@@ -527,8 +526,7 @@ const editionSongCount = computed(() => {
 
     <section v-else-if="tab === 'shows'" class="space-y-4">
       <p class="text-xs text-muted">
-        这里列出每个演出派生出的场次歌单：源歌单的一行可能只属于部分城市或部分场次，
-        展开后每个场次各有一份完整曲目。共有 {{ showSetlists.length }} 个演出。
+        每个演出派生出的场次歌单，共有 {{ showSetlists.length }} 个演出。
       </p>
       <UCard>
         <div class="overflow-x-auto">
