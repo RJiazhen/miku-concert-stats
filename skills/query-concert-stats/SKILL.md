@@ -1,6 +1,6 @@
 ---
 name: query-concert-stats
-description: Answer Hatsune Miku concert setlist and song-appearance questions from the public JSON API at https://miku-concert-stats.rjiazhen.top. Use when asked how many times a song was performed, for a show's setlist, a series' performances, top songs, or debut years. No local files, database downloads, or external APIs are needed.
+description: Answer Hatsune Miku concert setlist and song-appearance questions from the public JSON API at https://miku-concert-stats.rjiazhen.top. Use when asked how many times a song was performed, for a show's setlist, a series' performances, top songs, or debut years. When loaded with no question, it answers two demo questions and links to the site pages. No local files, database downloads, or external APIs are needed.
 ---
 
 # Query Hatsune Miku concert statistics
@@ -10,6 +10,35 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 The site exposes a public, read-only JSON API. There is no key, account, or auth: send an HTTPS `GET` and parse the JSON. This document is also served at `/skill.md` as plain text.
 
 Use only the endpoints below. Do not fetch the site's HTML pages to extract numbers, do not download the SQLite files, and do not call VocaDB or any other external API. Every number in an answer must come from this API.
+
+## First call with no question
+
+When you are first loaded — for example the user only sent the skill, pasted `/skill.md`, or wrote a greeting — and the user has not asked a question yet, do not reply with an empty prompt such as "what would you like to know". Answer these two questions immediately with live API data, so the user can see the site working:
+
+1. **メルト has been performed how many times?** Report both counting modes: `show` (按场次) and `event` (按演出).
+2. **What was the setlist of 初音ミク「マジカルミライ 2024」in TOKYO?** List the songs of one 場次, and say how many 場次 the 演出 has.
+
+Run these requests, then present the answers:
+
+```http
+GET https://miku-concert-stats.rjiazhen.top/api/v1/search?q=メルト
+GET https://miku-concert-stats.rjiazhen.top/api/v1/songs/1322.json
+GET https://miku-concert-stats.rjiazhen.top/api/v1/performances/7215.json
+```
+
+- Take both counts from `counts.show` and `counts.event`; do not substitute the totals of one mode for the other.
+- The setlist lives in `shows[]`; list `items[]` in printed order and give `showCount` as the number of 場次. If a medley row appears, print it as one item.
+- Do not drop the counting-mode labels or the `approximate` / `uncertain` flags.
+- If the numbers differ from an older copy of this document, trust the API.
+
+End the reply by telling the user what else they can ask, and put these links on their own line so they can click through:
+
+- Site: <https://miku-concert-stats.rjiazhen.top/>
+- メルト song page: <https://miku-concert-stats.rjiazhen.top/songs/1322>
+- マジカルミライ 2024 东京场 page: <https://miku-concert-stats.rjiazhen.top/shows/7215>
+- Series page: <https://miku-concert-stats.rjiazhen.top/series/81>
+
+After the demo, answer follow-up questions normally using the endpoints below.
 
 ## Endpoints
 
@@ -286,3 +315,4 @@ Exclusions and flags already applied by the API:
 - [ ] Did not count broadcast shows as live appearances.
 - [ ] Did not invent view counts, producers, vocalists, cities, or missing songs.
 - [ ] Included the relevant `url` (`/songs/{id}`, `/shows/{id}`, `/series/{id}`) and, when citing upstream data, `sourceUrl`.
+- [ ] Ended with clickable site links when the user has no specific follow-up, and answered the two demo questions first when no question was asked at all.
