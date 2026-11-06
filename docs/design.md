@@ -213,6 +213,8 @@ flowchart LR
 
 制作人署名以歌曲条目为准：`song_producers`（VocaDB `fields=Artists` 里的制作侧署名）是权威名单，`artist_string` 只在歌曲条目没有任何制作人记录时作为回退；两者冲突时显示仍用结构化名单，并把差异写进由 `pnpm report:producers` 生成的 `docs/reports/producer-conflicts.md`，维护者确认后才改。
 
+制作人页（`/producers` 与 `/producers/{name}`）沿用同一份名单，不再另写一套规则。曲目数是不同歌曲 id 数，变体版本分别计数、不合并版本组；「演出曲目」与「表演次数」读场次层，旧目录回退到源歌单备注解析，串烧展开为组成曲；演出数是不同 `performances` 行数，场次按 `show_key` 去重；配信、线上与 VR 演出默认剔除，`song_list_id` 为空的百科演出与排行一样不计入出场统计，这样「演出曲目」和「表演次数」与首页同一制作人筛选后的行数、次数合计一致。自由文本署名没有 `artist_id` 时只显示名字，不编造 VocaDB 链接；没有出场记录的制作人仍然列出。页面用曲目数降序作为默认排序，页眉主导航、首页「制作人」列、单曲页「其他版本」和页眉搜索都链到 `/producers/{name}`。因为自由文本回退与排行完全一致，`DECO*27`、`kz` 这类同时出现在没有结构化署名的歌里的名字，曲目数会高于 `song_producers` 的单表 SQL，这是预期行为。
+
 ## 实现步骤
 
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/bands.ts`，`shared/stats.ts`，`shared/correlation.ts` 及对应 `tests/*`。
@@ -244,4 +246,4 @@ Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目�
 
 ## 页眉搜索
 
-搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
+搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层先列制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`），再列歌曲；只有制作人命中时 `Enter` 不跳转。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。

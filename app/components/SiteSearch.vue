@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
-import { localSongMatches } from '~~/shared/lookup.ts'
+import { localProducerMatches, localSongMatches } from '~~/shared/lookup.ts'
+import { producerPath } from '~~/shared/producers.ts'
 
 const { catalog, load } = useCatalog()
 
@@ -16,8 +17,11 @@ const query = ref('')
 const open = ref(false)
 const mobileOpen = ref(false)
 
-/** Local matches in the loaded catalog. */
+/** Local song matches in the loaded catalog. */
 const localHits = computed(() => (catalog.value ? localSongMatches(catalog.value, query.value) : []))
+
+/** Producer-name matches, listed above the songs in the same panel. */
+const producerHits = computed(() => (catalog.value ? localProducerMatches(catalog.value, query.value) : []))
 
 /** Whether the desktop result panel should be open. */
 const panelOpen = computed(() => open.value && query.value.trim() !== '')
@@ -37,6 +41,12 @@ const reset = (): void => {
 const openSong = async (songId: number): Promise<void> => {
   reset()
   await navigateTo(`/songs/${songId}`)
+}
+
+/** Opens one producer's detail page. */
+const openProducer = async (name: string): Promise<void> => {
+  reset()
+  await navigateTo(producerPath(name))
 }
 
 /** Enter opens the first local hit. */
@@ -85,7 +95,13 @@ onUnmounted(stopListening)
       v-if="panelOpen"
       class="absolute top-full right-0 z-50 mt-2 w-96 rounded-xl bg-default shadow-xl ring ring-default"
     >
-      <SiteSearchResults :query="query" :local="localHits" @select="openSong" />
+      <SiteSearchResults
+        :query="query"
+        :local="localHits"
+        :producers="producerHits"
+        @select="openSong"
+        @select-producer="openProducer"
+      />
     </div>
 
     <!-- Narrow screens: a floating panel opened from the header button. -->
@@ -115,7 +131,13 @@ onUnmounted(stopListening)
           <UButton icon="i-lucide-x" color="neutral" variant="ghost" aria-label="关闭搜索" @click="reset" />
         </div>
         <div class="rounded-xl bg-default ring ring-default">
-          <SiteSearchResults :query="query" :local="localHits" @select="openSong" />
+          <SiteSearchResults
+            :query="query"
+            :local="localHits"
+            :producers="producerHits"
+            @select="openSong"
+            @select-producer="openProducer"
+          />
         </div>
       </div>
     </div>

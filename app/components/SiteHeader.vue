@@ -18,6 +18,7 @@ const links = [
   { label: '歌曲', to: '/', icon: 'i-lucide-music' },
   { label: '系列', to: '/series', icon: 'i-lucide-layers' },
   { label: '城市', to: '/cities', icon: 'i-lucide-map-pin' },
+  { label: '制作人', to: '/producers', icon: 'i-lucide-user-round' },
   { label: '原始数据', to: '/raw', icon: 'i-lucide-table-2' },
 ]
 </script>

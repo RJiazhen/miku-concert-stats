@@ -9,6 +9,7 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { songCharacters, type SongCredits } from '~/composables/useCharacters.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
 import { producerNamesFor } from '~~/shared/producer-options.ts'
+import { producerPath } from '~~/shared/producers.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
 import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.ts'
@@ -95,17 +96,16 @@ const variantRows = computed(() => {
     const ownCharacters = songCharacters(variantSong ?? null)
     const characters = ownCharacters.length > 0 ? ownCharacters : canonicalCharacters
     // The song entry's structured roster wins; `artist_string` is only the fallback.
-    const producer = variantSong ? producerNamesFor(variantSong).join('、') : ''
-    const meta: string[] = []
-    if (producer !== '') meta.push(`制作人 ${producer}`)
-    if (characters.length > 0) meta.push(`演出角色 ${characters.join('、')}`)
+    const producerNames = variantSong ? producerNamesFor(variantSong) : []
     return {
       id,
       name: variantSong?.name ?? String(id),
       /** Chinese kind label; the raw `kind` token stays in the lookup file. */
       kindLabel: entry ? variantKindLabels[entry.kind] : '其他版本',
-      /** 制作人 and 演出角色 of the variant; an empty string hides the line. */
-      meta: meta.join(' · '),
+      /** 制作人 names, each linked to its producer page. */
+      producerNames,
+      /** 演出角色 of the variant; an empty list hides that half of the line. */
+      characters,
     }
   })
 })
@@ -355,7 +355,17 @@ const headerFacts = computed(() => {
                 <UIcon name="i-lucide-external-link" class="size-3" />
               </ULink>
             </div>
-            <p v-if="row.meta" class="text-xs text-muted">{{ row.meta }}</p>
+            <p v-if="row.producerNames.length > 0 || row.characters.length > 0" class="text-xs text-muted">
+              <template v-if="row.producerNames.length > 0">
+                制作人
+                <template v-for="(name, nameIndex) in row.producerNames" :key="name">
+                  <span v-if="nameIndex > 0">、</span>
+                  <NuxtLink :to="producerPath(name)" class="text-muted no-underline hover:text-primary">{{ name }}</NuxtLink>
+                </template>
+              </template>
+              <template v-if="row.producerNames.length > 0 && row.characters.length > 0"> · </template>
+              <template v-if="row.characters.length > 0">演出角色 {{ row.characters.join('、') }}</template>
+            </p>
           </li>
         </ul>
       </UCard>

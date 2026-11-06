@@ -17,3 +17,9 @@ export const localSongMatches = (catalog: Catalog, query: string): SongRow[] => 
     })
     .slice(0, 20)
 }
+
+/**
+ * Producer names already in the catalog, for the same header search.
+ * Re-exported here so the two catalog searches live behind one module.
+ */
+export { localProducerMatches, type ProducerLookupHit } from './producers.ts'

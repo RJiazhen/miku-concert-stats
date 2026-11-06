@@ -13,6 +13,7 @@ import { splitCharacterChips } from '~~/shared/character-chips.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { availableProducers, producerNamesForSongs } from '~~/shared/producer-options.ts'
+import { producerPath } from '~~/shared/producers.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
 import {
   availablePerformanceYears,
@@ -544,9 +545,22 @@ const yearToItems = computed(() =>
           </div>
         </template>
         <template #artists-cell="{ row }">
-          <UTooltip :text="row.original.artists" :content="{ side: 'top' }">
-            <span class="block max-w-32 truncate text-muted">{{ row.original.artists }}</span>
+          <UTooltip v-if="row.original.producerList.length > 0" :content="{ side: 'top' }">
+            <span class="block max-w-32 truncate text-muted">
+              <template v-for="(name, index) in row.original.producerList" :key="name">
+                <span v-if="index > 0">、</span>
+                <NuxtLink :to="producerPath(name)" class="text-muted no-underline hover:text-primary">{{ name }}</NuxtLink>
+              </template>
+            </span>
+            <template #content>
+              <ul class="space-y-0.5">
+                <li v-for="name in row.original.producerList" :key="name">
+                  <NuxtLink :to="producerPath(name)" class="text-primary no-underline hover:underline">{{ name }}</NuxtLink>
+                </li>
+              </ul>
+            </template>
           </UTooltip>
+          <span v-else class="text-muted">—</span>
         </template>
         <template #characters-cell="{ row }">
           <div
