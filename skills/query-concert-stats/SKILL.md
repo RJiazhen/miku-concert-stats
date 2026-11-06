@@ -35,7 +35,7 @@ GET https://miku-concert-stats.rjiazhen.top/api/v1/search?q=melt
 ```json
 {
   "query": "melt",
-  "count": 2,
+  "count": 6,
   "songs": [
     {
       "id": 1322,
@@ -55,6 +55,7 @@ GET https://miku-concert-stats.rjiazhen.top/api/v1/search?q=melt
 ```
 
 - Optional `limit`, default 10, maximum 25.
+- `count` is the total number of matches; `songs` holds at most `limit` of them.
 - Results are already ordered: exact title match first, then prefix, then substring; popularity breaks ties.
 - If several different songs match and none is an exact title match, name the candidates and ask which one the user means.
 
@@ -121,7 +122,7 @@ GET https://miku-concert-stats.rjiazhen.top/api/v1/rank?mode=show&series=81&limi
 }
 ```
 
-`count` is the count under the requested filter. `showCount` / `eventCount` are the song's totals across the whole catalog; do not confuse them with `count`.
+`count` is the count under the requested filter. `showCount` / `eventCount` are the song's totals across the whole catalog; do not confuse them with `count`. `count` in the response is the number of matching songs; the `songs` array holds at most `limit`.
 
 ## 4. `GET /api/v1/debuts?year=<yyyy>&series=<id>`
 
@@ -129,7 +130,7 @@ Songs whose first recorded appearance was that year. This is the honest "debut" 
 
 - Without `series`: the first appearance anywhere (`firstYear`).
 - With `series=81`: the first appearance inside that series, using its series year (`firstSeriesYear`), which is not always the calendar year.
-- Optional `limit`, default 100, maximum 200.
+- Optional `limit`, default 100, maximum 200. `count` is the total number of matches; `songs` holds at most `limit`.
 
 ```json
 {
