@@ -361,7 +361,7 @@ const headerFacts = computed(() => {
         </template>
         <p v-if="appearances.length === 0" class="text-sm text-muted">没有在已收录的歌单里出现。</p>
         <div v-else class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-max min-w-full whitespace-nowrap text-sm">
             <thead class="text-left text-xs tracking-wide text-muted uppercase">
               <tr>
                 <th
@@ -422,7 +422,7 @@ const headerFacts = computed(() => {
           {{ outsideVocaDB ? '这首曲目不在 VocaDB 上，没有登记投稿链接。' : 'VocaDB 上没有登记投稿链接。' }}
         </p>
         <div v-else class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-max min-w-full whitespace-nowrap text-sm">
             <thead class="text-left text-xs tracking-wide text-muted uppercase">
               <tr>
                 <th class="px-2 py-1.5 font-medium">平台</th>

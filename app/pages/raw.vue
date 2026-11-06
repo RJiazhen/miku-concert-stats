@@ -530,7 +530,7 @@ const editionSongCount = computed(() => {
       </p>
       <UCard>
         <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-max min-w-full whitespace-nowrap text-sm">
             <thead class="text-left text-xs tracking-wide text-muted uppercase">
               <tr>
                 <th class="px-2 py-1.5 font-medium whitespace-nowrap">演出</th>
@@ -577,7 +577,7 @@ const editionSongCount = computed(() => {
         </template>
         <p v-if="table.rows.length === 0" class="text-sm text-muted">这张表没有数据。</p>
         <div v-else class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-max min-w-full whitespace-nowrap text-sm">
             <thead class="text-left text-xs tracking-wide text-muted uppercase">
               <tr>
                 <th v-for="header in table.headers" :key="header" class="px-2 py-1.5 font-medium whitespace-nowrap">{{ header }}</th>
@@ -586,8 +586,8 @@ const editionSongCount = computed(() => {
             <tbody>
               <tr v-for="(row, index) in table.rows.slice(0, limitOf(table.id))" :key="index" class="border-t border-default/40">
                 <td v-for="(cell, cellIndex) in row" :key="cellIndex" class="px-2 py-1.5 align-top">
-                  <ULink v-if="cell.href" :to="cell.href" target="_blank" class="break-all text-primary">{{ cell.text }}</ULink>
-                  <span v-else class="break-words text-muted">{{ cell.text }}</span>
+                  <ULink v-if="cell.href" :to="cell.href" target="_blank" class="text-primary">{{ cell.text }}</ULink>
+                  <span v-else class="text-muted">{{ cell.text }}</span>
                 </td>
               </tr>
             </tbody>

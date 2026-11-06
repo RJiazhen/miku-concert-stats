@@ -95,7 +95,7 @@ const notePartsOf = (row: SetlistDisplayRow): NotePart[] => {
 
 <template>
   <div class="overflow-x-auto rounded-xl border border-default/60">
-    <table class="w-full min-w-2xl border-collapse text-sm">
+    <table class="w-max min-w-2xl border-collapse text-sm whitespace-nowrap">
       <thead class="bg-elevated/60 text-left text-xs tracking-wide text-muted uppercase">
         <tr>
           <th class="w-14 px-3 py-2 font-medium">序号</th>

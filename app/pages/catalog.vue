@@ -126,7 +126,7 @@ const viewText = (count: number | null): string => (count === null ? '无快照'
       <BandChart :bands="bands" />
       <p v-if="quarantined.length" class="text-xs text-muted">未拆分的串烧 {{ quarantined.length }} 行，不计入上面的比例。</p>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-max min-w-full whitespace-nowrap text-sm">
           <thead class="text-left text-xs tracking-wide text-muted uppercase">
             <tr>
               <th class="px-2 py-1.5 font-medium">歌曲</th>

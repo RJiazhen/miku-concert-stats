@@ -53,7 +53,7 @@ const percent = (ratio: number | null): string => (ratio === null ? '—' : `${(
         </label>
       </div>
       <div class="mt-4 overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-max min-w-full whitespace-nowrap text-sm">
           <thead class="text-left text-xs tracking-wide text-muted uppercase">
             <tr>
               <th class="px-2 py-1.5 font-medium">分组</th>

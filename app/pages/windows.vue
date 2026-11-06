@@ -99,7 +99,7 @@ const sufficient = computed(() => premiereObservations.value.filter((row) => row
         歌单公布时间：{{ announcedAt ?? '公开 API 的歌单对象没有该字段' }}。
       </p>
       <div class="mt-4 overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-max min-w-full whitespace-nowrap text-sm">
           <thead class="text-left text-xs tracking-wide text-muted uppercase">
             <tr>
               <th class="px-2 py-1.5 font-medium">歌曲</th>
