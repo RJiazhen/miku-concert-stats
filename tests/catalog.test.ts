@@ -235,4 +235,26 @@ describe('committed catalog', () => {
       db.close()
     }
   })
+
+  it('names the two 2026 MIKU WITH YOU stops after their cities', () => {
+    const db = new Database(':memory:')
+    try {
+      applyCatalogSql(db)
+      const catalog = loadCatalog({
+        /** Reads the in-memory catalog built from committed SQL. */
+        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+      })
+      // VocaDB has no city in the Shanghai name, so 0012 adds it; without it the two stops read
+      // as `MIKU WITH YOU 2026` and `MIKU WITH YOU 2026 in Chengdu`.
+      const shanghai = catalog.performances.find((row) => row.id === 13120)
+      expect(shanghai?.name).toBe('MIKU WITH YOU 2026 in Shanghai')
+      expect(shanghai?.series_suffix).toBe('in Shanghai')
+      expect(shanghai?.name_ja).toContain('上海站')
+      const chengdu = catalog.performances.find((row) => row.id === 3_000_000_001)
+      expect(chengdu?.name).toBe('MIKU WITH YOU 2026 in Chengdu')
+      expect(chengdu?.series_suffix).toBe('in Chengdu')
+    } finally {
+      db.close()
+    }
+  })
 })

@@ -157,7 +157,7 @@
 | MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 2024-07-20 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2024 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67183.html)（2026-11-06） |
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 2024-07-27 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2024 in Guangzhou（广州）](https://w.atwiki.jp/hmiku/pages/67183.html)（2026-11-06） |
 | MIKU WITH YOU 2025（9644） | 未来有你 | 2025-12-20 | 4 × 23 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2025（上海）](https://w.atwiki.jp/hmiku/pages/68149.html)（2026-11-06） |
-| MIKU WITH YOU 2026（13120） | 未来有你 | 2026-10-31 | 4 × 24 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html)（2026-11-06） |
+| MIKU WITH YOU 2026 in Shanghai（13120） | 未来有你 | 2026-10-31 | 4 × 24 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html)（2026-11-06） |
 | SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set（3792） | SNOW MIKU | 2015-02-07 | 4 × 27 | vocadb-note | high | [SNOW MIKU LIVE! 2015 公式チケット页](https://snowmiku.com/2015/live_ticket.html)（2026-11-05） |
 | SNOW MIKU LIVE! 2018（1618） | SNOW MIKU | 2018-02-09 | 4 × 26 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2018](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2018)（2026-11-05） |
 | SNOW MIKU LIVE! 2019（2422） | SNOW MIKU | 2019-02-09 | 4 × 26 | vocadb-note | medium | [萌娘百科：SNOW MIKU LIVE! 2019](https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019)（2026-11-05） |
@@ -454,7 +454,7 @@
 | MIKU WITH YOU 2024 in Beijing（7675） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（北京），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67183.html) |
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（广州），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Guangzhou（广州）](https://w.atwiki.jp/hmiku/pages/67183.html) |
 | MIKU WITH YOU 2025（9644） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2025（上海）](https://w.atwiki.jp/hmiku/pages/68149.html) |
-| MIKU WITH YOU 2026（13120） | 未来有你 | 4 × 96 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html) |
+| MIKU WITH YOU 2026 in Shanghai（13120） | 未来有你 | 4 × 96 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2026（上海）](https://w.atwiki.jp/hmiku/pages/79886.html) |
 | ミクの日感謝祭39's Giving Day（2520） | Live Party | 1 × 40 | 歌单来自初音ミク Wiki 的逐曲表（东京），40 行 | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html) |
 | 初音ミクライブパーティー 2011 Tokyo（2523） | Live Party | 1 × 39 | 歌单来自初音ミク Wiki 的逐曲表（东京），39 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67149.html) |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（札幌），26 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67150.html) |

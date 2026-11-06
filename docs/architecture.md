@@ -22,6 +22,8 @@
 
 `data/increments/0011-manual-performances.sql` 收录 **VocaDB 没有 event 的演出**。第一条是未来有你 2026 成都站（2026-12-26，id `3000000001`）：上游系列 173 只有上海站，成都站在上海站收官时公布，只能人工补行。这类 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `LOCAL_PERFORMANCE_ID_BASE`），`source_url` 指向日程／公告来源而不是 `vocadb.net/E/{id}`，`vocadb_status` 为 `NULL`；演出页据此把按钮显示成「演出来源」。它们同样用 `INSERT OR IGNORE` 写在 0001 之后，因为 `pnpm collect` 会先清空 `performances`。尚未举行的场次在 `data/performance-setlists.json` 的 `statuses.<id>` 写 `upcoming`，派生进 `performance_status`。
 
+`data/increments/0012-performance-name-fixes.sql` 只做**显示名更正**：上游 13120 只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站后两者无法区分，所以用 `UPDATE` 把 `name` / `name_ja` / `series_suffix` 改成 `MIKU WITH YOU 2026 in Shanghai`。它同样写在 `0001` 之后，`pnpm collect` 重写 `0001` 后仍然生效；只改这三列，不动日期、场馆与 `song_list_id`。
+
 ## 技术栈
 
 - **Nuxt 4.6**，`srcDir` 为 `app/`。`shared/`、`scripts/`、`tests/`、`server/`、`data/` 留在根目录，`app/**` 通过 `~~/shared/*` 引用纯逻辑。

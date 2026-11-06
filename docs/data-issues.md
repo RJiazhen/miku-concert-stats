@@ -199,7 +199,7 @@ SELECT performance_id, GROUP_CONCAT(show_key, ' ') FROM performance_show_setlist
 
 **风险**：这条规则是全局的，若某份歌单里出现「有意义的占位曲」（例如整段改编曲只登记了一个 `???`），该行会被静默丢弃。目前目录里没有这种情况，但未来出现需要复核。
 
-### 3.3 版本链根节点异常
+### 3.3 版本链根节点异常（已解决）
 
 **现象**：`scripts/vocadb/album-setlists.ts` 会把专辑曲目沿 `originalVersionId` 链解析到根歌曲，个别链的根并不符合常识：
 
@@ -208,7 +208,18 @@ SELECT performance_id, GROUP_CONCAT(show_key, ' ') FROM performance_show_setlist
 
 **影响**：这些曲目挂在冷门条目上，排行与「合并版本」的归属可能让读者困惑；质量报告会把它们列为疑似重复。
 
-**建议**：在 `data/song-variants.json` 里人工合并到熟悉的条目，逐条核对。这是人工判定，不要写通用规则去猜。跟踪：<https://github.com/RJiazhen/miku-concert-stats/issues/23>。
+**复核（atwiki，2026-11-06）**：11 个交响乐演出的歌单与初音ミク Wiki 逐曲表逐行一致，问题只在曲目 id，不在曲目本身。
+
+- 2016 东京（`80167`）：#2 `ハジメテノオト` 标注歌唱，`初音ミクの消失` 在「2008–2009 年楽曲ヒストリー」段。
+- 2017 大阪 / 东京（`80237`）：`初音ミクの消失` 与 `初音ミクの激唱` 同段；`ハジメテノオト` 为安可，标注歌唱。
+- 2018-2019 东京（`80287`）：只有 `初音ミクの消失`，无 `ハジメテノオト`。
+- 2020（`80404`）：`ハジメテノオト` 为 5th Anniversary ver.，只在东京、横滨昼场，大阪换 `Connecting`。
+- 2023（`80537`）：东京为 `ハジメテノオト`，横滨 / 神户为 `初音ミクの消失`（与 `激唱` 同段）。
+- 2025（`80551`）：东京为 `初音ミクの消失`；`ハジメテノオト` 只在札幌昼场。
+
+所有交响乐场次演奏的都是完整编曲版，短版从未上过舞台。id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优先解析（`build-setlist-curation.py` 的 `prefer`），把 389595 / 295872 继承了下来。
+
+**处理**：已在 `data/song-variants.json` 合并为 `389595 → 10951`、`295872 → 2925`，`kind` 用 `remix`，`note` 写明依据；`tests/song-variants.test.ts` 加了回归断言。排行里 `ハジメテノオト` 现为 46 行 / 21 个演出，`初音ミクの消失` 为 57 行 / 34 个演出。
 
 ### 3.4 过渡性增量 SQL
 
@@ -300,6 +311,21 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 - 尚未举行的场次在 `data/performance-setlists.json` 的 `statuses.<id>` 写 `status: "upcoming"`，`pnpm derive:setlists` 会写进 `performance_status`，演出页显示「这场演出尚未举行」。
 - 歌单仍等百科／官方，演出结束后按 `.cursor/skills/update-concert-data/SKILL.md` 补 `data/wiki-raw/` 与 `scripts/wiki_raw_spec.py`（`RAW_SPEC` 里 `mwy2026` 目前只指向 13120，新增成都表要另加一个 key 或把该 id 加进 `performances`）。
 
+### 4.6 演出名的人工更正
+
+上游的演出名偶尔缺城市：13120 在 VocaDB 里只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站之后两者无法区分。这类**只影响显示名**的更正写在 `data/increments/0012-performance-name-fixes.sql`，用 `UPDATE` 改 `name` / `name_ja` / `series_suffix`，写在 `0001` 之后因此每次 `pnpm collect` 重写 `0001` 都不会丢。
+
+| id | 上游名 | 目录名 | `series_suffix` |
+| --- | --- | --- | --- |
+| 13120 | MIKU WITH YOU 2026 | MIKU WITH YOU 2026 in Shanghai | `in Shanghai` |
+| 3000000001 | （上游没有） | MIKU WITH YOU 2026 in Chengdu | `in Chengdu` |
+
+约定：
+
+- 命名与上游 2024 / 2025 的写法保持一致（`MIKU WITH YOU <year> in <city>`），中文名写成「初音未来·未来有你2026演唱会 上海站」。
+- 只改这几列，不动 `venue_name`、日期与 `song_list_id`；`series_suffix` 必须是 `in <city>` 的形状，页面靠它和 `data/place-names.zh-CN.json` 把 `in Shanghai` 换成「上海」。
+- 新增更正前先确认这不是上游已修的数据：若某次 `pnpm collect` 后 `0001` 里已经带城市，删掉对应 `UPDATE`。
+
 ---
 
 ## 五、展示层的小问题
@@ -321,7 +347,7 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 | 已完成 | 4.2 取消场次标注 | `performance_status` 表，13 条 `cancelled` |
 | 已完成 | 曲目改由百科逐曲表提供（3.5） | 169 / 181 个演出；地区差异不再靠备注 |
 | 已完成 | 非 VOCALOID 曲目登记（3.6） | 20 条，演出页曲目不再缺行 |
-| 中 | 3.3 版本链根节点人工合并（[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)） | 影响单曲归属与读者理解；已独立建 issue |
+| — | 3.3 版本链根节点人工合并（[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)） | 已解决：`389595 → 10951`、`295872 → 2925` 写入 `data/song-variants.json` |
 | 中 | 3.5 的原始表格回溯 | 52 个被引用的 atwiki 页没有留档，只留了 URL 与逐行曲目 |
 | 低 | 1.1 交响乐剩余 3 场歌单 | 演出尚未发生，等百科更新 |
 | 低 | 4.4 39 感谢祭独立成系列 | 需要新建系列并改标题，收益有限 |
