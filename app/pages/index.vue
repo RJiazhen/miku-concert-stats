@@ -35,6 +35,9 @@ const { tableAnchor, tableStyle } = useRankingTableHeight()
 /** Width the 歌曲 cell may occupy before it truncates; keeps every column visible at 1280px. */
 const NAME_WIDTH = 220
 
+/** Fixed width of the 歌手 cell, so chips do not reflow when the page width changes. */
+const CHARACTER_WIDTH = 236
+
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
   void load()
@@ -188,7 +191,7 @@ const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true, meta: { class: { th: 'w-14' } } },
   { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true, meta: { class: { td: 'max-w-[220px]' } } },
   { accessorKey: 'artists', header: '制作人', enableSorting: true, meta: { class: { td: 'max-w-32' } } },
-  { id: 'characters', accessorFn: (row) => row.characterList.join('、'), header: sortableHeader('歌手'), enableSorting: true, meta: { class: { td: 'max-w-[200px]' } } },
+  { id: 'characters', accessorFn: (row) => row.characterList.join('、'), header: sortableHeader('歌手'), enableSorting: true, meta: { class: { th: 'w-[236px]', td: 'w-[236px]' } } },
   { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? '场次数' : '演出数'), enableSorting: true },
   // 按演出统计时 count 已经是演出数，不再重复一列。
   ...(mode.value === 'show'
@@ -548,7 +551,8 @@ const yearToItems = computed(() =>
         <template #characters-cell="{ row }">
           <div
             v-if="row.original.characterList.length > 0"
-            class="flex w-full flex-nowrap items-center gap-1 overflow-hidden"
+            class="flex flex-nowrap items-center gap-1 overflow-hidden"
+            :style="{ width: `${CHARACTER_WIDTH}px` }"
           >
             <span
               v-for="name in row.original.characterChips"
