@@ -1,6 +1,8 @@
 # 已知数据问题清单
 
-记录截至 2026-11-04 已确认的数据缺陷与模型张力，供后续单独开 agent 逐项修复。每条包含：现象、影响、证据（目录 id）、建议方向。
+记录截至 **2026-11-06** 已确认的数据缺陷与模型张力，供后续单独开 agent 逐项修复。每条包含：现象、影响、证据（目录 id）、建议方向；已修复的条目标注「已解决」并给出复核方法。
+
+数据侧的现状一句话：目录里 **207 个演出**，其中 **181 个有歌单**、展开成 **364 个场次 / 9041 条曲目**；这 181 个里 169 个的曲目逐条来自百科逐曲表、12 个仍用 VocaDB 歌单。182 条来源记录覆盖全部 181 个有歌单的演出，待核实 / 冲突 / 不确定场次均为 0。剩下 26 个没有歌单的演出里，13 个已标取消、3 个是尚未举行的交响乐、9 个是 MIKU EXPO 2026 欧洲站、1 个是鼓童 2026。
 
 约定引用：
 
@@ -12,24 +14,21 @@
 
 ## 一、缺失的数据（上游就没有）
 
-### 1.1 初音ミクシンフォニー 6 场没有任何歌单
+### 1.1 初音ミクシンフォニー 3 场没有任何歌单
 
-**现象**：系列 256 共 32 个演出，全部在 VocaDB 没有 `songList`。其中 26 个已用专辑 tracklist 补位（见 3.1），剩下 6 个仍是「这场在 VocaDB 没有歌单」：
+**现象**：系列 256 共 32 个演出，全部在 VocaDB 没有 `songList`。**29 个已改用「初音ミク Wiki」的逐曲表**（见 3.1、3.5），剩下 3 场仍是空的：
 
-| performance id | 日期 | 城市 |
-| --- | --- | --- |
-| 12713 | 2026-06-20 | 札幌 |
-| 12714 | 2026-07-05 | 东京 |
-| 12739 | 2026-10-10 | 横滨 |
-| 12740 | 2027-01-10 | 大阪 |
-| 13209 | 2027-03-13 | 横滨 |
-| 13210 | 无日期（Draft） | 东京 |
+| performance id | 日期 | 城市 | 原因 |
+| --- | --- | --- | --- |
+| 12740 | 2027-01-10 | 大阪 | 2026-2027 巡演尚未演到大阪 |
+| 13209 | 2027-03-13 | 横滨 | 2027 巡演未开演（VocaDB Draft） |
+| 13210 | 无日期（Draft） | 东京 | 同上 |
 
-**原因**：这些年份尚无实体发行（CD/Blu-ray），VocaDB 也没有 setlist。
+**原因**：不是「缺数据」，而是**还没发生**。百科逐曲表要等演出结束后才会写。
 
-**影响**：这 6 场在排行中不贡献任何曲目；演出页显示空状态。
+**影响**：这 3 场在排行中不贡献任何曲目；演出页显示「仍无歌单」。
 
-**建议**：等实体发行后补 `data/album-setlists.json` 映射，或人工录入歌单。上游若补了 `songList`，需要先清 `data/cache/` 再跑 `pnpm collect`（见 4.1）。
+**建议**：演出结束后补 `data/wiki-raw/*.json` 与 `scripts/wiki_raw_spec.py`（见 `.cursor/skills/update-concert-data/SKILL.md`）。上游若补了 `songList`，需要先清 `data/cache/` 再跑 `pnpm collect`（见 4.1）。
 
 ### 1.2 播放量数据完全缺失
 
@@ -63,20 +62,27 @@
 
 ### 2.2 区间内的展览日被当成演出日
 
-**现象**：一个演出只有一对 `start_date`–`end_date`，没有逐日节目单。区间里只办企划展、没有 live 的日子也被算成场次：
+**现象**：一个演出只有一对 `start_date`–`end_date`，没有逐日节目单。区间里只办企划展、没有 live 的日子也会被算成场次：
 
 - 2019 大阪（2515）：8/9 只有企划展，8/10–8/11 才是 live。
 - 2020 大阪（2758）：11/27 只有企划展，11/28–11/29 才是 live。
 
-**影响**：按场次计数会多算 1 场；演出页场次列表会多列一天。
+**已解决（2026-11-06）**：改用 `data/performance-setlists.json` 的 `performances.<id>.noShowDates` 逐条剔除。核实的展览日：2015 东京 9/06、2016 东京 9/09、2018 东京 8/31、2019 大阪 8/09、2020 大阪 11/27。
 
-**建议**：这正是 2.3 的人工清单要解决的问题。在拿到逐日数据前，代码与文档已明确「按覆盖到的每一天计」并加了 14 天上限。
+复核：
+
+```sql
+SELECT performance_id, GROUP_CONCAT(show_key, ' ') FROM performance_show_setlists
+ WHERE performance_id IN (2515, 2758) GROUP BY 1;
+-- 2515: 8/10 昼夜 + 8/11 昼夜（8/09 已不在）
+-- 2758: 11/28 昼夜 + 11/29 昼夜（11/27 已不在）
+```
 
 ### 2.3 日夜场数据在 VocaDB 完全不存在
 
 **现象**：
 
-- `performances.showtime_local` 非空 **0 / 207**；`time_evidence` 非空 **0**；`time_precision` 全部为 `day`。
+- `performances.showtime_local` 非空 **0 / 207**（2026-11-06 起演出总数为 181，仍全部为空）；`time_evidence` 非空 **0**；`time_precision` 全部为 `day`。
 - 系列 81（魔法未来）、173（未来有你）里**没有任何同一天的两条 event**，所以不能靠事件拆分识别日夜场。
 - `shared/showtime.ts` 的解析规则只接受**恰好一个** `Showtime`/`開演` 时刻，出现两个就返回 `null`。即使将来解析出单个时刻，`scripts/vocadb/normalize.ts` 也把 `time_precision` 硬编码为 `'day'`，不会变成 `minute`。
 - 目前唯一的日夜证据来自歌单备注（`Daytime Shows`、`Nighttime Shows`、`1st/2nd Show`、`昼夜`），只能证明「某首歌只在日场/夜场唱」，不能给出每天几场、几点开演。
@@ -106,7 +112,7 @@
 
 **已实现（2026-11-05，B 方案）**：人工清单落在 `data/performance-setlists.json` 的 `performances.<id>`，支持 `dayNight`（昼 + 夜两场）、`noShowDates`（只有企划展）与 `halves`（只有昼场或只有夜场），校验器是 `shared/performance-setlists.ts`，场次推导通过 `performanceSchedules` 的第二到第四个参数接入，并物化到 `performance_setlists`。日夜场核实来源记在演出层（`performance_setlist_sources`），待核实项列在 `docs/reports/setlist-review.md` 的 A 节。
 
-**已知冲突（需裁决，见 `docs/setlist-confirmation.md` 第 3 节）**：MIKU EXPO 2015 上海（Fandom 记 6/26–6/27，VocaDB 记 6/27–6/28）与 Live Party 2011 札幌（Fandom 只写 8/17，VocaDB 记 8/16–8/17）。两处都保留 VocaDB 的日期并标 `conflict`，等维护者确认后再改。
+**当前状态（2026-11-06）**：`pending review = 0`、`conflict = 0`、`uncertain = 0`。原先悬置的两处冲突——MIKU EXPO 2015 上海（Fandom 记 6/26–6/27，VocaDB 记 6/27–6/28）与 Live Party 2011 札幌（Fandom 只写 8/17，VocaDB 记 8/16–8/17）——已按 SCLA 官方存档页与 5pb 官方存档页**改采 6/27–6/28 四场 / 8/16–8/17 两场**，不再是待裁决项。
 
 已按官方票务页核实的范围：魔法未来 2015–2026 的东京 / 大阪 / 札幌 / 福冈 / 仙台 / 滨松全部场次；未来有你 2018、2019 四站（萌娘百科）；MIKU EXPO 2014 印尼 / 洛杉矶 / 纽约、SNOW MIKU 2018、Live Party 2013 札幌（VocaDB Fandom）。2019 大阪 8/09、2020 大阪 11/27、2018 东京 8/31、2015 东京 9/06、2016 东京 9/09 经核实为企划展日，已从场次中剔除。
 
@@ -175,15 +181,17 @@
 
 ## 三、补录数据本身的局限
 
-### 3.1 专辑 tracklist 补位不是 VocaDB 歌单
+### 3.1 专辑 tracklist 补位已停用（保留机制）
 
-**现状**：交响乐 26 个演出用 11 张专辑的曲目列表补位，`song_lists.source = 'album'`，沿用合成 id `1_000_000_000 + albumId`，页面全部标注来源并链回 `vocadb.net/Al/<id>`。
+**现状（2026-11-06）**：交响乐的 26 个演出原先靠专辑曲目补位，现在**全部改用百科逐曲表**：`performance_setlists.source_kind = 'wiki'`，行级 `evidence = 'wiki'`。`/shows`、排行、覆盖统计都读场次层，因此页面上不再出现专辑曲目。
 
-**局限**：
+**仍存在的部分**：`song_lists` 里还有 11 张 `source = 'album'` 的歌单，26 个演出的 `performances.song_list_id` 仍指向它们。这只影响源歌单层（`/raw` 仍会展示），派生层已整体覆盖。机制（`data/album-setlists.json` + `pnpm collect:albums`）保留，供将来某个完全没有百科页的演出兜底。
 
-1. **2018 年之后的蓝光在 VocaDB 没有任何曲目**（45288、45291、45290、45289、52465），只有 2017 年那张（30961）有。所以除 2017 外全部用 **CD** 的曲目列表，页面写「专辑」而不是「蓝光」。2016、2019 根本没有蓝光条目。
-2. **同一个年份的不同城市共用一份专辑曲目**（如 2024 的东京/横滨/神户都用 45255），无法证明各城市曲目差异。
-3. **2023 有两个发行**：`39621`（Live at Suntory Hall，对应 8/29 东京）与 `40398`（巡演版，用于横滨/神户）。
+**当初的局限（保留备查）**：
+
+1. **2018 年之后的蓝光在 VocaDB 没有任何曲目**（45288、45291、45290、45289、52465），只有 2017 年那张（30961）有。
+2. **同一个年份的不同城市共用一份专辑曲目**（如 2024 的东京/横滨/神户都用 45255），无法证明各城市曲目差异 —— 这正是改用逐曲表的原因：东京与横滨/神戸本来就是两套节目。
+3. **2023 有两个发行**：`39621`（Live at Suntory Hall）与 `40398`（巡演版）。
 
 ### 3.2 占位曲规则
 
@@ -208,7 +216,42 @@
 
 **后续**：`pnpm collect` 把同样的行写进 `0001` 之后，这两个文件会变成空操作，届时可以删除。删之前先确认 `0001` 已包含 `255` 系列与 `2520`。
 
----
+### 3.5 曲目不再以 VocaDB 为主数据源
+
+**背景**：VocaDB 对同一份 `songList` 只存一份，多个城市共用（最多 17 个演出），地区差异只能写在行内备注里；交响乐则完全没有 `songList`。因此曲目改从「初音ミク Wiki」（atwiki）的**逐曲表**逐条登记。
+
+**现状（2026-11-06）**：181 个演出中 **169 个**的曲目逐条来自百科，其余 12 个仍用 VocaDB 歌单并配官方票务页 / Fandom / 萌娘 的日程来源。每个演出都至少有一条 `performance_setlist_sources`（182 行、73 个去重 URL），逐条带 `title` / `accessed_at` / `confidence` / `note`。
+
+**这个改动的代价（需要知道）**：
+
+1. **只有 28 份表的原始单元格留档**（`data/wiki-raw/`）。其余被引用的 atwiki 页（交响乐各年、EXPO 2014–2020、Live Party 等）当时是手工抄进脚本的，URL 与逐行曲目都在，但**原始表格没存**。
+2. **来源只到演出级**，没有逐行 URL。`performance_show_setlist_items` 只带 `evidence`（`wiki` / `shared` / `note`）与行内原备注。按行取来源时的注意事项见 3.6。
+3. **百科可能写错**。`evidence` 只表示「按哪条规则归位」，不表示「已核实」；`confidence` 一律 `medium`（官方页才给 `high`）。
+
+**如何复核**：`docs/setlist-confirmation.md`（按演出列出场次 × 曲目、说明、来源链接）与 `docs/reports/setlist-review.md`（逐条清单）。采编流程见 `.cursor/skills/update-concert-data/SKILL.md`。
+
+### 3.6 非 VOCALOID 曲目的登记方式
+
+**背景**：百科逐曲表里包含古典改编、鼓童原创器乐曲、民谣/圣诞曲，VocaDB 没有条目。之前这些行被排除在目录外，导致演出页曲目不全。
+
+**现状**：`songs.category` 区分 `vocaloid`（默认）与 `classical` / `traditional` / `instrumental`。后者按普通歌曲登记：
+- id 从 `2_000_000_000` 起（`shared/repertoire.ts` 的 `LOCAL_SONG_ID_BASE`），不与 VocaDB 冲突；
+- `artist_string` 只写作曲者，**没有歌手**（`song_vocalists` 为空）；
+- `source_url` 指向印有该曲名的那一页百科；
+- 行上 `evidence = 'wiki'`，界面对这些行显示「非 VocaDB 曲目・类别」，曲目页说明「不是 VOCALOID 歌曲」。
+
+当前 20 条（古典 5 / 器乐 8 / 民谣 3 / VocaDB 只查到翻唱的 VOCALOID 歌 4）。
+
+**风险**：这些曲目进排行后，与 VOCALOID 歌曲同列比较。若要做「只统计 VOCALOID 歌曲」的口径，必须显式加 `AND songs.category = 'vocaloid'`。
+
+### 3.7 按行取来源的两个坑
+
+`performance_show_setlist_items.evidence` 是「归属方式」，**不是链接**，且没有 CHECK 约束（只有 `shared/catalog.ts` 在加载时校验）。按行生成来源按钮时：
+
+- `evidence = 'wiki'` 的行 `source_position` **全部为 NULL**，必须走 `performance_setlist_sources`（演出级）。用 `LEFT JOIN setlist_items ON source_position` 一条 SQL 通吃，会让 7816 / 9041 行（86%）的 URL 静默变成 NULL。
+- `note` / `shared` 行的 `source_position` 全部有值，走 `performance_setlists.source_list_id → song_lists.source_url`。
+- `curated` 目前 **0 行**，但类型与 UI 标签都保留了它；它同时可能出现在「有 source_position」（人工 assign）和「无 source_position」（人工补行）两种形态。
+- `performance_setlists.change = 'curated'` 是**另一个字段**（169 行），含义是「整份被替换过」，不要与行级 `evidence` 混淆。
 
 ## 四、采集流程的注意点
 
@@ -227,9 +270,7 @@
 - `2886` 鼓童 2020（外链先 `Twitter (Postponement)` 后 `Twitter (Cancellation)`）
 - `2853`–`2861`、`2878`–`2880` MIKU EXPO 2020 美国/加拿大站（带 `Twitter (Cancellation)`）
 
-**影响**：索引里只能显示「日期未知」，无法区分「取消」与「未定档」。
-
-**建议**：可在人工清单里标注取消状态，或从 `performance_links` 的 `Twitter (Cancellation)` 文本推断（脆弱，需人工复核）。
+**已解决（2026-11-06）**：新增 `performance_status` 表，逐条记录 `status`（`cancelled` / `postponed` / `upcoming`）、公告 `source_url` 与访问日期。当前 **13 条 `cancelled`**（12 个 MIKU EXPO 2020 站 + 鼓童 2020），演出页会显示「这场演出已取消」并给出公告链接，索引不再把它们与「未定档」混为一谈。
 
 ### 4.3 缺日期的 14 个演出
 
@@ -259,12 +300,14 @@
 | 优先级 | 项目 | 理由 |
 | --- | --- | --- |
 | 已完成 | 2.4 多城市共用歌单 → 场次层（`pnpm derive:setlists`） | 每个场次已有一整串曲目，`/shows` 不再靠备注 |
-| 高 | 2.3 日夜场人工清单（`data/performance-setlists.json` 的 `dayNight`） | 直接影响「场次」的正确性；机制已就绪，待逐条核实；清单见 `docs/reports/setlist-review.md` 的 A 节 |
-| 高 | 2.2 展览日排除 | 同一个文件即可解决，避免多算场次；C 节会列出疑似展览日 |
+| 已完成 | 2.3 日夜场（`data/performance-setlists.json`） | `pending review = 0`、`conflict = 0`、`uncertain = 0` |
+| 已完成 | 2.2 展览日排除 | 5 个已核实的展览日已从场次中剔除 |
+| 已完成 | 4.2 取消场次标注 | `performance_status` 表，13 条 `cancelled` |
+| 已完成 | 曲目改由百科逐曲表提供（3.5） | 169 / 181 个演出；地区差异不再靠备注 |
+| 已完成 | 非 VOCALOID 曲目登记（3.6） | 20 条，演出页曲目不再缺行 |
 | 中 | 3.3 版本链根节点人工合并 | 影响单曲归属与读者理解 |
-| 中 | 1.1 交响乐剩余 6 场歌单 | 等实体发行，无法提前 |
-| 低 | 4.2 取消场次标注 | 仅影响索引显示 |
-| 低 | 5.2 质量报告逐行列出 | 便于人工排查，非功能性 |
+| 中 | 3.5 的原始表格回溯 | 52 个被引用的 atwiki 页没有留档，只留了 URL 与逐行曲目 |
+| 低 | 1.1 交响乐剩余 3 场歌单 | 演出尚未发生，等百科更新 |
 | 低 | 4.4 39 感谢祭独立成系列 | 需要新建系列并改标题，收益有限 |
 
 ---
