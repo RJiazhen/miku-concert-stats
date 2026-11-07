@@ -24,7 +24,7 @@ const startLoad = (): void => {
 onMounted(startLoad)
 
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
-const { tables, shown, limitOf, showMore } = useRawTables(catalog, variants, { songName, songHref, vocadbSongUrl })
+const { tables, pageSize, limitOf, showMore } = useRawTables(catalog, variants, { songName, songHref, vocadbSongUrl })
 const {
   songsWithoutVideo,
   incompletePerformances,
@@ -45,6 +45,88 @@ const tabs: { value: Tab; label: string }[] = [
   { value: 'tables', label: '数据表' },
   { value: 'quality', label: '质量报告' },
 ]
+
+/** Builds the series-year comparison view of the merged setlist. */
+const editions = computed(() => {
+  if (!catalog.value) return []
+  return catalog.value.premieres
+    .map((row) => {
+      const series = catalog.value?.series.find((item) => item.id === row.series_id)
+      return { key: `${row.series_id}:${row.series_number}`, label: `${series?.name ?? row.series_id} ${row.series_number}`, premiere: row }
+    })
+    .sort((left, right) => left.label.localeCompare(right.label, 'zh-Hans'))
+})
+
+type EditionItem = { label: string; value: string }
+
+/** Chosen series year; empty means "the newest one". */
+const chosenEditionKey = ref('')
+const sideIndex = ref(0)
+
+/** Options for the searchable series-year menu. */
+const editionItems = computed<EditionItem[]>(() => editions.value.map((row) => ({ label: row.label, value: row.key })))
+
+/** Newest series year, used until the visitor picks another one. */
+const defaultEditionKey = computed(() => editions.value[editions.value.length - 1]?.key ?? '')
+
+const editionKey = computed(() => chosenEditionKey.value || defaultEditionKey.value)
+const selectedEdition = computed(() => editions.value.find((row) => row.key === editionKey.value) ?? null)
+
+/** Displayed menu value, derived from the active series year. */
+const editionModel = computed<EditionItem | undefined>(() => editionItems.value.find((item) => item.value === editionKey.value))
+
+/** Stores the visitor's series-year choice. */
+const selectEdition = (item: EditionItem | undefined): void => {
+  chosenEditionKey.value = item?.value ?? ''
+}
+
+/** Song lists of the selected series year, split into merged groups and standalone lists. */
+const sides = computed(() => {
+  if (!catalog.value || !selectedEdition.value || !review.value) return []
+  const [seriesIdText, numberText] = selectedEdition.value.key.split(':')
+  const ids = new Set<number>()
+  for (const performance of catalog.value.performances) {
+    if (performance.series_id !== Number(seriesIdText) || performance.series_number !== Number(numberText)) continue
+    if (performance.song_list_id !== null) ids.add(performance.song_list_id)
+  }
+  return displaySides([...ids], merges, review.value)
+})
+
+/** Side options: a merged group or one song list. */
+const sideOptions = computed(() =>
+  sides.value.map((side, index) => ({
+    label: side.length > 1 ? `合并 ${side.length} 份歌单（${side.join(' / ')}）` : `歌单 ${side[0] ?? ''}`,
+    value: index,
+  })),
+)
+
+watch(sides, () => {
+  sideIndex.value = 0
+})
+
+/** Explains why a list that belongs to a merge group is shown on its own. */
+const splitNote = computed(() => {
+  const side = sides.value[sideIndex.value]
+  if (!side || side.length !== 1 || !review.value) return null
+  const listId = side[0]
+  if (listId === undefined || merges.groupOf(listId) === null) return null
+  if (!review.value.shows.some((show) => show.songListId === listId)) return null
+  return '这个演出的歌单长度与同组其他演出不一致，因此单独显示，不与它们合并。'
+})
+
+const display = computed(() => {
+  if (!catalog.value || !review.value) return null
+  const side = sides.value[sideIndex.value]
+  if (!side || side.length === 0) return null
+  return buildSetlistDisplay(catalog.value, review.value, side)
+})
+
+/** Album sources behind the raw comparison side. */
+const albumSources = computed(() => {
+  if (!catalog.value) return []
+  const side = sides.value[sideIndex.value] ?? []
+  return albumSetlistSources(catalog.value, side)
+})
 
 /** One row of the 场次歌单 table. */
 type ShowSetlistRow = {
@@ -247,7 +329,7 @@ const editionSongCount = computed(() => {
             <h2 class="text-base font-semibold text-highlighted">{{ table.label }}</h2>
             <span class="text-xs text-muted">
               {{ table.rows.length }} 行
-              <template v-if="table.rows.length > PAGE">· 显示前 {{ Math.min(limitOf(table.id), table.rows.length) }}</template>
+              <template v-if="table.rows.length > pageSize">· 显示前 {{ Math.min(limitOf(table.id), table.rows.length) }}</template>
             </span>
           </div>
         </template>

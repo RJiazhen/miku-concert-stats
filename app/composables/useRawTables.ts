@@ -191,5 +191,5 @@ const tables = computed<RawTable[]>(() => {
 })
 
 
-  return { tables, shown, limitOf, showMore }
+  return { tables, pageSize: PAGE, limitOf, showMore }
 }
