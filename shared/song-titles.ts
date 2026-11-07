@@ -78,6 +78,17 @@ export const songTitleFor = (file: SongTitleFile, songId: number): SongTitleEntr
   return file[String(songId)] ?? null
 }
 
+/**
+ * Every Chinese spelling of a song id that search may match: the display title first, then its
+ * aliases. Empty when the file has no row, so a song without a Chinese title only matches its
+ * catalog names.
+ */
+export const songTitleSpellings = (file: SongTitleFile, songId: number): string[] => {
+  const entry = songTitleFor(file, songId)
+  if (entry === null) return []
+  return [entry.title, ...(entry.aliases ?? [])]
+}
+
 /** Primary title plus the original in parentheses when a Chinese title is showing. */
 export type SongTitleView = NameView
 
