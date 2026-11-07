@@ -5,13 +5,13 @@
 
 ## 总览
 
-- 同一系列年度歌单对：30 对，其中 17 对已在 data/setlist-merges.json 合并
+- 同一系列年度歌单对：33 对，其中 17 对已在 data/setlist-merges.json 合并
 - 正片/安可段不一致：6 对
 - 曲目有增减：12 对
-- 可能不是同一套节目：12 对
+- 可能不是同一套节目：15 对
 - 仅顺序不同：0 对
 - 完全相同：0 对
-- 相邻系列年度对比：47 对（仅作参考，不参与上面的分级统计）
+- 相邻系列年度对比：57 对（仅作参考，不参与上面的分级统计）
 
 ## 读法
 
@@ -100,12 +100,21 @@
 - [ ] **初音ミクライブパーティー 2011** · [1](https://vocadb.net/SongList/Details/1) → [12](https://vocadb.net/SongList/Details/12) · 行数 27 → 26（-1） · 正片/安可 25/2 → 26/0（安可 -2） · 共有 20 / 仅左 7 / 仅右 6 · LCS 0.48 · 未合并 · 可能不是同一套节目
       - 仅左：恋色病棟 / 初音ミクの激唱（LONG VERSION） / ダブルラリアット / ココロ / 右肩の蝶 / Fire◎Flower 2011 / みくみくにしてあげる♪【してやんよ】
       - 仅右：星のカケラ / 悪ノ娘 / 悪ノ召使 / Fire◎Flower / 初音ミクの激唱 / Starduster
+- [ ] **初音ミクライブパーティー 2011** · [1](https://vocadb.net/SongList/Details/1) → [84](https://vocadb.net/SongList/Details/84) · 行数 27 → 24（-3） · 正片/安可 25/2 → 21/3（安可 +1） · 共有 1 / 仅左 26 / 仅右 23 · LCS 0.04 · 未合并 · 可能不是同一套节目
+      - 仅左：初めての恋が終わる時 / ローリンガール / 二息歩行 / アルビノ / 恋色病棟 / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / RIP=RELEASE / ダブルラリアット / ルカルカ★ナイトフィーバー / 私の時間 / ＊ハロー、プラネット。 / こっち向いて Baby / Yellow / カラフル×メロディ / メランコリック / ココロ / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA / みくみくにしてあげる♪【してやんよ】 / 歌に形はないけれど / メルト
+      - 仅右：Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / 恋スルVOC@LOID / クローバー・クラブ / ロミオとシンデレラ / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / moon / 初音ミクの消失 / 右肩の蝶 / 炉心融解 / Just Be Friends / ワールズエンド・ダンスホール / from Y to Y / サイハテ / ファインダー / SPiCa / 愛言葉 / StargazeR / ハジメテノオト
 - [ ] **初音ミクライブパーティー 2011** · [1](https://vocadb.net/SongList/Details/1) → [3953](https://vocadb.net/SongList/Details/3953) · 行数 27 → 39（+12） · 正片/安可 25/2 → 39/0（安可 -2） · 共有 21 / 仅左 6 / 仅右 18 · LCS 0.26 · 未合并 · 可能不是同一套节目
       - 仅左：恋色病棟 / 初音ミクの激唱（LONG VERSION） / 私の時間 / 右肩の蝶 / Fire◎Flower 2011 / みくみくにしてあげる♪【してやんよ】
       - 仅右：Ievan Polkka / トリノコシティ / キャットフード / 崩壊歌姫 -disruptive diva- / 白い雪のプリンセスは / ワールズエンド・ダンスホール / No Logic / Japanese Ninja No.1 / trick and treat / 悪ノ娘 / 悪ノ召使 / 炉心融解 / リンリンシグナル / SPICE！ / Fire◎Flower / Packaged / マージナル / 初音ミクの激唱
+- [ ] **初音ミクライブパーティー 2011** · [12](https://vocadb.net/SongList/Details/12) → [84](https://vocadb.net/SongList/Details/84) · 行数 26 → 24（-2） · 正片/安可 26/0 → 21/3（安可 +3） · 共有 1 / 仅左 25 / 仅右 23 · LCS 0.04 · 未合并 · 可能不是同一套节目
+      - 仅左：星のカケラ / こっち向いて Baby / 二息歩行 / アルビノ / え？あぁ、そう。 / ローリンガール / 結ンデ開イテ羅刹ト骸 / いろは唄 / 悪ノ娘 / 悪ノ召使 / Fire◎Flower / メランコリック / 初めての恋が終わる時 / 初音ミクの激唱 / RIP=RELEASE / ルカルカ★ナイトフィーバー / 私の時間 / ＊ハロー、プラネット。 / 歌に形はないけれど / Yellow / タイムマシン / ARiA / メルト / カラフル×メロディ / Starduster
+      - 仅右：Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / 恋スルVOC@LOID / クローバー・クラブ / ロミオとシンデレラ / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / moon / 初音ミクの消失 / 右肩の蝶 / 炉心融解 / Just Be Friends / ワールズエンド・ダンスホール / from Y to Y / サイハテ / ファインダー / SPiCa / 愛言葉 / StargazeR / ハジメテノオト
 - [ ] **初音ミクライブパーティー 2011** · [12](https://vocadb.net/SongList/Details/12) → [3953](https://vocadb.net/SongList/Details/3953) · 行数 26 → 39（+13） · 正片/安可 26/0 → 39/0（安可 0） · 共有 23 / 仅左 3 / 仅右 16 · LCS 0.36 · 未合并 · 可能不是同一套节目
       - 仅左：星のカケラ / 私の時間 / Starduster
       - 仅右：Ievan Polkka / トリノコシティ / キャットフード / 崩壊歌姫 -disruptive diva- / 白い雪のプリンセスは / ワールズエンド・ダンスホール / ダブルラリアット / No Logic / Japanese Ninja No.1 / trick and treat / 炉心融解 / ココロ / リンリンシグナル / SPICE！ / Packaged / マージナル
+- [ ] **初音ミクライブパーティー 2011** · [84](https://vocadb.net/SongList/Details/84) → [3953](https://vocadb.net/SongList/Details/3953) · 行数 24 → 39（+15） · 正片/安可 21/3 → 39/0（安可 -3） · 共有 3 / 仅左 21 / 仅右 36 · LCS 0.05 · 未合并 · 可能不是同一套节目
+      - 仅左：Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / 恋スルVOC@LOID / クローバー・クラブ / ロミオとシンデレラ / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / moon / 初音ミクの消失 / 右肩の蝶 / Just Be Friends / from Y to Y / サイハテ / ファインダー / SPiCa / 愛言葉 / StargazeR / ハジメテノオト
+      - 仅右：Ievan Polkka / こっち向いて Baby / 二息歩行 / アルビノ / え？あぁ、そう。 / トリノコシティ / キャットフード / 崩壊歌姫 -disruptive diva- / 白い雪のプリンセスは / ダブルラリアット / No Logic / RIP=RELEASE / Japanese Ninja No.1 / ルカルカ★ナイトフィーバー / 結ンデ開イテ羅刹ト骸 / ローリンガール / trick and treat / 悪ノ娘 / 悪ノ召使 / いろは唄 / ココロ / メランコリック / リンリンシグナル / SPICE！ / Fire◎Flower / Packaged / ＊ハロー、プラネット。 / マージナル / 初音ミクの激唱 / 歌に形はないけれど / Yellow / タイムマシン / ARiA / カラフル×メロディ / メルト / 初めての恋が終わる時
 - [ ] **初音ミクライブパーティー 2012** · [31](https://vocadb.net/SongList/Details/31) → [217](https://vocadb.net/SongList/Details/217) · 行数 25 → 33（+8） · 正片/安可 25/0 → 33/0（安可 0） · 共有 20 / 仅左 5 / 仅右 13 · LCS 0.33 · 未合并 · 可能不是同一套节目
       - 仅左：ロミオとシンデレラ / trick and treat / 右肩の蝶 / トリノコシティ / Tell Your World
       - 仅右：星のカケラ / 二息歩行 / アルビノ / え？あぁ、そう。 / マージナル / ＊ハロー、プラネット。 / 結ンデ開イテ羅刹ト骸 / いろは唄 / 悪ノ娘 / 悪ノ召使 / Pane dhiria / タイムマシン / ARiA
@@ -255,3 +264,13 @@
 - **初音ミクシンフォニー 2025** · [1000045255 · 专辑曲目](https://vocadb.net/Al/45255) → [1000052449 · 专辑曲目](https://vocadb.net/Al/52449) · 行数 22 → 31（+9） · 正片/安可 22/0 → 31/0（安可 0） · 共有 4 / 仅左 18 / 仅右 26 · LCS 0.10 · 未合并 · 可能不是同一套节目
       - 仅左：ヒバナ / ルカルカ★ナイトフィーバー / メランコリック / 脱法ロック / ツギハギスタッカート / レッドランドマーカー / 君を捜す空 / 光と影の楽園 / 巡る世界のレクイエム / Leia / 星屑ユートピア / Yellow / DECORATOR / Catch the Wave / カンタレラ / サンドリヨン / Genesis / letter song
       - 仅右：Blessing / 愛して愛して愛して / ACUTE / 右肩の蝶 / 番凩 / Dear / 裏表ラバーズ / ローリンガール / アンハッピーリフレイン / アンノウン・マザーグース / Hand in Hand / メズマライザー / オーバーライド / ぽっぴっぽー / 未来序曲 / ガールズフレンドシップ / たいせつなこと / ピアノ×フォルテ×スキャンダル / 舞台 / 怪人 (ライブ) / 青を焚べて / 悪ノ娘 / 悪ノ召使 / 39 / プレイオン / メルト
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 2** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 3** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 4** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 5** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 2** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 3** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 4** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 5** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 6** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 7** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
