@@ -42,6 +42,8 @@ export type ProducerSongRow = {
   showCount: number
   /** Distinct 演出 this song was performed in. */
   performanceCount: number
+  /** Ids of those 演出, ascending; lets a page list which songs one 演出 played. */
+  performanceIds: number[]
 }
 
 /** One producer's aggregated concert record. */
@@ -360,6 +362,7 @@ export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptio
         publishYear: publishYear(song),
         showCount,
         performanceCount,
+        performanceIds: [...(appearance?.performances ?? [])].sort((left, right) => left - right),
       })
     }
     songs.sort(compareSongs)

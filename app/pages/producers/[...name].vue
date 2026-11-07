@@ -95,7 +95,22 @@ type AppearanceView = {
   seriesLabel: string
   performanceId: number
   performanceLabel: string
+  /** Credited songs of this producer that the 演出 played, most-performed first. */
+  songs: { songId: number; name: string }[]
 }
+
+/** Credited songs this producer had performed in each 演出, keyed by 演出 id. */
+const songsByPerformance = computed(() => {
+  const map = new Map<number, { songId: number; name: string }[]>()
+  for (const song of producer.value?.songs ?? []) {
+    for (const performanceId of song.performanceIds) {
+      const bucket = map.get(performanceId) ?? []
+      bucket.push({ songId: song.songId, name: song.name })
+      map.set(performanceId, bucket)
+    }
+  }
+  return map
+})
 
 /** Performances that played any credited song, oldest first and one row per 演出. */
 const appearances = computed<AppearanceView[]>(() => {
@@ -116,6 +131,7 @@ const appearances = computed<AppearanceView[]>(() => {
       seriesLabel: series === undefined ? `系列 ${performance.series_id}` : localizeSeries(series.name),
       performanceId: performance.id,
       performanceLabel: localizePlace(localizePerformanceSeries(performance.name, seriesName, performance.series_number)),
+      songs: songsByPerformance.value.get(performance.id) ?? [],
     }]
   })
   views.sort(
@@ -142,8 +158,9 @@ const songColumns: TableColumn<SongView>[] = [
 
 const appearanceColumns: TableColumn<AppearanceView>[] = [
   { accessorKey: 'date', header: sortableHeader('日期'), enableSorting: true },
-  { accessorKey: 'seriesLabel', header: sortableHeader('系列'), enableSorting: true },
-  { accessorKey: 'performanceLabel', header: sortableHeader('演出'), enableSorting: true },
+  { accessorKey: 'seriesLabel', header: sortableHeader('系列'), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
+  { accessorKey: 'performanceLabel', header: sortableHeader('演出'), enableSorting: true, meta: { class: { td: 'max-w-[260px]' } } },
+  { id: 'songs', header: '歌曲', accessorFn: (row) => row.songs.map((song) => song.name).join('、'), meta: { class: { td: 'max-w-[280px]' } } },
 ]
 
 /** Blank marker for a missing value. */
@@ -234,7 +251,7 @@ const cell = (value: string | number | null): string => (value === null || value
         v-if="catalog || pending"
         title="出场记录"
         :count="`${appearances.length} 个演出`"
-        note="同一演出只列一行"
+        note="同一演出只列一行；「歌曲」是这位制作人在该演出中被表演的曲目"
         :fill="false"
         v-model:sorting="appearanceSorting"
         :data="appearances"
@@ -248,14 +265,49 @@ const cell = (value: string | number | null): string => (value === null || value
           <span class="whitespace-nowrap font-mono text-muted">{{ cell(row.original.date) }}</span>
         </template>
         <template #seriesLabel-cell="{ row }">
-          <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-primary no-underline hover:underline">
-            {{ row.original.seriesLabel }}
-          </NuxtLink>
+          <UTooltip :text="row.original.seriesLabel" :content="{ side: 'top' }">
+            <NuxtLink
+              :to="`/series/${row.original.seriesId}`"
+              class="block max-w-32 truncate text-primary no-underline hover:underline"
+            >
+              {{ row.original.seriesLabel }}
+            </NuxtLink>
+          </UTooltip>
         </template>
         <template #performanceLabel-cell="{ row }">
-          <NuxtLink :to="`/shows/${row.original.performanceId}`" class="text-primary no-underline hover:underline">
-            {{ row.original.performanceLabel }}
-          </NuxtLink>
+          <UTooltip :text="row.original.performanceLabel" :content="{ side: 'top' }">
+            <NuxtLink
+              :to="`/shows/${row.original.performanceId}`"
+              class="block max-w-[260px] truncate text-primary no-underline hover:underline"
+            >
+              {{ row.original.performanceLabel }}
+            </NuxtLink>
+          </UTooltip>
+        </template>
+        <template #songs-cell="{ row }">
+          <UTooltip v-if="row.original.songs.length > 0" :content="{ side: 'top' }">
+            <div class="flex max-w-[280px] flex-nowrap items-center gap-x-2 overflow-hidden">
+              <template v-for="(song, index) in row.original.songs" :key="song.songId">
+                <span v-if="index > 0" class="shrink-0 text-muted">、</span>
+                <NuxtLink
+                  :to="`/songs/${song.songId}`"
+                  class="min-w-0 truncate text-highlighted no-underline hover:text-primary"
+                >
+                  <SongTitle :song-id="song.songId" :original="song.name" truncate />
+                </NuxtLink>
+              </template>
+            </div>
+            <template #content>
+              <ul class="space-y-0.5">
+                <li v-for="song in row.original.songs" :key="song.songId">
+                  <NuxtLink :to="`/songs/${song.songId}`" class="text-primary no-underline hover:underline">
+                    {{ song.name }}
+                  </NuxtLink>
+                </li>
+              </ul>
+            </template>
+          </UTooltip>
+          <span v-else class="text-muted">—</span>
         </template>
       </TableSection>
     </template>

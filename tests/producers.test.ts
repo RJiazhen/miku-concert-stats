@@ -254,6 +254,12 @@ describe('producer index', () => {
     })
     expect(kz?.roles).toEqual({ producer: 2, composer: 1, arranger: 1, voicemanipulator: 0 })
     expect(kz?.topSongIds).toEqual([1, 2, 3])
+    // Each song carries the 演出 that played it, so a page can list songs per 演出.
+    expect(kz?.songs.map((song) => [song.songId, song.performanceIds])).toEqual([
+      [1, [1, 2, 4]],
+      [2, [1]],
+      [3, [1]],
+    ])
 
     const samfree = index.byName.get('samfree')
     expect(samfree).toMatchObject({
