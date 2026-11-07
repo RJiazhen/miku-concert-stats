@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
@@ -109,6 +109,10 @@ const performanceRows = computed<PerformanceView[]>(() =>
 const ALL_SERIES = 'all'
 const seriesFilter = ref<string>(ALL_SERIES)
 
+/** Place filter restored from `?place=`, used when a header-search place hit is opened. */
+const route = useRoute()
+const placeFilter = ref<string>(typeof route.query.place === 'string' ? route.query.place : '')
+
 /** Filter options in the series table's default order, most 演出 first. */
 const seriesItems = computed(() => {
   const ordered = [...seriesRows.value].sort(
@@ -117,10 +121,27 @@ const seriesItems = computed(() => {
   return [{ label: '全部系列', value: ALL_SERIES }, ...ordered.map((row) => ({ label: row.primary, value: String(row.seriesId) }))]
 })
 
-const filteredPerformances = computed(() =>
-  seriesFilter.value === ALL_SERIES
-    ? performanceRows.value
-    : performanceRows.value.filter((row) => String(row.seriesId) === seriesFilter.value),
+const filteredPerformances = computed(() => {
+  let rows = performanceRows.value
+  if (seriesFilter.value !== ALL_SERIES) rows = rows.filter((row) => String(row.seriesId) === seriesFilter.value)
+  if (placeFilter.value !== '') rows = rows.filter((row) => row.venue === placeFilter.value)
+  return rows
+})
+
+/** Clears the place filter and drops it from the URL without adding a history entry. */
+const clearPlaceFilter = (): void => {
+  placeFilter.value = ''
+  const query = { ...route.query }
+  delete query.place
+  void navigateTo({ query }, { replace: true })
+}
+
+/** Keeps the place filter in sync when another search hit or the back button changes `?place=`. */
+watch(
+  () => route.query.place,
+  (value) => {
+    placeFilter.value = typeof value === 'string' ? value : ''
+  },
 )
 
 /** Catalog-wide sums printed next to the section titles. */
@@ -236,12 +257,22 @@ const cell = (value: string | null): string => (value === null || value === '' ?
         :loading="pending"
         empty-icon="i-lucide-calendar-x"
         empty-title="没有符合条件的演出"
-        empty-description="换一个系列筛选。"
+        empty-description="换一个系列或地点筛选。"
       >
         <template #actions>
           <FilterField label="系列">
             <USelect v-model="seriesFilter" :items="seriesItems" size="sm" class="w-44" />
           </FilterField>
+          <UButton
+            v-if="placeFilter"
+            color="neutral"
+            variant="subtle"
+            size="sm"
+            trailing-icon="i-lucide-x"
+            :label="`地点：${placeFilter}`"
+            aria-label="清除地点筛选"
+            @click="clearPlaceFilter"
+          />
         </template>
         <template #dates-cell="{ row }">
           <span class="whitespace-nowrap tabular-nums text-muted">{{ cell(row.original.dates) }}</span>

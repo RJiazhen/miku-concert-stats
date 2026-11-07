@@ -248,12 +248,12 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown；范围是同一系列年度或相邻系列年度 |
 | `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人先取该版本的 `song_producers`，没有时才退回 `artist_string` 的 `feat.` 前并去掉 VocaDB 的 `Unknown producer(s)` 占位，每个名字链到 `/producers/{name}`；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一个演出的场次列表、轮换解析结果与长度一致性；歌单来自专辑时显示来源提示。面包屑只有 系列 → 演出 两级，系列项链到 `/series/{id}` |
-| `/series` | `app/pages/series/index.vue` | 系列与演出总览。上半是系列表（演出数、场次、年份跨度、首次与最近演出），下半是全部演出的表（日期、演出、系列、场馆、场次），可按系列筛选与排序；两张表都链到 `/series/{id}` 与 `/shows/{id}` |
+| `/series` | `app/pages/series/index.vue` | 系列与演出总览。上半是系列表（演出数、场次、年份跨度、首次与最近演出），下半是全部演出的表（日期、演出、系列、场馆、场次），可按系列或 `?place=` 场馆筛选与排序；两张表都链到 `/series/{id}` 与 `/shows/{id}` |
 | `/series/{id}` | `app/pages/series/[id].vue` | 系列主页：该系列的全部演出（每个城市站一行，列出日期、场馆与场次数并链到 `/shows/{id}`），带年份跨度、演出数与场次合计，页头链回 `/series` 总览。站内只有 系列 → 演出 → 场次 三级，不再有年度索引页 |
 
 `edition_premieres` 表与 `series_number` 列保留（来自 VocaDB，用于系列年度首演与歌单差异对照），但**不再**是导航层级：页面只按 系列 → 演出 → 场次 展示，`series_number` 只在需要时作为演出旁的年份标签出现。
 
-`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `localSongMatches` 与 `localProducerMatches` 在已下载的目录里匹配，不向站外发请求；结果浮层先列「制作人 N 位」（名字、所属角色、曲目数，链到 `/producers/{name}`），再列歌曲（链到 `/songs/{id}`，也可以带着关键词跳到排行）。`Enter` 仍打开第一首歌曲；只有制作人命中时不会自动跳转。
+`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `localSongMatches`、`localProducerMatches`、`localSeriesMatches`、`localPerformanceMatches` 与 `localPlaceMatches` 在已下载的目录里匹配，不向站外发请求；结果浮层依次列「系列 N 个」（名字、演出数，链到 `/series/{id}`）、「演出 N 个」（名字、日期与场馆，链到 `/shows/{id}`）、「地点 N 个」（场馆名、演出数，链到 `/series?place={场馆}`）、「制作人 N 位」（名字、所属角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`，也可以带着关键词跳到排行）。中文名也参与匹配：系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 依次打开第一首歌、第一个演出、第一个系列，最后才打开第一个地点。
 
 外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`）。skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题（用户另行指定来源时例外）、在每条回答末尾附站的 `参考链接`（歌曲 / 演出 / 系列 / 制作人页），并在首次空提问的演示之后、且 skill 未被本地安装时，追加一次安装命令。API 覆盖不到的部分（未收录的演出、`null` 字段、发行信息、站外数据等）允许改用手上的其他工具或站外来源补齐，但站内数字仍以 API 为准，且必须标明哪部分来自站外。
 
