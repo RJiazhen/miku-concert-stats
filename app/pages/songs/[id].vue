@@ -19,12 +19,10 @@ import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.t
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
-import { latestSnapshot } from '~~/shared/stats.ts'
 import { fromVocaDB, isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
 import {
   compareAppearances,
 } from '~~/shared/appearance-sort.ts'
-import type { Platform } from '~~/shared/types.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
@@ -237,7 +235,7 @@ const appearanceColumns = computed<TableColumn<AppearanceRow>[]>(() => [
   },
 ])
 
-/** Columns of the 相关投稿 table; the snapshot column only exists when snapshots do. */
+/** Columns of the 相关投稿 table. */
 const videoColumns = computed<TableColumn<VideoRow>[]>(() => {
   const list: TableColumn<VideoRow>[] = [
     { accessorKey: 'platform', header: '平台' },
@@ -245,7 +243,6 @@ const videoColumns = computed<TableColumn<VideoRow>[]>(() => {
     { accessorKey: 'pvType', header: '类型' },
     { accessorKey: 'publishDate', header: '日期' },
   ]
-  if (hasSnapshots.value) list.push({ id: 'views', header: '最新播放量' })
   list.push({ id: 'url', header: '链接' })
   return list
 })
@@ -263,8 +260,6 @@ type VideoRow = {
   title: string
   pvType: string
   publishDate: string
-  /** Latest snapshot view count, null when the platform video has none. */
-  views: number | null
   url: string
 }
 
@@ -277,16 +272,6 @@ const videos = computed(() => {
     .sort((left, right) => left.platform.localeCompare(right.platform) || left.vocadb_pv_id - right.vocadb_pv_id)
 })
 
-/** Latest observed view count for a PV, or null when no snapshot exists. */
-const latestViews = (platform: Platform, platformVideoId: string): number | null => {
-  if (!catalog.value) return null
-  const snapshot = latestSnapshot(catalog.value.snapshots, platform, platformVideoId)
-  return snapshot ? snapshot.view_count : null
-}
-
-/** Formats a view count. */
-const viewsText = (count: number | null): string => (count === null ? '无快照' : count.toLocaleString('zh-Hans'))
-
 /** Rows of the 相关投稿 table, one per platform video. */
 const videoRows = computed<VideoRow[]>(() =>
   videos.value.map((video) => ({
@@ -295,12 +280,9 @@ const videoRows = computed<VideoRow[]>(() =>
     title: video.title ?? '—',
     pvType: video.pv_type ?? '—',
     publishDate: video.publish_date ?? '—',
-    views: latestViews(video.platform, video.platform_video_id),
     url: video.url,
   })),
 )
-
-const hasSnapshots = computed(() => (catalog.value?.snapshots.length ?? 0) > 0)
 
 /** 演出角色 for the canonical song, printed as chips in the header. */
 const characters = computed(() => characterNamesOf(song.value ?? null))
@@ -474,9 +456,6 @@ const showsCharacterLine = computed(() => (!outsideVocaDB.value || isVocaloidSon
         </template>
         <template #publishDate-cell="{ row }">
           <span class="font-mono text-muted">{{ row.original.publishDate }}</span>
-        </template>
-        <template #views-cell="{ row }">
-          <span class="tabular-nums">{{ viewsText(row.original.views) }}</span>
         </template>
         <template #url-cell="{ row }">
           <ULink :to="row.original.url" target="_blank" class="text-primary">打开</ULink>

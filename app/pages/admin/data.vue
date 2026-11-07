@@ -53,7 +53,6 @@ const metrics = computed<Metric[]>(() => {
     { label: '系列', value: current.series.length, icon: 'i-lucide-layers', hint: '演唱会系列' },
     { label: '歌单', value: current.songLists.length, icon: 'i-lucide-list-music', hint: '含专辑替代表单' },
     { label: '视频', value: current.videos.length, icon: 'i-lucide-video', hint: 'PV 与转载' },
-    { label: '播放快照', value: current.snapshots.length, icon: 'i-lucide-chart-line', hint: '历史播放量采样' },
   ]
 })
 
@@ -92,7 +91,6 @@ const freshness = computed(() => {
   const current = catalog.value
   if (!current) return []
   return [
-    { label: '最新播放快照', value: formatDate(latestIso(current.snapshots.map((row) => row.collected_at))) },
     { label: '最新歌曲抓取', value: formatDate(latestIso(current.songs.map((row) => row.retrieved_at))) },
     { label: '最新演出抓取', value: formatDate(latestIso(current.performances.map((row) => row.retrieved_at))) },
     { label: '串烧隔离条目', value: formatNumber(current.medleyQuarantine.length) },

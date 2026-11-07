@@ -1,6 +1,6 @@
 # 架构
 
-统计 Crypton 主办的初音未来演唱会歌单，并在浏览器里比较各场、各系列、各年份的播放量区间。日常聚合不在服务器上跑。Cloudflare Worker 只做首屏 SSR，以及目录里找不到歌时的按需检索。
+统计 Crypton 主办的初音未来演唱会歌单，并在浏览器里比较各场、各系列、各年份的曲目构成。日常聚合不在服务器上跑。Cloudflare Worker 只做首屏 SSR，以及目录里找不到歌时的按需检索。
 
 设计约束见 [docs/design.md](design.md)。本文件描述当前代码怎么跑。已确认但尚未修复的数据缺陷汇总在 [docs/data-issues.md](data-issues.md)。
 
@@ -32,7 +32,7 @@ VocaDB 没有的演出 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `
 
 **增量文件分层。** `data/increments/` 按「谁生成」分两类，不再按日期堆积小文件：
 
-- **生成物**（不要手改，重跑脚本）：`0001` 采集目录、`0002` YouTube 快照、`0003` 换算公式、`0004` 专辑曲目补位、`0006` 出演声库、`0007` 制作人、`0008` 场次歌单、`0009` 百科曲目（两个 Block）。
+- **生成物**（不要手改，重跑脚本）：`0001` 采集目录、`0004` 专辑曲目补位、`0006` 出演声库、`0007` 制作人、`0008` 场次歌单、`0009` 百科曲目（两个 Block）。
 - **手工维护**：`0005-manual-catalog.sql` 补录 VocaDB 没有的场次与系列，`0011-manual-corrections.sql` 更正或合并上游行，`0012-song-english-names.sql` 补英文名。
 
 数字前缀只决定执行顺序；新的人工数据加进对应的手工文件，不再新建 `00xx-*.sql`。三条手工文件都写在 `0001` 之后，且语句幂等。
@@ -54,7 +54,7 @@ VocaDB 没有的演出 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `
 
 `scripts/vocadb/collect.ts`（`pnpm collect`）拉取上述七个系列：系列详情、每场 `releaseEvents`、歌单分页（每页 50，`fields=Names,PVs,WebLinks`）；另外按 `STANDALONE_EVENTS` 补拉没有系列归属的场次。`scripts/vocadb/normalize.ts` 把 API 对象收成目录行。`scripts/vocadb/api-types.ts` 是这些响应的类型。
 
-VocaDB 上没有歌单的演出可以由专辑曲目补位。`data/album-setlists.json` 为每个演出人工指定一张专辑，`scripts/vocadb/album-setlists.ts`（`pnpm collect:albums`，`pnpm collect` 末尾也会执行）只请求这些专辑的 `Tracks`，写出 `data/increments/0004-album-setlists.sql`：每张专辑一份 `song_lists` 行（`source = 'album'`、`album_id`、`medium`），曲目按碟号与轨号写进 `setlist_items`、`setlist_item_songs`，最后 `UPDATE performances ... WHERE song_list_id IS NULL` 把这批演出指向该歌单。这个条件保证 VocaDB 以后补上真歌单时专辑曲目不会覆盖它。曲目沿 `originalVersionId` 一路解析到原曲（专辑版可能是上一张专辑版本的再版，所以不能只跟一跳），播放量仍记在原曲上；没有原曲的串烧保留专辑曲目的 id 与标题。VocaDB 上 2018 年以后的蓝光条目没有曲目，所以多数系列年度只能用同一年度的 CD。
+VocaDB 上没有歌单的演出可以由专辑曲目补位。`data/album-setlists.json` 为每个演出人工指定一张专辑，`scripts/vocadb/album-setlists.ts`（`pnpm collect:albums`，`pnpm collect` 末尾也会执行）只请求这些专辑的 `Tracks`，写出 `data/increments/0004-album-setlists.sql`：每张专辑一份 `song_lists` 行（`source = 'album'`、`album_id`、`medium`），曲目按碟号与轨号写进 `setlist_items`、`setlist_item_songs`，最后 `UPDATE performances ... WHERE song_list_id IS NULL` 把这批演出指向该歌单。这个条件保证 VocaDB 以后补上真歌单时专辑曲目不会覆盖它。曲目沿 `originalVersionId` 一路解析到原曲（专辑版可能是上一张专辑版本的再版，所以不能只跟一跳），统计仍记在原曲上；没有原曲的串烧保留专辑曲目的 id 与标题。VocaDB 上 2018 年以后的蓝光条目没有曲目，所以多数系列年度只能用同一年度的 CD。
 
 写入规则：
 
@@ -66,9 +66,7 @@ VocaDB 上没有歌单的演出可以由专辑曲目补位。`data/album-setlist
 - `shared/placeholder-song.ts`：`isPlaceholderSong` 检查歌名与全部译名，命中 VocaDB 的占位标记（`[Placeholder song]`、`[Unknown song]`、`[Temporary song]`、`[Custom song]`、`[Out of scope song]`、`[Unknown]`，忽略大小写与首尾空白）就整行丢弃，不写入 `setlist_items` / `songs`。占位曲 15591（`???`）在初音ミク×鼓童的三份歌单里出现 14 次，代表鼓童的太鼓独奏段落，不是歌曲；不丢弃会让 `???` 排到该系列第一。歌名本身不改写，只跳过整行。
 - 视频只保留 niconico、YouTube、bilibili 的 PV 链接。
 
-`scripts/sql/emit.ts` 把行变成 SQL 字面量，每条 `INSERT` 最多 80 行。`catalogTransaction` 包在事务里，先删目录表再插入。它不删除 `view_snapshots`、`milestones`、`conversion_formulas`。产物是 `data/increments/0001-vocadb-catalog.sql`。采集结束还会调用 `scripts/evaluate-conversion.ts` 重写 `0003-conversion.sql`。
-
-`scripts/snapshot-youtube.ts`（`pnpm snapshot:youtube`）在 `YOUTUBE_API_KEY` 存在时，对目录里未禁用的 YouTube `platform_video_id` 调用 Data API v3 `videos.list`（`part=statistics`，每批 50 个 id）。没有数字 `viewCount` 的条目跳过，不写成 0。结果以 `INSERT OR IGNORE` 追加到 `data/increments/0002-youtube-snapshots.sql`。没有密钥时打印跳过并返回 0。
+`scripts/sql/emit.ts` 把行变成 SQL 字面量，每条 `INSERT` 最多 80 行。`catalogTransaction` 包在事务里，先删目录表再插入。产物是 `data/increments/0001-vocadb-catalog.sql`。
 
 `scripts/build-catalog.ts`（`pnpm build:catalog`，`prebuild` 与 `scripts/dev.ts` 也调用它的 `buildCatalog()`）用 better-sqlite3 执行 `data/schema.sql`，再按文件名字典序执行 `data/increments/*.sql`，写出 `public/data/catalog.sqlite`，同时写一份 gzip 副本 `public/data/catalog.sqlite.gz`，并把 `sql.js` 的 `sql-wasm.wasm` 复制到 `public/sql-wasm.wasm`。这三个产物都在 `.gitignore` 里。
 
@@ -129,14 +127,11 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `lists.<songListId>` 是逐行更正，全部要求带 `source` 与 `accessedAt`：`notes`（用百科的逐日歌单改写 VocaDB 写错的城市 / 日 / 半场的备注）、`dropShows`（备注写了某场但该场其实没演，按场次 key 剔除）、`explainedLengths`（该场曲目数不同是有意为之，例如香港 23+1 安可、台湾 23+2，记下原因后不再报长度警告）、`assign` / `exclude` / `extra`（人工指定、丢弃、追加曲目）。`citiesPlayOneSetlist` 表示来源确认「每个城市只演一套节目」，此时只写城市的备注是准确的，不再标 `city-only when city has several shows`。
 
-来源查证顺序是「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」。**查到就直接采用，不再要求二次确认**：`pending_review` 只表示归属仍然悬空（没有任何来源定位到这一场，或来源之间互相矛盾），不是「来源置信度不高」。每条来源的 `url` / `accessed_at` / `confidence` / `note` 都留在 `performance_setlist_sources`，`/shows` 页脚按演出展示，`docs/setlist-confirmation.md` 第 1 节与 `docs/reports/setlist-review.md` 的 F 节各有一份汇总，只供核对来源、不需要逐条回复。
+来源查证顺序是「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」。**查到就直接采用，不再要求二次确认**：`pending_review` 只表示归属仍然悬空（没有任何来源定位到这一场，或来源之间互相矛盾），不是「来源置信度不高」。每条来源的 `url` / `accessed_at` / `confidence` / `note` 都留在 `performance_setlist_sources`，`/shows` 页脚按演出展示，`docs/setlist-confirmation.md` 第 1 节有一份汇总，只供核对来源、不需要逐条回复。
 
 `shared/stats.ts`：
 
 - `representativeVideo` / `representativeVideoForSongs`：某平台上未禁用的 PV 里，优先 `pvType = Original`，否则取最小的 VocaDB PV id。合并组会跨版本选一条代表投稿。
-- `playbackForSongs` / `summarizeBands`：用最新快照落入 `shared/bands.ts` 的固定区间。
-- `compareBy`：按系列、系列年度（`series_number`）或演出开始日期的公历年分组，组内按歌曲去重后算区间占比。
-- `observeWindow`：观察点之前最近的快照与之后最早的快照。缺任一侧则 `insufficient`。
 - `rankSongAppearances`：排行。`event`（按演出）对每条 `performances` 行最多计 1，同一年大阪 / 东京两个城市站各计一次；`show`（按场次，默认）直接按 `performance_show_setlist_items` 的 `show_key` 去重，因此共用歌单的替换曲不会算到没演它的场次。场次层是主数据源，只看有没有记录歌单，不看 `song_list_id` 是否存在，所以只有百科逐曲表的演出（交响乐 2026、未来有你 2026 上海等）同样计入。没有展开行的旧目录（测试夹具）回退到备注解析。默认排除 `role = broadcast` 以及名称、日文名、`series_suffix` 命中 livestream / online / オンライン / VR / 配信 的演出。每行带 `variantSongIds`，供页面标注「含 N 个版本」。
 - 所有计数函数接受可选的 `SongVariantIndex`，默认不合并版本。
 
@@ -180,7 +175,9 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `showsForNotes` 把一行分到场次：备注写了天、半天、场次号或裸日期时收窄到对应场次；否则计入该演出的全部场次。VocaDB 一份歌单对应整个 run，这是对「同一份歌单在每一场都演」的诚实读法。
 - `performanceSchedules` 为整个目录算出场次表，排行、歌曲页覆盖数和 `/shows` 页头共用。第三到第五参数 `curatedDayNight` / `curatedNoShowDates` / `curatedHalves` 接收人工核实结果：`dayNight` 把一天拆成日场 + 夜场，`noShowDates` 去掉只有企划展的日子，`halves` 指定某天只有昼场或只有夜场。`data/performance-setlists.json` 的 `performances.<id>` 经 `shared/performance-setlists.ts` 转成这三张映射，并物化到 `performance_setlists`，页面与统计都读 `performance_show_setlists`，所以口径一致。
 
-`shared/performance-setlists.ts` 是场次层的核心：
+`shared/performance-setlists.ts` 是场次层的对外入口，实现分成三个文件：`performance-setlist-curation.ts`（`data/performance-setlists.json` 的类型、解析与目录校验）、`performance-setlist-build.ts`（把源歌单展开到每个场次）、`performance-setlist-query.ts`（页面与统计读派生行、合并打印行）。模块之间的依赖是 build → curation / query，query 不依赖 build：
+
+
 
 - `parsePerformanceSetlistCuration` 校验 `data/performance-setlists.json`（演出来源、`dayNight`、逐曲校正），`validateCurationAgainstCatalog` 再核对 id、场次 key 与日期区间。
 - `buildPerformanceSetlists` 把源歌单展开到每个场次：`performanceSchedules` 得到场次 → `showsForNotes` 收窄每一行 → 按源行号排序并重新编号。`assign` 可以把一行改派给别的城市的场次，`exclude` 整行丢弃，`extra` 追加源歌单没有的曲目。
@@ -189,7 +186,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `showCountsByPerformance` 给索引页（`/series`、`/series/{id}`、`/cities`）算每个演出的场次数：派生层有行就用派生层（含人工核实的昼夜拆分与剔除的展览日），没有就回退 `performanceSchedules`。`/shows` 与索引页因此在同一场演出上给出同一个数字。
 - `setlistPerformanceIds` 判断一个演出「有没有歌单」：VocaDB 的 `song_list_id` 或派生层任一条。只有 `song_list_id` 会把 179 个百科来源的演出错报成「无歌单」。
 
-`shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正，以及 F 数据来源记录（已采用，不需要确认）。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
+`shared/setlist-review.ts` 生成待二次确认清单：A 日夜场待核实、B 曲目归属待确认、C 行数不一致、D 全份歌单无备注、E 人工校正。来源记录不再重复：它只在 `performance_setlist_sources` 与 `docs/setlist-confirmation.md` 第 1 节里各有一份。`scripts/setlist-review-report.ts`（`pnpm report:setlist-review`）写出 `docs/reports/setlist-review.md`，已存在时默认不覆盖以保护勾选，`--force` 才重写；`--check` 只校验格式（小节齐全、勾选框各占一行）。
 
 `.cursor/skills/update-concert-data/scripts/confirmation-report.py`（`pnpm report:confirmation`，Python + uv）写出给人看的 `docs/setlist-confirmation.md`：数据来源记录、百科也没写逐日时刻的演出、本轮按百科修正的冲突、城市级定案、整份无备注、上游无歌单。每节末尾留填写区，冲突节按「原问题 / 处理 / 来源」逐条列出。`.cursor/skills/update-concert-data/scripts/build-setlist-curation.py`（`uv run`）是核实结果的唯一入口，它读 catalog 的原始备注、套用更正文案后再写出 `data/performance-setlists.json`。两份文件的分工是：`setlist-review.md` 逐条列出供程序校验格式，`setlist-confirmation.md` 按决策类型归并供人逐节回复。
 
@@ -214,7 +211,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - 备注已经给出 `共 N 场`（`city-only when city has several shows: N`）的行不再显示覆盖数，由该警告独占数字，避免同一格出现两个不同总数。`/shows` 与 `SetlistTable` 是按演出的视图，不显示覆盖数。
 
 
-`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把演出名里的系列标签换成中文名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`）或语言为 `original` 时原样返回。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配。
+`shared/name-map.ts` 是三个译名文件共用的底座：`parseNameMap` 校验「原名 → 中文名」对象（键不能为空、值不能为空、大小写不能重复），`formatLocalizedName` 处理中文模式下的主名与原文注记。`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把演出名里的系列标签换成中文名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`）或语言为 `original` 时原样返回。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配。
 
 `shared/performance-name.ts` 的 `shortPerformanceName` 去掉演出名里已由「系列」列显示的系列名与年份，留下城市、系列后缀或周年说明；匹配时兼容 `初音ミク「マジカルミライ」` + 2013 与 `初音ミク「マジカルミライ 2013」` 两种写法。
 
@@ -244,12 +241,12 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
-| `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、13 张数据表（每张 100 行分页）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复） |
+| `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、11 张数据表（每张 100 行分页，表定义与分页在 `app/composables/useRawTables.ts`）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复，数据在 `app/composables/useRawQuality.ts`） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
 | `/producers` | `app/pages/producers/index.vue` | 制作人排行榜。`UTable` 排序，默认按曲目数降序，可按名字搜索；每行给出曲目数、演出曲目、表演次数、演出数、场次、最早/最晚年份、主要角色与最多 3 首代表作（链到 `/songs/{id}`）；制作人名链到 `/producers/{name}`；页头汇总制作人数与去重后的曲目数 |
 | `/producers/{name}` | `app/pages/producers/[...name].vue` | 制作人详情。路由键是名字（`encodeURIComponent`），有结构化 `artist_id` 时附 VocaDB artist 外链；页头给出曲目数、演出曲目、表演次数、演出数、场次、年份跨度与按角色汇总的署名次数；「署名曲目」表列出曲名、投稿年份与场次，可按列排序；「出场记录」每个演出一行，链到 `/series/{id}` 与 `/shows/{id}`；名字不在目录里时显示空状态而不是 404 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown；范围是同一系列年度或相邻系列年度 |
-| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人先取该版本的 `song_producers`，没有时才退回 `artist_string` 的 `feat.` 前并去掉 VocaDB 的 `Unknown producer(s)` 占位，每个名字链到 `/producers/{name}`；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次；相关投稿有快照时附播放量 |
+| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人先取该版本的 `song_producers`，没有时才退回 `artist_string` 的 `feat.` 前并去掉 VocaDB 的 `Unknown producer(s)` 占位，每个名字链到 `/producers/{name}`；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一个演出的场次列表、轮换解析结果与长度一致性；歌单来自专辑时显示来源提示。面包屑只有 系列 → 演出 两级，系列项链到 `/series/{id}` |
 | `/series` | `app/pages/series/index.vue` | 系列与演出总览。上半是系列表（演出数、场次、年份跨度、首次与最近演出），下半是全部演出的表（日期、演出、系列、场馆、场次），可按系列筛选与排序；两张表都链到 `/series/{id}` 与 `/shows/{id}` |
 | `/series/{id}` | `app/pages/series/[id].vue` | 系列主页：该系列的全部演出（每个城市站一行，列出日期、场馆与场次数并链到 `/shows/{id}`），带年份跨度、演出数与场次合计，页头链回 `/series` 总览。站内只有 系列 → 演出 → 场次 三级，不再有年度索引页 |
@@ -261,8 +258,6 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`）。skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题（用户另行指定来源时例外）、在每条回答末尾附站的 `参考链接`（歌曲 / 演出 / 系列 / 制作人页），并在首次空提问的演示之后、且 skill 未被本地安装时，追加一次安装命令。API 覆盖不到的部分（未收录的演出、`null` 字段、发行信息、站外数据等）允许改用手上的其他工具或站外来源补齐，但站内数字仍以 API 为准，且必须标明哪部分来自站外。
 
 仓库内部的歌单采编流程（抓百科逐曲表 → 对曲名 → 展开场次 → 出报告）见 [`.cursor/skills/update-concert-data/SKILL.md`](../.cursor/skills/update-concert-data/SKILL.md)；只给一个网址 / 页面元素时的单场录入与冲突核对见 [`.cursor/skills/ingest-setlist-from-page/SKILL.md`](../.cursor/skills/ingest-setlist-from-page/SKILL.md)。这两个只作为 Cursor 内部 skill 使用，不对外发布。
-
-`app/pages/catalog.vue`、`compare.vue`、`windows.vue`、`correlation.vue` 保留实现，但都带 `definePageMeta({ middleware: 'retired' })`，直接访问会重定向到首页。`app/middleware/retired.ts` 是唯一的重定向实现；拿到播放量快照后删掉页面上的这一行并恢复导航项即可。
 
 `app/components/SetlistTable.vue` 是 `/raw` 与 `/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾一列在演出页是「场次」（该行属于这个演出的哪一天 / 日场 / 夜场），在 `/raw` 的跨演出对照是「演出」（该行属于哪个城市站）；每个场次都演出的行留空。列是「序号 / 歌曲 / 歌手 / 场次或演出 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。`/shows` 会传入 `currentPerformanceId`、`currentCity` 与系列名：页头已经写出当前演出与场次，因此只属于当前演出的行留空，确实属于其他演出的行只显示 `shortPerformanceName` 留下的城市等短名（再经 `localizePlace`），完整演出名保留在气泡里；`/raw` 不传这些 prop，仍显示 VocaDB 完整名。
 
@@ -299,7 +294,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 ### 公开只读 JSON API `/api/v1`
 
-`scripts/build-api.ts` 在 `build:catalog` 末尾运行（`prebuild` 与 `scripts/dev.ts` 因此自动带上），把目录展开成供外部 AI 调用的只读 JSON；构建期直接从 `public/data/catalog.sqlite` 计算，运行时不读写 SQLite。产物分两处：
+`scripts/build-api.ts` 在 `build:catalog` 末尾运行（`prebuild` 与 `scripts/dev.ts` 因此自动带上），把目录展开成供外部 AI 调用的只读 JSON；构建期直接从 `public/data/catalog.sqlite` 计算，运行时不读写 SQLite。出场统计在 `scripts/api/appearances.ts`，单曲 / 演出的公开投影在 `scripts/api/payloads.ts`，`build-api.ts` 只负责组装与写文件。产物分两处：
 
 - `public/api/v1/**`：静态 JSON，由 Cloudflare 静态资源直接返回。
   - `index.json`（自述：计数、口径、筛选参数、全部端点）、`filters.json`（可选系列 / 角色 / 制作人 / 年份范围）
@@ -354,13 +349,8 @@ flowchart TD
   collect["scripts/vocadb/collect.ts"]
   albums["data/album-setlists.json"]
   collectalbums["scripts/vocadb/album-setlists.ts"]
-  youtube["YouTube Data API videos.list"]
-  snap["scripts/snapshot-youtube.ts"]
   inc1["data/increments/0001-vocadb-catalog.sql"]
-  inc2["data/increments/0002-youtube-snapshots.sql"]
   inc4["data/increments/0004-album-setlists.sql"]
-  eval["scripts/evaluate-conversion.ts"]
-  inc3["data/increments/0003-conversion.sql"]
   schema["data/schema.sql"]
   build["scripts/build-catalog.ts"]
   sqlite["public/data/catalog.sqlite"]
@@ -382,20 +372,13 @@ flowchart TD
   collect --> cache
   cache --> collect
   collect --> inc1
-  collect --> eval
   vocadb --> collectalbums
   albums --> collectalbums
   collect --> collectalbums
   collectalbums --> inc4
-  youtube --> snap
-  snap --> inc2
-  snap --> eval
   schema --> build
   inc1 --> build
-  inc2 --> build
   inc4 --> build
-  inc3 --> build
-  eval --> inc3
   build --> sqlite
   build --> gzip
   build --> wasm
@@ -442,7 +425,7 @@ flowchart TD
 
 ### `data/album-setlists.json`
 
-对象。键是 VocaDB performance id，值是 `albumId`（VocaDB 专辑 id）、`albumType`（`bluray` / `cd` / `dvd`）与可选 `note`。只收录人工核对过的对应关系：同一系列年度有多座城市时共用该系列年度的官方专辑，并在 `note` 里写明这是系列年度级对应。没有发行专辑的年份（2026、2027）不写。目录里的歌单 id 是 `1_000_000_000 + albumId`，`song_lists.source = 'album'`，`medium` 取这里的 `albumType`。曲目沿 `originalVersionId` 解析到原曲，因此排行榜与播放量仍落在原曲上。核对单个场次时查询 `sqlite3 public/data/catalog.sqlite "SELECT id, name, album_id, medium FROM song_lists WHERE id = 1000000000 + <albumId>"`，或直接打开 `/shows/{performanceId}` 看来源提示；例如 2017 系列年度东京演出（演出 2959）指向专辑 30961（蓝光）。
+对象。键是 VocaDB performance id，值是 `albumId`（VocaDB 专辑 id）、`albumType`（`bluray` / `cd` / `dvd`）与可选 `note`。只收录人工核对过的对应关系：同一系列年度有多座城市时共用该系列年度的官方专辑，并在 `note` 里写明这是系列年度级对应。没有发行专辑的年份（2026、2027）不写。目录里的歌单 id 是 `1_000_000_000 + albumId`，`song_lists.source = 'album'`，`medium` 取这里的 `albumType`。曲目沿 `originalVersionId` 解析到原曲，因此排行榜仍落在原曲上。核对单个场次时查询 `sqlite3 public/data/catalog.sqlite "SELECT id, name, album_id, medium FROM song_lists WHERE id = 1000000000 + <albumId>"`，或直接打开 `/shows/{performanceId}` 看来源提示；例如 2017 系列年度东京演出（演出 2959）指向专辑 30961（蓝光）。
 
 ### `data/song-titles.zh-CN.json`
 
@@ -537,7 +520,7 @@ Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `np
 
 `.github/workflows/ci.yml`（`ci`）在指向 `main` 的 push，以及所有 pull request 上运行。Node 22，`pnpm install --frozen-lockfile`，然后 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:catalog`、`pnpm derive:setlists --check`、`pnpm report:setlist --check`、`pnpm report:setlist-review --check`、`pnpm report:producers --check`。
 
-`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC 和手动触发时运行。它执行 `pnpm collect`、`pnpm collect:producers`、`pnpm derive:setlists`、`pnpm snapshot:youtube`、`pnpm report:setlist` 与 `pnpm report:producers`，`data/increments` 或 `docs/reports` 有差异时由 `github-actions[bot]` 提交并推送。待确认清单不在自动提交范围内：它可能已被人勾选，需要人工跑 `pnpm report:setlist-review`。
+`.github/workflows/weekly-collect.yml`（`weekly-collect`）在每周一 16:00 UTC 和手动触发时运行。它执行 `pnpm collect`、`pnpm collect:producers`、`pnpm derive:setlists`、`pnpm report:setlist` 与 `pnpm report:producers`，`data/increments` 或 `docs/reports` 有差异时由 `github-actions[bot]` 提交并推送。待确认清单不在自动提交范围内：它可能已被人勾选，需要人工跑 `pnpm report:setlist-review`。
 
 ## 协作与提交约定
 

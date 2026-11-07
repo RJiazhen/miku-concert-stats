@@ -1,3 +1,7 @@
+import { formatLocalizedName, type NameView, type SongLanguage } from './name-map.ts'
+
+export type { SongLanguage }
+
 /** One checked Chinese title for a VocaDB song. */
 export type SongTitleEntry = {
   title: string
@@ -74,22 +78,13 @@ export const songTitleFor = (file: SongTitleFile, songId: number): SongTitleEntr
   return file[String(songId)] ?? null
 }
 
-/** Which title script the visitor asked for. */
-export type SongLanguage = 'original' | 'zh'
-
 /** Primary title plus the original in parentheses when a Chinese title is showing. */
-export type SongTitleView = {
-  primary: string
-  originalNote: string | null
-}
+export type SongTitleView = NameView
 
 /**
  * Formats a song title for the active language.
  * Chinese mode keeps the original beside the translation unless they are the same string.
  */
 export const formatSongTitle = (original: string, translation: string | null, language: SongLanguage): SongTitleView => {
-  if (language !== 'zh' || translation === null || translation.trim() === '' || translation === original) {
-    return { primary: original, originalNote: null }
-  }
-  return { primary: translation, originalNote: original }
+  return formatLocalizedName(original, translation, language)
 }

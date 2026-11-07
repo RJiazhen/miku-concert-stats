@@ -3,46 +3,51 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import Database from 'better-sqlite3'
-import { albumIdFromSongListId, albumPageUrl, albumSetlistNotice } from '../shared/album-setlists.ts'
 import { loadCatalog } from '../shared/catalog.ts'
-import { assignCharacters, parseCharacterConfig, type CharacterRule } from '../shared/characters.ts'
+import { parseCharacterConfig } from '../shared/characters.ts'
 import { buildCityIndex, rankCities } from '../shared/cities.ts'
 import { parseSetlistMerges } from '../shared/edition-setlists.ts'
 import { performanceSchedules } from '../shared/event-schedule.ts'
 import { parsePlaceNames } from '../shared/place-names.ts'
 import {
   catalogSchedules,
-  derivedItemSongIds,
   derivedItemsByShow,
   setlistPerformanceIds,
   showCountsByPerformance,
 } from '../shared/performance-setlists.ts'
-import { producerNamesForSongs } from '../shared/producer-options.ts'
 import { buildProducerIndex, rolesPresent } from '../shared/producers.ts'
-import { fromVocaDB, songCategoryLabels } from '../shared/repertoire.ts'
+import { fromVocaDB } from '../shared/repertoire.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import { buildSetlistDiffReport, pairDifferences } from '../shared/setlist-diff.ts'
 import { showCoverage } from '../shared/show-coverage.ts'
 import { parseSongTitles } from '../shared/song-titles.ts'
-import { parseSongVariants, type SongVariantIndex } from '../shared/song-variants.ts'
-import {
-  isBroadcastAppearance,
-  latestSnapshot,
-  performanceYear,
-  rankSongAppearances,
-  type RankingMode,
-} from '../shared/stats.ts'
+import { parseSongVariants } from '../shared/song-variants.ts'
+import { performanceYear, rankSongAppearances } from '../shared/stats.ts'
 import type { ApiRankFile, ApiSongRow } from '../shared/api-types.ts'
-import type {
-  Catalog,
-  PerformanceRow,
-  PerformanceShowSetlistItemRow,
-  PerformanceShowSetlistRow,
-  SongRow,
-} from '../shared/types.ts'
-
-/** Public origin used in every link the API returns. */
-const BASE_URL = 'https://miku-concert-stats.rjiazhen.top'
+import {
+  altCountsOf,
+  buildAppearances,
+  bucketCountsToRecord,
+  charactersOf,
+  emptySummary,
+  parseReasons,
+  producersOf,
+  sameCounts,
+  summarizeAppearances,
+  validateTotals,
+  type AppearanceSummary,
+  type SongPerformanceEntry,
+} from './api/appearances.ts'
+import {
+  BASE_URL,
+  albumFallbackOf,
+  normalizeTitle,
+  performanceSummary,
+  setlistItemPayload,
+  songSummary,
+  videosOf,
+} from './api/payloads.ts'
+import type { Catalog, PerformanceRow, SongRow } from '../shared/types.ts'
 
 /** Directory, relative to the repository root, that holds the generated JSON API. */
 const API_DIRECTORY = path.join('public', 'api', 'v1')
@@ -82,459 +87,6 @@ const shortTextHash = (value: string): string => createHash('sha1').update(value
 /** Stable id of one producer: the VocaDB artist id when known, otherwise a hash of the name. */
 const producerIdOf = (row: { name: string; artistId: number | null }): string =>
   row.artistId === null ? `n${shortTextHash(row.name)}` : `a${row.artistId}`
-
-/** Parses the JSON reason list stored on a derived 場次 row. */
-const parseReasons = (raw: string): string[] => {
-  try {
-    const parsed: unknown = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return []
-    return parsed.filter((value): value is string => typeof value === 'string')
-  } catch {
-    return []
-  }
-}
-
-/** Options that change which 演出 a song's appearances are read from. */
-type AppearanceOptions = {
-  /** Include livestream, online, and VR 演出. */
-  includeBroadcast?: boolean
-  /**
-   * Accepted for parity with the site's control. The derived layer already expands a medley into
-   * its parts and no `medley_quarantine` row is counted either way, so this changes nothing today.
-   */
-  includeMedleyComponents?: boolean
-}
-
-/** One song's presence in one 演出, with the 場次 that played it. */
-type SongPerformanceEntry = {
-  showKeys: Set<string>
-  reasons: Set<string>
-}
-
-/** Song id to 演出 id to that 演出's appearance. */
-type SongAppearances = Map<number, Map<number, SongPerformanceEntry>>
-
-/** Show and event counts of one song inside one series or one calendar year. */
-type AppearanceBucket = {
-  showKeys: Set<string>
-  eventIds: Set<number>
-  /** Series years this bucket covers; only the series breakdown fills it. */
-  seriesNumbers: Set<number>
-}
-
-/** Everything the API reports about one song's appearances under one filter. */
-type AppearanceSummary = {
-  show: number
-  event: number
-  performanceCount: number
-  seriesCount: number
-  firstYear: number | null
-  lastYear: number | null
-  approximate: boolean
-  reasons: string[]
-  series: Map<number, AppearanceBucket>
-  year: Map<number, AppearanceBucket>
-  /** Series id to the first series year the song appeared in that series. */
-  firstSeries: Map<number, number>
-}
-
-/** Returns the bucket for a key, creating an empty one when it is absent. */
-const bucketOf = <K>(buckets: Map<K, AppearanceBucket>, key: K): AppearanceBucket => {
-  const existing = buckets.get(key)
-  if (existing !== undefined) return existing
-  const created: AppearanceBucket = { showKeys: new Set(), eventIds: new Set(), seriesNumbers: new Set() }
-  buckets.set(key, created)
-  return created
-}
-
-/** Summary of a song that no included 演出 performed. */
-const emptySummary = (): AppearanceSummary => ({
-  show: 0,
-  event: 0,
-  performanceCount: 0,
-  seriesCount: 0,
-  firstYear: null,
-  lastYear: null,
-  approximate: false,
-  reasons: [],
-  series: new Map(),
-  year: new Map(),
-  firstSeries: new Map(),
-})
-
-/** Builds song → 演出 → 場次 presence from the derived setlist layer. */
-const buildAppearances = (
-  catalog: Catalog,
-  variants: SongVariantIndex,
-  options: AppearanceOptions = {},
-): SongAppearances => {
-  const knownSeries = new Set(catalog.series.map((series) => series.id))
-  const itemsByPerformance = new Map<number, PerformanceShowSetlistItemRow[]>()
-  for (const item of catalog.performanceShowSetlistItems) {
-    const bucket = itemsByPerformance.get(item.performance_id) ?? []
-    bucket.push(item)
-    itemsByPerformance.set(item.performance_id, bucket)
-  }
-  const showByKey = new Map<string, PerformanceShowSetlistRow>(
-    catalog.performanceShowSetlists.map((row) => [row.show_key, row]),
-  )
-  const appearances: SongAppearances = new Map()
-  for (const performance of catalog.performances) {
-    if (!knownSeries.has(performance.series_id)) continue
-    if (options.includeBroadcast !== true && isBroadcastAppearance(performance)) continue
-    // The derived 場次 layer is the primary record, so a 演出 whose setlist only exists in this
-    // project (wiki table, no upstream VocaDB song list) contributes its songs too.
-    const items = itemsByPerformance.get(performance.id) ?? []
-    for (const item of items) {
-      const show = showByKey.get(item.show_key)
-      const reasons = show !== undefined && show.uncertain === 1 ? parseReasons(show.reasons) : []
-      for (const rawId of derivedItemSongIds(catalog, item)) {
-        const songId = variants.canonicalSongId(rawId)
-        let byPerformance = appearances.get(songId)
-        if (byPerformance === undefined) {
-          byPerformance = new Map()
-          appearances.set(songId, byPerformance)
-        }
-        let entry = byPerformance.get(performance.id)
-        if (entry === undefined) {
-          entry = { showKeys: new Set(), reasons: new Set() }
-          byPerformance.set(performance.id, entry)
-        }
-        entry.showKeys.add(item.show_key)
-        for (const reason of reasons) entry.reasons.add(reason)
-      }
-    }
-  }
-  return appearances
-}
-
-/** Totals one song's appearance map into the counts and breakdowns the API reports. */
-const summarizeAppearances = (
-  byPerformance: Map<number, SongPerformanceEntry>,
-  performances: Map<number, PerformanceRow>,
-): AppearanceSummary => {
-  const showKeys = new Set<string>()
-  const seriesIds = new Set<number>()
-  const years = new Set<number>()
-  const reasons = new Set<string>()
-  const series = new Map<number, AppearanceBucket>()
-  const year = new Map<number, AppearanceBucket>()
-  for (const [performanceId, entry] of byPerformance) {
-    const performance = performances.get(performanceId)
-    if (performance === undefined) continue
-    seriesIds.add(performance.series_id)
-    for (const key of entry.showKeys) showKeys.add(key)
-    for (const reason of entry.reasons) reasons.add(reason)
-    const seriesBucket = bucketOf(series, performance.series_id)
-    seriesBucket.eventIds.add(performanceId)
-    if (performance.series_number !== null) seriesBucket.seriesNumbers.add(performance.series_number)
-    for (const key of entry.showKeys) seriesBucket.showKeys.add(key)
-    const yearNumber = performanceYear(performance.start_date)
-    if (yearNumber === null) continue
-    years.add(yearNumber)
-    const yearBucket = bucketOf(year, yearNumber)
-    yearBucket.eventIds.add(performanceId)
-    for (const key of entry.showKeys) yearBucket.showKeys.add(key)
-  }
-  const firstSeries = new Map<number, number>()
-  for (const [seriesId, bucket] of series) {
-    if (bucket.seriesNumbers.size === 0) continue
-    firstSeries.set(seriesId, Math.min(...bucket.seriesNumbers))
-  }
-  const sortedYears = [...years].sort((left, right) => left - right)
-  return {
-    show: showKeys.size,
-    event: byPerformance.size,
-    performanceCount: byPerformance.size,
-    seriesCount: seriesIds.size,
-    firstYear: sortedYears[0] ?? null,
-    lastYear: sortedYears.at(-1) ?? null,
-    approximate: reasons.size > 0,
-    reasons: [...reasons].sort(),
-    series,
-    year,
-    firstSeries,
-  }
-}
-
-/** Breakdown of one bucket map as `{ key: [showCount, eventCount] }`, keys sorted for a stable file. */
-const bucketCountsToRecord = <K extends string | number>(buckets: Map<K, AppearanceBucket>): Record<string, [number, number]> => {
-  const entries: [string, [number, number]][] = [...buckets]
-    .sort((left, right) => String(left[0]).localeCompare(String(right[0]), 'en'))
-    .map(([key, bucket]): [string, [number, number]] => [String(key), [bucket.showKeys.size, bucket.eventIds.size]])
-  return Object.fromEntries(entries)
-}
-
-/** Deterministic text of a bucket map, so two maps compare by value and not by insertion order. */
-const bucketSignature = <K extends string | number>(buckets: Map<K, AppearanceBucket>): string => {
-  return JSON.stringify(bucketCountsToRecord(buckets))
-}
-
-/** Counts that include broadcast 演出, in the compact shape the Worker file uses. */
-const altCountsOf = (summary: AppearanceSummary): NonNullable<ApiSongRow['withBroadcast']> => {
-  return {
-    show: summary.show,
-    event: summary.event,
-    firstYear: summary.firstYear,
-    lastYear: summary.lastYear,
-    series: bucketCountsToRecord(summary.series),
-    year: bucketCountsToRecord(summary.year),
-  }
-}
-
-/** Whether two summaries agree on every number the API publishes. */
-const sameCounts = (left: AppearanceSummary, right: AppearanceSummary): boolean => {
-  if (left.show !== right.show || left.event !== right.event) return false
-  if (left.firstYear !== right.firstYear || left.lastYear !== right.lastYear) return false
-  if (bucketSignature(left.series) !== bucketSignature(right.series)) return false
-  return bucketSignature(left.year) === bucketSignature(right.year)
-}
-
-/** Fails the build when the API counts drift from the site's own ranking function. */
-const validateTotals = (
-  mode: RankingMode,
-  label: string,
-  rankings: ReturnType<typeof rankSongAppearances>,
-  summaries: Map<number, AppearanceSummary>,
-  appearances: SongAppearances,
-): void => {
-  const ranked = new Set<number>()
-  for (const row of rankings) {
-    ranked.add(row.songId)
-    const summary = summaries.get(row.songId)
-    if (summary === undefined) throw new Error(`API ${label} ${mode} counts are missing song ${row.songId}`)
-    const count = mode === 'show' ? summary.show : summary.event
-    if (count !== row.count) {
-      throw new Error(`API ${label} ${mode} count for song ${row.songId} is ${count}, site ranking says ${row.count}`)
-    }
-    if (summary.performanceCount !== row.performanceCount) {
-      throw new Error(`API ${label} ${mode} performance count for song ${row.songId} disagrees with the site ranking`)
-    }
-    if (summary.seriesCount !== row.seriesCount) {
-      throw new Error(`API ${label} ${mode} series count for song ${row.songId} disagrees with the site ranking`)
-    }
-    if (summary.approximate !== row.approximate) {
-      throw new Error(`API ${label} ${mode} approximation flag for song ${row.songId} disagrees with the site ranking`)
-    }
-    if (summary.firstYear !== row.firstYear || summary.lastYear !== row.lastYear) {
-      throw new Error(`API ${label} ${mode} year range for song ${row.songId} disagrees with the site ranking`)
-    }
-  }
-  for (const songId of appearances.keys()) {
-    if (!ranked.has(songId)) throw new Error(`API ${label} ${mode} has appearances for unranked song ${songId}`)
-  }
-}
-
-/** Base character names of a merged variant group, in config order. */
-const charactersOf = (songs: readonly SongRow[], rules: readonly CharacterRule[]): string[] => {
-  const matched = new Set<string>()
-  for (const song of songs) {
-    const assigned = assignCharacters(rules, { vocalists: song.vocalists, artistString: song.artist_string })
-    for (const name of assigned.characters) matched.add(name)
-  }
-  return rules.map((rule) => rule.name).filter((name) => matched.has(name))
-}
-
-/** Producer names of a merged variant group, structured credits first. */
-const producersOf = (songs: readonly SongRow[]): string[] => producerNamesForSongs(songs)
-
-/** Public summary shared by the song list and the song detail file. */
-type SongSummaryPayload = {
-  id: number
-  name: string
-  nameJa: string | null
-  nameEn: string | null
-  nameZh: string | null
-  producer: string | null
-  producers: string[]
-  characters: string[]
-  category: SongRow['category']
-  categoryLabel: string
-  publishDate: string | null
-  showCount: number
-  eventCount: number
-  performanceCount: number
-  seriesCount: number
-  firstYear: number | null
-  lastYear: number | null
-  approximate: boolean
-  firstPerformance: { id: number; name: string; startDate: string | null } | null
-  variantCount: number
-  sourceUrl: string
-  url: string
-}
-
-/** Public projection of one song used by both the list and the detail files. */
-const songSummary = (input: {
-  song: SongRow
-  summary: AppearanceSummary
-  first: PerformanceRow | null
-  variants: SongVariantIndex
-  groupSongs: readonly SongRow[]
-  rules: readonly CharacterRule[]
-  titlesZh: Record<string, { title: string }>
-}): SongSummaryPayload => {
-  const { song, summary, first, variants, groupSongs, rules, titlesZh } = input
-  const producers = producersOf(groupSongs)
-  return {
-    id: song.id,
-    name: song.name,
-    nameJa: song.name_ja,
-    nameEn: song.name_en,
-    nameZh: titlesZh[String(song.id)]?.title ?? null,
-    producer: producers.length === 0 ? null : producers.join(', '),
-    producers,
-    characters: charactersOf(groupSongs, rules),
-    category: song.category,
-    categoryLabel: songCategoryLabels[song.category],
-    publishDate: song.publish_date,
-    showCount: summary.show,
-    eventCount: summary.event,
-    performanceCount: summary.performanceCount,
-    seriesCount: summary.seriesCount,
-    firstYear: summary.firstYear,
-    lastYear: summary.lastYear,
-    approximate: summary.approximate,
-    firstPerformance: first === null ? null : { id: first.id, name: first.name, startDate: first.start_date },
-    variantCount: variants.variantSongIdsOf(song.id).length,
-    sourceUrl: song.source_url,
-    url: `${BASE_URL}/songs/${song.id}`,
-  }
-}
-
-/** Public projection of one 演出, shared by the series index, the flat list, and the detail file. */
-type PerformanceSummary = {
-  id: number
-  name: string
-  nameJa: string | null
-  series: { id: number; name: string }
-  seriesNumber: number | null
-  seriesSuffix: string | null
-  venue: string | null
-  countryCode: string | null
-  startDate: string | null
-  endDate: string | null
-  role: PerformanceRow['role']
-  broadcast: boolean
-  showCount: number
-  hasSetlist: boolean
-  status: string | null
-  sourceUrl: string
-  url: string
-}
-
-/** Builds the public projection of one 演出. */
-const performanceSummary = (input: {
-  performance: PerformanceRow
-  seriesName: string
-  showCount: number
-  hasSetlist: boolean
-  status: string | null
-}): PerformanceSummary => {
-  const { performance, seriesName, showCount, hasSetlist, status } = input
-  return {
-    id: performance.id,
-    name: performance.name,
-    nameJa: performance.name_ja,
-    series: { id: performance.series_id, name: seriesName },
-    seriesNumber: performance.series_number,
-    seriesSuffix: performance.series_suffix,
-    venue: performance.venue_name,
-    countryCode: performance.country_code,
-    startDate: performance.start_date,
-    endDate: performance.end_date,
-    role: performance.role,
-    broadcast: isBroadcastAppearance(performance),
-    showCount,
-    hasSetlist,
-    status,
-    sourceUrl: performance.source_url,
-    url: `${BASE_URL}/shows/${performance.id}`,
-  }
-}
-
-/** One ordered setlist row, with a medley expanded to its parts. */
-const setlistItemPayload = (
-  catalog: Catalog,
-  item: PerformanceShowSetlistItemRow,
-  songsById: Map<number, SongRow>,
-  medleyNames: Map<number, string>,
-): Record<string, unknown> => {
-  const base = { position: item.position, evidence: item.evidence, notes: item.notes }
-  if (item.song_id !== null) {
-    const song = songsById.get(item.song_id)
-    return { ...base, songId: item.song_id, name: song?.name ?? String(item.song_id), nameJa: song?.name_ja ?? null }
-  }
-  const songIds = catalog.medleySongs
-    .filter((row) => row.medley_id === item.medley_id)
-    .sort((left, right) => left.position - right.position)
-    .map((row) => row.song_id)
-  return {
-    ...base,
-    medleyId: item.medley_id,
-    medleyName: item.medley_id === null ? null : (medleyNames.get(item.medley_id) ?? null),
-    songIds,
-    songs: songIds.map((songId) => ({ songId, name: songsById.get(songId)?.name ?? String(songId) })),
-  }
-}
-
-/** PV rows of a merged variant group, each with its latest dated snapshot when one exists. */
-const videosOf = (catalog: Catalog, songIds: readonly number[]): Record<string, unknown>[] => {
-  const wanted = new Set(songIds)
-  return catalog.videos
-    .filter((row) => wanted.has(row.song_id))
-    .sort((left, right) => left.platform.localeCompare(right.platform) || left.vocadb_pv_id - right.vocadb_pv_id)
-    .map((video) => {
-      const snapshot = latestSnapshot(catalog.snapshots, video.platform, video.platform_video_id)
-      return {
-        vocadbPvId: video.vocadb_pv_id,
-        songId: video.song_id,
-        platform: video.platform,
-        url: video.url,
-        title: video.title,
-        author: video.author,
-        pvType: video.pv_type,
-        publishDate: video.publish_date,
-        disabled: video.disabled === 1,
-        latestSnapshot:
-          snapshot === null
-            ? null
-            : {
-                collectedAt: snapshot.collected_at,
-                viewCount: snapshot.view_count,
-                source: snapshot.source,
-                sourceUrl: snapshot.source_url,
-              },
-      }
-    })
-}
-
-/** Album tracklist behind a 演出 whose setlist is a release fallback, or null for an upstream list. */
-const albumFallbackOf = (catalog: Catalog, performance: PerformanceRow): Record<string, unknown> | null => {
-  if (performance.song_list_id === null) return null
-  const albumId = albumIdFromSongListId(performance.song_list_id)
-  if (albumId === null) return null
-  const songList = catalog.songLists.find((row) => row.id === performance.song_list_id)
-  const medium = songList?.medium ?? null
-  const albumName = songList?.name ?? String(albumId)
-  return {
-    albumId,
-    albumName,
-    albumUrl: albumPageUrl(albumId),
-    medium,
-    notice: medium === null ? null : `${albumSetlistNotice(medium).before}${albumName}${albumSetlistNotice(medium).after}`,
-  }
-}
-
-/** Normalizes a title so two entries that differ only in version wording collide. */
-const normalizeTitle = (title: string): string => {
-  return title
-    .toLowerCase()
-    .replace(/[（(][^）)]*[）)]/g, '')
-    .replace(/-\s*[^-]*\b(remix|mix|ver\.?|version|edit|edition)\b[^-]*-\s*$/i, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
 
 /** Writes the complete read-only JSON API under `public/api/v1` plus the Worker's rank file. */
 export const buildApiFiles = (root = repoRoot()): void => {
@@ -1038,7 +590,6 @@ export const buildApiFiles = (root = repoRoot()): void => {
       performances: catalog.performances.length,
       songLists: catalog.songLists.length,
       videos: catalog.videos.length,
-      snapshots: catalog.snapshots.length,
       mergedVariants: variants.size,
       mergedSetlistGroups: merges.size,
       songsWithoutVideo: songsWithoutVideo.length,

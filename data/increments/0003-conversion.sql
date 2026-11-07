@@ -1,4 +1,0 @@
--- Conversion formula evaluation. formula_json stays NULL until publication gates pass.
-DELETE FROM conversion_formulas;
-INSERT INTO conversion_formulas (id, status, version, scope, sample_period, train_metrics_json, holdout_metrics_json, formula_json, reason) VALUES
-('nico-to-youtube-log10', 'unpublished', NULL, 'Pairs are the same VocaDB song with an enabled representative niconico PV and YouTube PV, using each video’s latest snapshot. Strata are publish decade, niconico view band, and YouTube pvType. Holdout songs are those whose id modulo 5 is 0. The form is log10(youtube views) = a + b * log10(niconico views).', NULL, '{"n":0,"pearsonR":null,"medianApe":null}', '{"n":0,"pearsonR":null,"medianApe":null}', NULL, 'training pairs 0 < 40; holdout pairs 0 < 15; training |r| below 0.8; holdout |r| below 0.8; training median APE above 25%; holdout median APE above 25%');

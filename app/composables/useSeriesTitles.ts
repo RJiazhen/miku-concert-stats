@@ -18,7 +18,7 @@ export const seriesTitles: SeriesTitleFile = parseSeriesTitles(raw)
  * The language is shared with song titles and places, so one switch covers every name.
  */
 export const useSeriesTitles = () => {
-  const { language, setLanguage, showChinese } = useSongLanguage()
+  const { language } = useSongLanguage()
 
   /** Chinese series name when the site language is Chinese, otherwise the catalog name. */
   const localizeSeries = (name: string): string => localizeSeriesName(seriesTitles, name, language.value)
@@ -31,5 +31,5 @@ export const useSeriesTitles = () => {
     return localizeSeriesInName(text, seriesName, seriesNumber, seriesTitles, language.value)
   }
 
-  return { language, setLanguage, showChinese, localizeSeries, seriesTitle, localizePerformanceSeries }
+  return { localizeSeries, seriesTitle, localizePerformanceSeries }
 }

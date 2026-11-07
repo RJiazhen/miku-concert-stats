@@ -1,7 +1,7 @@
-import type { SongLanguage } from './song-titles.ts'
+import { parseNameMap, type NameMap, type SongLanguage } from './name-map.ts'
 
 /** Place as written by VocaDB to its Chinese name. */
-export type PlaceNameFile = Record<string, string>
+export type PlaceNameFile = NameMap
 
 /** One checked place with the matcher built from its spelling. */
 export type PlaceNameEntry = {
@@ -47,19 +47,7 @@ export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: {}, entries: 
  * Throws on a blank key or name, and on two spellings that differ only in case.
  */
 export const parsePlaceNames = (value: unknown): PlaceNameIndex => {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Place name file must be an object')
-  }
-  const names: PlaceNameFile = {}
-  const seen = new Set<string>()
-  for (const [key, name] of Object.entries(value)) {
-    if (key.trim() === '') throw new Error('Place name key is empty')
-    if (typeof name !== 'string' || name.trim() === '') throw new Error(`Place ${key} name is empty`)
-    const folded = key.toLowerCase()
-    if (seen.has(folded)) throw new Error(`Place ${key} is listed twice`)
-    seen.add(folded)
-    names[key] = name
-  }
+  const names = parseNameMap(value, 'Place name')
   const entries = Object.entries(names)
     .map(([key, name]) => ({
       key,

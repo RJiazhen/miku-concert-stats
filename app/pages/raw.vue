@@ -6,13 +6,11 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { buildSetlistDisplay, displaySides } from '~~/shared/edition-setlists.ts'
-import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
+import { albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
-import { producerCredit } from '~~/shared/credit.ts'
-import { songCharacters } from '~/composables/useCharacters.ts'
-import { setlistPerformanceIds } from '~~/shared/performance-setlists.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
-import { songCategoryLabels, fromVocaDB } from '~~/shared/repertoire.ts'
+import { useRawTables } from '~/composables/useRawTables.ts'
+import { useRawQuality } from '~/composables/useRawQuality.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
@@ -26,6 +24,18 @@ const startLoad = (): void => {
 onMounted(startLoad)
 
 const review = computed(() => (catalog.value ? reviewRotations(catalog.value) : null))
+const { tables, shown, limitOf, showMore } = useRawTables(catalog, variants, { songName, songHref, vocadbSongUrl })
+const {
+  songsWithoutVideo,
+  incompletePerformances,
+  albumFallbackPerformances,
+  albumFallbackLists,
+  listsWithoutAnnouncement,
+  uncertainLines,
+  mismatchedShows,
+  duplicateCandidates,
+  qualitySummary,
+} = useRawQuality(catalog, variants, merges, review)
 
 type Tab = 'edition' | 'shows' | 'tables' | 'quality'
 const tab = ref<Tab>('edition')
@@ -35,319 +45,6 @@ const tabs: { value: Tab; label: string }[] = [
   { value: 'tables', label: '数据表' },
   { value: 'quality', label: '质量报告' },
 ]
-
-/** Cell content with an optional source link and character chips. */
-type Cell = { text: string; href?: string; chips?: string[] }
-
-/** One data table on the raw page. */
-type RawTable = { id: string; label: string; headers: string[]; rows: Cell[][] }
-
-/** Row limit before the "show more" button. */
-const PAGE = 100
-const shown = ref<Record<string, number>>({})
-
-/** Visible row count for a table. */
-const limitOf = (id: string): number => shown.value[id] ?? PAGE
-
-/** Reveals another page of rows. */
-const showMore = (id: string): void => {
-  shown.value = { ...shown.value, [id]: limitOf(id) + PAGE }
-}
-
-/** Builds the series-year comparison view of the merged setlist. */
-const editions = computed(() => {
-  if (!catalog.value) return []
-  return catalog.value.premieres
-    .map((row) => {
-      const series = catalog.value?.series.find((item) => item.id === row.series_id)
-      return { key: `${row.series_id}:${row.series_number}`, label: `${series?.name ?? row.series_id} ${row.series_number}`, premiere: row }
-    })
-    .sort((left, right) => left.label.localeCompare(right.label, 'zh-Hans'))
-})
-
-type EditionItem = { label: string; value: string }
-
-/** Chosen series year; empty means "the newest one". */
-const chosenEditionKey = ref('')
-const sideIndex = ref(0)
-
-/** Options for the searchable series-year menu. */
-const editionItems = computed<EditionItem[]>(() => editions.value.map((row) => ({ label: row.label, value: row.key })))
-
-/** Newest series year, used until the visitor picks another one. */
-const defaultEditionKey = computed(() => editions.value[editions.value.length - 1]?.key ?? '')
-
-const editionKey = computed(() => chosenEditionKey.value || defaultEditionKey.value)
-const selectedEdition = computed(() => editions.value.find((row) => row.key === editionKey.value) ?? null)
-
-/** Displayed menu value, derived from the active series year. */
-const editionModel = computed<EditionItem | undefined>(() => editionItems.value.find((item) => item.value === editionKey.value))
-
-/** Stores the visitor's series-year choice. */
-const selectEdition = (item: EditionItem | undefined): void => {
-  chosenEditionKey.value = item?.value ?? ''
-}
-
-/** Song lists of the selected series year, split into merged groups and standalone lists. */
-const sides = computed(() => {
-  if (!catalog.value || !selectedEdition.value || !review.value) return []
-  const [seriesIdText, numberText] = selectedEdition.value.key.split(':')
-  const ids = new Set<number>()
-  for (const performance of catalog.value.performances) {
-    if (performance.series_id !== Number(seriesIdText) || performance.series_number !== Number(numberText)) continue
-    if (performance.song_list_id !== null) ids.add(performance.song_list_id)
-  }
-  return displaySides([...ids], merges, review.value)
-})
-
-/** Side options: a merged group or one song list. */
-const sideOptions = computed(() =>
-  sides.value.map((side, index) => ({
-    label: side.length > 1 ? `合并 ${side.length} 份歌单（${side.join(' / ')}）` : `歌单 ${side[0] ?? ''}`,
-    value: index,
-  })),
-)
-
-watch(sides, () => {
-  sideIndex.value = 0
-})
-
-/** Explains why a list that belongs to a merge group is shown on its own. */
-const splitNote = computed(() => {
-  const side = sides.value[sideIndex.value]
-  if (!side || side.length !== 1 || !review.value) return null
-  const listId = side[0]
-  if (listId === undefined || merges.groupOf(listId) === null) return null
-  if (!review.value.shows.some((show) => show.songListId === listId)) return null
-  return '这个演出的歌单长度与同组其他演出不一致，因此单独显示，不与它们合并。'
-})
-
-const display = computed(() => {
-  if (!catalog.value || !review.value) return null
-  const side = sides.value[sideIndex.value]
-  if (!side || side.length === 0) return null
-  return buildSetlistDisplay(catalog.value, review.value, side)
-})
-
-/** Album sources behind the raw comparison side. */
-const albumSources = computed(() => {
-  if (!catalog.value) return []
-  const side = sides.value[sideIndex.value] ?? []
-  return albumSetlistSources(catalog.value, side)
-})
-
-/** Data tables mirroring the SQLite rows, each with a source link. */
-const tables = computed<RawTable[]>(() => {
-  if (!catalog.value) return []
-  const songsById = new Map(catalog.value.songs.map((song) => [song.id, song]))
-  const performancesById = new Map(catalog.value.performances.map((row) => [row.id, row]))
-  const seriesById = new Map(catalog.value.series.map((row) => [row.id, row]))
-  const songNameOf = (id: number): string => songsById.get(id)?.name ?? String(id)
-
-  const tables: RawTable[] = [
-    {
-      id: 'series',
-      label: '系列',
-      headers: ['id', '名称', 'VocaDB'],
-      rows: catalog.value.series.map((row) => [
-        { text: String(row.id) },
-        { text: row.name },
-        { text: row.source_url, href: row.source_url },
-      ]),
-    },
-    {
-      id: 'performances',
-      label: '演出',
-      headers: ['id', '系列', '名称', '场馆', '开始', '结束', '角色', '歌单', 'VocaDB'],
-      rows: catalog.value.performances.map((row) => [
-        { text: String(row.id) },
-        { text: seriesById.get(row.series_id)?.name ?? String(row.series_id) },
-        { text: row.name },
-        { text: row.venue_name ?? '—' },
-        { text: row.start_date ?? '—' },
-        { text: row.end_date ?? '—' },
-        { text: row.role },
-        { text: row.song_list_id === null ? '—' : String(row.song_list_id) },
-        { text: row.source_url, href: row.source_url },
-      ]),
-    },
-    {
-      id: 'premieres',
-      label: '年度首演',
-      headers: ['系列', '年度', '首演日', '演出', '规则'],
-      rows: catalog.value.premieres.map((row) => [
-        { text: seriesById.get(row.series_id)?.name ?? String(row.series_id) },
-        { text: String(row.series_number) },
-        { text: row.premiere_date },
-        {
-          text: performancesById.get(row.premiere_performance_id)?.name ?? String(row.premiere_performance_id),
-          href: `https://vocadb.net/E/${row.premiere_performance_id}`,
-        },
-        { text: row.rule },
-      ]),
-    },
-    {
-      id: 'songLists',
-      label: '歌单',
-      headers: ['id', '名称', '来源', '公布时间', 'VocaDB'],
-      rows: catalog.value.songLists.map((row) => [
-        { text: String(row.id) },
-        { text: row.name },
-        { text: row.source === 'album' ? '专辑曲目' : 'VocaDB', href: row.source === 'album' ? row.source_url : undefined },
-        { text: row.announced_at ?? '—' },
-        { text: row.source_url, href: row.source_url },
-      ]),
-    },
-    {
-      id: 'setlistItems',
-      label: '歌单行',
-      headers: ['歌单', '序号', '歌曲', '备注', 'VocaDB'],
-      rows: catalog.value.setlistItems.map((row) => [
-        { text: String(row.song_list_id) },
-        { text: String(row.position) },
-        { text: songNameOf(row.listed_song_id), href: songHref(row.listed_song_id) },
-        { text: row.notes ?? '' },
-        { text: vocadbSongUrl(row.listed_song_id) === null ? '—' : 'VocaDB', href: vocadbSongUrl(row.listed_song_id) ?? undefined },
-      ]),
-    },
-    {
-      id: 'setlistItemSongs',
-      label: '歌单行对应歌曲',
-      headers: ['歌单', '序号', '歌曲', '角色', 'VocaDB'],
-      rows: catalog.value.setlistItemSongs.map((row) => [
-        { text: String(row.song_list_id) },
-        { text: String(row.position) },
-        { text: songNameOf(row.song_id), href: songHref(row.song_id) },
-        { text: row.role },
-        { text: vocadbSongUrl(row.song_id) === null ? '—' : 'VocaDB', href: vocadbSongUrl(row.song_id) ?? undefined },
-      ]),
-    },
-    {
-      id: 'songs',
-      label: '歌曲',
-      headers: ['id', '名称', '日文名', '制作人', '歌手', '类型', '类别', '投稿日期', '来源'],
-      rows: catalog.value.songs.map((row) => [
-        { text: String(row.id) },
-        { text: row.name },
-        { text: row.name_ja ?? '—' },
-        { text: producerCredit(row.artist_string) ?? '—' },
-        { text: songCharacters(row).join('、'), chips: songCharacters(row) },
-        { text: row.song_type },
-        { text: row.category === 'vocaloid' ? 'VOCALOID' : songCategoryLabels[row.category] },
-        { text: row.publish_date ?? '—' },
-        { text: row.category === 'vocaloid' ? 'VocaDB' : '初音ミク Wiki', href: row.source_url },
-      ]),
-    },
-    {
-      id: 'videos',
-      label: '投稿链接',
-      headers: ['PV id', '歌曲', '平台', '标题', '类型', '日期', '链接'],
-      rows: catalog.value.videos.map((row) => [
-        { text: String(row.vocadb_pv_id) },
-        { text: songNameOf(row.song_id), href: songHref(row.song_id) },
-        { text: row.platform },
-        { text: row.title ?? '—' },
-        { text: row.pv_type ?? '—' },
-        { text: row.publish_date ?? '—' },
-        { text: row.url, href: row.url },
-      ]),
-    },
-    {
-      id: 'snapshots',
-      label: '播放量快照',
-      headers: ['平台', '视频', '采集时间', '播放量', '来源'],
-      rows: catalog.value.snapshots.map((row) => [
-        { text: row.platform },
-        { text: row.platform_video_id },
-        { text: row.collected_at },
-        { text: row.view_count.toLocaleString('zh-Hans') },
-        { text: row.source_url, href: row.source_url },
-      ]),
-    },
-    {
-      id: 'medley',
-      label: '串烧隔离',
-      headers: ['歌单', '序号', '原曲', '原因'],
-      rows: catalog.value.medleyQuarantine.map((row) => [
-        { text: String(row.song_list_id) },
-        { text: String(row.position) },
-        { text: songNameOf(row.listed_song_id), href: songHref(row.listed_song_id) },
-        { text: row.reason },
-      ]),
-    },
-    {
-      id: 'sources',
-      label: '来源',
-      headers: ['id', '名称', '许可', '说明'],
-      rows: catalog.value.sources.map((row) => [
-        { text: row.id },
-        { text: row.name, href: row.url },
-        { text: row.license, href: row.license },
-        { text: row.notes },
-      ]),
-    },
-    {
-      id: 'formulas',
-      label: '换算公式',
-      headers: ['id', '状态', '版本', '原因'],
-      rows: catalog.value.formulas.map((row) => [
-        { text: row.id },
-        { text: row.status },
-        { text: row.version ?? '—' },
-        { text: row.reason },
-      ]),
-    },
-  ]
-
-  // The variant table keys on the variant id, which is not stored on the entry.
-  const variantRows: Cell[][] = []
-  for (const [variantId, entry] of variants.entries) {
-    variantRows.push([
-      { text: String(variantId), href: songHref(variantId) },
-      { text: songName(entry.canonical), href: songHref(entry.canonical) },
-      { text: entry.kind },
-      { text: entry.note ?? '' },
-      { text: songName(variantId) },
-    ])
-  }
-  tables.push({ id: 'variants', label: '版本合并', headers: ['变体 id', '并入', '类型', '说明', '变体名'], rows: variantRows })
-  return tables
-})
-
-/** VocaDB songs that have no PV link at all; the wiki repertoire has none by definition. */
-const songsWithoutVideo = computed(() => {
-  if (!catalog.value) return []
-  const withVideo = new Set(catalog.value.videos.map((row) => row.song_id))
-  return catalog.value.songs.filter((song) => fromVocaDB(song) && !withVideo.has(song.id))
-})
-
-/** Performances that cannot contribute a setlist: no setlist at all, or no date to place shows. */
-const incompletePerformances = computed(() => {
-  if (!catalog.value) return []
-  const withSetlist = setlistPerformanceIds(catalog.value)
-  return catalog.value.performances.filter((row) => !withSetlist.has(row.id) || row.start_date === null)
-})
-
-/** Performances whose setlist came from an album tracklist instead of the event. */
-const albumFallbackPerformances = computed(() => {
-  if (!catalog.value) return []
-  return catalog.value.performances.filter((row) => row.song_list_id !== null && albumIdFromSongListId(row.song_list_id) !== null)
-})
-
-/** Distinct album tracklists used as setlists. */
-const albumFallbackLists = computed(() => new Set(albumFallbackPerformances.value.map((row) => row.song_list_id)).size)
-
-/** Upstream setlists without an announcement time. Album tracklists are not upstream setlists. */
-const listsWithoutAnnouncement = computed(() => {
-  if (!catalog.value) return []
-  return catalog.value.songLists.filter((row) => row.source === 'vocadb' && row.announced_at === null)
-})
-
-/** Rotation lines the parser could not assign exactly. */
-const uncertainLines = computed(() => review.value?.lines.filter((line) => line.uncertain) ?? [])
-
-/** Shows whose parsed setlist length differs from the list's usual length. */
-const mismatchedShows = computed(() => review.value?.shows ?? [])
 
 /** One row of the 场次歌单 table. */
 type ShowSetlistRow = {
@@ -408,49 +105,7 @@ const showSetlists = computed<ShowSetlistRow[]>(() => {
       }
     })
     .sort((left, right) => left.series.localeCompare(right.series, 'ja') || (left.startDate ?? '9999').localeCompare(right.startDate ?? '9999'))
-})/** Normalized title used to propose duplicate song entries. */
-const normalizeTitle = (title: string): string => {
-  return title
-    .toLowerCase()
-    .replace(/[（(][^）)]*[）)]/g, '')
-    .replace(/-\s*[^-]*\b(remix|mix|ver\.?|version|edit|edition)\b[^-]*-\s*$/i, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-/** Songs that share a normalized title but are not merged yet. */
-const duplicateCandidates = computed(() => {
-  if (!catalog.value) return []
-  const merged = new Set<number>(variants.entries.keys())
-  const forCanonical = new Set<number>([...variants.entries.values()].map((entry) => entry.canonical))
-  const buckets = new Map<string, { id: number; name: string }[]>()
-  for (const song of catalog.value.songs) {
-    if (merged.has(song.id)) continue
-    const key = normalizeTitle(song.name)
-    const list = buckets.get(key) ?? []
-    list.push({ id: song.id, name: song.name })
-    buckets.set(key, list)
-  }
-  return [...buckets.entries()]
-    .filter(([, list]) => list.length > 1 && list.some((song) => !forCanonical.has(song.id)))
-    .map(([key, list]) => ({ key, songs: list }))
-})
-
-/** Counts shown at the top of the quality view. */
-const qualitySummary = computed(() => {
-  if (!catalog.value) return []
-  return [
-    { label: '歌曲', value: catalog.value.songs.length },
-    { label: '演出', value: catalog.value.performances.length },
-    { label: '歌单', value: catalog.value.songLists.length },
-    { label: '投稿链接', value: catalog.value.videos.length },
-    { label: '播放量快照', value: catalog.value.snapshots.length },
-    { label: '已合并版本', value: variants.size },
-    { label: '已合并歌单组', value: merges.groups.size },
-  ]
-})
-
-/** Download links for the raw files. */
+})/** Download links for the raw files. */
 const downloads = [
   { label: '目录 SQLite', href: '/data/catalog.sqlite' },
   { label: '表结构 schema.sql', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/schema.sql' },

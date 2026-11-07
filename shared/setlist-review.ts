@@ -81,8 +81,8 @@ const groupBy = <T>(rows: readonly T[], key: (row: T) => string): Map<string, T[
  *
  * The catalog already contains every attribution that a source could supply, so this is not a
  * to-do queue that blocks work: it is the list to hand over at the end of a pass. Sections A
- * through E collect unresolved or conflicting facts; section F lists what was adopted from a
- * non-high-confidence source (today, fan wikis) so a reader can scan it quickly.
+ * through E collect unresolved or conflicting facts. The adopted-source log is deliberately not
+ * repeated here: it lives in `docs/setlist-confirmation.md` and in `performance_setlist_sources`.
  *
  * @param catalog Loaded catalog with the derived 場次 layer.
  */
@@ -141,7 +141,7 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
       `演出：${performance?.name ?? String(show.performance_id)}`,
       `场次：${showLabel(show)}`,
       `当前数据：${show.item_count} 首，省略 ${show.omitted_count} 行`,
-      `归属方式：${setlist?.resolution ?? 'unknown'}${setlist?.pending_review === 1 ? '（数据来自非高置信度来源，见 F 节）' : ''}`,
+      `归属方式：${setlist?.resolution ?? 'unknown'}${setlist?.pending_review === 1 ? '（归属仍待核实）' : ''}`,
       `解析原因：${show.reasons}`,
     ]
     return {
@@ -222,30 +222,6 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
     }
   })
 
-  // F: the source log. Every 演出 whose rows rest on an outside page is listed here so the
-  // evidence stays auditable; nothing in this section needs a decision any more.
-  const cited = [...groupBy(catalog.performanceSetlistSources, (row) => String(row.performance_id))]
-  const sectionF: ReviewEntry[] = cited
-    .sort((left, right) => Number(left[0]) - Number(right[0]))
-    .map(([performanceId, sources], index) => {
-      const row = setlistByPerformance.get(Number(performanceId))
-      const performance = performanceById.get(Number(performanceId))
-      const shows = showsByPerformance.get(performanceId) ?? []
-      const facts = [
-        `演出：${performance?.name ?? performanceId}`,
-        `已采用：${shows.length} 个场次 / 每场 ${shows[0]?.item_count ?? 0} 首`,
-        `归属方式：${row?.resolution ?? 'unknown'}${row?.pending_review === 1 ? '（仍待核实，见对应小节）' : ''}`,
-        ...sources.map((source) => `来源：${source.title}（${source.confidence}，访问于 ${source.accessed_at}）${source.url}`),
-        `说明：${row?.note ?? '（无）'}`,
-      ]
-      return {
-        id: `F-${index + 1}`,
-        title: `${performance?.name ?? performanceId}（演出 ${performanceId}）`,
-        facts,
-        options: [],
-      }
-    })
-
   const sections: ReviewSection[] = [
     {
       key: 'A',
@@ -277,12 +253,6 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
       description: '这些演出的行被人工指定、排除或补充过，需要确认校正正确。',
       entries: sectionE,
     },
-    {
-      key: 'F',
-      title: '数据来源记录（已采用，无需确认）',
-      description: '每个采用外部来源的演出都在这里留档：URL、访问日期与置信度。这一节只供核对来源，不必逐条回复。',
-      entries: sectionF,
-    },
   ]
 
   return {
@@ -293,7 +263,7 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
       lengthMismatches: sectionC.length,
       inheritedLists: sectionD.length,
       curated: sectionE.length,
-      sourced: sectionF.length,
+      sourced: new Set(catalog.performanceSetlistSources.map((row) => row.performance_id)).size,
     },
   }
 }
@@ -331,6 +301,8 @@ export const renderSetlistReview = (review: SetlistReview): string => {
     '| 节 | 条数 |',
     '| --- | --- |',
     ...review.sections.map((section) => `| ${section.key} ${section.title} | ${section.entries.length} |`),
+    '',
+    '> 数据来源记录（URL、访问日期、置信度）见 `docs/setlist-confirmation.md` 第 1 节与 `/shows` 页脚，本清单不再重复列出。',
     '',
     '---',
     '',

@@ -15,7 +15,6 @@ import type {
   VideoRow,
 } from '../../shared/types.ts'
 import { catalogTransaction, chunkInserts } from '../sql/emit.ts'
-import { writeConversionSql } from '../evaluate-conversion.ts'
 import { repoRoot } from '../build-catalog.ts'
 import type { ApiEvent, ApiSeries, ApiSong, ApiSongInList, ApiSongListPage } from './api-types.ts'
 import { createVocadbClient } from './client.ts'
@@ -222,7 +221,6 @@ export const collectCatalog = async (root = repoRoot()): Promise<void> => {
   const target = path.join(root, 'data', 'increments', '0001-vocadb-catalog.sql')
   await mkdir(path.dirname(target), { recursive: true })
   await writeFile(target, catalogTransaction(body, retrievedAt))
-  writeConversionSql(root)
   await collectAlbumSetlists(root, retrievedAt)
   console.log(
     `Wrote ${target}: ${uniquePerformances.length} performances, ${songs.size} songs, ${quarantine.length} quarantined lines, ${client.requestCount()} requests`,

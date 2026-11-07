@@ -1,6 +1,6 @@
 # 初音未来演唱会曲目统计
 
-统计 Crypton 主办的初音未来演唱会歌单，并在浏览器里比较各场、各系列、各年份的播放量区间。日常聚合不在服务器上跑。Cloudflare Worker 只负责首屏 SSR，以及目录里找不到歌时的按需检索。
+统计 Crypton 主办的初音未来演唱会歌单，并在浏览器里比较各场、各系列、各年份的曲目构成。日常聚合不在服务器上跑。Cloudflare Worker 只负责首屏 SSR，以及目录里找不到歌时的按需检索。
 
 收录系列：マジカルミライ、MIKU EXPO、MIKU WITH YOU、初音ミクシンフォニー、初音ミクライブパーティー、SNOW MIKU LIVE!。
 
@@ -38,7 +38,6 @@ npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g   # 全局安�
 | `/series/{id}` | 系列主页：该系列的全部演出，链到各自演出页 |
 
 页眉有一个全局搜索框：只在已下载的本地目录里匹配，不向站外查询；窄屏时折叠成悬浮搜索面板。
-播放量相关页面（单场播放量、比较、观察窗、换算）目前没有快照数据，已从导航隐藏，直接访问会重定向到首页。拿到快照后删掉对应页面的 `definePageMeta({ middleware: 'retired' })` 与恢复导航项即可。
 
 ## 数据从哪来
 
@@ -46,9 +45,7 @@ npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g   # 全局安�
 
 数据库 id 尽量与 VocaDB 对齐（演出、系列、歌曲）。VocaDB 没有对应条目时用本地保留区间（歌曲 `2_000_000_000` 起、演出 `3_000_000_000` 起、系列 `900_000_000` 起），并且**不会因为 VocaDB 缺这一条或写法不同就删掉、改回已采集的记录**。口径见 `.cursor/rules/data-sources.mdc`。
 
-播放量只来自每周一次的 YouTube Data API `videos.list` 快照，且只有配置了 `YOUTUBE_API_KEY` 才会采集。没有密钥时工作流仍更新目录，并跳过播放量，不会填入估计值。
-
-niconico 与哔哩哔哩只保存 VocaDB 上的投稿链接。不调用 niconico 非官方观看页接口，也不抓取哔哩哔哩播放量。
+本站只保存 VocaDB 上的投稿链接，不采集、不估算任何平台的播放量。niconico 非官方观看页接口与哔哩哔哩播放量都不抓取。
 
 年度首演是同一系列年度里最早的现场演出。名称或简介出现「配信」或 livestream 的演出不参与首演。VocaDB 的日期只到日；开演钟点只在场馆位于日本、且简介里恰好有一条 Showtime 或「開演」时写入。
 
@@ -79,14 +76,6 @@ vp dev            # 等价于 pnpm dev，会先重建目录再启动 nuxt dev
 Node 22 或更高（Nuxt 4 与 Nuxt UI 4 要求 ≥ 22.12）。`vp dev` 由 `vite.config.ts` 的交接插件把 Vite+ 自带的 Vite 进程换成 `nuxt dev`，`--port` / `--host` 参数会照常传到 Nuxt：`vp dev --port 3117`。
 
 `pnpm collect` 会按至少 300 毫秒的间隔请求 VocaDB，并把原始响应缓存在 `data/cache/`（不提交）。增量 SQL 写到 `data/increments/`。`pnpm collect:vocalists` 单独重写 `0006-song-vocalists.sql`（每首歌的出演声库名单），`pnpm collect:producers` 重写自己派生的 `0007-song-producers.sql`（`categories` 含 `Producer` 或 `roles` 含 `Composer` / `Arranger` / `VoiceManipulator` 的署名，与 VocaDB「Producers」分区一致，按 VocaDB artist id 去重，`roles` 列保留小写证据；Publisher / Illustrator / Animator / Lyricist / Mixer / Mastering / Instrumentalist 与只有 Label / Circle 的署名不算制作人，`VoiceManipulator`（調声 / 調音）保留）；排行的「制作人」列与筛选优先用这张表，只有该行没有任何结构化署名时才退回自由文本，新增或改动的歌曲要重跑一次再 `pnpm build:catalog`。
-
-YouTube 快照：
-
-```bash
-cp .env.example .env
-# 填入 YOUTUBE_API_KEY 后
-pnpm snapshot:youtube
-```
 
 生成报表：
 
@@ -136,7 +125,7 @@ Access 应用必须把 `/admin`、`/admin/*`、`/api/admin/*`、`/api/feedback/*
 
 ## 测试
 
-`pnpm test` 覆盖首演选择、开演钟点、串烧拆分、播放量区间、观察窗、换算门槛、版本合并、歌单槽位合并、跨地区合并与差异报告分级。目录测试会打开已提交的 SQL，核对 2014 年マジカルミライ年度首演是大阪演出 `2014-08-30`，并断言 2019 东京/大阪对照视图是 37 行、2024 系列年度的替换曲目共享序号。
+`pnpm test` 覆盖首演选择、开演钟点、串烧拆分、版本合并、歌单槽位合并、跨地区合并与差异报告分级。目录测试会打开已提交的 SQL，核对 2014 年マジカルミライ年度首演是大阪演出 `2014-08-30`，并断言 2019 东京/大阪对照视图是 37 行、2024 系列年度的替换曲目共享序号。
 
 `pnpm lint`、`pnpm typecheck` 分别跑 ESLint 与 `tsc --noEmit` + `nuxt typecheck`。
 

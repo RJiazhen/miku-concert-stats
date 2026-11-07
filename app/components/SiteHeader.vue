@@ -10,7 +10,7 @@ const closeMenu = (): void => {
 }
 
 /**
- * Primary navigation; retired sections stay out until they have data.
+ * Primary navigation.
  * The admin backend (`/admin/...`) is intentionally absent: it is a hidden entry point reached
  * only by direct URL and protected by Cloudflare Access, so never add it here or to the footer.
  */

@@ -56,13 +56,12 @@ const chunk = (
   return parts.join('\n')
 }
 
-/** Wraps catalog replacement SQL. Snapshots, milestones, and formulas are left untouched. */
+/** Wraps catalog replacement SQL. */
 export const catalogTransaction = (body: string, retrievedAt: string): string => {
   return [
     '-- Source: VocaDB public REST API https://vocadb.net/api/',
     `-- Retrieved: ${retrievedAt}`,
     '-- License: https://wiki.vocadb.net/docs/license (link back when reusing database contents)',
-    '-- Replaces catalog rows. Does not delete view_snapshots, milestones, or conversion_formulas.',
     'BEGIN;',
     'DELETE FROM setlist_item_songs;',
     'DELETE FROM medley_quarantine;',
@@ -77,27 +76,6 @@ export const catalogTransaction = (body: string, retrievedAt: string): string =>
     'DELETE FROM sources;',
     body.trim(),
     'COMMIT;',
-    '',
-  ].join('\n')
-}
-
-/** Replaces the single conversion-formula row. */
-export const conversionSql = (row: readonly (string | number | null)[]): string => {
-  const columns = [
-    'id',
-    'status',
-    'version',
-    'scope',
-    'sample_period',
-    'train_metrics_json',
-    'holdout_metrics_json',
-    'formula_json',
-    'reason',
-  ]
-  return [
-    '-- Conversion formula evaluation. formula_json stays NULL until publication gates pass.',
-    'DELETE FROM conversion_formulas;',
-    insertSql('conversion_formulas', columns, [row]),
     '',
   ].join('\n')
 }

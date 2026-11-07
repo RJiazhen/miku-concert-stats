@@ -1,7 +1,6 @@
 -- Source: VocaDB public REST API https://vocadb.net/api/
 -- Retrieved: 2026-10-11T19:16:59.885Z
 -- License: https://wiki.vocadb.net/docs/license (link back when reusing database contents)
--- Replaces catalog rows. Does not delete view_snapshots, milestones, or conversion_formulas.
 BEGIN;
 DELETE FROM setlist_item_songs;
 DELETE FROM medley_quarantine;

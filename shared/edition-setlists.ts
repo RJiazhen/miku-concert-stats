@@ -1,9 +1,8 @@
-import { reviewRotations, type ResolvedRotationLine, type RotationReview } from './rotation.ts'
+import type { ResolvedRotationLine, RotationReview } from './rotation.ts'
 import {
   groupRowsIntoSlots,
   parseNoteSelectors,
   selectorLabel,
-  type NoteSelector,
   type SlotItem,
   type SlotRow,
 } from './setlist-slots.ts'
@@ -351,12 +350,6 @@ const showNames = (ids: readonly number[], performances: ReadonlyMap<number, Per
   if (ids.length === 0) return null
   return ids.map((id) => performances.get(id)?.name ?? String(id)).join('、')
 }
-
-/** Recomputes the rotation review for a catalog. */
-export const reviewFor = (catalog: Catalog): RotationReview => reviewRotations(catalog)
-
-/** Selectors for one row, exported for the details view. */
-export const selectorsForRow = (row: SetlistDisplayRow): NoteSelector[] => row.items.flatMap((item) => item.selectors)
 
 /** What the 演出 column shows for one row. */
 export type PerformanceCell = {

@@ -10,10 +10,10 @@ export const placeNames: PlaceNameIndex = parsePlaceNames(raw)
  * The language is shared with song titles, so one switch covers names and places.
  */
 export const usePlaceNames = () => {
-  const { language, setLanguage, showChinese } = useSongLanguage()
+  const { language } = useSongLanguage()
 
   /** Chinese place names when the site language is Chinese, otherwise the VocaDB text. */
   const localizePlace = (text: string): string => localizePlaceNames(text, placeNames, language.value)
 
-  return { language, setLanguage, showChinese, localizePlace }
+  return { localizePlace }
 }

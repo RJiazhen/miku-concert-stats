@@ -27,7 +27,7 @@ const readCatalog = (root: string) => {
 const reportPath = (root: string): string => path.join(root, REPORT_DIR, MARKDOWN_FILE)
 
 /** Section headings that must be present for the checklist to be usable. */
-const REQUIRED_SECTIONS = ['## 总览', '## A.', '## B.', '## C.', '## D.', '## E.', '## F.', '**补充说明**']
+const REQUIRED_SECTIONS = ['## 总览', '## A.', '## B.', '## C.', '## D.', '## E.', '**补充说明**']
 
 /**
  * Checks the committed file still has every section and keeps checkboxes on their own lines.

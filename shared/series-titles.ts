@@ -1,5 +1,5 @@
+import { formatLocalizedName, parseNameMap, type NameView, type SongLanguage } from './name-map.ts'
 import { seriesLabels } from './performance-name.ts'
-import type { SongLanguage } from './song-titles.ts'
 
 /**
  * Series as written by VocaDB to its checked Chinese name.
@@ -14,22 +14,7 @@ export type SeriesTitleFile = Record<string, string>
  * Throws when the file is not an object, a key is blank, a name is blank,
  * or two keys differ only in case.
  */
-export const parseSeriesTitles = (value: unknown): SeriesTitleFile => {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Series title file must be an object')
-  }
-  const file: SeriesTitleFile = {}
-  const seen = new Set<string>()
-  for (const [key, name] of Object.entries(value)) {
-    if (key.trim() === '') throw new Error('Series title key is empty')
-    if (typeof name !== 'string' || name.trim() === '') throw new Error(`Series ${key} name is empty`)
-    const folded = key.toLowerCase()
-    if (seen.has(folded)) throw new Error(`Series ${key} is listed twice`)
-    seen.add(folded)
-    file[key] = name
-  }
-  return file
-}
+export const parseSeriesTitles = (value: unknown): SeriesTitleFile => parseNameMap(value, 'Series title')
 
 /** Returns the Chinese name for a series, or null when the file has no row. */
 export const seriesTitleFor = (file: SeriesTitleFile, name: string): string | null => {
@@ -37,20 +22,14 @@ export const seriesTitleFor = (file: SeriesTitleFile, name: string): string | nu
 }
 
 /** Primary name plus the catalog name when a Chinese name is showing. */
-export type SeriesTitleView = {
-  primary: string
-  originalNote: string | null
-}
+export type SeriesTitleView = NameView
 
 /**
  * Formats a series name for the active language.
  * Chinese mode keeps the catalog name beside the translation unless they are the same string.
  */
 export const formatSeriesTitle = (original: string, translation: string | null, language: SongLanguage): SeriesTitleView => {
-  if (language !== 'zh' || translation === null || translation.trim() === '' || translation === original) {
-    return { primary: original, originalNote: null }
-  }
-  return { primary: translation, originalNote: original }
+  return formatLocalizedName(original, translation, language)
 }
 
 /**

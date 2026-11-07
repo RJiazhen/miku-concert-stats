@@ -30,18 +30,6 @@
 
 **建议**：演出结束后补 `data/wiki-raw/*.json` 与 `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py`（见 `.cursor/skills/update-concert-data/SKILL.md`）。上游若补了 `songList`，需要先清 `data/cache/` 再跑 `pnpm collect`（见 4.1）。
 
-### 1.2 播放量数据完全缺失
-
-**现象**：目录里没有 YouTube 播放量快照，所有播放量相关列在 UI 自动隐藏。
-
-**原因**：`pnpm snapshot:youtube` 需要 `YOUTUBE_API_KEY`，未配置。
-
-**影响**：单曲页「相关投稿」不显示播放量列；排序/对比功能不可用。
-
-**建议**：配置 API key 后跑一次快照，或明确长期不做。注意规划中的政策：只采 YouTube Data API，不抓 niconico 非官方接口与 B 站。
-
----
-
 ## 二、模型与语义张力
 
 ### 2.1 `series_number` 是系列年度标签，不是日历年

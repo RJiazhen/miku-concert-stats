@@ -2,11 +2,11 @@
 
 只读参考：`~/projects/others/open-personal-note/notes/ideas/hatsune-miku-concert-song-statistics.md`。
 
-本文件在实现前固定范围、数据边界和模块划分。播放量、里程碑时间和开演钟点只写入有出处的值；缺数据时界面保持空态，不补造。
+本文件固定范围、数据边界和模块划分。开演钟点只写入有出处的值；缺数据时界面保持空态，不补造。
 
 ## 目标与范围
 
-做一个可部署到 Cloudflare Workers 的 SSR 站点，统计 Crypton 主办的初音未来演唱会歌单，并在浏览器内比较各场、各系列、各年份的播放量区间。
+做一个可部署到 Cloudflare Workers 的 SSR 站点，统计 Crypton 主办的初音未来演唱会歌单，并在浏览器内比较各场、各系列、各年份的曲目构成。
 
 收录范围（VocaDB 系列 id，类别均为 Concert）：
 
@@ -23,18 +23,10 @@
 
 串烧（`songType = Mashup`）拆到组成歌曲后再计数。找不到可核验的组成歌曲时，该行进入未拆分隔离区，不按一条曲目计入区间统计。
 
-播放量区间使用固定阈值：不足 10 万、10 万–100 万、100 万–1000 万、1000 万及以上，外加「尚无快照」。区间数量和占比按歌曲去重。同一歌曲在 niconico、YouTube、bilibili 上各选一条代表投稿：未禁用，优先 `pvType = Original`，其余按 VocaDB PV id 最小者。
-
-歌单公布时间与首演日期是观察点。某侧没有快照时，结果标为样本不足，不外推曲线。
-
-跨平台换算只在「同一歌曲、niconico 与 YouTube 都有快照」的配对上检验。分层为投稿年代（发布年份的十年）、播放量区间、投稿类型。训练集 / 留出集按歌曲 id 取模切分。全部门槛通过后才把公式版本写入数据库；否则界面继续分平台展示。原始快照保留。
-
 ## 非目标
 
 - 不覆盖上表以外的活动、俱乐部或企划。
-- 不抓取 niconico 非官方观看页接口，也不抓取哔哩哔哩播放量。公开资料表明里程碑达成时间没有面向全库的官方接口，故里程碑表结构保留，但没有可引用的达成时间就不插入行。
-- 不把 VocaDB 简介里的「殿堂入り」字样当成带时间的里程碑。
-- 不爬 YouTube 页面。没有 `YOUTUBE_API_KEY` 时跳过快照，不估计播放量。
+- 不采集、不估算任何平台的播放量。niconico 非官方观看页接口与哔哩哔哩播放量都不抓取，VocaDB 简介里的「殿堂入り」字样也不算数据。
 - 不把日常聚合放到 Workers 上。Workers 只做首屏 SSR 和按需的缺歌检索。
 - 不下载或再分发第三方封面、歌词和官方标识。
 
@@ -46,18 +38,13 @@
 
 **VocaDB 是同级参考源，不是标准。** `https://vocadb.net/api/`，JSON，自定义 User-Agent，请求间隔 ≥ 300ms，并缓存原始响应。数据库内容按 [VocaDB License](https://wiki.vocadb.net/docs/license) 为 CC BY，页面给出返回链接。取数顺序是「官网 → 萌娘百科 → 初音ミク Wiki → VocaDB」；`performances.id` / `series.id` / `songs.id` 尽量沿用 VocaDB 的 id，VocaDB 没有条目时用本地保留区间，VocaDB 与本项目不一致时保留已采集的数据，不改上游也不回改自己。只要本项目记录了某个演出的歌单，该演出就进入统计，不再要求上游歌单存在。代价是开演钟点多数缺失，日期精度停在「日」。
 
-**YouTube Data API v3 `videos.list`（`part=statistics`，每次最多 50 个 id）仅在密钥存在时调用。** 这是历史曲线的采样起点；每周工作流追加快照。密钥缺失时工作流仍更新目录，并在日志中说明跳过播放量。
-
-**换算公式默认不发布。** 首版没有成对历史快照，门槛不可能通过。用带 `SAMPLE` 标记的测试夹具验证门槛逻辑，夹具不进入 `data/increments`。
-
 ## 模块与职责
 
 | 模块 | 职责 |
 | --- | --- |
 | 采集 | 拉取系列、演出、歌单、歌曲与 PV；标示配信场；解析有证据的开演钟点；隔离无法拆分的串烧 |
 | SQL | 表结构、转义后的增量、应用到 SQLite |
-| 统计 | 代表投稿、区间、跨系列/年份比较、观察点前后差值 |
-| 换算 | 分层相关、对数拟合、训练/留出门槛、公式版本行 |
+| 统计 | 按场次 / 演出计数、跨系列与年份分组、版本合并 |
 | 站点 | SSR 壳、客户端读库、筛选与图表、出处 |
 | 检索 | 页内搜索只在已下载的本地目录里匹配，不向站外查询 |
 | 工作流 | CI 跑 lint、类型检查、测试和目录构建；每周采集并在有 diff 时提交 SQL |
@@ -70,22 +57,21 @@
 - `package.json`、`pnpm-lock.yaml`、`tsconfig.json`、`nuxt.config.ts`、`eslint.config.mjs`、`vitest.config.ts`、`wrangler.toml`、`.gitignore`、`.github/workflows/ci.yml`、`.github/workflows/weekly-collect.yml`
 - `data/schema.sql`、`data/increments/0001-vocadb-catalog.sql`（采集后写入）
 - `scripts/vocadb/client.ts`、`scripts/vocadb/normalize.ts`、`scripts/vocadb/collect.ts`
-- `scripts/sql/emit.ts`、`scripts/build-catalog.ts`、`scripts/snapshot-youtube.ts`
-- `shared/types.ts`、`shared/bands.ts`、`shared/premiere.ts`、`shared/showtime.ts`、`shared/medley.ts`、`shared/stats.ts`、`shared/correlation.ts`、`shared/catalog.ts`
-- `tests/premiere.test.ts`、`tests/showtime.test.ts`、`tests/medley.test.ts`、`tests/stats.test.ts`、`tests/correlation.test.ts`、`tests/catalog.test.ts`
+- `scripts/sql/emit.ts`、`scripts/build-catalog.ts`
+- `shared/types.ts`、`shared/premiere.ts`、`shared/showtime.ts`、`shared/medley.ts`、`shared/stats.ts`、`shared/catalog.ts`
+- `tests/premiere.test.ts`、`tests/showtime.test.ts`、`tests/medley.test.ts`、`tests/catalog.test.ts`
 - `app.vue`、`layouts/default.vue`、`assets/css/main.css`
-- `pages/index.vue`、`pages/compare.vue`、`pages/windows.vue`、`pages/correlation.vue`、`pages/lookup.vue`
+- `pages/index.vue`、`pages/raw.vue`、`pages/shows/[id].vue`
 - `components/SiteHeader.vue`、`components/CatalogView.vue`、`composables/useCatalog.ts`
 
 修改：
 
-- `README.md`：运行方式、VocaDB 署名、播放量空态说明
+- `README.md`：运行方式与 VocaDB 署名
 
 只读参考：
 
 - 上文 idea 笔记
 - [VocaDB Public API](https://wiki.vocadb.net/docs/public-api)、[Events](https://wiki.vocadb.net/docs/events)、[License](https://wiki.vocadb.net/docs/license)
-- [YouTube videos.list](https://developers.google.com/youtube/v3/docs/videos/list)
 - [GitHub Actions schedule](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows#schedule)
 - [Cloudflare Workers 全栈路由](https://developers.cloudflare.com/workers/static-assets/routing/full-stack-application/)
 
@@ -97,7 +83,6 @@
 flowchart LR
   subgraph sources [来源]
     VocaDB["VocaDB REST API"]
-    YT["YouTube Data API v3"]
   end
   subgraph repo [仓库]
     SQL["data/schema.sql + increments"]
@@ -112,21 +97,11 @@ flowchart LR
     Stats["shared/stats.ts"]
   end
   VocaDB --> SQL
-  YT -->|"仅当有 API key 且每周一次"| SQL
   SQL --> Build --> SQLite --> Wasm --> Stats
   SSR --> browser
 ```
 
 系列年度首演规则在写入 SQL 前于 `shared/premiere.ts` 计算，并落表 `edition_premieres`（表名保留，含义是「系列年度第一个演出」），便于复核。
-
-换算发布门槛（同时满足才 `status = published`）：
-
-- 训练不少于 40 对，留出不少于 15 对
-- 两侧 Pearson |r| ≥ 0.8（对数播放量）
-- 两侧中位绝对百分比误差 ≤ 25%
-- 任一层若样本 ≥ 8，该层留出 MAPE ≤ 40%
-
-公式形式固定为 `log10(youtube) = a + b * log10(niconico)`，系数、样本期、误差与版本号写入 `conversion_formulas`。未发布时 `formula_json` 为空。
 
 ## 风险与验证
 
@@ -135,21 +110,19 @@ flowchart LR
 | VocaDB 日期是午夜 UTC，不是开演时刻 | 精度为 day；钟点必须带简介原文摘录 |
 | 同一系列年度多城、后至配信被当成首演 | `broadcast` 排除；首演取最早 `show` |
 | 串烧被当成一首歌 | 无组成歌曲则隔离，不进分母 |
-| 无密钥时站点看起来「没有统计」 | 空态写明原因；测试断言快照不会被填上猜测值 |
-| 换算在小样本上过拟合 | 默认不发布；门槛用 SAMPLE 夹具单测 |
 | 每周任务打满 API | 六系列、≥300ms 间隔、自定义 UA；超过预算则失败而不分片狂刷 |
 | Workers 上误跑统计或原生 sqlite | 聚合只在客户端；服务端路由只用 `fetch` |
 
 验证：
 
-- `pnpm test` 覆盖首演、钟点解析、串烧、区间、观察窗、换算门槛
-- `pnpm test` 中的目录测试打开已提交 SQL，核对 2014 年マジカルミライ首演是大阪场 `2014-08-30` 而不是东京场 `2014-09-20`，且 `view_snapshots` 与 `milestones` 在没有 YouTube 采集时为 0 行
+- `pnpm test` 覆盖首演、钟点解析、串烧、版本合并与计数口径
+- `pnpm test` 中的目录测试打开已提交 SQL，核对 2014 年マジカルミライ首演是大阪场 `2014-08-30` 而不是东京场 `2014-09-20`
 - `pnpm lint`、`pnpm typecheck`
-- 浏览器走通首页筛选、比较、观察窗、换算页和缺歌检索
+- 浏览器走通首页筛选、单曲、演出、系列与制作人页
 
 ## 歌曲出现次数排行
 
-在播放量区间之外，首页按歌曲统计「出现过多少次」。聚合仍是 `shared/stats.ts` 里的纯函数，读已加载的目录行（场次层 `performance_show_setlist_items` 优先，没有展开行时回退 `setlist_item_songs` / `setlist_items`，以及 `songs`、`performances`、`series`），不另写 SQL。
+首页按歌曲统计「出现过多少次」。聚合仍是 `shared/stats.ts` 里的纯函数，读已加载的目录行（场次层 `performance_show_setlist_items` 优先，没有展开行时回退 `setlist_item_songs` / `setlist_items`，以及 `songs`、`performances`、`series`），不另写 SQL。
 
 计数不以上游 VocaDB 为准：只要本项目记录了某个演出的歌单（上游歌单、专辑补位，或只有百科逐曲表、`song_list_id` 为空的演出），该演出的曲目就进入排行、单曲出场记录与制作人统计。
 
@@ -169,7 +142,7 @@ flowchart LR
 
 每行输出歌曲 id、名称（`songs.name`）、制作人署名、次数、出现过的演出数、最早年份、最晚年份。次数为 0 的歌曲不输出。默认按次数降序、歌曲 id 升序。`seriesCount` 仍保留在返回值里但不再展示；表格的「演出数」用 `performanceCount`（去重后的演出行数，两种统计模式都一样）。
 
-首页改为这张可排序的表，并提供模式、系列多选、年份、配信/VR、串烧组成的控件。覆盖说明写明：默认按场次统计，按演出时每个城市站各算一次。原来的单场播放量页移到 `/catalog`。顶栏增加两个入口。
+首页改为这张可排序的表，并提供模式、系列多选、年份、配信/VR、串烧组成的控件。覆盖说明写明：默认按场次统计，按演出时每个城市站各算一次。
 
 ## 歌单备注与逐场解析
 
@@ -211,7 +184,7 @@ flowchart LR
 
 一首歌的演唱者优先取 `song_vocalists` 表：`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）对每首歌请求 VocaDB 的 `fields=Artists`，只保留 `categories` 或 `roles` 含 `Vocalist` 的条目，名字用条目的 `name`，否则用嵌套 `artist.name`，写成 `data/increments/0006-song-vocalists.sql`。`artist_string` 会把大编制合唱压成 `feat. various`（例如 Hand in Hand 的现场翻唱实际由 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン 演唱），所以这份名单才是「演出角色」的来源。库里没有该歌的名单时，退回 `songs.artist_string` 里第一次出现的 `feat.` 之后的名单，按逗号拆开；`feat.` 前面的制作人不算角色。
 
-结果在读取目录时推导，不另写 SQL 列。排行、演出、系列年度索引和播放量页的歌曲行显示「歌手」。排行可按一个角色筛选。
+结果在读取目录时推导，不另写 SQL 列。排行、演出、系列索引与单曲页的歌曲行显示「歌手」。排行可按一个角色筛选。
 
 `shared/credit.ts` 负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都会丢掉 VocaDB 的名字占位（`Unknown producer(s)`、`Unknown artist` 等，不指向任何作者），只由占位组成的署名返回 `null`，页面显示「未记录」。页头、站内搜索结果与 `/raw` 的歌曲表都走这两个函数；单曲页的「其他版本」卡片按下面的制作人规则取值。排行的「制作人」列先取结构化的 `song_producers` 名单，只有该行（含合并的版本组）没有任何结构化署名时才退回 `producerCredit`；Publisher、Illustrator、厂牌 / 社团等署名不是制作人，`VoiceManipulator`（調声 / 調音）保留。
 
@@ -221,8 +194,8 @@ flowchart LR
 
 ## 实现步骤
 
-1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/bands.ts`，`shared/stats.ts`，`shared/correlation.ts` 及对应 `tests/*`。
-2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`，`scripts/snapshot-youtube.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
+1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/stats.ts` 及对应 `tests/*`。
+2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
 3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、署名与空态。
 4. **发布自动化** — `wrangler.toml`、CI、每周工作流；README。
 
@@ -238,7 +211,7 @@ flowchart LR
 
 **演出级合并（2026-11-06 起）**：`/shows` 把可合并的场次折成一张表。`mergeShowSetlists` 先按代表场次定序并插入只在其他场次出现的曲目，再把「在演过它的每个场次里都落在同一序号」的行并成同一个槽位。日场 / 夜场轮换、分天替换都因此共用一个序号，`ShowSetlistTable` 用 `UTable` 的 `meta.rowspan` 把序号单元格上下合并（被吸收的单元格用 `meta.class` 置为 `hidden`），每首歌仍各占一行：编号只到单场曲目数，读者不会把替换曲误数成额外曲目。表格保持四列，不单设场次列，每个替代曲适用的场次写进「备注」（`仅日场` / `仅 8/11` / `仅 8/11 日场、8/12 夜场`，每场都演的省略），器乐曲等分类用 ` · ` 接在后面。70 个可合并演出里 64 个的槽位数与单场曲目数完全相等，其余 6 个是插入曲造成序号错位或场次长度本身不同，按实际情况多出或减少。并槽要求两侧场次集合完全不相交，序号错位的曲目仍单独占行，不猜测同槽位。
 
-外部核实遵循「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」的顺序；查到就**直接采用**，来源（URL、访问日期、置信度、一句话说明）存进 `performance_setlist_sources`，`/shows` 页脚展示，另在 `docs/setlist-confirmation.md` 第 1 节与 `docs/reports/setlist-review.md` 的 F 节留档，不需要逐条确认。逐场次的特殊说明写进演出层的 `note`，不另建场次级来源表。
+外部核实遵循「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」的顺序；查到就**直接采用**，来源（URL、访问日期、置信度、一句话说明）存进 `performance_setlist_sources`，`/shows` 页脚展示，另在 `docs/setlist-confirmation.md` 第 1 节留档，不需要逐条确认。逐场次的特殊说明写进演出层的 `note`，不另建场次级来源表。
 
 同一系列年度不同演出的歌单（例如 2019 マジカルミライ 东京与大阪）仍只在 `/raw` 的跨演出对照里用 `data/setlist-merges.json` 人工分组后并排展示，不作为该系列年度的合并歌单；如果其中一份歌单被轮换检查标出长度不一致，说明各演出曲目数量对不上，则拆开单独显示，不参与合并。`shared/edition-setlists.ts` 以演出最多的歌单为骨架，其余用 LCS 对齐，重复曲目折叠成一行并合并演出集合。渲染时槽位用 `rowspan` 共享序号，末尾「演出」列说明该行属于哪个演出；每个演出都演出的行留空，不写说明。
 
@@ -248,7 +221,7 @@ flowchart LR
 
 ## 界面
 
-Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目录，页面用 `~~/shared/*` 引用纯逻辑。页眉是毛玻璃吸顶条，导航只保留「排行 / 原始数据 / 核验 / 检索」；播放量相关页面在拿到快照前由 `middleware/retired.ts` 重定向到首页。排行用 `UTable` 与 TanStack 排序，筛选条件写入 URL query，刷新与分享都能复原。
+Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目录，页面用 `~~/shared/*` 引用纯逻辑。页眉是毛玻璃吸顶条，导航为「排行 / 原始数据 / 核验 / 搜索」。排行用 `UTable` 与 TanStack 排序，筛选条件写入 URL query，刷新与分享都能复原。
 
 所有列表页的表格以曲目排行为基准：`TableSection` 提供标题、`UTable`、粘性表头、`ranking-scroll`、加载骨架与空状态，`SortableHeader` 提供统一下拉排序表头，页面不再各自决定外壳样式。角色一律用 `CharacterChips`（应援色描边与淡底色，超过 3 个折叠成 `+N` 气泡），制作人署名这类非角色标签用 `UBadge`；筛选标签用 `FilterField`（`UFormField`）。唯一的例外是 `/raw` 的「数据表」：列由目录表结构动态决定，保留手写表格，但沿用同样的外壳与空状态。详见 `docs/architecture.md` 的「共享 UI 组件」。
 

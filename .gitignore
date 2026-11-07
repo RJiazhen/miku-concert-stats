@@ -13,7 +13,6 @@ server/assets/api
 *.log
 .env
 .env.*
-!.env.example
 tmp/
 temp/
 __pycache__/

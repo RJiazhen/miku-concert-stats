@@ -182,11 +182,6 @@ export const feedbackKey = (record: FeedbackRecord): string => {
   return `${FEEDBACK_KEY_PREFIX}${record.receivedAt}:${record.id}`
 }
 
-/** Shortens a KV key to the timestamp and id the inbox shows, without the prefix. */
-export const feedbackKeySuffix = (key: string): string => {
-  return key.startsWith(FEEDBACK_KEY_PREFIX) ? key.slice(FEEDBACK_KEY_PREFIX.length) : key
-}
-
 /**
  * Parses one stored KV value back into a record.
  * Old or hand-edited entries that miss the required fields are skipped instead of throwing.

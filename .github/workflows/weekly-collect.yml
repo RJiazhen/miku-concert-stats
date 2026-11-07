@@ -23,9 +23,6 @@ jobs:
       - run: pnpm collect:producers
       - name: Re-derive the per-show setlists
         run: pnpm derive:setlists
-      - run: pnpm snapshot:youtube
-        env:
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - name: Regenerate the setlist difference report
         run: pnpm report:setlist
       - name: Regenerate the producer conflict report

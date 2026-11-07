@@ -47,6 +47,11 @@ export default defineNuxtConfig({
         'cache-control': 'public, max-age=0, must-revalidate',
       },
     },
+    // Playback pages were withdrawn before any view-count data existed; old links go home.
+    '/catalog': { redirect: '/' },
+    '/compare': { redirect: '/' },
+    '/windows': { redirect: '/' },
+    '/correlation': { redirect: '/' },
   },
   runtimeConfig: {
     public: {
@@ -90,7 +95,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'zh-Hans' },
-      title: '初音未来演唱会曲目播放统计',
+      title: '初音未来演唱会曲目统计',
       link: [{ rel: 'icon', type: 'image/png', href: '/logo.png' }],
       meta: [
         {

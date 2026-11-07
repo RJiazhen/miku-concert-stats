@@ -26,13 +26,6 @@ export type AlbumSetlistIndex = {
   size: number
 }
 
-/** Empty index so callers can skip album fallbacks without branching. */
-export const emptyAlbumSetlistIndex = (): AlbumSetlistIndex => ({
-  entryOf: () => null,
-  entries: new Map(),
-  size: 0,
-})
-
 /** Reads a positive decimal id from a JSON key or number. */
 const readId = (value: unknown, context: string): number => {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value

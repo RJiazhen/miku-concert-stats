@@ -1,4 +1,4 @@
--- Catalog schema. View counts and milestones are append-only observations.
+-- Catalog schema.
 -- Dates from VocaDB stay at day precision unless time_evidence is set.
 
 CREATE TABLE sources (
@@ -254,37 +254,4 @@ CREATE TABLE videos (
   pv_type TEXT,
   publish_date TEXT,
   disabled INTEGER NOT NULL
-);
-
-CREATE TABLE view_snapshots (
-  platform TEXT NOT NULL,
-  platform_video_id TEXT NOT NULL,
-  collected_at TEXT NOT NULL,
-  view_count INTEGER NOT NULL,
-  source TEXT NOT NULL,
-  source_url TEXT NOT NULL,
-  PRIMARY KEY (platform, platform_video_id, collected_at)
-);
-
-CREATE TABLE milestones (
-  platform TEXT NOT NULL,
-  platform_video_id TEXT NOT NULL,
-  kind TEXT NOT NULL,
-  threshold INTEGER NOT NULL,
-  achieved_at TEXT NOT NULL,
-  source TEXT NOT NULL,
-  source_url TEXT NOT NULL,
-  PRIMARY KEY (platform, platform_video_id, kind)
-);
-
-CREATE TABLE conversion_formulas (
-  id TEXT PRIMARY KEY,
-  status TEXT NOT NULL,
-  version TEXT,
-  scope TEXT,
-  sample_period TEXT,
-  train_metrics_json TEXT,
-  holdout_metrics_json TEXT,
-  formula_json TEXT,
-  reason TEXT NOT NULL
 );

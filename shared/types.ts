@@ -10,17 +10,11 @@ export type SqlRow = Record<string, SqlValue>
 /** Values SQLite may return for the columns this catalog stores. */
 export type SqlValue = string | number | null | Uint8Array
 
-/** Platform keys stored in videos and snapshots. */
+/** Platform keys stored in videos. */
 export type Platform = 'niconico' | 'youtube' | 'bilibili'
 
 /** Whether a dated performance can count as a premiere. */
 export type PerformanceRole = 'show' | 'broadcast'
-
-/** Fixed playback bands, plus songs that have no snapshot. */
-export type BandId = 'none' | 'under_100k' | '100k_1m' | '1m_10m' | '10m_plus'
-
-/** How compare mode groups 演出 before counting songs. */
-export type CompareGrouping = 'series' | 'edition' | 'year'
 
 /** VocaDB attribution row. */
 export type SourceRow = {
@@ -281,40 +275,6 @@ export type VideoRow = {
   disabled: number
 }
 
-/** One observed view count. */
-export type ViewSnapshotRow = {
-  platform: Platform
-  platform_video_id: string
-  collected_at: string
-  view_count: number
-  source: string
-  source_url: string
-}
-
-/** Immutable milestone. Empty unless a sourced achievement time exists. */
-export type MilestoneRow = {
-  platform: Platform
-  platform_video_id: string
-  kind: string
-  threshold: number
-  achieved_at: string
-  source: string
-  source_url: string
-}
-
-/** Versioned niconico-to-YouTube formula, published only after gates pass. */
-export type ConversionFormulaRow = {
-  id: string
-  status: 'published' | 'unpublished'
-  version: string | null
-  scope: string | null
-  sample_period: string | null
-  train_metrics_json: string | null
-  holdout_metrics_json: string | null
-  formula_json: string | null
-  reason: string
-}
-
 /** Tables the browser loads before aggregating in TypeScript. */
 export type Catalog = {
   sources: SourceRow[]
@@ -328,9 +288,6 @@ export type Catalog = {
   setlistItemSongs: SetlistItemSongRow[]
   medleyQuarantine: MedleyQuarantineRow[]
   videos: VideoRow[]
-  snapshots: ViewSnapshotRow[]
-  milestones: MilestoneRow[]
-  formulas: ConversionFormulaRow[]
   /** Derived 演出 layer, one row per performance with a source song list. */
   performanceSetlists: PerformanceSetlistRow[]
   /** Outside evidence cited by those rows. */

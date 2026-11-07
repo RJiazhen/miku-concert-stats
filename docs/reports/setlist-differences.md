@@ -1,6 +1,6 @@
 # 歌单差异核验报告
 
-由 `pnpm report:setlist` 生成。数据来自已提交的 VocaDB 增量 SQL，播放量快照与报告无关。
+由 `pnpm report:setlist` 生成。数据来自已提交的 VocaDB 增量 SQL。
 每行左侧是勾选框，人工核对后可直接在此文件打勾。
 
 ## 总览

@@ -1,11 +1,9 @@
 import type {
   Catalog,
-  ConversionFormulaRow,
   EditionPremiereRow,
   MedleyQuarantineRow,
   MedleyRow,
   MedleySongRow,
-  MilestoneRow,
   PerformanceLinkRow,
   PerformanceRole,
   PerformanceRow,
@@ -31,7 +29,6 @@ import type {
   SourceRow,
   SqlRow,
   VideoRow,
-  ViewSnapshotRow,
 } from './types.ts'
 
 /** Reads a required string column. */
@@ -290,34 +287,6 @@ export const loadCatalog = (db: Queryable): Catalog => {
     publish_date: textOrNull(row, 'publish_date'),
     disabled: int(row, 'disabled'),
   }))
-  const snapshots = db.all('SELECT * FROM view_snapshots ORDER BY collected_at').map((row): ViewSnapshotRow => ({
-    platform: platform(row, 'platform'),
-    platform_video_id: text(row, 'platform_video_id'),
-    collected_at: text(row, 'collected_at'),
-    view_count: int(row, 'view_count'),
-    source: text(row, 'source'),
-    source_url: text(row, 'source_url'),
-  }))
-  const milestones = db.all('SELECT * FROM milestones ORDER BY achieved_at').map((row): MilestoneRow => ({
-    platform: platform(row, 'platform'),
-    platform_video_id: text(row, 'platform_video_id'),
-    kind: text(row, 'kind'),
-    threshold: int(row, 'threshold'),
-    achieved_at: text(row, 'achieved_at'),
-    source: text(row, 'source'),
-    source_url: text(row, 'source_url'),
-  }))
-  const formulas = db.all('SELECT * FROM conversion_formulas ORDER BY id').map((row): ConversionFormulaRow => ({
-    id: text(row, 'id'),
-    status: text(row, 'status') === 'published' ? 'published' : 'unpublished',
-    version: textOrNull(row, 'version'),
-    scope: textOrNull(row, 'scope'),
-    sample_period: textOrNull(row, 'sample_period'),
-    train_metrics_json: textOrNull(row, 'train_metrics_json'),
-    holdout_metrics_json: textOrNull(row, 'holdout_metrics_json'),
-    formula_json: textOrNull(row, 'formula_json'),
-    reason: text(row, 'reason'),
-  }))
   const performanceSetlists = db.all('SELECT * FROM performance_setlists ORDER BY performance_id').map((row): PerformanceSetlistRow => ({
     performance_id: int(row, 'performance_id'),
     source_list_id: intOrNull(row, 'source_list_id'),
@@ -401,9 +370,6 @@ export const loadCatalog = (db: Queryable): Catalog => {
     setlistItemSongs,
     medleyQuarantine,
     videos,
-    snapshots,
-    milestones,
-    formulas,
     performanceSetlists,
     performanceSetlistSources,
     performanceShowSetlists,

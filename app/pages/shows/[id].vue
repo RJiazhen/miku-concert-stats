@@ -13,7 +13,8 @@ import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
-const { localizePlace, showChinese } = usePlaceNames()
+const { localizePlace } = usePlaceNames()
+const { showChinese } = useSongLanguage()
 const { localizePerformanceSeries, seriesTitle } = useSeriesTitles()
 
 /** Parsed once: the city matcher only depends on the static place list. */
