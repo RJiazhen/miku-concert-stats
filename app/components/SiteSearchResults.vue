@@ -52,9 +52,8 @@ const placeLabel = (name: string): string => localizePlace(name)
 
 <template>
   <div class="max-h-[60vh] overflow-y-auto p-2 text-sm">
-    <p v-if="query.trim() === ''" class="px-2 py-3 text-xs text-muted">输入歌曲、系列、演出、地点或制作人。</p>
     <template
-      v-else-if="series.length > 0 || performances.length > 0 || places.length > 0 || producers.length > 0 || local.length > 0"
+      v-if="series.length > 0 || performances.length > 0 || places.length > 0 || producers.length > 0 || local.length > 0"
     >
       <template v-if="series.length > 0">
         <p class="px-2 py-1 text-[11px] tracking-wide text-muted uppercase">系列 {{ series.length }} 个</p>

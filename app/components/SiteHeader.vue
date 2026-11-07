@@ -21,6 +21,35 @@ const links = [
   { label: 'P主', to: '/producers', icon: 'i-lucide-user-round' },
   { label: '原始数据', to: '/raw', icon: 'i-lucide-table-2' },
 ]
+
+/** Below `lg` the buttons keep only their icons, so their names move into tooltips. */
+const LABELS_HIDDEN_QUERY = '(max-width: 63.999rem)'
+
+/** Whether the navigation labels are currently hidden and the tooltips should answer hover. */
+const labelsHidden = ref(false)
+
+let labelQuery: MediaQueryList | null = null
+
+/** Mirrors the current breakpoint match into `labelsHidden`. */
+const syncLabelsHidden = (): void => {
+  labelsHidden.value = labelQuery?.matches ?? false
+}
+
+/** Starts tracking the breakpoint where navigation labels are hidden. */
+const startLabelTracking = (): void => {
+  labelQuery = window.matchMedia(LABELS_HIDDEN_QUERY)
+  syncLabelsHidden()
+  labelQuery.addEventListener('change', syncLabelsHidden)
+}
+
+/** Releases the breakpoint listener. */
+const stopLabelTracking = (): void => {
+  labelQuery?.removeEventListener('change', syncLabelsHidden)
+  labelQuery = null
+}
+
+onMounted(startLabelTracking)
+onUnmounted(stopLabelTracking)
 </script>
 
 <template>
@@ -43,18 +72,23 @@ const links = [
 
       <!-- Between sm and lg the buttons fold to icons so the labeled switch still shares the row. -->
       <nav class="hidden items-center gap-1 sm:flex" aria-label="主导航">
-        <UButton
+        <UTooltip
           v-for="link in links"
           :key="link.to"
-          :to="link.to"
-          :icon="link.icon"
-          :label="link.label"
-          :aria-label="link.label"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          class="shrink-0 max-lg:[&_[data-slot=label]]:hidden"
-        />
+          :text="link.label"
+          :disabled="!labelsHidden"
+        >
+          <UButton
+            :to="link.to"
+            :icon="link.icon"
+            :label="link.label"
+            :aria-label="link.label"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            class="shrink-0 max-lg:[&_[data-slot=label]]:hidden"
+          />
+        </UTooltip>
       </nav>
 
       <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 lg:gap-3">

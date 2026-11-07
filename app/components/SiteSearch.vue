@@ -211,7 +211,7 @@ onUnmounted(stopListening)
           />
           <UButton icon="i-lucide-x" color="neutral" variant="ghost" aria-label="关闭搜索" @click="reset" />
         </div>
-        <div class="rounded-xl bg-default ring ring-default">
+        <div v-if="query.trim() !== ''" class="rounded-xl bg-default ring ring-default">
           <SiteSearchResults
             :query="query"
             :local="localHits"
