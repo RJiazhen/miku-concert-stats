@@ -17,7 +17,7 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
 | 分类 | 歌曲数 | 含义 |
 | --- | --- | --- |
 | 双方各有对方没有的制作人 | 4 | 两边都有自己的名字，任何一边都不是另一边的子集 |
-| 自由文本多出制作人 | 146 | 自由文本给出结构化名单没有的名字（Publisher、社团、厂牌等常落在这里） |
+| 自由文本多出制作人 | 149 | 自由文本给出结构化名单没有的名字（Publisher、社团、厂牌等常落在这里） |
 | 结构化多出制作人 | 1 | 结构化名单比自由文本多出名字，自由文本只覆盖了一部分 |
 | 只有结构化署名 | 0 | 歌曲条目有结构化署名，自由文本没有给出任何制作人 |
 | 两边一致 | 408 | 两边解析出的名字集合相同 |
@@ -45,7 +45,7 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 自由文本（`artist_string`）：`Various artists`
   - 差异：自由文本多出 `Various artists`；结构化多出 `Jamie Paige`、`Vane Lily`、`rice`
 
-## 自由文本多出制作人（146 首）
+## 自由文本多出制作人（149 首）
 
 如何处理：显示仍以结构化名单为准；自由文本多出的名字通常是 Publisher、社团或厂牌署名，请维护者确认不是制作人，必要时修正 VocaDB 的歌曲署名，而不是改本报告的结论。
 
@@ -165,6 +165,10 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`ワンカップP`
   - 差异：自由文本多出 `ワンカップP`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **クローバー♣クラブ**（[vocadb.net/S/5833](https://vocadb.net/S/5833)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`ゆうゆ`
+  - 差异：自由文本多出 `ゆうゆ`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **心拍数♯0822**（[vocadb.net/S/6099](https://vocadb.net/S/6099)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`蝶々P`
@@ -285,6 +289,10 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`ひとしずくP`、`やま△`
   - 差异：自由文本多出 `ひとしずくP`、`やま△`；结构化名单为空，按规则 ② 用自由文本作为回退
+- **クローバー・クラブ**（[vocadb.net/S/65733](https://vocadb.net/S/65733)，`Remix`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`ゆうゆ`
+  - 差异：自由文本多出 `ゆうゆ`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **ハートアラモード**（[vocadb.net/S/67964](https://vocadb.net/S/67964)，`Original`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`DECO*27`
@@ -337,6 +345,10 @@ Publisher、Illustrator、Animator、Lyricist、Mixer、Mastering、Instrumental
   - 结构化（`song_producers`）：`Kimura`（producer）、`Sakurai`（producer）
   - 自由文本（`artist_string`）：`Kimura`、`Sakurai`、`Omoi`
   - 差异：自由文本多出 `Omoi`
+- **ぼかろころしあむ**（[vocadb.net/S/199492](https://vocadb.net/S/199492)，`Original`）
+  - 结构化（`song_producers`）：（无）
+  - 自由文本（`artist_string`）：`DIVELA`
+  - 差异：自由文本多出 `DIVELA`；结构化名单为空，按规则 ② 用自由文本作为回退
 - **Leia - Remind**（[vocadb.net/S/210407](https://vocadb.net/S/210407)，`Remaster`）
   - 结构化（`song_producers`）：（无）
   - 自由文本（`artist_string`）：`ゆよゆっぺ`
