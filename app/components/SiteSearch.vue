@@ -4,6 +4,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongAliases } from '~/composables/useSongAliases.ts'
+import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import {
   localPerformanceMatches,
   localPlaceMatches,
@@ -18,6 +19,7 @@ const { catalog, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { localizePerformanceSeries, localizeSeries } = useSeriesTitles()
 const { aliasTitles } = useSongAliases()
+const { chineseSpellings } = useSongLanguage()
 
 /** Placeholder shared by the desktop input and the mobile panel. */
 const placeholder = '搜索歌曲、系列、演出、地点或制作人'
@@ -33,8 +35,8 @@ const query = ref('')
 const open = ref(false)
 const mobileOpen = ref(false)
 
-/** Song spellings registered in `data/song-aliases.json`, matched alongside the catalog names. */
-const songSpellings = (row: SongRow): string[] => aliasTitles(row.id)
+/** Registered alternate titles (`data/song-aliases.json`) plus the Chinese title and its aliases, matched alongside the catalog names. */
+const songSpellings = (row: SongRow): string[] => [...aliasTitles(row.id), ...chineseSpellings(row.id)]
 
 /** Local song matches in the loaded catalog. */
 const localHits = computed(() =>

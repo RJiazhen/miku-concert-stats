@@ -1,7 +1,7 @@
 import { computed, onMounted } from 'vue'
 import { useState } from 'nuxt/app'
 import raw from '~~/data/song-titles.zh-CN.json'
-import { parseSongTitles, songTitleFor, type SongLanguage } from '~~/shared/song-titles.ts'
+import { parseSongTitles, songTitleFor, songTitleSpellings, type SongLanguage } from '~~/shared/song-titles.ts'
 
 const STORAGE_KEY = 'miku-concert-stats-song-lang'
 
@@ -46,5 +46,12 @@ export const useSongLanguage = () => {
     return songTitleFor(titles, songId)?.title ?? null
   }
 
-  return { language, setLanguage, showChinese, translationFor }
+  /**
+   * Chinese title and its recorded aliases for a song, for search.
+   * Independent of the display language, so typing a Chinese name finds the song while the page
+   * still shows the original title.
+   */
+  const chineseSpellings = (songId: number): string[] => songTitleSpellings(titles, songId)
+
+  return { language, setLanguage, showChinese, translationFor, chineseSpellings }
 }

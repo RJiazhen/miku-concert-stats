@@ -169,8 +169,8 @@ export const localPlaceMatches = (
 
 /**
  * Finds songs already in the catalog.
- * Matching is a case-insensitive substring over the stored names, the registered alternate titles,
- * and the artist credit.
+ * Matching is a case-insensitive substring over the stored names, the caller's extra spellings
+ * (registered Japanese/English alternate titles, Chinese titles and their aliases), and the artist credit.
  */
 export const localSongMatches = (
   catalog: Catalog,
