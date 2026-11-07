@@ -10,13 +10,15 @@ Sections:
   5 整份歌单没有备注（整份沿用）
   6 上游没有歌单的演出
 
-Run: uv run scripts/confirmation-report.py
+Run: uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py
 """
 import json
 import sqlite3
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+# Walk up to the directory that holds package.json: this script lives under
+# .cursor/skills/update-concert-data/scripts/ and still resolves repo-root paths.
+ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "package.json").exists())
 DB = ROOT / "public" / "data" / "catalog.sqlite"
 CURATION = ROOT / "data" / "performance-setlists.json"
 TARGET = ROOT / "docs" / "setlist-confirmation.md"
@@ -62,7 +64,7 @@ RESOLVED_DATE_CONFLICTS = [
 out: list[str] = []
 out.append("# 歌单数据核对清单")
 out.append("")
-out.append("> 生成本文件：`uv run scripts/confirmation-report.py`（读 `public/data/catalog.sqlite` 与 `data/performance-setlists.json`）。")
+out.append("> 生成本文件：`uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py`（读 `public/data/catalog.sqlite` 与 `data/performance-setlists.json`）。")
 out.append("> 本轮已按你的要求先去查萌娘百科 / VocaDB Fandom / 官方存档页：能查到的直接采用，冲突的优先用百科，并在第 3 节列出。")
 out.append("> 需要你回的只剩第 2 节（百科也没写逐日时刻的部分）与第 6 节（上游没有歌单）。")
 out.append("")

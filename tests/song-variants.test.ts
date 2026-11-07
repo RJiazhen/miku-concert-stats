@@ -110,7 +110,7 @@ describe('song variant file', () => {
   })
 
   it('keeps no entry for the dropped 初音ミクの消失 long version', () => {
-    // 2925 (-DEAD END-) was removed by data/increments/0014: every recorded performance plays the
+    // 2925 (-DEAD END-) was removed by data/increments/0011-manual-corrections: every recorded performance plays the
     // Short version, so a variant entry would re-introduce an off-stage song.
     const index = parseSongVariants(committed())
     expect(index.entries.has(2925)).toBe(false)
@@ -118,7 +118,7 @@ describe('song variant file', () => {
   })
 
   it('keeps no entry for the dropped ハジメテノオト short version', () => {
-    // 389595 was removed from the catalog by data/increments/0013 because no 演出 played it,
+    // 389595 was removed from the catalog by data/increments/0011-manual-corrections because no 演出 played it,
     // so a leftover mapping would point at a song that does not exist.
     expect(parseSongVariants(committed()).entries.has(389595)).toBe(false)
   })

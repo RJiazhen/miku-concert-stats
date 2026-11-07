@@ -28,7 +28,7 @@
 
 **影响**：这 3 场在排行中不贡献任何曲目；演出页显示「仍无歌单」。
 
-**建议**：演出结束后补 `data/wiki-raw/*.json` 与 `scripts/wiki_raw_spec.py`（见 `.cursor/skills/update-concert-data/SKILL.md`）。上游若补了 `songList`，需要先清 `data/cache/` 再跑 `pnpm collect`（见 4.1）。
+**建议**：演出结束后补 `data/wiki-raw/*.json` 与 `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py`（见 `.cursor/skills/update-concert-data/SKILL.md`）。上游若补了 `songList`，需要先清 `data/cache/` 再跑 `pnpm collect`（见 4.1）。
 
 ### 1.2 播放量数据完全缺失
 
@@ -228,17 +228,17 @@ id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优�
 
 **处理**：
 
-- `389595`（ハジメテノオト Short 版）**已从目录删除**。它只通过专辑链进入目录，没有任何演出演奏它：`data/increments/0013-drop-unperformed-short-version.sql` 把引用改到 `10951`，再删掉 `songs` / `videos` / `song_producers` / `song_vocalists` 行。0004 每次重新生成都会再写入它，0013 排在最后且幂等。
-- `2925`（初音ミクの消失 -DEAD END-，287 秒）同样**已从目录删除**：`data/increments/0014-merge-dead-end-long-version.sql` 把 `setlist_items` / `setlist_item_songs` / `performance_show_setlist_items` 的引用改到 `295872`，再删掉 `songs`、3 条 PV 与署名行。长版没有任何演出记录，保留条目只会让排行多出一条没人唱过的歌。
+- `389595`（ハジメテノオト Short 版）**已从目录删除**。它只通过专辑链进入目录，没有任何演出演奏它：`data/increments/0011-manual-corrections.sql` 把引用改到 `10951`，再删掉 `songs` / `videos` / `song_producers` / `song_vocalists` 行。0004 每次重新生成都会再写入它，0011 排在这些重新生成的文件之后且幂等。
+- `2925`（初音ミクの消失 -DEAD END-，287 秒）同样**已从目录删除**：`data/increments/0011-manual-corrections.sql` 把 `setlist_items` / `setlist_item_songs` / `performance_show_setlist_items` 的引用改到 `295872`，再删掉 `songs`、3 条 PV 与署名行。长版没有任何演出记录，保留条目只会让排行多出一条没人唱过的歌。
 - 演唱会实际演奏的是**改编后的短版，约 2 分 40 秒**，与投稿版不同；这条说明写进 `data/song-notes.json`，单曲页顶部以「演唱会演奏的版本」提示条呈现。`shared/song-notes.ts` 校验格式，`tests/song-notes.test.ts` 保证键指向真实歌曲。
 
 `tests/song-variants.test.ts` 现在只断言 `389595` 与 `2925` 都不在映射里。合并后 `ハジメテノオト` 为 46 行 / 21 个演出，`初音ミクの消失` 为 57 行 / 34 个演出。
 
 ### 3.4 过渡性增量 SQL
 
-**现状**：`data/increments/0004-standalone-events.sql`（39 感谢祭 2520）、`0005-kodo-series.sql`（鼓童 255）、`0015-decomiku-hello.sql`（デコミク LIVE 9401）与 `0016-standalone-lives.sql`（系列外 9 场单独演出）是为「不跑全量 collect」而做的桥接，全部 `INSERT OR IGNORE`。9401 的情况不同：它是 VocaDB 的 event，但不属于任何收录的系列（`seriesId` 为空），系列循环永远走不到，所以连同本地系列 900000000 与空 song list 24530 一起补进来。`0016` 收录的 9 场（ミクFES '09 / '24、夏の終わりの39祭り、夏祭初音鑑 大阪公演 / 東京公演、GALAXY LIVE 2020 / 2021、LAWSON 50th、ポケミク VOLTAGE Live）在 VocaDB 里没有 event，本地系列 id 从 900000001 起。
+**现状**：`data/increments/0005-manual-catalog.sql` 是唯一的过渡性补录文件，全部 `INSERT OR IGNORE`，收录 39 感谢祭 2520、鼓童 255、未来有你 2026 成都站、デコミク LIVE 9401 与系列外 9 场单独演出。9401 的情况不同：它是 VocaDB 的 event，但不属于任何收录的系列（`seriesId` 为空），系列循环永远走不到，所以连同本地系列 900000000 与空 song list 24530 一起补进来。系列外 9 场（ミクFES '09 / '24、夏の終わりの39祭り、夏祭初音鑑 大阪公演 / 東京公演、GALAXY LIVE 2020 / 2021、LAWSON 50th、ポケミク VOLTAGE Live）在 VocaDB 里没有 event，本地系列 id 从 900000001 起。
 
-**后续**：`pnpm collect` 把同样的行写进 `0001` 之后，前三个文件会变成空操作，届时可以删除；`0016` 仍要保留，因为 VocaDB 没有这些 event。删之前先确认 `0001` 已包含 `255` 系列、`2520` 与 `9401`。
+**后续**：`pnpm collect` 把同样的上游行写进 `0001` 之后，对应语句会变成空操作；VocaDB 没有 event 的场次仍需留在这个文件里。删掉某一段之前先确认 `0001` 已包含对应系列或 event（`255`、`2520`、`9401`）。
 
 ### 3.5 曲目不再以 VocaDB 为主数据源
 
@@ -320,7 +320,7 @@ id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优�
 
 ### 4.5 不在 VocaDB 的演出（人工补录）
 
-VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由主办方在上海站收官时公布，VocaDB 没有对应 event，因此目录里由 `data/increments/0011-manual-performances.sql` 直接补一行：
+VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由主办方在上海站收官时公布，VocaDB 没有对应 event，因此目录里由 `data/increments/0005-manual-catalog.sql` 直接补一行：
 
 | id | 演出 | 日期 | 数据 |
 | --- | --- | --- | --- |
@@ -332,9 +332,9 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 - 这类行的 `source_url` 不是 `vocadb.net/E/{id}`，而是日程／公告来源，`vocadb_status` 写 `NULL`。演出页的按钮因此显示「演出来源」而不是「VocaDB 演出」。
 - 补录文件必须以 `INSERT OR IGNORE` 写在 `0001` 之后：`pnpm collect` 会先删掉整张 `performances` 再重写。
 - 尚未举行的场次在 `data/performance-setlists.json` 的 `statuses.<id>` 写 `status: "upcoming"`，`pnpm derive:setlists` 会写进 `performance_status`，演出页显示「这场演出尚未举行」。
-- 歌单仍等百科／官方，演出结束后按 `.cursor/skills/update-concert-data/SKILL.md` 补 `data/wiki-raw/` 与 `scripts/wiki_raw_spec.py`（`RAW_SPEC` 里 `mwy2026` 目前只指向 13120，新增成都表要另加一个 key 或把该 id 加进 `performances`）。
+- 歌单仍等百科／官方，演出结束后按 `.cursor/skills/update-concert-data/SKILL.md` 补 `data/wiki-raw/` 与 `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py`（`RAW_SPEC` 里 `mwy2026` 目前只指向 13120，新增成都表要另加一个 key 或把该 id 加进 `performances`）。
 
-**变体：VocaDB 有 event 但不在任何收录系列里**。デコミク LIVE starring 初音ミク『Hello』是 VocaDB event 9401，`seriesId` 为空，`pnpm collect` 的系列循环走不到它，因此由 `data/increments/0015-decomiku-hello.sql` 补：
+**变体：VocaDB 有 event 但不在任何收录系列里**。デコミク LIVE starring 初音ミク『Hello』是 VocaDB event 9401，`seriesId` 为空，`pnpm collect` 的系列循环走不到它，因此由 `data/increments/0005-manual-catalog.sql` 补：
 | id | 演出 | 日期 | 数据 |
 | --- | --- | --- | --- |
 | 9401 | デコミク LIVE starring 初音ミク『Hello』 | 2026-02-14 昼 + 夜 | 国立代々木競技場第一体育館；百科逐曲表 27 首 × 2 场 |
@@ -347,7 +347,7 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 
 ### 4.6 演出名的人工更正
 
-上游的演出名偶尔缺城市：13120 在 VocaDB 里只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站之后两者无法区分。这类**只影响显示名**的更正写在 `data/increments/0012-performance-name-fixes.sql`，用 `UPDATE` 改 `name` / `name_ja` / `series_suffix`，写在 `0001` 之后因此每次 `pnpm collect` 重写 `0001` 都不会丢。
+上游的演出名偶尔缺城市：13120 在 VocaDB 里只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站之后两者无法区分。这类**只影响显示名**的更正写在 `data/increments/0011-manual-corrections.sql`，用 `UPDATE` 改 `name` / `name_ja` / `series_suffix`，写在 `0001` 之后因此每次 `pnpm collect` 重写 `0001` 都不会丢。
 
 | id | 上游名 | 目录名 | `series_suffix` |
 | --- | --- | --- | --- |
@@ -381,7 +381,7 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 | 已完成 | 4.2 取消场次标注 | `performance_status` 表，13 条 `cancelled` |
 | 已完成 | 曲目改由百科逐曲表提供（3.5） | 179 / 191 个演出；地区差异不再靠备注 |
 | 已完成 | 非 VOCALOID 曲目登记（3.6） | 20 条，演出页曲目不再缺行 |
-| — | 3.3 版本链根节点人工合并（[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)） | 已解决：`389595`、`2925` 均从目录删除（0013 / 0014），单曲页新增演奏版本说明 |
+| — | 3.3 版本链根节点人工合并（[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)） | 已解决：`389595`、`2925` 均从目录删除（0011-manual-corrections），单曲页新增演奏版本说明 |
 | 中 | 3.5 的原始表格回溯 | 52 个被引用的 atwiki 页没有留档，只留了 URL 与逐行曲目 |
 | 低 | 1.1 交响乐剩余 3 场歌单 | 演出尚未发生，等百科更新 |
 | 低 | 4.4 39 感谢祭独立成系列 | 需要新建系列并改标题，收益有限 |

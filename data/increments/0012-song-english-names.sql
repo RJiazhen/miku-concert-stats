@@ -5,9 +5,9 @@
 -- the catalog so `shared/lookup.ts` matches a search typed in English too. Values follow the English
 -- column voca.wiki / 萌娘百科 print next to the Japanese title, or the song's own official title.
 --
--- Every song row is gone by this point: the last increment that inserts `songs` rows is `0010`,
+-- Every song row is gone by this point: the last increment that inserts `songs` rows is `0009`,
 -- so this file can correct VocaDB songs, wiki-found songs (`0009`) and hand-registered repertoire
--- rows (`0010`) alike. `0001` rewrites every catalog row on each run, so the file runs after it and
+-- rows (block 2 of `0009`) alike. `0001` rewrites every catalog row on each run, so the file runs after it and
 -- is idempotent — plain `UPDATE`s, no ordering between statements.
 
 BEGIN;

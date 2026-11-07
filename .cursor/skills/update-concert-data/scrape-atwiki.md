@@ -80,10 +80,10 @@ location.href = 'https://w.atwiki.jp/hmiku/pages/80099.html'
 - **`順` 列不可靠**：同一位置的メドレー 会用重复编号或 `..`，安可是 `E1`，MC 是 `--`。
   只按出现顺序取行，不要按 `順` 排序。
 - **`公演替` 列**是城市 / 日程差异的唯一依据；`備考` 里也可能写 `1日目`、`昼公演`。
-  raw 路径只认 `公演替`；差异写在 `備考` 的表请走 `scripts/wiki_tour_tables.py` 手抄。
+  raw 路径只认 `公演替`；差异写在 `備考` 的表请走 `.cursor/skills/update-concert-data/scripts/wiki_tour_tables.py` 手抄。
 - **`※`** 单独出现表示「百科没写属于哪些城市」，不是「所有城市」。不要归位。
 - **标题行**：`《アンコール》`、`《ダブルアンコール》`、`MC①`、`バンドメンバー紹介`、
-  `…パート` 都不是曲目；`scripts/wiki-setlists-source.py` 会跳过，`rows` 里留着也无害。
+  `…パート` 都不是曲目；`.cursor/skills/update-concert-data/scripts/wiki-setlists-source.py` 会跳过，`rows` 里留着也无害。
 - **同一首歌重复**（`ぽっぴっぽー` 与 `ぽっぴっぽー（Grand Finale）`）保留原样，
   在 `TOUR_ROWS` / raw 里给后一条标题加 `#` 前缀，脚本会排除并写进 note。
 
@@ -93,8 +93,8 @@ location.href = 'https://w.atwiki.jp/hmiku/pages/80099.html'
 { "page": "67127", "rows": [["順", "", "曲名", "作曲者", "公演替", "モジュ", "CD", "備考"], ["1", "-", "ヒアソビ", "かめりあ", "", "", "○", "初披露"]] }
 ```
 
-`rows` 保留表头。写完后到 `scripts/wiki_raw_spec.py` 登记这张表归哪些演出，再跑
-`uv run scripts/wiki-setlists-source.py`。
+`rows` 保留表头。写完后到 `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py` 登记这张表归哪些演出，再跑
+`uv run .cursor/skills/update-concert-data/scripts/wiki-setlists-source.py`。
 
 ## 已有的 raw 表
 

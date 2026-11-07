@@ -87,7 +87,7 @@ SELECT id, name, name_ja, venue_name, start_date, end_date, series_id, series_nu
 
 - 场地 / 日期 / 城市要能和页面上的日程对上。
 - 演出**不在目录里**（VocaDB 没有这个 event）：按 `docs/data-issues.md` §4.5 补
-  `data/increments/0011-manual-performances.sql`，id 从 `3_000_000_000` 起
+  `data/increments/0005-manual-catalog.sql`，id 从 `3_000_000_000` 起
   （`LOCAL_PERFORMANCE_ID_BASE`），`source_url` 指向日程来源，`vocadb_status` 为 `NULL`；
   再在 `data/performance-setlists.json` 的 `statuses.<id>` 写 `upcoming`（若尚未举行）。
   先 `pnpm build:catalog`，后面的步骤才看得到这条演出。
@@ -95,7 +95,7 @@ SELECT id, name, name_ja, venue_name, start_date, end_date, series_id, series_nu
   `noShowDates`、`singleShowDates`。表里的 `公演替`（或 `備考` 里的 `昼公演` / `夜公演` / `1日目`）
   必须能落到这些场次上；落不上就是**场次结构冲突**，走第 5 节。
 
-`scripts/wiki_raw_spec.py` 的 `RAW_SPEC` 声明这张表覆盖哪些演出：
+`.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py` 的 `RAW_SPEC` 声明这张表覆盖哪些演出：
 
 ```python
 "mwy2026": {
@@ -125,7 +125,7 @@ SELECT i.show_key, i.position, COALESCE(s.name_ja, s.name, '?')
  ORDER BY i.show_key, i.position;"
 ```
 
-比较规则与 `scripts/build-setlist-curation.py` 的 `normalize_title` 一致：NFKC、去掉括号内容、
+比较规则与 `.cursor/skills/update-concert-data/scripts/build-setlist-curation.py` 的 `normalize_title` 一致：NFKC、去掉括号内容、
 去掉空白与常见标点、转小写；再套 `data/wiki-title-aliases.json` 的纯写法差异。
 新表先按 §4 的 markers 展开到 `show_key`（没有标记的行属于该演出所有场次），再逐场比较。
 
@@ -145,20 +145,20 @@ md 写完后不要动任何 `data/` 文件，也不要提交。
 顺序不能乱：
 
 ```bash
-# 0. 先把网格写进 data/wiki-raw/<key>.json，并在 scripts/wiki_raw_spec.py 的 RAW_SPEC 登记
-uv run scripts/wiki-setlists-source.py     # raw → data/wiki-setlists.json
-uv run scripts/fetch-wiki-songs.py         # 缺失曲名 → data/wiki-songs.json + 0009
+# 0. 先把网格写进 data/wiki-raw/<key>.json，并在 .cursor/skills/update-concert-data/scripts/wiki_raw_spec.py 的 RAW_SPEC 登记
+uv run .cursor/skills/update-concert-data/scripts/wiki-setlists-source.py     # raw → data/wiki-setlists.json
+uv run .cursor/skills/update-concert-data/scripts/fetch-wiki-songs.py         # 缺失曲名 → data/wiki-songs.json + 0009
 pnpm build:catalog                         # 让 0009 的歌进 catalog
-uv run scripts/build-setlist-curation.py   # → data/performance-setlists.json
+uv run .cursor/skills/update-concert-data/scripts/build-setlist-curation.py   # → data/performance-setlists.json
 pnpm derive:setlists                       # → data/increments/0008-*.sql
 pnpm build:catalog                         # 站点实际加载的 catalog
 pnpm report:confirmation                   # docs/setlist-confirmation.md
 pnpm report:setlist                        # docs/reports/setlist-differences（改数据后必跑）
 ```
 
-- 来源标题与 note 的前缀由来源 URL 决定（`scripts/build-setlist-curation.py` 的 `source_site_label`）：atwiki 写「初音ミク Wiki」，萌娘百科、VocaDB Fandom 各自成文，其他域名回落成主机名。所以 `url` 字段要填真页址，不要借 atwiki 页号。
+- 来源标题与 note 的前缀由来源 URL 决定（`.cursor/skills/update-concert-data/scripts/build-setlist-curation.py` 的 `source_site_label`）：atwiki 写「初音ミク Wiki」，萌娘百科、VocaDB Fandom 各自成文，其他域名回落成主机名。所以 `url` 字段要填真页址，不要借 atwiki 页号。
 - 若来源还确认了日程（某天两场、只有一场、某天只有企划展），在
-  `scripts/build-setlist-curation.py` 里按现有 `add(...)` 加一条。注意：同一演出如果有百科逐曲表，
+  `.cursor/skills/update-concert-data/scripts/build-setlist-curation.py` 里按现有 `add(...)` 加一条。注意：同一演出如果有百科逐曲表，
   这个 `add()` 的 `sources` 会被逐曲表的来源整条替换（`existing["sources"] = [source_entry]`），
   需要留档的日程证据写进 `note`。
 - 曲名解析不出来的行**不会**丢，会进演出 `note` 的「未登记」列表。处理方式二选一：

@@ -5,7 +5,7 @@ Every entry carries the URL it came from, the day it was read, and a confidence 
   high    official ticket pages (magicalmirai.com)
   medium  fan wikis (Moegirlpedia, VocaDB Fandom)
 
-Run: uv run scripts/build-setlist-curation.py
+Run: uv run .cursor/skills/update-concert-data/scripts/build-setlist-curation.py
 """
 import datetime
 import json
@@ -15,7 +15,9 @@ import unicodedata
 from pathlib import Path
 from urllib.parse import urlparse
 
-ROOT = Path(__file__).resolve().parent.parent
+# Walk up to the directory that holds package.json: this script lives under
+# .cursor/skills/update-concert-data/scripts/ and still resolves repo-root paths.
+ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "package.json").exists())
 DB = ROOT / "public" / "data" / "catalog.sqlite"
 
 MM = "https://magicalmirai.com"
@@ -675,7 +677,7 @@ add(2947, halves={"2017-03-04": ["night"], "2017-03-05": ["day"]},
     note="萌娘百科：3/4 只有夜场 19:00，3/5 只有昼场 13:00，共 2 场")
 
 # ---------------------------------------------------------------- デコミク LIVE『Hello』（初音ミク Wiki）
-# VocaDB event 9401 不属于任何收录的系列，由 data/increments/0015-decomiku-hello.sql 补进目录；
+# VocaDB event 9401 不属于任何收录的系列，由 data/increments/0005-manual-catalog.sql 补进目录；
 # 逐曲表在 data/wiki-raw/decomiku2026.json。百科写明单日昼夜 2 场、每场 27 首。
 add(
     9401,
@@ -692,7 +694,7 @@ add(
 
 # ---------------------------------------------------------------- 系列外单场演出（官方页 / 百科逐曲表）
 # VocaDB 的七个系列之外，还有一批单独举办、只在百科或官方报告里留下逐曲表的演出。
-# 它们由 data/increments/0016-standalone-lives.sql 补进目录，曲目来自 data/wiki-raw/ 下的表。
+# 它们由 data/increments/0005-manual-catalog.sql 补进目录，曲目来自 data/wiki-raw/ 下的表。
 add(
     3000000002,
     sources=[
@@ -864,7 +866,7 @@ for pid, name in CANCELLED.items():
 
 # ---------------------------------------------------------------- 演出状态（尚未举行）
 # 成都站是上海站收官（2026-11-01）当天公布的，VocaDB 的系列 173 里还没有这条 event，
-# 所以它由 data/increments/0011-manual-performances.sql 补进目录。单场演出、暂无歌单。
+# 所以它由 data/increments/0005-manual-catalog.sql 补进目录。单场演出、暂无歌单。
 UPCOMING = {
     3_000_000_001: {
         "note": "2026-12-26 19:00 成都金融城演艺中心，上海站收官时公布定档与开票；演出尚未举行，暂无歌单",

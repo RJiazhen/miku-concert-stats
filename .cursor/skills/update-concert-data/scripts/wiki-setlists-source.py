@@ -10,7 +10,7 @@ consumes, so the filtering is reviewable and never repeated at runtime.
 Rows are kept even when VocaDB has no song for them: data/wiki-repertoire.json registers such
 repertoire (classical pieces, Kodo instrumentals) as ordinary songs, so a 場次 stays complete.
 
-Run: uv run scripts/wiki-setlists-source.py
+Run: uv run .cursor/skills/update-concert-data/scripts/wiki-setlists-source.py
 """
 import json
 import re
@@ -21,7 +21,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from wiki_raw_spec import RAW_SPEC  # noqa: E402
 from wiki_tour_tables import LABELS, TOUR_ROWS, TOUR_TABLES  # noqa: E402
 
-ROOT = Path(__file__).resolve().parent.parent
+# Walk up to the directory that holds package.json: this script lives under
+# .cursor/skills/update-concert-data/scripts/ and still resolves repo-root paths.
+ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "package.json").exists())
 TARGET = ROOT / "data" / "wiki-setlists.json"
 RAW_DIR = ROOT / "data" / "wiki-raw"
 ACCESSED = "2026-11-06"

@@ -13,7 +13,7 @@ A row whose marker is empty belongs to all 演出 of the table.
 song entry for (鼓童's own pieces, classical arrangements), recorded in the 演出 note instead.
 A date or `date:half` marker selects one 場次 rather than a whole 演出.
 
-Read by scripts/wiki-setlists-source.py.
+Read by .cursor/skills/update-concert-data/scripts/wiki-setlists-source.py.
 """
 
 # page id + the token that scopes a row

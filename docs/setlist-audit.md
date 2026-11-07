@@ -339,7 +339,7 @@
 | [3383](https://vocadb.net/S/3383) Fire◎Flower 2011 | [6387](https://vocadb.net/S/6387) | remaster | 2011 版 |
 | [16943](https://vocadb.net/S/16943) みんなみくみくにしてあげる♪ | [1355](https://vocadb.net/S/1355) | remaster | 2012 版 |
 | [326239](https://vocadb.net/S/326239) 虽然歌声无形 | [277408](https://vocadb.net/S/277408) | language | 中文版 |
-| [2925](https://vocadb.net/S/2925) 初音ミクの消失 -DEAD END-（287 秒） | ~~[295872](https://vocadb.net/S/295872)~~ | — | 已从目录删除（0014）：现场只演奏改编短版 |
+| [2925](https://vocadb.net/S/2925) 初音ミクの消失 -DEAD END-（287 秒） | ~~[295872](https://vocadb.net/S/295872)~~ | — | 已从目录删除（0011-manual-corrections）：现场只演奏改编短版 |
 
 **需要你确认**：以上 18 条是否有不该合并的？特别是 `Sharing The World` 的英文/西语版，以及 `Hand in Hand` 的现场翻唱。
 
@@ -356,8 +356,8 @@
 
 **结论（2026-11-06，[#23](https://github.com/RJiazhen/miku-concert-stats/issues/23)）**：逐条核对了 11 个交响乐演出的 atwiki 逐曲表，并对照了现场录像，两处都只是 id 归属问题，与「短版/长版」无关：
 
-- `389595`（ハジメテノオト Short 版，136 秒）从未在任何演出出现，**已从目录删除**，引用改到 `10951`（`data/increments/0013-drop-unperformed-short-version.sql`）。
-- `2925`（-DEAD END- 287 秒长版）**已从目录删除**（`data/increments/0014-merge-dead-end-long-version.sql`），引用全部改到 `295872`。现场从未演奏长版：MIKU EXPO 2016 东京、マジカルミライ 2023、初音ミク×鼓童 2017 用的都是改编后的短版（约 2 分 40 秒），这条说明写到 `data/song-notes.json`，单曲页顶部会显示。
+- `389595`（ハジメテノオト Short 版，136 秒）从未在任何演出出现，**已从目录删除**，引用改到 `10951`（`data/increments/0011-manual-corrections.sql`）。
+- `2925`（-DEAD END- 287 秒长版）**已从目录删除**（`data/increments/0011-manual-corrections.sql`），引用全部改到 `295872`。现场从未演奏长版：MIKU EXPO 2016 东京、マジカルミライ 2023、初音ミク×鼓童 2017 用的都是改编后的短版（约 2 分 40 秒），这条说明写到 `data/song-notes.json`，单曲页顶部会显示。
 
 ### 8.3 疑似重复但未合并（8 组）
 
