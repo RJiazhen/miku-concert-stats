@@ -5,6 +5,7 @@ import { applyCatalogSql, repoRoot } from './build-catalog.ts'
 import { loadCatalog } from '../shared/catalog.ts'
 import { parseSetlistMerges } from '../shared/edition-setlists.ts'
 import { buildSetlistDiffReport, renderSetlistDiffCsv, renderSetlistDiffMarkdown } from '../shared/setlist-diff.ts'
+import { japaneseAliasTitle, parseSongAliases } from '../shared/song-aliases.ts'
 import type { SqlRow } from '../shared/types.ts'
 
 const REPORT_DIR = path.join('docs', 'reports')
@@ -59,10 +60,13 @@ const checkExisting = (root: string, files: readonly (readonly [string, string])
 const root = repoRoot()
 const catalog = readCatalog(root)
 const merges = parseSetlistMerges(readJson(root, path.join('data', 'setlist-merges.json')))
+const aliases = parseSongAliases(readJson(root, path.join('data', 'song-aliases.json')))
 const report = buildSetlistDiffReport(catalog, merges)
+/** Display name of a song: a registered `ja` alias wins over the VocaDB default name. */
+const nameOf = (song: { id: number; name: string }): string => japaneseAliasTitle(aliases, song.id) ?? song.name
 const files: [string, string][] = [
-  [MARKDOWN_FILE, renderSetlistDiffMarkdown(catalog, report)],
-  [CSV_FILE, renderSetlistDiffCsv(catalog, report)],
+  [MARKDOWN_FILE, renderSetlistDiffMarkdown(catalog, report, nameOf)],
+  [CSV_FILE, renderSetlistDiffCsv(catalog, report, nameOf)],
 ]
 
 if (process.argv.includes('--check')) {

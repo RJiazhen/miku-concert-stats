@@ -30,6 +30,8 @@ VocaDB 没有的演出 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `
 
 `data/increments/0012-song-english-names.sql` 是**唯一**的英文名文件：VocaDB 没给英文名的行、百科写法与 VocaDB 不一致的行（`アイ` 的 `AI` → `EYE`、`げんてん` 的 `Origin` → `Genten`、`ビバハピ` 的 `Viva Happy` → `VIVA HAPPY` 等）全在这里，只写可重复执行的 `UPDATE`。最后一个插入 `songs` 行的增量是 `0009`（两个 Block），所以这个文件在 `0001` 之后按文件名顺序执行时，VocaDB 曲目、`0009` 补的歌与其中手工登记的本地曲目（`2000000024`–`2000000029`）都已经存在。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文。
 
+`data/song-aliases.json` 是**日文显示名与备用写法**的手工文件：上游 `songs.name` 不可用（例如 404329 的 default name 是 emoji `🔪、🔪、🔪`）时不改 catalog，而是登记一条 `language: "ja"` 的别名；`shared/song-aliases.ts` 校验，`japaneseAliasTitle` 让 `ja` 别名优先于 `name_ja` / `name` 显示，`songAliasTitles` 把全部别名加进检索（客户端 `shared/lookup.ts`、API `scripts/build-api.ts` 的 `aliases` 字段）。`en` 别名只参与检索，规范英文名仍只来自 `0012`；中文名不进这个文件。
+
 **增量文件分层。** `data/increments/` 按「谁生成」分两类，不再按日期堆积小文件：
 
 - **生成物**（不要手改，重跑脚本）：`0001` 采集目录、`0004` 专辑曲目补位、`0006` 出演声库、`0007` 制作人、`0008` 场次歌单、`0009` 百科曲目（两个 Block）。
@@ -306,7 +308,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 动态路由（`server/api/v1/`）读取 `assets:api` 并在内存里过滤，返回小页面而不是整库：
 
-- `GET /api/v1/search?q=&type=all|songs|producers|series`：歌曲按原名 / 日文名 / 英文名 / 中文名匹配，制作人与系列按名字匹配；默认 10 条、上限 25 条。
+- `GET /api/v1/search?q=&type=all|songs|producers|series`：歌曲按原名 / 日文名 / 英文名 / 中文名 / `data/song-aliases.json` 的别名匹配，制作人与系列按名字匹配；默认 10 条、上限 25 条。
 - `GET /api/v1/rank?mode=&series=&yearFrom=&yearTo=&character=&producer=&includeBroadcast=&includeMedleyComponents=&sort=&order=`：与排行页同一批筛选；`series` 与年份范围互斥；默认 20 条、上限 100 条。`character` / `producer` 只筛行不改计数，`includeMedleyComponents` 因派生层已展开串烧而不改变结果。
 - `GET /api/v1/debuts?year=&series=`：该年首次出现在目录里的歌曲；带 `series` 时用该系列的系列年度（`seriesNumber`）判断。
 
@@ -430,6 +432,10 @@ flowchart TD
 ### `data/song-titles.zh-CN.json`
 
 对象。键是 VocaDB 歌曲 id，值含非空 `title`、非空 `source`、可选 `aliases`（其他通行中文名，只参与搜索匹配、不参与显示）与可选 `comment`。繁体写法不进这里，放到 `data/song-titles.zh-Hant.json`，结构与这里相同，暂不参与显示。
+
+### `data/song-aliases.json`
+
+对象。键是歌曲 id，值含非空 `title`、非空 `source`、可选 `aliases`（同一首歌的其它写法，只参与检索、不参与显示）与可选 `comment`。`title` 是站内**唯一**显示名，用于上游 `songs.name` / `name_ja` 不可用时（404329 的 default name 是 emoji `🔪、🔪、🔪`）；它优先于 `songs.name_ja` / `songs.name`（`SongTitle`、`useSongLookup.songName`、排行 `titleText`、单曲页面包屑、`pnpm report:setlist` 都走这一条）。一首歌只有一个 `title`，其它日文或英文写法一律进 `aliases`，不要另起一条重复的显示名。`aliases` 不必重复 `songs.name_en`（`0012`）或中文名（`song-titles.zh-CN.json`），搜索结果本来就会命中它们。`tests/song-aliases.test.ts` 校验格式并保证键都指向目录里真实存在的歌曲。
 
 ### `data/song-titles.zh-Hant.json`
 

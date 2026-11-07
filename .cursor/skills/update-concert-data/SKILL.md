@@ -38,6 +38,7 @@ disable-model-invocation: true
 | `data/wiki-title-aliases.json` | 百科写法 → catalog 写法 | 手改 |
 | `data/song-titles.zh-CN.json` | 歌曲中文名（`id → { title, aliases?, source, comment? }`），页眉开关控制显示 | 手改，见 §5「中文译名与英文名」 |
 | `data/song-titles.zh-Hant.json` | 歌曲繁体中文名（同结构），暂不显示 | 手改，见 §5「中文译名与英文名」 |
+| `data/song-aliases.json` | 上游 `songs.name` 不可用时的显示名（`title`）与备用检索写法（`aliases`）；不改 catalog 的 `name` / `name_ja` | 手改，见 §5「中文译名与英文名」 |
 | `data/increments/0012-song-english-names.sql` | VocaDB 没给英文名的 `songs.name_en` 补写 | 手改 |
 | `data/wiki-songs.json` | catalog 里没有的歌（VocaDB 能查到） | `fetch-wiki-songs.py` |
 | `data/increments/0009-wiki-songs.sql` | 两类「百科有、VocaDB 没有」的歌合在一个文件：Block 1 是 VocaDB 查到的歌，Block 2 是 `wiki-repertoire.json` 登记的本地曲目（带 `category`） | `fetch-wiki-songs.py` |
@@ -202,6 +203,12 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
   鼓童这类器乐曲多半是汉字同名，只需简繁转换（`LION（獅子吼）` → `LION（狮子吼）`，`source` 写 `简繁转换`）。
 - 键按数值升序，`title` 与 `source` 不能为空，id 必须真的在 catalog 里，否则 `tests/song-titles.test.ts` 会挂；
   那个测试只校验已登记的条目，**不会提示你漏了哪首**。
+- **日文显示名不要用 SQL 覆盖**。上游 `songs.name` 不可用时（例子：404329 的 default name 是 emoji `🔪、🔪、🔪`，
+  而其 `names` 列表与百科逐曲表都写 `ナイフ、ナイフ、ナイフ`），在 `data/song-aliases.json` 给这首歌登记
+  `{ "title": "ナイフ、ナイフ、ナイフ", "source": "https://vocadb.net/S/404329" }`。
+  catalog 的 `name` / `name_ja` 保持上游原值，`title` 优先用于站内显示。
+- **一首歌只登记一个 `title`**。同一首歌的其它日文写法（旧表记、全角半角差异）写进 `aliases`，只参与检索、不参与显示；
+  英文名仍只写 `0012`，中文名仍只写 `song-titles.zh-CN.json`，已经能被搜到的写法不要在 `aliases` 里重复。
 - 一次补很多条时，先列一张 `tmp/` 下的对照表（id / 原名 / 现名 / 建议 / 依据）给人过目，再写回 JSON。
 
 ## 6. 展开场次

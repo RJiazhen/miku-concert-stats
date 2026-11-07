@@ -274,6 +274,7 @@ id 异常来自 0004 的专辑链：`0008` 用「该演出已用过的 id」优�
 - VocaDB 之后改名、改日期、删掉 event、补上与百科不同的歌单，都不自动改写本项目记录：人工补录与逐曲表写在 `0001` 之后（`INSERT OR IGNORE` / `UPDATE`），`pnpm collect` 重写 `0001` 时仍保留。
 - 两个 id 指向同一对象属于重复项，按 §4.5 / `data/song-variants.json` / `data/setlist-merges.json` 人工裁决并记录，不用「上游有就用上游」自动替换。
 - 复核 `pnpm collect` 的改动时，先对比演出数、场次数与 `pnpm derive:setlists --check`；少了一场就先查是不是 VocaDB 删了 event，而不要跟着删本地数据。
+- 曲名同样不跟 VocaDB 的 default name 走：404329 的上游 default name 是 emoji `🔪、🔪、🔪`，其 `names` 列表与百科逐曲表写的是 `ナイフ、ナイフ、ナイフ`。catalog 的 `name` / `name_ja` 保持上游原值，显示名登记在 `data/song-aliases.json` 的 `title`（其它写法放进 `aliases`，只参与检索），英文名照旧写 `0012`，中文名 `刀, 刀, 刀` 写进 `data/song-titles.zh-CN.json`；显示与检索由 `shared/song-aliases.ts` 解析，`pnpm collect` 重写 `0001` 不会影响它。
 
 ## 四、采集流程的注意点
 

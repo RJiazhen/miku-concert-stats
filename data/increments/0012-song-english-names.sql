@@ -91,4 +91,8 @@ UPDATE songs SET name_en = 'Telepathy' WHERE id = 752940;
 UPDATE songs SET name_en = 'Android Girl' WHERE id = 230406;
 UPDATE songs SET name_en = 'Animal' WHERE id = 371426;
 
+-- 404329  🔪、🔪、🔪: the catalog `name` stays VocaDB's emoji default; the Japanese title the site
+-- shows is registered as an alias in `data/song-aliases.json`. Only the English name belongs here.
+UPDATE songs SET name_en = 'Knife, Knife, Knife' WHERE id = 404329;
+
 COMMIT;

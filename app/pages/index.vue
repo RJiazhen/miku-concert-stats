@@ -7,6 +7,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
+import { useSongAliases } from '~/composables/useSongAliases.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
@@ -28,6 +29,7 @@ const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
+const { jaTitle } = useSongAliases()
 const sortableHeader = useSortableHeader()
 
 /** Width the 歌曲 cell may occupy before it truncates; keeps every column visible at 1280px. */
@@ -128,7 +130,7 @@ const ranked = computed<RankedSong[]>(() => {
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
-    const title = formatSongTitle(row.name, translationFor(row.songId), language.value)
+    const title = formatSongTitle(jaTitle(row.songId, row.name), translationFor(row.songId), language.value)
     return {
       songId: row.songId,
       rank: index + 1,

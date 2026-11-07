@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useSongAliases } from '~/composables/useSongAliases.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 
@@ -11,8 +12,10 @@ const props = withDefaults(defineProps<{
 }>(), { truncate: false })
 
 const { language, translationFor } = useSongLanguage()
+const { jaTitle } = useSongAliases()
 
-const view = computed(() => formatSongTitle(props.original, translationFor(props.songId), language.value))
+/** The registered Japanese alias wins over the name the caller passed in. */
+const view = computed(() => formatSongTitle(jaTitle(props.songId, props.original), translationFor(props.songId), language.value))
 </script>
 
 <template>

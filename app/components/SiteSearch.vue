@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
+import { useSongAliases } from '~/composables/useSongAliases.ts'
 import {
   localPerformanceMatches,
   localPlaceMatches,
@@ -10,12 +11,13 @@ import {
   localSeriesMatches,
   localSongMatches,
 } from '~~/shared/lookup.ts'
-import type { PerformanceRow, SeriesRow } from '~~/shared/types.ts'
+import type { PerformanceRow, SeriesRow, SongRow } from '~~/shared/types.ts'
 import { producerPath } from '~~/shared/producers.ts'
 
 const { catalog, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { localizePerformanceSeries, localizeSeries } = useSeriesTitles()
+const { aliasTitles } = useSongAliases()
 
 /** Placeholder shared by the desktop input and the mobile panel. */
 const placeholder = '搜索歌曲、系列、演出、地点或制作人'
@@ -31,8 +33,13 @@ const query = ref('')
 const open = ref(false)
 const mobileOpen = ref(false)
 
+/** Song spellings registered in `data/song-aliases.json`, matched alongside the catalog names. */
+const songSpellings = (row: SongRow): string[] => aliasTitles(row.id)
+
 /** Local song matches in the loaded catalog. */
-const localHits = computed(() => (catalog.value ? localSongMatches(catalog.value, query.value) : []))
+const localHits = computed(() =>
+  catalog.value ? localSongMatches(catalog.value, query.value, songSpellings) : [],
+)
 
 /** Producer-name matches, listed before the songs in the same panel. */
 const producerHits = computed(() => (catalog.value ? localProducerMatches(catalog.value, query.value) : []))

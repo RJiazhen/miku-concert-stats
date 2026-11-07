@@ -169,14 +169,19 @@ export const localPlaceMatches = (
 
 /**
  * Finds songs already in the catalog.
- * Matching is a case-insensitive substring over the stored names and artist credit.
+ * Matching is a case-insensitive substring over the stored names, the registered alternate titles,
+ * and the artist credit.
  */
-export const localSongMatches = (catalog: Catalog, query: string): SongRow[] => {
+export const localSongMatches = (
+  catalog: Catalog,
+  query: string,
+  spellings: LookupSpellings<SongRow> = () => [],
+): SongRow[] => {
   const needle = query.trim().toLocaleLowerCase()
   if (!needle) return []
   return catalog.songs
     .filter((song) => {
-      const haystack = [song.name, song.name_ja, song.name_en, song.artist_string]
+      const haystack = [song.name, song.name_ja, song.name_en, song.artist_string, ...spellings(song)]
         .filter((part) => part)
         .join('\n')
         .toLocaleLowerCase()

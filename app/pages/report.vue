@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
+import { useSongAliases } from '~/composables/useSongAliases.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { setlistSourceTag, setlistSourceUrl } from '~~/shared/album-setlists.ts'
 import {
@@ -17,6 +18,7 @@ import {
 const { catalog, error, pending, load } = useCatalog()
 const merges = useSetlistMerges()
 const { songName, songHref, vocadbSongUrl } = useSongLookup()
+const { jaTitle } = useSongAliases()
 const { localizeSeries } = useSeriesTitles()
 const toast = useToast()
 
@@ -76,7 +78,9 @@ const severityColor = (value: SetlistPairSeverity): 'error' | 'warning' | 'secon
 const copyMarkdown = async (): Promise<void> => {
   if (!catalog.value || !report.value) return
   try {
-    await navigator.clipboard.writeText(renderSetlistDiffMarkdown(catalog.value, report.value))
+    // Same song names as `pnpm report:setlist`: a registered `ja` alias wins over the catalog name.
+    const markdown = renderSetlistDiffMarkdown(catalog.value, report.value, (song) => jaTitle(song.id, song.name))
+    await navigator.clipboard.writeText(markdown)
     toast.add({ title: '已复制 Markdown 报告', color: 'success', icon: 'i-lucide-clipboard-check' })
   } catch {
     toast.add({ title: '复制失败，请手动选择文本', color: 'error', icon: 'i-lucide-circle-alert' })

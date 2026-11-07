@@ -17,6 +17,7 @@ import { derivedItemSongIds } from '~~/shared/performance-setlists.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
 import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
+import { useSongAliases } from '~/composables/useSongAliases.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { fromVocaDB, isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
@@ -32,6 +33,7 @@ const { songById, songHref, vocadbSongUrl } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { language, translationFor } = useSongLanguage()
+const { jaTitle } = useSongAliases()
 const sortableHeader = useSortableHeader()
 
 /** Starts the browser catalog load after hydration. */
@@ -48,7 +50,7 @@ const song = computed(() => songById(canonicalId.value))
 const breadcrumbSongLabel = computed(() => {
   const current = song.value
   if (!current) return ''
-  const view = formatSongTitle(current.name, translationFor(canonicalId.value), language.value)
+  const view = formatSongTitle(jaTitle(current.id, current.name), translationFor(canonicalId.value), language.value)
   return view.originalNote ? `${view.primary} (${view.originalNote})` : view.primary
 })
 

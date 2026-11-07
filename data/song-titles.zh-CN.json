@@ -1288,6 +1288,11 @@
     "source": "人工核定",
     "comment": "直译 Vanish；wiki 未给中文名"
   },
+  "404329": {
+    "title": "刀, 刀, 刀",
+    "source": "vocadb-alias",
+    "comment": "VocaDB names 列表里的中文名；目录原名是 emoji 🔪、🔪、🔪"
+  },
   "406200": {
     "title": "Next Nest (Magical Mirai 10th edit)",
     "source": "vocawiki"

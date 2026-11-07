@@ -21,6 +21,7 @@ import { reviewRotations } from '../shared/rotation.ts'
 import { buildSetlistDiffReport, pairDifferences } from '../shared/setlist-diff.ts'
 import { showCoverage } from '../shared/show-coverage.ts'
 import { parseSongTitles } from '../shared/song-titles.ts'
+import { japaneseAliasTitle, parseSongAliases, songAliasTitles } from '../shared/song-aliases.ts'
 import { parseSongVariants } from '../shared/song-variants.ts'
 import { performanceYear, rankSongAppearances } from '../shared/stats.ts'
 import type { ApiRankFile, ApiSongRow } from '../shared/api-types.ts'
@@ -105,6 +106,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
   const version = shortFileHash(catalogFile.replace(/\.sqlite$/, '.sqlite.gz'))
   const variants = parseSongVariants(readJsonFile(root, path.join('data', 'song-variants.json')))
   const titlesZh = parseSongTitles(readJsonFile(root, path.join('data', 'song-titles.zh-CN.json')))
+  const songAliases = parseSongAliases(readJsonFile(root, path.join('data', 'song-aliases.json')))
   const rules = parseCharacterConfig(readJsonFile(root, path.join('data', 'characters.json')))
   const places = parsePlaceNames(readJsonFile(root, path.join('data', 'place-names.zh-CN.json')))
   const merges = parseSetlistMerges(readJsonFile(root, path.join('data', 'setlist-merges.json')))
@@ -174,6 +176,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       groupSongs: groupSongsOf(song),
       rules,
       titlesZh,
+      nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja,
     }),
   )
   songRows.sort((left, right) => right.showCount - left.showCount || left.id - right.id)
@@ -258,10 +261,11 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const summary = baseSummaries.get(song.id) ?? emptySummary()
     const alt = broadcastSummaries.get(song.id)
     const zh = titlesZh[String(song.id)]
+    const aliases = songAliasTitles(songAliases, song.id)
     const row: ApiSongRow = {
       id: song.id,
       name: song.name,
-      nameJa: song.name_ja,
+      nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja,
       nameEn: song.name_en,
       nameZh: zh?.title ?? null,
       producer: producersOf(groupSongs).join(', ') || null,
@@ -279,6 +283,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
     }
     if (alt !== undefined && !sameCounts(summary, alt)) row.withBroadcast = altCountsOf(alt)
     if (zh?.aliases !== undefined && zh.aliases.length > 0) row.nameZhAliases = zh.aliases
+    if (aliases.length > 0) row.aliases = aliases
     return row
   })
 
@@ -413,7 +418,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
           itemCount: row?.item_count ?? 0,
           uncertain: row?.uncertain === 1,
           reasons: row === undefined ? [] : parseReasons(row.reasons),
-          items: (items.get(show.key) ?? []).map((item) => setlistItemPayload(catalog, item, songsById, medleyNames)),
+          items: (items.get(show.key) ?? []).map((item) => setlistItemPayload(catalog, item, songsById, medleyNames, songAliases)),
         }
       }),
       sources: catalog.performanceSetlistSources
@@ -442,7 +447,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const alt = broadcastSummaries.get(song.id)
     const altDiffers = alt !== undefined && !sameCounts(summary, alt)
     writeJson(root, path.join(API_DIRECTORY, 'songs', `${song.id}.json`), {
-      song: songSummary({ song, summary, first: firstPerformanceOf(byPerformance), variants, groupSongs, rules, titlesZh }),
+      song: songSummary({ song, summary, first: firstPerformanceOf(byPerformance), variants, groupSongs, rules, titlesZh, nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja }),
       counts: {
         show: summary.show,
         event: summary.event,

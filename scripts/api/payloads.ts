@@ -1,6 +1,7 @@
 import { albumIdFromSongListId, albumPageUrl, albumSetlistNotice } from '../../shared/album-setlists.ts'
 import { isBroadcastAppearance } from '../../shared/stats.ts'
 import { songCategoryLabels } from '../../shared/repertoire.ts'
+import { japaneseAliasTitle, type SongAliasFile } from '../../shared/song-aliases.ts'
 import type { SongVariantIndex } from '../../shared/song-variants.ts'
 import type { CharacterRule } from '../../shared/characters.ts'
 import type { Catalog, PerformanceRow, PerformanceShowSetlistItemRow, SongRow } from '../../shared/types.ts'
@@ -44,13 +45,15 @@ export const songSummary = (input: {
   groupSongs: readonly SongRow[]
   rules: readonly CharacterRule[]
   titlesZh: Record<string, { title: string }>
+  /** Japanese title the site shows; a registered `ja` alias already wins over `songs.name_ja`. */
+  nameJa: string | null
 }): SongSummaryPayload => {
-  const { song, summary, first, variants, groupSongs, rules, titlesZh } = input
+  const { song, summary, first, variants, groupSongs, rules, titlesZh, nameJa } = input
   const producers = producersOf(groupSongs)
   return {
     id: song.id,
     name: song.name,
-    nameJa: song.name_ja,
+    nameJa,
     nameEn: song.name_en,
     nameZh: titlesZh[String(song.id)]?.title ?? null,
     producer: producers.length === 0 ? null : producers.join(', '),
@@ -130,11 +133,13 @@ export const setlistItemPayload = (
   item: PerformanceShowSetlistItemRow,
   songsById: Map<number, SongRow>,
   medleyNames: Map<number, string>,
+  aliases: SongAliasFile = {},
 ): Record<string, unknown> => {
   const base = { position: item.position, evidence: item.evidence, notes: item.notes }
   if (item.song_id !== null) {
     const song = songsById.get(item.song_id)
-    return { ...base, songId: item.song_id, name: song?.name ?? String(item.song_id), nameJa: song?.name_ja ?? null }
+    const nameJa = song === undefined ? null : (japaneseAliasTitle(aliases, song.id) ?? song.name_ja)
+    return { ...base, songId: item.song_id, name: song?.name ?? String(item.song_id), nameJa }
   }
   const songIds = catalog.medleySongs
     .filter((row) => row.medley_id === item.medley_id)

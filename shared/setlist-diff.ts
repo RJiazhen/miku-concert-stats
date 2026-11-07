@@ -303,10 +303,20 @@ const pickLargest = (catalog: Catalog, listIds: readonly number[]): number | nul
   return best
 }
 
-/** Song names for a list of ids, falling back to the id. */
-const songNames = (catalog: Catalog, ids: readonly number[]): string => {
+/** Song names for a list of ids, falling back to the id; `nameOf` overrides the catalog spelling. */
+const songNames = (
+  catalog: Catalog,
+  ids: readonly number[],
+  nameOf?: (song: SongRow) => string,
+): string => {
   const byId = new Map<number, SongRow>(catalog.songs.map((row) => [row.id, row]))
-  return ids.map((id) => byId.get(id)?.name ?? String(id)).join(' / ')
+  return ids
+    .map((id) => {
+      const song = byId.get(id)
+      if (song === undefined) return String(id)
+      return nameOf?.(song) ?? song.name
+    })
+    .join(' / ')
 }
 
 /** Song ids only present on one side of a pair. */
@@ -322,7 +332,12 @@ export const pairDifferences = (catalog: Catalog, pair: SetlistPair): { onlyLeft
 }
 
 /** Renders one Markdown list item for a pair. */
-const pairRow = (catalog: Catalog, pair: SetlistPair, checkable: boolean): string => {
+const pairRow = (
+  catalog: Catalog,
+  pair: SetlistPair,
+  checkable: boolean,
+  nameOf?: (song: SongRow) => string,
+): string => {
   const differences = pairDifferences(catalog, pair)
   /** Markdown link for a song list; album fallbacks are tagged and point at the album. */
   const listLink = (songListId: number): string => {
@@ -341,8 +356,8 @@ const pairRow = (catalog: Catalog, pair: SetlistPair, checkable: boolean): strin
     SEVERITY_LABELS[pair.severity],
   ].join(' · ')
   const lines = [`${checkable ? '- [ ] ' : '- '}${headline}`]
-  if (differences.onlyLeft.length > 0) lines.push(`      - 仅左：${songNames(catalog, differences.onlyLeft)}`)
-  if (differences.onlyRight.length > 0) lines.push(`      - 仅右：${songNames(catalog, differences.onlyRight)}`)
+  if (differences.onlyLeft.length > 0) lines.push(`      - 仅左：${songNames(catalog, differences.onlyLeft, nameOf)}`)
+  if (differences.onlyRight.length > 0) lines.push(`      - 仅右：${songNames(catalog, differences.onlyRight, nameOf)}`)
   return lines.join('\n')
 }
 
@@ -350,7 +365,11 @@ const pairRow = (catalog: Catalog, pair: SetlistPair, checkable: boolean): strin
 const signed = (value: number): string => (value > 0 ? `+${value}` : String(value))
 
 /** Renders the committed Markdown report. The page shows the same rows. */
-export const renderSetlistDiffMarkdown = (catalog: Catalog, report: SetlistDiffReport): string => {
+export const renderSetlistDiffMarkdown = (
+  catalog: Catalog,
+  report: SetlistDiffReport,
+  nameOf?: (song: SongRow) => string,
+): string => {
   const editionSummary = Object.fromEntries(
     SEVERITY_ORDER.map((severity) => [severity, report.editions.filter((pair) => pair.severity === severity).length]),
   ) as Record<SetlistPairSeverity, number>
@@ -377,7 +396,7 @@ export const renderSetlistDiffMarkdown = (catalog: Catalog, report: SetlistDiffR
   ]
   const section = (title: string, pairs: readonly SetlistPair[], checkable: boolean, empty: string): string[] => {
     if (pairs.length === 0) return [`## ${title}`, '', empty, '']
-    return [`## ${title}`, '', ...pairs.map((pair) => pairRow(catalog, pair, checkable)), '']
+    return [`## ${title}`, '', ...pairs.map((pair) => pairRow(catalog, pair, checkable, nameOf)), '']
   }
   return [
     ...header,
@@ -387,7 +406,11 @@ export const renderSetlistDiffMarkdown = (catalog: Catalog, report: SetlistDiffR
 }
 
 /** Renders the committed CSV report. */
-export const renderSetlistDiffCsv = (catalog: Catalog, report: SetlistDiffReport): string => {
+export const renderSetlistDiffCsv = (
+  catalog: Catalog,
+  report: SetlistDiffReport,
+  nameOf?: (song: SongRow) => string,
+): string => {
   const escape = (value: string): string => `"${value.replaceAll('"', '""')}"`
   const header = [
     'scope',
@@ -434,8 +457,8 @@ export const renderSetlistDiffCsv = (catalog: Catalog, report: SetlistDiffReport
       pair.lcsRatio.toFixed(3),
       pair.merged ? 'yes' : 'no',
       pair.severity,
-      songNames(catalog, differences.onlyLeft),
-      songNames(catalog, differences.onlyRight),
+      songNames(catalog, differences.onlyLeft, nameOf),
+      songNames(catalog, differences.onlyRight, nameOf),
     ].map(escape)
   })
   return [header.join(','), ...rows.map((row) => row.join(','))].join('\n') + '\n'

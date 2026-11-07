@@ -27,6 +27,8 @@ export type ApiSongRow = {
   nameZh: string | null
   /** Other accepted Chinese titles, matched by search but never displayed. */
   nameZhAliases?: string[]
+  /** Alternate spellings from `data/song-aliases.json`, matched by search but never displayed. */
+  aliases?: string[]
   /** Producer-side credit text shown for the row. */
   producer: string | null
   category: SongCategory

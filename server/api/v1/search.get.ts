@@ -46,6 +46,9 @@ const scoreSong = (song: ApiSongRow, query: string): number | null => {
   for (const alias of song.nameZhAliases ?? []) {
     if (normalizeTitle(alias).includes(query) && best === null) best = 2
   }
+  for (const alias of song.aliases ?? []) {
+    if (normalizeTitle(alias).includes(query) && best === null) best = 2
+  }
   return best
 }
 
@@ -72,8 +75,9 @@ const seriesHit = (row: ApiSeriesOption): ApiSeriesOption & { url: string } => (
 
 /**
  * `GET /api/v1/search?q=&type=all|songs|producers|series` — resolve a song, producer, or series.
- * Song titles match the original, Japanese, English, and Chinese names, plus recorded Chinese aliases;
- * producers and series match their names as a case-insensitive substring.
+ * Song titles match the original, Japanese, English, and Chinese names, plus the recorded Chinese and
+ * alternate titles (`data/song-aliases.json`); producers and series match their names as a
+ * case-insensitive substring.
  */
 const search = async (event: H3Event) => {
   const params = getQuery(event)
