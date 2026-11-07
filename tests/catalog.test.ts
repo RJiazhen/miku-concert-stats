@@ -163,6 +163,7 @@ describe('committed catalog', () => {
         3000000008,
         3000000009,
         3000000010,
+        3000000011,
       ])
       expect(wikiOnly.every((row) => row.source_kind === 'wiki')).toBe(true)
       // 夏祭初音鑑 ran twice: 5 days in Osaka (27 shows) and 9 days in Tokyo (38 shows).

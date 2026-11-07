@@ -1047,6 +1047,24 @@
       "publishDate": "2013-03-15",
       "lengthSeconds": 358,
       "sourceUrl": "https://vocadb.net/S/25668"
+    },
+    "クローバー♣クラブ": {
+      "id": 5833,
+      "title": "クローバー♣クラブ",
+      "artistString": "ゆうゆ feat. 初音ミク",
+      "songType": "Original",
+      "publishDate": "2008-01-03",
+      "lengthSeconds": 262,
+      "sourceUrl": "https://vocadb.net/S/5833"
+    },
+    "ぼかろころしあむ": {
+      "id": 199492,
+      "title": "ぼかろころしあむ",
+      "artistString": "DIVELA feat. 鏡音リン",
+      "songType": "Original",
+      "publishDate": "2018-08-05",
+      "lengthSeconds": 153,
+      "sourceUrl": "https://vocadb.net/S/199492"
     }
   }
 }

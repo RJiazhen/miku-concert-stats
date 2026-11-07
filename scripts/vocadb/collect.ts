@@ -32,17 +32,20 @@ import {
 /**
  * Concert series this site records. Ids are the VocaDB release-event series ids.
  * 255 is 初音ミク×鼓童 (Hatsune Miku × Kodō), the NHK Hall collaboration with the Kodo taiko troupe.
+ * 408 and 799 are the 2023 THUNDERBOLT and 2025 BLOOMING iterations of 初音ミク JAPAN LIVE TOUR.
  */
-export const SERIES_IDS = [81, 82, 173, 256, 219, 204, 255] as const
+export const SERIES_IDS = [81, 82, 173, 256, 219, 204, 255, 408, 799] as const
 
 /**
  * Standalone VocaDB events filed under a recorded series.
  * Event 2520 (`ミクの日感謝祭39's Giving Day`, 2010-03-09) has no series upstream and reports
  * `seriesNumber` 0, so the series loop never reaches it. It is the 2010 edition of the
- * 初音ミクライブパーティー Miku-no-Hi line at Zepp Tokyo that continued from 2011.
+ * 初音ミクライブパーティー Miku-no-Hi line at Zepp Tokyo that continued from 2011. Event 2521
+ * (`MIKUNOPOLIS in LOS ANGELES`, 2011-07-02) is the overseas derivative of that same 感謝祭.
  */
 export const STANDALONE_EVENTS = [
   { id: 2520, seriesId: 219, seriesNumber: 2010 },
+  { id: 2521, seriesId: 219, seriesNumber: 2011 },
 ] as const
 
 const API = 'https://vocadb.net/api'

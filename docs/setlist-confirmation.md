@@ -6,8 +6,8 @@
 
 ## 0. 一句话现状
 
-- 目录里 191 个演出已展开成 **410 个场次**、9894 条曲目。
-- 来源记录 191 个演出：官方页 19 条、百科 186 条，全部已直接采用。
+- 目录里 205 个演出已展开成 **438 个场次**、10568 条曲目。
+- 来源记录 205 个演出：官方页 33 条、百科 200 条，全部已直接采用。
 - 待核实归属 0 个、冲突 0 个、带不确定标记的场次 0 个。
 - 另有 16 首不是 VOCALOID 歌曲的曲目（古典改编、鼓童器乐曲、民谣）已按普通曲目登记，没有歌手、来源写百科，演出页会标「非 VocaDB」。
 - 还剩 **2 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。
@@ -143,7 +143,7 @@
 | MIKU EXPO 2026 Boston（9823） | MIKU EXPO | 2026-05-10 | 2 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2026 Boston（波士顿）](https://w.atwiki.jp/hmiku/pages/68848.html)（2026-11-06） |
 | MIKU EXPO 2026 Hamilton（9824） | MIKU EXPO | 2026-05-13 | 1 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2026 Hamilton（哈密尔顿）](https://w.atwiki.jp/hmiku/pages/68848.html)（2026-11-06） |
 | MIKU EXPO 2026 Mexico City（9825） | MIKU EXPO | 2026-05-19 | 1 × 26 | external | medium | [初音ミク Wiki：MIKU EXPO 2026 Mexico City（墨西哥城）](https://w.atwiki.jp/hmiku/pages/68848.html)（2026-11-06） |
-| HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（1619） | 未来有你 | 2017-11-25 | 2 × 26 | external | medium | [初音ミク Wiki：HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（北京）](https://w.atwiki.jp/hmiku/pages/67160.html)（2026-11-06） |
+| MIKU WITH YOU 2017 in Shanghai（1619） | 未来有你 | 2017-11-25 | 2 × 26 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2017 in Shanghai（北京）](https://w.atwiki.jp/hmiku/pages/67160.html)（2026-11-06） |
 | MIKU WITH YOU 2018 in Beijing（2085） | 未来有你 | 2018-10-13 | 2 × 25 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2018 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67175.html)（2026-11-06） |
 | MIKU WITH YOU 2018 in Chengdu（2086） | 未来有你 | 2018-10-20 | 2 × 25 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2018 in Chengdu（成都）](https://w.atwiki.jp/hmiku/pages/67175.html)（2026-11-06） |
 | MIKU WITH YOU 2018 in Shanghai（2087） | 未来有你 | 2018-10-27 | 4 × 25 | external | medium | [初音ミク Wiki：MIKU WITH YOU 2018 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67175.html)（2026-11-06） |
@@ -161,11 +161,13 @@
 | SNOW MIKU LIVE! 2015 presents MIKU EXPO Live Set（3792） | SNOW MIKU | 2015-02-07 | 4 × 27 | vocadb-note | high | [SNOW MIKU LIVE! 2015 公式チケット页](https://snowmiku.com/2015/live_ticket.html)（2026-11-05） |
 | SNOW MIKU LIVE! 2018（1618） | SNOW MIKU | 2018-02-09 | 4 × 26 | vocadb-note | medium | [VocaDB Fandom: SNOW MIKU LIVE! 2018](https://vocaloid.fandom.com/wiki/SNOW_MIKU_LIVE!_2018)（2026-11-05） |
 | SNOW MIKU LIVE! 2019（2422） | SNOW MIKU | 2019-02-09 | 4 × 26 | vocadb-note | medium | [萌娘百科：SNOW MIKU LIVE! 2019](https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019)（2026-11-05） |
-| ミクの日感謝祭39's Giving Day（2520） | Live Party | 2010-03-09 | 1 × 40 | external | medium | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html)（2026-11-06） |
+| ミクの日感謝祭39's Giving Day（2520） | Live Party | 2010-03-09 | 2 × 40 | external | medium | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html)（2026-11-06） |
 | 初音ミクライブパーティー 2011 Tokyo（2523） | Live Party | 2011-03-09 | 1 × 39 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2011 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67149.html)（2026-11-06） |
+| MIKUNOPOLIS in LOS ANGELES “はじめまして、初音ミクです”（2521） | Live Party | 2011-07-02 | 1 × 24 | external | high | [MIKUNOPOLIS in Los Angeles 公式サイト<br>初音ミク Wiki：MIKUNOPOLIS in LOS ANGELES “はじめまして、初音ミクです”（洛杉矶）](http://miku.sega.jp/39/mikula_20111014.html)（2026-11-06） |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2011-08-16 | 2 × 26 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2011 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67150.html)（2026-11-06） |
 | 初音ミクライブパーティー 2011 Singapore（2527） | Live Party | 2011-11-11 | 1 × 27 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2011 Singapore（新加坡）](https://w.atwiki.jp/hmiku/pages/67151.html)（2026-11-06） |
 | 初音ミクライブパーティー 2012 Tokyo（4056） | Live Party | 2012-03-08 | 1 × 33 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2012 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67152.html)（2026-11-06） |
+| 初音ミクコンサート 最後のミクの日感謝祭（3000000011） | Live Party | 2012-03-09 | 2 × 29 | external | high | [ミクの日大感謝祭 公式サイト<br>初音ミク Wiki：初音ミクコンサート 最後のミクの日感謝祭（东京）](https://miku.sega.jp/39/)（2026-11-06） |
 | 初音ミクライブパーティー 2012 Hong Kong（2524） | Live Party | 2012-10-02 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2012 Hong Kong（香港）](https://w.atwiki.jp/hmiku/pages/67153.html)（2026-11-06） |
 | 初音ミクライブパーティー 2012 Taiwan（2525） | Live Party | 2012-10-06 | 1 × 25 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2012 Taiwan（台北）](https://w.atwiki.jp/hmiku/pages/67153.html)（2026-11-06） |
 | 初音ミクライブパーティー 2013 Sapporo（2510） | Live Party | 2013-02-09 | 4 × 26 | external | medium | [初音ミク Wiki：初音ミクライブパーティー 2013 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67154.html)（2026-11-06） |
@@ -202,6 +204,18 @@
 | 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 2026-06-20 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
 | 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 2026-07-05 | 1 × 19 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html)（2026-11-06） |
 | 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 2026-10-10 | 1 × 16 | external | medium | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html)（2026-11-06） |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 名古屋（4765） | 408 | 2023-02-23 | 2 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 名古屋（名古屋）](https://piapro.net/japantour2023/)（2026-11-06） |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 大阪（4766） | 408 | 2023-03-04 | 2 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 大阪（大阪）](https://piapro.net/japantour2023/)（2026-11-06） |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 福岡市（4767） | 408 | 2023-03-11 | 1 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 福岡市（福冈）](https://piapro.net/japantour2023/)（2026-11-06） |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 東京（4768） | 408 | 2023-03-18 | 4 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 東京（东京）](https://piapro.net/japantour2023/)（2026-11-06） |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 札幌（4769） | 408 | 2023-03-25 | 1 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 札幌（札幌）](https://piapro.net/japantour2023/)（2026-11-06） |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 大阪（8380） | 799 | 2025-04-19 | 2 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 大阪（大阪）](https://piapro.net/japantour2025/)（2026-11-06） |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 愛知（8381） | 799 | 2025-04-26 | 2 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 愛知（爱知）](https://piapro.net/japantour2025/)（2026-11-06） |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 福岡（8382） | 799 | 2025-04-29 | 2 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 福岡（福冈）](https://piapro.net/japantour2025/)（2026-11-06） |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 東京（8383） | 799 | 2025-05-02 | 4 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 東京（东京）](https://piapro.net/japantour2025/)（2026-11-06） |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 香川（8384） | 799 | 2025-05-06 | 1 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 香川（香川）](https://piapro.net/japantour2025/)（2026-11-06） |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 北海道（8385） | 799 | 2025-05-17 | 1 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 北海道（北海道）](https://piapro.net/japantour2025/)（2026-11-06） |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 沖縄（8386） | 799 | 2025-05-31 | 2 × 23 | external | high | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト<br>初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 沖縄（冲绳）](https://piapro.net/japantour2025/)（2026-11-06） |
 | デコミク LIVE starring 初音ミク『Hello』（9401） | 900000000 | 2026-02-14 | 2 × 27 | external | medium | [初音ミク Wiki：デコミク LIVE starring 初音ミク『Hello』（代代木）](https://w.atwiki.jp/hmiku/pages/72956.html)（2026-11-06） |
 | ミクFES '09（夏）（3000000002） | 900000001 | 2009-08-31 | 1 × 28 | external | high | [初音ミク公式ブログ：ミクFES '09（夏）アフターリポート<br>初音ミク Wiki：ミクFES '09（夏）（东京）](https://blog.piapro.net/2009/09/fes09.html)（2026-11-06） |
 | MIKU FES '24（春）（3000000003） | 900000001 | 2024-03-31 | 1 × 23 | external | high | [MIKU FES '24（春）公式サイト<br>初音ミク Wiki：MIKU FES '24（春）（东京）](https://mikufes24spring.jp/)（2026-11-06） |
@@ -213,7 +227,7 @@
 | 初音ミク LAWSON 50th Anniversary Special LIVE（3000000008） | 900000005 | 2026-01-17 | 3 × 24 | external | high | [ローソン 50th Anniversary Special LIVE 特設サイト<br>初音ミク Wiki：初音ミク LAWSON 50th Anniversary Special LIVE（横滨）](https://l-tike.com/lawson50thmiku/)（2026-11-06） |
 | ポケモン feat. 初音ミク VOLTAGE Live！（3000000009） | 900000006 | 2026-03-20 | 6 × 27 | external | high | [ポケモン feat. 初音ミク VOLTAGE Live！ 公式サイト<br>VOLTAGE Live！官方：ポケモン feat. 初音ミク VOLTAGE Live！（千叶）](https://www.project-voltage.jp/live2026/)（2026-11-06） |
 
-共 191 个演出、205 条来源记录。
+共 205 个演出、233 条来源记录。
 
 ---
 
@@ -352,7 +366,7 @@
 
 ---
 
-## 4b. 曲目逐条来自百科逐曲表的演出（179 个）
+## 4b. 曲目逐条来自百科逐曲表的演出（193 个）
 
 这些演出改用「初音ミク Wiki」的逐曲表：VocaDB 的 songList 要么是几个城市共用的整份表、
 要么根本没有（交响乐全部是专辑 tracklist）。逐曲表按公演替 / 昼夜 / 场次把差别分开，
@@ -473,7 +487,7 @@
 | MIKU EXPO 2026 Boston（9823） | MIKU EXPO | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（波士顿），按场次分 2 份 | [初音ミク Wiki：MIKU EXPO 2026 Boston（波士顿）](https://w.atwiki.jp/hmiku/pages/68848.html) |
 | MIKU EXPO 2026 Hamilton（9824） | MIKU EXPO | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（哈密尔顿），26 行 | [初音ミク Wiki：MIKU EXPO 2026 Hamilton（哈密尔顿）](https://w.atwiki.jp/hmiku/pages/68848.html) |
 | MIKU EXPO 2026 Mexico City（9825） | MIKU EXPO | 1 × 26 | 歌单来自初音ミク Wiki 的逐曲表（墨西哥城），26 行 | [初音ミク Wiki：MIKU EXPO 2026 Mexico City（墨西哥城）](https://w.atwiki.jp/hmiku/pages/68848.html) |
-| HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（1619） | 未来有你 | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（北京），按场次分 2 份 | [初音ミク Wiki：HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（北京）](https://w.atwiki.jp/hmiku/pages/67160.html) |
+| MIKU WITH YOU 2017 in Shanghai（1619） | 未来有你 | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（北京），按场次分 2 份 | [初音ミク Wiki：MIKU WITH YOU 2017 in Shanghai（北京）](https://w.atwiki.jp/hmiku/pages/67160.html) |
 | MIKU WITH YOU 2018 in Beijing（2085） | 未来有你 | 2 × 50 | 歌单来自初音ミク Wiki 的逐曲表（北京），25 行 | [初音ミク Wiki：MIKU WITH YOU 2018 in Beijing（北京）](https://w.atwiki.jp/hmiku/pages/67175.html) |
 | MIKU WITH YOU 2018 in Chengdu（2086） | 未来有你 | 2 × 50 | 歌单来自初音ミク Wiki 的逐曲表（成都），25 行 | [初音ミク Wiki：MIKU WITH YOU 2018 in Chengdu（成都）](https://w.atwiki.jp/hmiku/pages/67175.html) |
 | MIKU WITH YOU 2018 in Shanghai（2087） | 未来有你 | 4 × 100 | 歌单来自初音ミク Wiki 的逐曲表（上海），25 行 | [初音ミク Wiki：MIKU WITH YOU 2018 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/67175.html) |
@@ -488,11 +502,13 @@
 | MIKU WITH YOU 2024 in Guangzhou（7674） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（广州），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2024 in Guangzhou（广州）](https://w.atwiki.jp/hmiku/pages/67183.html) |
 | MIKU WITH YOU 2025（9644） | 未来有你 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2025（上海）](https://w.atwiki.jp/hmiku/pages/68149.html) |
 | MIKU WITH YOU 2026 in Shanghai（13120） | 未来有你 | 4 × 96 | 歌单来自初音ミク Wiki 的逐曲表（上海），按场次分 4 份 | [初音ミク Wiki：MIKU WITH YOU 2026 in Shanghai（上海）](https://w.atwiki.jp/hmiku/pages/79886.html) |
-| ミクの日感謝祭39's Giving Day（2520） | Live Party | 1 × 40 | 歌单来自初音ミク Wiki 的逐曲表（东京），40 行 | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html) |
+| ミクの日感謝祭39's Giving Day（2520） | Live Party | 2 × 80 | 歌单来自初音ミク Wiki 的逐曲表（东京），40 行；日程来源：2010-03-09 Zepp Tokyo 昼 + 夜 2 场，逐曲表 40 行两场共用；昼场的嘉宾环节与夜场的应援 P MC 不计入曲目 | [初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）](https://w.atwiki.jp/hmiku/pages/67147.html) |
 | 初音ミクライブパーティー 2011 Tokyo（2523） | Live Party | 1 × 39 | 歌单来自初音ミク Wiki 的逐曲表（东京），39 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67149.html) |
+| MIKUNOPOLIS in LOS ANGELES “はじめまして、初音ミクです”（2521） | Live Party | 1 × 24 | 歌单来自初音ミク Wiki 的逐曲表（洛杉矶），24 行；日程来源：2011-07-02 洛杉矶 Nokia Theatre 单场，24 首；沿用 2010 感謝祭节目并加入英语版 | [MIKUNOPOLIS in Los Angeles 公式サイト,初音ミク Wiki：MIKUNOPOLIS in LOS ANGELES “はじめまして、初音ミクです”（洛杉矶）](http://miku.sega.jp/39/mikula_20111014.html) |
 | 初音ミクライブパーティー 2011 Sapporo（2526） | Live Party | 2 × 52 | 歌单来自初音ミク Wiki 的逐曲表（札幌），26 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67150.html) |
 | 初音ミクライブパーティー 2011 Singapore（2527） | Live Party | 1 × 27 | 歌单来自初音ミク Wiki 的逐曲表（新加坡），27 行 | [初音ミク Wiki：初音ミクライブパーティー 2011 Singapore（新加坡）](https://w.atwiki.jp/hmiku/pages/67151.html) |
 | 初音ミクライブパーティー 2012 Tokyo（4056） | Live Party | 1 × 33 | 歌单来自初音ミク Wiki 的逐曲表（东京），33 行 | [初音ミク Wiki：初音ミクライブパーティー 2012 Tokyo（东京）](https://w.atwiki.jp/hmiku/pages/67152.html) |
+| 初音ミクコンサート 最後のミクの日感謝祭（3000000011） | Live Party | 2 × 58 | 歌单来自初音ミク Wiki 的逐曲表（东京），29 行；另有 1 首未登记（同曲再演或检索未命中），未计入：「ワールドイズマイン（ダブルアンコール）」；日程来源：2012-03-09 TOKYO DOME CITY HALL 昼 + 夜 2 场，每场 29 首；昼场音响故障后「ワールドイズマイン」再演不计入曲数 | [ミクの日大感謝祭 公式サイト,初音ミク Wiki：初音ミクコンサート 最後のミクの日感謝祭（东京）](https://miku.sega.jp/39/) |
 | 初音ミクライブパーティー 2012 Hong Kong（2524） | Live Party | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（香港），25 行 | [初音ミク Wiki：初音ミクライブパーティー 2012 Hong Kong（香港）](https://w.atwiki.jp/hmiku/pages/67153.html) |
 | 初音ミクライブパーティー 2012 Taiwan（2525） | Live Party | 1 × 25 | 歌单来自初音ミク Wiki 的逐曲表（台北），25 行 | [初音ミク Wiki：初音ミクライブパーティー 2012 Taiwan（台北）](https://w.atwiki.jp/hmiku/pages/67153.html) |
 | 初音ミクライブパーティー 2013 Sapporo（2510） | Live Party | 4 × 104 | 歌单来自初音ミク Wiki 的逐曲表（札幌），26 行 | [初音ミク Wiki：初音ミクライブパーティー 2013 Sapporo（札幌）](https://w.atwiki.jp/hmiku/pages/67154.html) |
@@ -529,6 +545,18 @@
 | 初音ミクシンフォニー 2026 札幌（12713） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（札幌公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 札幌（札幌公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
 | 初音ミクシンフォニー 2026 東京（12714） | 交响乐 | 1 × 19 | 歌单来自初音ミク Wiki 的逐曲表（東京公演），19 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026 東京（東京公演）](https://w.atwiki.jp/hmiku/pages/80458.html) |
 | 初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（12739） | 交响乐 | 1 × 16 | 歌单来自初音ミク Wiki 的逐曲表（横浜），16 行；其中 1 首不是 VOCALOID 歌曲（古典・管弦乐曲），按普通曲目登记、没有对应歌手 | [初音ミク Wiki：初音ミクシンフォニー 2026-2027 〜Melodies on the Keys〜 横浜（横浜）](https://w.atwiki.jp/hmiku/pages/80296.html) |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 名古屋（4765） | 408 | 2 × 46 | 歌单来自初音ミク Wiki 的逐曲表（名古屋），23 行；日程来源：2023-02-23 Zepp Nagoya 昼 + 夜 2 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト,初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 名古屋（名古屋）](https://piapro.net/japantour2023/) |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 大阪（4766） | 408 | 2 × 46 | 歌单来自初音ミク Wiki 的逐曲表（大阪），23 行；日程来源：2023-03-04 Zepp Namba 昼 + 夜 2 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト,初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 大阪（大阪）](https://piapro.net/japantour2023/) |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 福岡市（4767） | 408 | 1 × 23 | 歌单来自初音ミク Wiki 的逐曲表（福冈），23 行；日程来源：2023-03-11 Zepp Fukuoka 仅夜场 1 场，歌单 23 首 | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト,初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 福岡市（福冈）](https://piapro.net/japantour2023/) |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 東京（4768） | 408 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（东京），按场次分 4 份；日程来源：2023-03-18–19 Zepp DiverCity 每天昼 + 夜，共 4 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト,初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 東京（东京）](https://piapro.net/japantour2023/) |
+| 初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 札幌（4769） | 408 | 1 × 23 | 歌单来自初音ミク Wiki 的逐曲表（札幌），23 行；日程来源：2023-03-25 Zepp Sapporo 仅夜场 1 场，歌单 23 首 | [初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト,初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 札幌（札幌）](https://piapro.net/japantour2023/) |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 大阪（8380） | 799 | 2 × 46 | 歌单来自初音ミク Wiki 的逐曲表（大阪），23 行；日程来源：2025-04-19 Zepp Namba 昼 + 夜 2 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト,初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 大阪（大阪）](https://piapro.net/japantour2025/) |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 愛知（8381） | 799 | 2 × 46 | 歌单来自初音ミク Wiki 的逐曲表（爱知），23 行；日程来源：2025-04-26 Zepp Nagoya 昼 + 夜 2 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト,初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 愛知（爱知）](https://piapro.net/japantour2025/) |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 福岡（8382） | 799 | 2 × 46 | 歌单来自初音ミク Wiki 的逐曲表（福冈），23 行；日程来源：2025-04-29 Zepp Fukuoka 昼 + 夜 2 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト,初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 福岡（福冈）](https://piapro.net/japantour2025/) |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 東京（8383） | 799 | 4 × 92 | 歌单来自初音ミク Wiki 的逐曲表（东京），按场次分 4 份；日程来源：2025-05-02–03 Zepp Haneda 每天昼 + 夜，共 4 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト,初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 東京（东京）](https://piapro.net/japantour2025/) |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 香川（8384） | 799 | 1 × 23 | 歌单来自初音ミク Wiki 的逐曲表（香川），23 行；日程来源：2025-05-06 レクザムホール 大ホール 仅昼场 1 场，歌单 23 首 | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト,初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 香川（香川）](https://piapro.net/japantour2025/) |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 北海道（8385） | 799 | 1 × 23 | 歌单来自初音ミク Wiki 的逐曲表（北海道），23 行；日程来源：2025-05-17 Zepp Sapporo 仅夜场 1 场，歌单 23 首 | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト,初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 北海道（北海道）](https://piapro.net/japantour2025/) |
+| 初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 沖縄（8386） | 799 | 2 × 46 | 歌单来自初音ミク Wiki 的逐曲表（冲绳），23 行；日程来源：2025-05-31 那覇文化芸術劇場なはーと 大劇場 昼 + 夜 2 场，每场 23 首 | [初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト,初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 沖縄（冲绳）](https://piapro.net/japantour2025/) |
 | デコミク LIVE starring 初音ミク『Hello』（9401） | 900000000 | 2 × 54 | 歌单来自初音ミク Wiki 的逐曲表（代代木），按场次分 2 份；日程来源：2026-02-14 国立代々木競技場第一体育館 昼・夜 2 场，每场 27 首；VocaDB 歌单 24530 只录了前 10 行，但同样把《ストリーミングハート》标成 Daytime、《キメラ》标成 Nighttime，昼夜结构一致 | [初音ミク Wiki：デコミク LIVE starring 初音ミク『Hello』（代代木）](https://w.atwiki.jp/hmiku/pages/72956.html) |
 | ミクFES '09（夏）（3000000002） | 900000001 | 1 × 28 | 歌单来自初音ミク Wiki 的逐曲表（东京），28 行；日程来源：2009-08-31 新木場STUDIO COAST 单场，28 首，约 2 小时 30 分 | [初音ミク公式ブログ：ミクFES '09（夏）アフターリポート,初音ミク Wiki：ミクFES '09（夏）（东京）](https://blog.piapro.net/2009/09/fes09.html) |
 | MIKU FES '24（春）（3000000003） | 900000001 | 1 × 23 | 歌单来自初音ミク Wiki 的逐曲表（东京），23 行；日程来源：2024-03-31 日本武道館 单场，23 首，另有 4 段 DJ 表演 | [MIKU FES '24（春）公式サイト,初音ミク Wiki：MIKU FES '24（春）（东京）](https://mikufes24spring.jp/) |

@@ -18,6 +18,7 @@ UPDATE songs SET name_en = 'Crosslight' WHERE id = 1465;
 UPDATE songs SET name_en = 'Finder' WHERE id = 2440;
 UPDATE songs SET name_en = 'Mad Lovers' WHERE id = 2886;
 UPDATE songs SET name_en = 'Heart Beat' WHERE id = 5232;
+UPDATE songs SET name_en = 'Clover♣Club' WHERE id = 5833;
 UPDATE songs SET name_en = 'Far Away' WHERE id = 8396;
 UPDATE songs SET name_en = '39' WHERE id = 14480;
 UPDATE songs SET name_en = 'Violence Trigger' WHERE id = 219144;

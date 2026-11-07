@@ -16904,6 +16904,2965 @@
         ]
       }
     },
+    "2520": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），40 行；日程来源：2010-03-09 Zepp Tokyo 昼 + 夜 2 场，逐曲表 40 行两场共用；昼场的嘉宾环节与夜场的应援 P MC 不计入曲目",
+      "dayNight": [
+        "2010-03-09"
+      ],
+      "sources": [
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67147.html",
+          "title": "初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；40 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67147.html",
+        "title": "初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "东京",
+        "songs": [
+          {
+            "id": 10951,
+            "title": "ハジメテノオト",
+            "note": "首次披露"
+          },
+          {
+            "id": 2321,
+            "title": "Project Diva desu.",
+            "note": "首次披露"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 2915,
+            "title": "えれくとりっく・えんじぇぅ",
+            "note": "首次披露"
+          },
+          {
+            "id": 1340,
+            "title": "サウンド",
+            "note": "首次披露，嘉宾 baker"
+          },
+          {
+            "id": 7839,
+            "title": "恋スルVOC@LOID"
+          },
+          {
+            "id": 2943,
+            "title": "Dear cocoa girls",
+            "note": "首次披露"
+          },
+          {
+            "id": 2922,
+            "title": "StargazeR",
+            "note": "首次披露"
+          },
+          {
+            "id": 2942,
+            "title": "The secret garden",
+            "note": "首次披露"
+          },
+          {
+            "id": 3658,
+            "title": "ミラクルペイント",
+            "note": "メドレー①"
+          },
+          {
+            "id": 3027,
+            "title": "Innocence",
+            "note": "メドレー①"
+          },
+          {
+            "id": 108735,
+            "title": "ハト",
+            "note": "メドレー①"
+          },
+          {
+            "id": 35377,
+            "title": "みくみく菌にご注意♪",
+            "note": "メドレー①"
+          },
+          {
+            "id": 4083,
+            "title": "ぽっぴっぽー",
+            "note": "メドレー①"
+          },
+          {
+            "id": 2652,
+            "title": "サヨナラ・グッバイ",
+            "note": "メドレー①"
+          },
+          {
+            "id": 3658,
+            "title": "ミラクルペイント",
+            "note": "嘉宾 OSTER project 版"
+          },
+          {
+            "id": 1032,
+            "title": "ロミオとシンデレラ",
+            "note": "嘉宾 doriko"
+          },
+          {
+            "id": 3478,
+            "title": "Dear",
+            "note": "嘉宾 19's Sound Factory"
+          },
+          {
+            "id": 1508,
+            "title": "裏表ラバーズ",
+            "note": "首次披露"
+          },
+          {
+            "id": 1319,
+            "title": "パズル",
+            "note": "首次披露"
+          },
+          {
+            "id": 11877,
+            "title": "VOiCE",
+            "note": "首次披露"
+          },
+          {
+            "id": 8246,
+            "title": "1/6 -out of the gravity-",
+            "note": "首次披露，嘉宾 ぼーかりおどP"
+          },
+          {
+            "id": 1047,
+            "title": "星屑ユートピア",
+            "note": "首次披露"
+          },
+          {
+            "id": 3129,
+            "title": "ダブルラリアット",
+            "note": "首次披露，嘉宾 アゴアニキ"
+          },
+          {
+            "id": 1360,
+            "title": "Just Be Friends",
+            "note": "首次披露"
+          },
+          {
+            "id": 5166,
+            "title": "magnet",
+            "note": "首次披露"
+          },
+          {
+            "id": 4051,
+            "title": "Alice",
+            "note": "首次披露"
+          },
+          {
+            "id": 2917,
+            "title": "あなたの歌姫"
+          },
+          {
+            "id": 5701,
+            "title": "moon"
+          },
+          {
+            "id": 295872,
+            "title": "初音ミクの消失"
+          },
+          {
+            "id": 3022,
+            "title": "炉心融解"
+          },
+          {
+            "id": 1357,
+            "title": "ココロ",
+            "note": "嘉宾 baker"
+          },
+          {
+            "id": 1949,
+            "title": "右肩の蝶[39's Giving Day Edition]"
+          },
+          {
+            "id": 1437,
+            "title": "Promise",
+            "note": "嘉宾 samfree"
+          },
+          {
+            "id": 4230,
+            "title": "from Y to Y"
+          },
+          {
+            "id": 459,
+            "title": "サイハテ",
+            "note": "嘉宾 小林オニキス"
+          },
+          {
+            "id": 2442,
+            "title": "ストロボナイツ"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa",
+            "note": "嘉宾 とく"
+          },
+          {
+            "id": 3019,
+            "title": "愛言葉",
+            "note": "安可，嘉宾 DECO*27"
+          },
+          {
+            "id": 1322,
+            "title": "メルト",
+            "note": "安可"
+          }
+        ]
+      }
+    },
+    "2521": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（洛杉矶），24 行；日程来源：2011-07-02 洛杉矶 Nokia Theatre 单场，24 首；沿用 2010 感謝祭节目并加入英语版",
+      "singleShowDates": [
+        "2011-07-02"
+      ],
+      "sources": [
+        {
+          "url": "http://miku.sega.jp/39/mikula_20111014.html",
+          "title": "MIKUNOPOLIS in Los Angeles 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2011-07-02 Nokia Theatre，单场"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67234.html",
+          "title": "初音ミク Wiki：MIKUNOPOLIS in LOS ANGELES “はじめまして、初音ミクです”（洛杉矶）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；24 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67234.html",
+        "title": "初音ミク Wiki：MIKUNOPOLIS in LOS ANGELES “はじめまして、初音ミクです”（洛杉矶）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "洛杉矶",
+        "songs": [
+          {
+            "id": 2321,
+            "title": "Project Diva desu."
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 2915,
+            "title": "えれくとりっく・えんじぇぅ"
+          },
+          {
+            "id": 7839,
+            "title": "恋するVOC@LOID"
+          },
+          {
+            "id": 5833,
+            "title": "クローバー♣クラブ",
+            "note": "初披露"
+          },
+          {
+            "id": 4083,
+            "title": "ぽっぴっぽー"
+          },
+          {
+            "id": 1032,
+            "title": "ロミオとシンデレラ"
+          },
+          {
+            "id": 1508,
+            "title": "裏表ラバーズ",
+            "note": "メドレー"
+          },
+          {
+            "id": 1319,
+            "title": "パズル",
+            "note": "メドレー"
+          },
+          {
+            "id": 11877,
+            "title": "VOiCE",
+            "note": "メドレー"
+          },
+          {
+            "id": 8246,
+            "title": "1/6 -out of the gravity-",
+            "note": "メドレー"
+          },
+          {
+            "id": 5701,
+            "title": "moon"
+          },
+          {
+            "id": 295872,
+            "title": "初音ミクの消失"
+          },
+          {
+            "id": 1949,
+            "title": "右肩の蝶[39's Giving Day Edition]",
+            "note": "※"
+          },
+          {
+            "id": 3022,
+            "title": "炉心融解"
+          },
+          {
+            "id": 1360,
+            "title": "Just Be Friends"
+          },
+          {
+            "id": 20,
+            "title": "ワールズエンド・ダンスホール[English Edition]",
+            "note": "英語版※"
+          },
+          {
+            "id": 4230,
+            "title": "from Y to Y"
+          },
+          {
+            "id": 459,
+            "title": "サイハテ"
+          },
+          {
+            "id": 2440,
+            "title": "ファインダー(DSLR remix-re:edit)"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 3019,
+            "title": "愛言葉"
+          },
+          {
+            "id": 2922,
+            "title": "StargazeR"
+          },
+          {
+            "id": 10951,
+            "title": "ハジメテノオト",
+            "note": "初披露"
+          }
+        ]
+      }
+    },
+    "3000000011": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），29 行；另有 1 首未登记（同曲再演或检索未命中），未计入：「ワールドイズマイン（ダブルアンコール）」；日程来源：2012-03-09 TOKYO DOME CITY HALL 昼 + 夜 2 场，每场 29 首；昼场音响故障后「ワールドイズマイン」再演不计入曲数",
+      "dayNight": [
+        "2012-03-09"
+      ],
+      "sources": [
+        {
+          "url": "https://miku.sega.jp/39/",
+          "title": "ミクの日大感謝祭 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "2012-03-09 TOKYO DOME CITY HALL 昼 + 夜两场"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67148.html",
+          "title": "初音ミク Wiki：初音ミクコンサート 最後のミクの日感謝祭（东京）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；29 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67148.html",
+        "title": "初音ミク Wiki：初音ミクコンサート 最後のミクの日感謝祭（东京）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "东京",
+        "songs": [
+          {
+            "id": 8395,
+            "title": "Tell Your World",
+            "note": "初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "初披露"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン",
+            "note": "※"
+          },
+          {
+            "id": 2915,
+            "title": "えれくとりっく・えんじぇぅ"
+          },
+          {
+            "id": 7839,
+            "title": "恋スルVOC@LOID"
+          },
+          {
+            "id": 5833,
+            "title": "クローバー♣クラブ"
+          },
+          {
+            "id": 4083,
+            "title": "ぽっぴっぽー"
+          },
+          {
+            "id": 1032,
+            "title": "ロミオとシンデレラ"
+          },
+          {
+            "id": 2440,
+            "title": "ファインダー(DSLR remix-re:edit)"
+          },
+          {
+            "id": 1508,
+            "title": "裏表ラバーズ"
+          },
+          {
+            "id": 2922,
+            "title": "StargazeR"
+          },
+          {
+            "id": 5701,
+            "title": "moon"
+          },
+          {
+            "id": 295872,
+            "title": "初音ミクの消失"
+          },
+          {
+            "id": 3024,
+            "title": "Change me",
+            "note": "初披露※"
+          },
+          {
+            "id": 1949,
+            "title": "右肩の蝶"
+          },
+          {
+            "id": 1360,
+            "title": "Just Be Friends"
+          },
+          {
+            "id": 5166,
+            "title": "magnet"
+          },
+          {
+            "id": 20,
+            "title": "ワールズエンド・ダンスホール"
+          },
+          {
+            "id": 3022,
+            "title": "炉心融解"
+          },
+          {
+            "id": 18083,
+            "title": "孤独の果て",
+            "note": "初披露"
+          },
+          {
+            "id": 1437,
+            "title": "Promise"
+          },
+          {
+            "id": 2732,
+            "title": "タイムリミット",
+            "note": "初披露"
+          },
+          {
+            "id": 1319,
+            "title": "パズル"
+          },
+          {
+            "id": 8246,
+            "title": "1/6 -out of the gravity-"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 3019,
+            "title": "愛言葉"
+          },
+          {
+            "id": 1322,
+            "title": "メルト"
+          },
+          {
+            "id": 10951,
+            "title": "ハジメテノオト"
+          },
+          {
+            "id": 2321,
+            "title": "Project Diva desu.",
+            "note": "※"
+          }
+        ]
+      }
+    },
+    "4765": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（名古屋），23 行；日程来源：2023-02-23 Zepp Nagoya 昼 + 夜 2 场，每场 23 首",
+      "dayNight": [
+        "2023-02-23"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2023/",
+          "title": "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "5 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67159.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 名古屋（名古屋）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 名古屋（名古屋）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "名古屋",
+        "songs": [
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング・初披露"
+          },
+          {
+            "id": 121110,
+            "title": "Satisfaction"
+          },
+          {
+            "id": 1500,
+            "title": "アンハッピーリフレイン"
+          },
+          {
+            "id": 246033,
+            "title": "Gimme×Gimme"
+          },
+          {
+            "id": 3155,
+            "title": "千年の独奏歌"
+          },
+          {
+            "id": 359211,
+            "title": "ANIMAL",
+            "note": "初披露"
+          },
+          {
+            "id": 199492,
+            "title": "ぼかろころしあむ",
+            "note": "初披露"
+          },
+          {
+            "id": 3024,
+            "title": "Change me"
+          },
+          {
+            "id": 18479,
+            "title": "独りんぼエンヴィー"
+          },
+          {
+            "id": 20,
+            "title": "ワールズエンド・ダンスホール"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 232031,
+            "title": "ハイパーリアリティショウ"
+          },
+          {
+            "id": 26010,
+            "title": "それがあなたの幸せとしても"
+          },
+          {
+            "id": 164273,
+            "title": "命に嫌われている。"
+          },
+          {
+            "id": 415813,
+            "title": "いいねってYEAH!"
+          },
+          {
+            "id": 183093,
+            "title": "Decade",
+            "note": "国内初披露"
+          },
+          {
+            "id": 215656,
+            "title": "アイ"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 8394,
+            "title": "千本桜"
+          },
+          {
+            "id": 8741,
+            "title": "桜ノ雨"
+          },
+          {
+            "id": 217889,
+            "title": "ラッキー☆オーブ"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 360978,
+            "title": "ノヴァ"
+          }
+        ]
+      }
+    },
+    "4766": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（大阪），23 行；日程来源：2023-03-04 Zepp Namba 昼 + 夜 2 场，每场 23 首",
+      "dayNight": [
+        "2023-03-04"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2023/",
+          "title": "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "5 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67159.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 大阪（大阪）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 大阪（大阪）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "大阪",
+        "songs": [
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング・初披露"
+          },
+          {
+            "id": 121935,
+            "title": "気まぐれメルシィ"
+          },
+          {
+            "id": 1500,
+            "title": "アンハッピーリフレイン"
+          },
+          {
+            "id": 246033,
+            "title": "Gimme×Gimme"
+          },
+          {
+            "id": 31226,
+            "title": "みかぼし"
+          },
+          {
+            "id": 359211,
+            "title": "ANIMAL",
+            "note": "初披露"
+          },
+          {
+            "id": 199492,
+            "title": "ぼかろころしあむ",
+            "note": "初披露"
+          },
+          {
+            "id": 363931,
+            "title": "私の恋はヘルファイア"
+          },
+          {
+            "id": 63276,
+            "title": "ヒビカセ"
+          },
+          {
+            "id": 19913,
+            "title": "on the rocks"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 3129,
+            "title": "ダブルラリアット"
+          },
+          {
+            "id": 29120,
+            "title": "完全性コンプレックス"
+          },
+          {
+            "id": 164273,
+            "title": "命に嫌われている。"
+          },
+          {
+            "id": 415813,
+            "title": "いいねってYEAH!"
+          },
+          {
+            "id": 199152,
+            "title": "魔法みたいなミュージック！"
+          },
+          {
+            "id": 47354,
+            "title": "好き！雪！本気マジック"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 8394,
+            "title": "千本桜"
+          },
+          {
+            "id": 8741,
+            "title": "桜ノ雨"
+          },
+          {
+            "id": 217889,
+            "title": "ラッキー☆オーブ"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 360978,
+            "title": "ノヴァ"
+          }
+        ]
+      }
+    },
+    "4767": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（福冈），23 行；日程来源：2023-03-11 Zepp Fukuoka 仅夜场 1 场，歌单 23 首",
+      "halves": {
+        "2023-03-11": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2023/",
+          "title": "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "5 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67159.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 福岡市（福冈）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 福岡市（福冈）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "福冈",
+        "songs": [
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング・初披露"
+          },
+          {
+            "id": 121110,
+            "title": "Satisfaction"
+          },
+          {
+            "id": 1500,
+            "title": "アンハッピーリフレイン"
+          },
+          {
+            "id": 246033,
+            "title": "Gimme×Gimme"
+          },
+          {
+            "id": 3155,
+            "title": "千年の独奏歌"
+          },
+          {
+            "id": 359211,
+            "title": "ANIMAL",
+            "note": "初披露"
+          },
+          {
+            "id": 199492,
+            "title": "ぼかろころしあむ",
+            "note": "初披露"
+          },
+          {
+            "id": 3024,
+            "title": "Change me"
+          },
+          {
+            "id": 18479,
+            "title": "独りんぼエンヴィー"
+          },
+          {
+            "id": 20,
+            "title": "ワールズエンド・ダンスホール"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 48029,
+            "title": "ストリーミングハート"
+          },
+          {
+            "id": 26010,
+            "title": "それがあなたの幸せとしても"
+          },
+          {
+            "id": 164273,
+            "title": "命に嫌われている。"
+          },
+          {
+            "id": 415813,
+            "title": "いいねってYEAH!"
+          },
+          {
+            "id": 183093,
+            "title": "Decade",
+            "note": "国内初披露"
+          },
+          {
+            "id": 215656,
+            "title": "アイ"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 8394,
+            "title": "千本桜"
+          },
+          {
+            "id": 8741,
+            "title": "桜ノ雨"
+          },
+          {
+            "id": 217889,
+            "title": "ラッキー☆オーブ"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 360978,
+            "title": "ノヴァ"
+          }
+        ]
+      }
+    },
+    "4768": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），按场次分 4 份；日程来源：2023-03-18–19 Zepp DiverCity 每天昼 + 夜，共 4 场，每场 23 首",
+      "dayNight": [
+        "2023-03-18",
+        "2023-03-19"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2023/",
+          "title": "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "5 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67159.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 東京（东京）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；32 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 東京（东京）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "东京",
+        "songs": [
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング・初披露"
+          },
+          {
+            "id": 121110,
+            "title": "Satisfaction"
+          },
+          {
+            "id": 121935,
+            "title": "気まぐれメルシィ"
+          },
+          {
+            "id": 1500,
+            "title": "アンハッピーリフレイン"
+          },
+          {
+            "id": 246033,
+            "title": "Gimme×Gimme"
+          },
+          {
+            "id": 3155,
+            "title": "千年の独奏歌"
+          },
+          {
+            "id": 31226,
+            "title": "みかぼし"
+          },
+          {
+            "id": 359211,
+            "title": "ANIMAL",
+            "note": "初披露"
+          },
+          {
+            "id": 199492,
+            "title": "ぼかろころしあむ",
+            "note": "初披露"
+          },
+          {
+            "id": 3024,
+            "title": "Change me"
+          },
+          {
+            "id": 363931,
+            "title": "私の恋はヘルファイア"
+          },
+          {
+            "id": 18479,
+            "title": "独りんぼエンヴィー"
+          },
+          {
+            "id": 63276,
+            "title": "ヒビカセ"
+          },
+          {
+            "id": 20,
+            "title": "ワールズエンド・ダンスホール"
+          },
+          {
+            "id": 19913,
+            "title": "on the rocks"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 38393,
+            "title": "聖槍爆裂ボーイ"
+          },
+          {
+            "id": 1435,
+            "title": "ルカルカ★ナイトフィーバー"
+          },
+          {
+            "id": 26010,
+            "title": "それがあなたの幸せとしても"
+          },
+          {
+            "id": 29120,
+            "title": "完全性コンプレックス"
+          },
+          {
+            "id": 164273,
+            "title": "命に嫌われている。"
+          },
+          {
+            "id": 415813,
+            "title": "いいねってYEAH!"
+          },
+          {
+            "id": 183093,
+            "title": "Decade",
+            "note": "国内初披露"
+          },
+          {
+            "id": 199152,
+            "title": "魔法みたいなミュージック！"
+          },
+          {
+            "id": 215656,
+            "title": "アイ"
+          },
+          {
+            "id": 47354,
+            "title": "好き！雪！本気マジック"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 8394,
+            "title": "千本桜"
+          },
+          {
+            "id": 8741,
+            "title": "桜ノ雨"
+          },
+          {
+            "id": 217889,
+            "title": "ラッキー☆オーブ"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 360978,
+            "title": "ノヴァ"
+          }
+        ],
+        "slots": [
+          {
+            "match": "4768:2023-03-18:day",
+            "songs": [
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング・初披露"
+              },
+              {
+                "id": 121935,
+                "title": "気まぐれメルシィ"
+              },
+              {
+                "id": 1500,
+                "title": "アンハッピーリフレイン"
+              },
+              {
+                "id": 246033,
+                "title": "Gimme×Gimme"
+              },
+              {
+                "id": 31226,
+                "title": "みかぼし"
+              },
+              {
+                "id": 359211,
+                "title": "ANIMAL",
+                "note": "初披露"
+              },
+              {
+                "id": 199492,
+                "title": "ぼかろころしあむ",
+                "note": "初披露"
+              },
+              {
+                "id": 363931,
+                "title": "私の恋はヘルファイア"
+              },
+              {
+                "id": 63276,
+                "title": "ヒビカセ"
+              },
+              {
+                "id": 19913,
+                "title": "on the rocks"
+              },
+              {
+                "id": 373,
+                "title": "秘密警察"
+              },
+              {
+                "id": 38393,
+                "title": "聖槍爆裂ボーイ"
+              },
+              {
+                "id": 29120,
+                "title": "完全性コンプレックス"
+              },
+              {
+                "id": 164273,
+                "title": "命に嫌われている。"
+              },
+              {
+                "id": 415813,
+                "title": "いいねってYEAH!"
+              },
+              {
+                "id": 199152,
+                "title": "魔法みたいなミュージック！"
+              },
+              {
+                "id": 47354,
+                "title": "好き！雪！本気マジック"
+              },
+              {
+                "id": 1326,
+                "title": "ワールドイズマイン"
+              },
+              {
+                "id": 8394,
+                "title": "千本桜"
+              },
+              {
+                "id": 8741,
+                "title": "桜ノ雨"
+              },
+              {
+                "id": 217889,
+                "title": "ラッキー☆オーブ"
+              },
+              {
+                "id": 8395,
+                "title": "Tell Your World"
+              },
+              {
+                "id": 360978,
+                "title": "ノヴァ"
+              }
+            ]
+          },
+          {
+            "match": "4768:2023-03-18:night",
+            "songs": [
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング・初披露"
+              },
+              {
+                "id": 121935,
+                "title": "気まぐれメルシィ"
+              },
+              {
+                "id": 1500,
+                "title": "アンハッピーリフレイン"
+              },
+              {
+                "id": 246033,
+                "title": "Gimme×Gimme"
+              },
+              {
+                "id": 31226,
+                "title": "みかぼし"
+              },
+              {
+                "id": 359211,
+                "title": "ANIMAL",
+                "note": "初披露"
+              },
+              {
+                "id": 199492,
+                "title": "ぼかろころしあむ",
+                "note": "初披露"
+              },
+              {
+                "id": 363931,
+                "title": "私の恋はヘルファイア"
+              },
+              {
+                "id": 63276,
+                "title": "ヒビカセ"
+              },
+              {
+                "id": 19913,
+                "title": "on the rocks"
+              },
+              {
+                "id": 373,
+                "title": "秘密警察"
+              },
+              {
+                "id": 38393,
+                "title": "聖槍爆裂ボーイ"
+              },
+              {
+                "id": 29120,
+                "title": "完全性コンプレックス"
+              },
+              {
+                "id": 164273,
+                "title": "命に嫌われている。"
+              },
+              {
+                "id": 415813,
+                "title": "いいねってYEAH!"
+              },
+              {
+                "id": 199152,
+                "title": "魔法みたいなミュージック！"
+              },
+              {
+                "id": 47354,
+                "title": "好き！雪！本気マジック"
+              },
+              {
+                "id": 1326,
+                "title": "ワールドイズマイン"
+              },
+              {
+                "id": 8394,
+                "title": "千本桜"
+              },
+              {
+                "id": 8741,
+                "title": "桜ノ雨"
+              },
+              {
+                "id": 217889,
+                "title": "ラッキー☆オーブ"
+              },
+              {
+                "id": 8395,
+                "title": "Tell Your World"
+              },
+              {
+                "id": 360978,
+                "title": "ノヴァ"
+              }
+            ]
+          },
+          {
+            "match": "4768:2023-03-19:day",
+            "songs": [
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング・初披露"
+              },
+              {
+                "id": 121110,
+                "title": "Satisfaction"
+              },
+              {
+                "id": 1500,
+                "title": "アンハッピーリフレイン"
+              },
+              {
+                "id": 246033,
+                "title": "Gimme×Gimme"
+              },
+              {
+                "id": 3155,
+                "title": "千年の独奏歌"
+              },
+              {
+                "id": 359211,
+                "title": "ANIMAL",
+                "note": "初披露"
+              },
+              {
+                "id": 199492,
+                "title": "ぼかろころしあむ",
+                "note": "初披露"
+              },
+              {
+                "id": 3024,
+                "title": "Change me"
+              },
+              {
+                "id": 18479,
+                "title": "独りんぼエンヴィー"
+              },
+              {
+                "id": 20,
+                "title": "ワールズエンド・ダンスホール"
+              },
+              {
+                "id": 373,
+                "title": "秘密警察"
+              },
+              {
+                "id": 1435,
+                "title": "ルカルカ★ナイトフィーバー"
+              },
+              {
+                "id": 26010,
+                "title": "それがあなたの幸せとしても"
+              },
+              {
+                "id": 164273,
+                "title": "命に嫌われている。"
+              },
+              {
+                "id": 415813,
+                "title": "いいねってYEAH!"
+              },
+              {
+                "id": 183093,
+                "title": "Decade",
+                "note": "国内初披露"
+              },
+              {
+                "id": 215656,
+                "title": "アイ"
+              },
+              {
+                "id": 1326,
+                "title": "ワールドイズマイン"
+              },
+              {
+                "id": 8394,
+                "title": "千本桜"
+              },
+              {
+                "id": 8741,
+                "title": "桜ノ雨"
+              },
+              {
+                "id": 217889,
+                "title": "ラッキー☆オーブ"
+              },
+              {
+                "id": 8395,
+                "title": "Tell Your World"
+              },
+              {
+                "id": 360978,
+                "title": "ノヴァ"
+              }
+            ]
+          },
+          {
+            "match": "4768:2023-03-19:night",
+            "songs": [
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング・初披露"
+              },
+              {
+                "id": 121110,
+                "title": "Satisfaction"
+              },
+              {
+                "id": 1500,
+                "title": "アンハッピーリフレイン"
+              },
+              {
+                "id": 246033,
+                "title": "Gimme×Gimme"
+              },
+              {
+                "id": 3155,
+                "title": "千年の独奏歌"
+              },
+              {
+                "id": 359211,
+                "title": "ANIMAL",
+                "note": "初披露"
+              },
+              {
+                "id": 199492,
+                "title": "ぼかろころしあむ",
+                "note": "初披露"
+              },
+              {
+                "id": 3024,
+                "title": "Change me"
+              },
+              {
+                "id": 18479,
+                "title": "独りんぼエンヴィー"
+              },
+              {
+                "id": 20,
+                "title": "ワールズエンド・ダンスホール"
+              },
+              {
+                "id": 373,
+                "title": "秘密警察"
+              },
+              {
+                "id": 1435,
+                "title": "ルカルカ★ナイトフィーバー"
+              },
+              {
+                "id": 26010,
+                "title": "それがあなたの幸せとしても"
+              },
+              {
+                "id": 164273,
+                "title": "命に嫌われている。"
+              },
+              {
+                "id": 415813,
+                "title": "いいねってYEAH!"
+              },
+              {
+                "id": 183093,
+                "title": "Decade",
+                "note": "国内初披露"
+              },
+              {
+                "id": 215656,
+                "title": "アイ"
+              },
+              {
+                "id": 1326,
+                "title": "ワールドイズマイン"
+              },
+              {
+                "id": 8394,
+                "title": "千本桜"
+              },
+              {
+                "id": 8741,
+                "title": "桜ノ雨"
+              },
+              {
+                "id": 217889,
+                "title": "ラッキー☆オーブ"
+              },
+              {
+                "id": 8395,
+                "title": "Tell Your World"
+              },
+              {
+                "id": 360978,
+                "title": "ノヴァ"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "4769": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（札幌），23 行；日程来源：2023-03-25 Zepp Sapporo 仅夜场 1 场，歌单 23 首",
+      "halves": {
+        "2023-03-25": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2023/",
+          "title": "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "5 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67159.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 札幌（札幌）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 札幌（札幌）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "札幌",
+        "songs": [
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング・初披露"
+          },
+          {
+            "id": 121935,
+            "title": "気まぐれメルシィ"
+          },
+          {
+            "id": 1500,
+            "title": "アンハッピーリフレイン"
+          },
+          {
+            "id": 246033,
+            "title": "Gimme×Gimme"
+          },
+          {
+            "id": 31226,
+            "title": "みかぼし"
+          },
+          {
+            "id": 359211,
+            "title": "ANIMAL",
+            "note": "初披露"
+          },
+          {
+            "id": 199492,
+            "title": "ぼかろころしあむ",
+            "note": "初披露"
+          },
+          {
+            "id": 363931,
+            "title": "私の恋はヘルファイア"
+          },
+          {
+            "id": 63276,
+            "title": "ヒビカセ"
+          },
+          {
+            "id": 19913,
+            "title": "on the rocks"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 239350,
+            "title": "シャボン"
+          },
+          {
+            "id": 29120,
+            "title": "完全性コンプレックス"
+          },
+          {
+            "id": 164273,
+            "title": "命に嫌われている。"
+          },
+          {
+            "id": 415813,
+            "title": "いいねってYEAH!"
+          },
+          {
+            "id": 199152,
+            "title": "魔法みたいなミュージック！"
+          },
+          {
+            "id": 47354,
+            "title": "好き！雪！本気マジック"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 8394,
+            "title": "千本桜"
+          },
+          {
+            "id": 8741,
+            "title": "桜ノ雨"
+          },
+          {
+            "id": 217889,
+            "title": "ラッキー☆オーブ"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          },
+          {
+            "id": 360978,
+            "title": "ノヴァ"
+          }
+        ]
+      }
+    },
+    "8380": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（大阪），23 行；日程来源：2025-04-19 Zepp Namba 昼 + 夜 2 场，每场 23 首",
+      "dayNight": [
+        "2025-04-19"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2025/",
+          "title": "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "7 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67158.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 大阪（大阪）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 大阪（大阪）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "大阪",
+        "songs": [
+          {
+            "id": 460547,
+            "title": "プシ",
+            "note": "初披露※"
+          },
+          {
+            "id": 106773,
+            "title": "エイリアンエイリアン"
+          },
+          {
+            "id": 9376,
+            "title": "二次元ドリームフィーバー"
+          },
+          {
+            "id": 143259,
+            "title": "キレキャリオン"
+          },
+          {
+            "id": 6387,
+            "title": "Fire◎Flower"
+          },
+          {
+            "id": 35256,
+            "title": "Caged Flower",
+            "note": "初披露"
+          },
+          {
+            "id": 542682,
+            "title": "夜舞うシルエット",
+            "note": "初披露※"
+          },
+          {
+            "id": 445823,
+            "title": "カルチャ"
+          },
+          {
+            "id": 555,
+            "title": "東京テディベア"
+          },
+          {
+            "id": 258338,
+            "title": "Someday'z Coming"
+          },
+          {
+            "id": 233962,
+            "title": "REALITY"
+          },
+          {
+            "id": 9553,
+            "title": "アカツキアライヴァル"
+          },
+          {
+            "id": 185363,
+            "title": "ロキ"
+          },
+          {
+            "id": 610187,
+            "title": "メズマライザー",
+            "note": "初披露※"
+          },
+          {
+            "id": 251481,
+            "title": "Catch the Wave"
+          },
+          {
+            "id": 79094,
+            "title": "Snow Fairy Story"
+          },
+          {
+            "id": 573584,
+            "title": "Intergalactic Bound",
+            "note": "国内初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング"
+          },
+          {
+            "id": 105439,
+            "title": "Blue Star"
+          },
+          {
+            "id": 772578,
+            "title": "Over Flow(er)",
+            "note": "JP TOUR ‘25 テーマソング・初披露※"
+          }
+        ]
+      }
+    },
+    "8381": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（爱知），23 行；日程来源：2025-04-26 Zepp Nagoya 昼 + 夜 2 场，每场 23 首",
+      "dayNight": [
+        "2025-04-26"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2025/",
+          "title": "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "7 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67158.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 愛知（爱知）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 愛知（爱知）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "爱知",
+        "songs": [
+          {
+            "id": 460547,
+            "title": "プシ",
+            "note": "初披露※"
+          },
+          {
+            "id": 293286,
+            "title": "ダーリンダンス"
+          },
+          {
+            "id": 1024,
+            "title": "キャットフード"
+          },
+          {
+            "id": 143259,
+            "title": "キレキャリオン"
+          },
+          {
+            "id": 6387,
+            "title": "Fire◎Flower"
+          },
+          {
+            "id": 35256,
+            "title": "Caged Flower",
+            "note": "初披露"
+          },
+          {
+            "id": 542682,
+            "title": "夜舞うシルエット",
+            "note": "初披露※"
+          },
+          {
+            "id": 8735,
+            "title": "深海少女"
+          },
+          {
+            "id": 555,
+            "title": "東京テディベア"
+          },
+          {
+            "id": 258338,
+            "title": "Someday'z Coming"
+          },
+          {
+            "id": 233962,
+            "title": "REALITY"
+          },
+          {
+            "id": 5166,
+            "title": "magnet"
+          },
+          {
+            "id": 149312,
+            "title": "いーあるふぁんくらぶ"
+          },
+          {
+            "id": 610187,
+            "title": "メズマライザー",
+            "note": "初披露※"
+          },
+          {
+            "id": 290231,
+            "title": "セカイ"
+          },
+          {
+            "id": 178433,
+            "title": "四角い地球を丸くする"
+          },
+          {
+            "id": 540085,
+            "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+            "note": "国内初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング"
+          },
+          {
+            "id": 105439,
+            "title": "Blue Star"
+          },
+          {
+            "id": 772578,
+            "title": "Over Flow(er)",
+            "note": "JP TOUR ‘25 テーマソング・初披露※"
+          }
+        ]
+      }
+    },
+    "8382": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（福冈），23 行；日程来源：2025-04-29 Zepp Fukuoka 昼 + 夜 2 场，每场 23 首",
+      "dayNight": [
+        "2025-04-29"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2025/",
+          "title": "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "7 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67158.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 福岡（福冈）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 福岡（福冈）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "福冈",
+        "songs": [
+          {
+            "id": 460547,
+            "title": "プシ",
+            "note": "初披露※"
+          },
+          {
+            "id": 106773,
+            "title": "エイリアンエイリアン"
+          },
+          {
+            "id": 9376,
+            "title": "二次元ドリームフィーバー"
+          },
+          {
+            "id": 143259,
+            "title": "キレキャリオン"
+          },
+          {
+            "id": 6387,
+            "title": "Fire◎Flower"
+          },
+          {
+            "id": 35256,
+            "title": "Caged Flower",
+            "note": "初披露"
+          },
+          {
+            "id": 542682,
+            "title": "夜舞うシルエット",
+            "note": "初披露※"
+          },
+          {
+            "id": 5859,
+            "title": "二息歩行"
+          },
+          {
+            "id": 555,
+            "title": "東京テディベア"
+          },
+          {
+            "id": 258338,
+            "title": "Someday'z Coming"
+          },
+          {
+            "id": 233962,
+            "title": "REALITY"
+          },
+          {
+            "id": 9553,
+            "title": "アカツキアライヴァル"
+          },
+          {
+            "id": 185363,
+            "title": "ロキ"
+          },
+          {
+            "id": 610187,
+            "title": "メズマライザー",
+            "note": "初披露※"
+          },
+          {
+            "id": 251481,
+            "title": "Catch the Wave"
+          },
+          {
+            "id": 79094,
+            "title": "Snow Fairy Story"
+          },
+          {
+            "id": 573584,
+            "title": "Intergalactic Bound",
+            "note": "国内初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング"
+          },
+          {
+            "id": 105439,
+            "title": "Blue Star"
+          },
+          {
+            "id": 772578,
+            "title": "Over Flow(er)",
+            "note": "JP TOUR ‘25 テーマソング・初披露※"
+          }
+        ]
+      }
+    },
+    "8383": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），按场次分 4 份；日程来源：2025-05-02–03 Zepp Haneda 每天昼 + 夜，共 4 场，每场 23 首",
+      "dayNight": [
+        "2025-05-02",
+        "2025-05-03"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2025/",
+          "title": "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "7 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67158.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 東京（东京）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；31 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 東京（东京）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "东京",
+        "songs": [
+          {
+            "id": 460547,
+            "title": "プシ",
+            "note": "初披露※"
+          },
+          {
+            "id": 106773,
+            "title": "エイリアンエイリアン"
+          },
+          {
+            "id": 293286,
+            "title": "ダーリンダンス"
+          },
+          {
+            "id": 9376,
+            "title": "二次元ドリームフィーバー"
+          },
+          {
+            "id": 1024,
+            "title": "キャットフード"
+          },
+          {
+            "id": 143259,
+            "title": "キレキャリオン"
+          },
+          {
+            "id": 6387,
+            "title": "Fire◎Flower"
+          },
+          {
+            "id": 35256,
+            "title": "Caged Flower",
+            "note": "初披露"
+          },
+          {
+            "id": 542682,
+            "title": "夜舞うシルエット",
+            "note": "初披露※"
+          },
+          {
+            "id": 38835,
+            "title": "脳内革命ガール"
+          },
+          {
+            "id": 4129,
+            "title": "メランコリック"
+          },
+          {
+            "id": 555,
+            "title": "東京テディベア"
+          },
+          {
+            "id": 258338,
+            "title": "Someday'z Coming"
+          },
+          {
+            "id": 233962,
+            "title": "REALITY"
+          },
+          {
+            "id": 9553,
+            "title": "アカツキアライヴァル"
+          },
+          {
+            "id": 5166,
+            "title": "magnet"
+          },
+          {
+            "id": 185363,
+            "title": "ロキ"
+          },
+          {
+            "id": 149312,
+            "title": "いーあるふぁんくらぶ"
+          },
+          {
+            "id": 610187,
+            "title": "メズマライザー",
+            "note": "初披露※"
+          },
+          {
+            "id": 251481,
+            "title": "Catch the Wave"
+          },
+          {
+            "id": 290231,
+            "title": "セカイ"
+          },
+          {
+            "id": 79094,
+            "title": "Snow Fairy Story"
+          },
+          {
+            "id": 178433,
+            "title": "四角い地球を丸くする"
+          },
+          {
+            "id": 573584,
+            "title": "Intergalactic Bound",
+            "note": "国内初披露"
+          },
+          {
+            "id": 540085,
+            "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+            "note": "国内初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング"
+          },
+          {
+            "id": 105439,
+            "title": "Blue Star"
+          },
+          {
+            "id": 772578,
+            "title": "Over Flow(er)",
+            "note": "JP TOUR ‘25 テーマソング・初披露※"
+          }
+        ],
+        "slots": [
+          {
+            "match": "8383:2025-05-02:day",
+            "songs": [
+              {
+                "id": 460547,
+                "title": "プシ",
+                "note": "初披露※"
+              },
+              {
+                "id": 293286,
+                "title": "ダーリンダンス"
+              },
+              {
+                "id": 1024,
+                "title": "キャットフード"
+              },
+              {
+                "id": 143259,
+                "title": "キレキャリオン"
+              },
+              {
+                "id": 6387,
+                "title": "Fire◎Flower"
+              },
+              {
+                "id": 35256,
+                "title": "Caged Flower",
+                "note": "初披露"
+              },
+              {
+                "id": 542682,
+                "title": "夜舞うシルエット",
+                "note": "初披露※"
+              },
+              {
+                "id": 38835,
+                "title": "脳内革命ガール"
+              },
+              {
+                "id": 555,
+                "title": "東京テディベア"
+              },
+              {
+                "id": 258338,
+                "title": "Someday'z Coming"
+              },
+              {
+                "id": 233962,
+                "title": "REALITY"
+              },
+              {
+                "id": 5166,
+                "title": "magnet"
+              },
+              {
+                "id": 149312,
+                "title": "いーあるふぁんくらぶ"
+              },
+              {
+                "id": 610187,
+                "title": "メズマライザー",
+                "note": "初披露※"
+              },
+              {
+                "id": 290231,
+                "title": "セカイ"
+              },
+              {
+                "id": 178433,
+                "title": "四角い地球を丸くする"
+              },
+              {
+                "id": 540085,
+                "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+                "note": "国内初披露"
+              },
+              {
+                "id": 8290,
+                "title": "ゆめゆめ",
+                "note": "※"
+              },
+              {
+                "id": 1516,
+                "title": "SPiCa"
+              },
+              {
+                "id": 15662,
+                "title": "ODDS&ENDS"
+              },
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング"
+              },
+              {
+                "id": 105439,
+                "title": "Blue Star"
+              },
+              {
+                "id": 772578,
+                "title": "Over Flow(er)",
+                "note": "JP TOUR ‘25 テーマソング・初披露※"
+              }
+            ]
+          },
+          {
+            "match": "8383:2025-05-02:night",
+            "songs": [
+              {
+                "id": 460547,
+                "title": "プシ",
+                "note": "初披露※"
+              },
+              {
+                "id": 293286,
+                "title": "ダーリンダンス"
+              },
+              {
+                "id": 1024,
+                "title": "キャットフード"
+              },
+              {
+                "id": 143259,
+                "title": "キレキャリオン"
+              },
+              {
+                "id": 6387,
+                "title": "Fire◎Flower"
+              },
+              {
+                "id": 35256,
+                "title": "Caged Flower",
+                "note": "初披露"
+              },
+              {
+                "id": 542682,
+                "title": "夜舞うシルエット",
+                "note": "初披露※"
+              },
+              {
+                "id": 38835,
+                "title": "脳内革命ガール"
+              },
+              {
+                "id": 555,
+                "title": "東京テディベア"
+              },
+              {
+                "id": 258338,
+                "title": "Someday'z Coming"
+              },
+              {
+                "id": 233962,
+                "title": "REALITY"
+              },
+              {
+                "id": 5166,
+                "title": "magnet"
+              },
+              {
+                "id": 149312,
+                "title": "いーあるふぁんくらぶ"
+              },
+              {
+                "id": 610187,
+                "title": "メズマライザー",
+                "note": "初披露※"
+              },
+              {
+                "id": 290231,
+                "title": "セカイ"
+              },
+              {
+                "id": 178433,
+                "title": "四角い地球を丸くする"
+              },
+              {
+                "id": 540085,
+                "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+                "note": "国内初披露"
+              },
+              {
+                "id": 8290,
+                "title": "ゆめゆめ",
+                "note": "※"
+              },
+              {
+                "id": 1516,
+                "title": "SPiCa"
+              },
+              {
+                "id": 15662,
+                "title": "ODDS&ENDS"
+              },
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング"
+              },
+              {
+                "id": 105439,
+                "title": "Blue Star"
+              },
+              {
+                "id": 772578,
+                "title": "Over Flow(er)",
+                "note": "JP TOUR ‘25 テーマソング・初披露※"
+              }
+            ]
+          },
+          {
+            "match": "8383:2025-05-03:day",
+            "songs": [
+              {
+                "id": 460547,
+                "title": "プシ",
+                "note": "初披露※"
+              },
+              {
+                "id": 106773,
+                "title": "エイリアンエイリアン"
+              },
+              {
+                "id": 9376,
+                "title": "二次元ドリームフィーバー"
+              },
+              {
+                "id": 143259,
+                "title": "キレキャリオン"
+              },
+              {
+                "id": 6387,
+                "title": "Fire◎Flower"
+              },
+              {
+                "id": 35256,
+                "title": "Caged Flower",
+                "note": "初披露"
+              },
+              {
+                "id": 542682,
+                "title": "夜舞うシルエット",
+                "note": "初披露※"
+              },
+              {
+                "id": 4129,
+                "title": "メランコリック"
+              },
+              {
+                "id": 555,
+                "title": "東京テディベア"
+              },
+              {
+                "id": 258338,
+                "title": "Someday'z Coming"
+              },
+              {
+                "id": 233962,
+                "title": "REALITY"
+              },
+              {
+                "id": 9553,
+                "title": "アカツキアライヴァル"
+              },
+              {
+                "id": 185363,
+                "title": "ロキ"
+              },
+              {
+                "id": 610187,
+                "title": "メズマライザー",
+                "note": "初披露※"
+              },
+              {
+                "id": 251481,
+                "title": "Catch the Wave"
+              },
+              {
+                "id": 79094,
+                "title": "Snow Fairy Story"
+              },
+              {
+                "id": 573584,
+                "title": "Intergalactic Bound",
+                "note": "国内初披露"
+              },
+              {
+                "id": 8290,
+                "title": "ゆめゆめ",
+                "note": "※"
+              },
+              {
+                "id": 1516,
+                "title": "SPiCa"
+              },
+              {
+                "id": 15662,
+                "title": "ODDS&ENDS"
+              },
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング"
+              },
+              {
+                "id": 105439,
+                "title": "Blue Star"
+              },
+              {
+                "id": 772578,
+                "title": "Over Flow(er)",
+                "note": "JP TOUR ‘25 テーマソング・初披露※"
+              }
+            ]
+          },
+          {
+            "match": "8383:2025-05-03:night",
+            "songs": [
+              {
+                "id": 460547,
+                "title": "プシ",
+                "note": "初披露※"
+              },
+              {
+                "id": 106773,
+                "title": "エイリアンエイリアン"
+              },
+              {
+                "id": 9376,
+                "title": "二次元ドリームフィーバー"
+              },
+              {
+                "id": 143259,
+                "title": "キレキャリオン"
+              },
+              {
+                "id": 6387,
+                "title": "Fire◎Flower"
+              },
+              {
+                "id": 35256,
+                "title": "Caged Flower",
+                "note": "初披露"
+              },
+              {
+                "id": 542682,
+                "title": "夜舞うシルエット",
+                "note": "初披露※"
+              },
+              {
+                "id": 4129,
+                "title": "メランコリック"
+              },
+              {
+                "id": 555,
+                "title": "東京テディベア"
+              },
+              {
+                "id": 258338,
+                "title": "Someday'z Coming"
+              },
+              {
+                "id": 233962,
+                "title": "REALITY"
+              },
+              {
+                "id": 9553,
+                "title": "アカツキアライヴァル"
+              },
+              {
+                "id": 185363,
+                "title": "ロキ"
+              },
+              {
+                "id": 610187,
+                "title": "メズマライザー",
+                "note": "初披露※"
+              },
+              {
+                "id": 251481,
+                "title": "Catch the Wave"
+              },
+              {
+                "id": 79094,
+                "title": "Snow Fairy Story"
+              },
+              {
+                "id": 573584,
+                "title": "Intergalactic Bound",
+                "note": "国内初披露"
+              },
+              {
+                "id": 8290,
+                "title": "ゆめゆめ",
+                "note": "※"
+              },
+              {
+                "id": 1516,
+                "title": "SPiCa"
+              },
+              {
+                "id": 15662,
+                "title": "ODDS&ENDS"
+              },
+              {
+                "id": 468978,
+                "title": "THUNDERBOLT",
+                "note": "JP TOUR ‘23 テーマソング"
+              },
+              {
+                "id": 105439,
+                "title": "Blue Star"
+              },
+              {
+                "id": 772578,
+                "title": "Over Flow(er)",
+                "note": "JP TOUR ‘25 テーマソング・初披露※"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "8384": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（香川），23 行；日程来源：2025-05-06 レクザムホール 大ホール 仅昼场 1 场，歌单 23 首",
+      "halves": {
+        "2025-05-06": [
+          "day"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2025/",
+          "title": "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "7 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67158.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 香川（香川）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 香川（香川）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "香川",
+        "songs": [
+          {
+            "id": 460547,
+            "title": "プシ",
+            "note": "初披露※"
+          },
+          {
+            "id": 293286,
+            "title": "ダーリンダンス"
+          },
+          {
+            "id": 1024,
+            "title": "キャットフード"
+          },
+          {
+            "id": 143259,
+            "title": "キレキャリオン"
+          },
+          {
+            "id": 6387,
+            "title": "Fire◎Flower"
+          },
+          {
+            "id": 35256,
+            "title": "Caged Flower",
+            "note": "初披露"
+          },
+          {
+            "id": 542682,
+            "title": "夜舞うシルエット",
+            "note": "初披露※"
+          },
+          {
+            "id": 4083,
+            "title": "ぽっぴっぽー"
+          },
+          {
+            "id": 555,
+            "title": "東京テディベア"
+          },
+          {
+            "id": 258338,
+            "title": "Someday'z Coming"
+          },
+          {
+            "id": 233962,
+            "title": "REALITY"
+          },
+          {
+            "id": 5166,
+            "title": "magnet"
+          },
+          {
+            "id": 149312,
+            "title": "いーあるふぁんくらぶ"
+          },
+          {
+            "id": 610187,
+            "title": "メズマライザー",
+            "note": "初披露※"
+          },
+          {
+            "id": 290231,
+            "title": "セカイ"
+          },
+          {
+            "id": 178433,
+            "title": "四角い地球を丸くする"
+          },
+          {
+            "id": 540085,
+            "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+            "note": "国内初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング"
+          },
+          {
+            "id": 105439,
+            "title": "Blue Star"
+          },
+          {
+            "id": 772578,
+            "title": "Over Flow(er)",
+            "note": "JP TOUR ‘25 テーマソング・初披露※"
+          }
+        ]
+      }
+    },
+    "8385": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（北海道），23 行；日程来源：2025-05-17 Zepp Sapporo 仅夜场 1 场，歌单 23 首",
+      "halves": {
+        "2025-05-17": [
+          "night"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2025/",
+          "title": "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "7 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67158.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 北海道（北海道）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 北海道（北海道）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "北海道",
+        "songs": [
+          {
+            "id": 460547,
+            "title": "プシ",
+            "note": "初披露※"
+          },
+          {
+            "id": 106773,
+            "title": "エイリアンエイリアン"
+          },
+          {
+            "id": 9376,
+            "title": "二次元ドリームフィーバー"
+          },
+          {
+            "id": 143259,
+            "title": "キレキャリオン"
+          },
+          {
+            "id": 6387,
+            "title": "Fire◎Flower"
+          },
+          {
+            "id": 35256,
+            "title": "Caged Flower",
+            "note": "初披露"
+          },
+          {
+            "id": 542682,
+            "title": "夜舞うシルエット",
+            "note": "初披露※"
+          },
+          {
+            "id": 156001,
+            "title": "ドリームレス・ドリームス"
+          },
+          {
+            "id": 555,
+            "title": "東京テディベア"
+          },
+          {
+            "id": 258338,
+            "title": "Someday'z Coming"
+          },
+          {
+            "id": 233962,
+            "title": "REALITY"
+          },
+          {
+            "id": 9553,
+            "title": "アカツキアライヴァル"
+          },
+          {
+            "id": 185363,
+            "title": "ロキ"
+          },
+          {
+            "id": 610187,
+            "title": "メズマライザー",
+            "note": "初披露※"
+          },
+          {
+            "id": 251481,
+            "title": "Catch the Wave"
+          },
+          {
+            "id": 79094,
+            "title": "Snow Fairy Story"
+          },
+          {
+            "id": 573584,
+            "title": "Intergalactic Bound",
+            "note": "国内初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング"
+          },
+          {
+            "id": 105439,
+            "title": "Blue Star"
+          },
+          {
+            "id": 772578,
+            "title": "Over Flow(er)",
+            "note": "JP TOUR ‘25 テーマソング・初披露※"
+          }
+        ]
+      }
+    },
+    "8386": {
+      "note": "歌单来自初音ミク Wiki 的逐曲表（冲绳），23 行；日程来源：2025-05-31 那覇文化芸術劇場なはーと 大劇場 昼 + 夜 2 场，每场 23 首",
+      "dayNight": [
+        "2025-05-31"
+      ],
+      "sources": [
+        {
+          "url": "https://piapro.net/japantour2025/",
+          "title": "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+          "accessedAt": "2026-11-06",
+          "confidence": "high",
+          "note": "7 城巡演日程"
+        },
+        {
+          "url": "https://w.atwiki.jp/hmiku/pages/67158.html",
+          "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 沖縄（冲绳）",
+          "accessedAt": "2026-11-06",
+          "confidence": "medium",
+          "note": "逐曲表，含メドレー 拆分；23 行"
+        }
+      ],
+      "setlist": {
+        "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+        "title": "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 沖縄（冲绳）",
+        "accessedAt": "2026-11-06",
+        "confidence": "medium",
+        "label": "冲绳",
+        "songs": [
+          {
+            "id": 460547,
+            "title": "プシ",
+            "note": "初披露※"
+          },
+          {
+            "id": 293286,
+            "title": "ダーリンダンス"
+          },
+          {
+            "id": 1024,
+            "title": "キャットフード"
+          },
+          {
+            "id": 143259,
+            "title": "キレキャリオン"
+          },
+          {
+            "id": 6387,
+            "title": "Fire◎Flower"
+          },
+          {
+            "id": 35256,
+            "title": "Caged Flower",
+            "note": "初披露"
+          },
+          {
+            "id": 542682,
+            "title": "夜舞うシルエット",
+            "note": "初披露※"
+          },
+          {
+            "id": 1508,
+            "title": "裏表ラバーズ"
+          },
+          {
+            "id": 555,
+            "title": "東京テディベア"
+          },
+          {
+            "id": 258338,
+            "title": "Someday'z Coming"
+          },
+          {
+            "id": 233962,
+            "title": "REALITY"
+          },
+          {
+            "id": 5166,
+            "title": "magnet"
+          },
+          {
+            "id": 149312,
+            "title": "いーあるふぁんくらぶ"
+          },
+          {
+            "id": 610187,
+            "title": "メズマライザー",
+            "note": "初披露※"
+          },
+          {
+            "id": 290231,
+            "title": "セカイ"
+          },
+          {
+            "id": 178433,
+            "title": "四角い地球を丸くする"
+          },
+          {
+            "id": 540085,
+            "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+            "note": "国内初披露"
+          },
+          {
+            "id": 8290,
+            "title": "ゆめゆめ",
+            "note": "※"
+          },
+          {
+            "id": 1516,
+            "title": "SPiCa"
+          },
+          {
+            "id": 15662,
+            "title": "ODDS&ENDS"
+          },
+          {
+            "id": 468978,
+            "title": "THUNDERBOLT",
+            "note": "JP TOUR ‘23 テーマソング"
+          },
+          {
+            "id": 105439,
+            "title": "Blue Star"
+          },
+          {
+            "id": 772578,
+            "title": "Over Flow(er)",
+            "note": "JP TOUR ‘25 テーマソング・初披露※"
+          }
+        ]
+      }
+    },
     "1399": {
       "note": "歌单来自初音ミク Wiki 的逐曲表（福冈），26 行",
       "halves": {
@@ -28309,7 +31268,7 @@
     "1619": {
       "setlist": {
         "source": "https://w.atwiki.jp/hmiku/pages/67160.html",
-        "title": "初音ミク Wiki：HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（北京）",
+        "title": "初音ミク Wiki：MIKU WITH YOU 2017 in Shanghai（北京）",
         "accessedAt": "2026-11-06",
         "confidence": "medium",
         "label": "北京",
@@ -28673,7 +31632,7 @@
       "sources": [
         {
           "url": "https://w.atwiki.jp/hmiku/pages/67160.html",
-          "title": "初音ミク Wiki：HATSUNE MIKU with YOU 2017 CHINA FESTIVAL（北京）",
+          "title": "初音ミク Wiki：MIKU WITH YOU 2017 in Shanghai（北京）",
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；29 行"
@@ -30809,218 +33768,6 @@
         }
       ],
       "note": "歌单来自初音ミク Wiki 的逐曲表（东京），25 行"
-    },
-    "2520": {
-      "setlist": {
-        "source": "https://w.atwiki.jp/hmiku/pages/67147.html",
-        "title": "初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）",
-        "accessedAt": "2026-11-06",
-        "confidence": "medium",
-        "label": "东京",
-        "songs": [
-          {
-            "id": 10951,
-            "title": "ハジメテノオト",
-            "note": "首次披露"
-          },
-          {
-            "id": 2321,
-            "title": "Project Diva desu.",
-            "note": "首次披露"
-          },
-          {
-            "id": 1326,
-            "title": "ワールドイズマイン"
-          },
-          {
-            "id": 2915,
-            "title": "えれくとりっく・えんじぇぅ",
-            "note": "首次披露"
-          },
-          {
-            "id": 1340,
-            "title": "サウンド",
-            "note": "首次披露，嘉宾 baker"
-          },
-          {
-            "id": 7839,
-            "title": "恋スルVOC@LOID"
-          },
-          {
-            "id": 2943,
-            "title": "Dear cocoa girls",
-            "note": "首次披露"
-          },
-          {
-            "id": 2922,
-            "title": "StargazeR",
-            "note": "首次披露"
-          },
-          {
-            "id": 2942,
-            "title": "The secret garden",
-            "note": "首次披露"
-          },
-          {
-            "id": 3658,
-            "title": "ミラクルペイント",
-            "note": "メドレー①"
-          },
-          {
-            "id": 3027,
-            "title": "Innocence",
-            "note": "メドレー①"
-          },
-          {
-            "id": 108735,
-            "title": "ハト",
-            "note": "メドレー①"
-          },
-          {
-            "id": 35377,
-            "title": "みくみく菌にご注意♪",
-            "note": "メドレー①"
-          },
-          {
-            "id": 4083,
-            "title": "ぽっぴっぽー",
-            "note": "メドレー①"
-          },
-          {
-            "id": 2652,
-            "title": "サヨナラ・グッバイ",
-            "note": "メドレー①"
-          },
-          {
-            "id": 3658,
-            "title": "ミラクルペイント",
-            "note": "嘉宾 OSTER project 版"
-          },
-          {
-            "id": 1032,
-            "title": "ロミオとシンデレラ",
-            "note": "嘉宾 doriko"
-          },
-          {
-            "id": 3478,
-            "title": "Dear",
-            "note": "嘉宾 19's Sound Factory"
-          },
-          {
-            "id": 1508,
-            "title": "裏表ラバーズ",
-            "note": "首次披露"
-          },
-          {
-            "id": 1319,
-            "title": "パズル",
-            "note": "首次披露"
-          },
-          {
-            "id": 11877,
-            "title": "VOiCE",
-            "note": "首次披露"
-          },
-          {
-            "id": 8246,
-            "title": "1/6 -out of the gravity-",
-            "note": "首次披露，嘉宾 ぼーかりおどP"
-          },
-          {
-            "id": 1047,
-            "title": "星屑ユートピア",
-            "note": "首次披露"
-          },
-          {
-            "id": 3129,
-            "title": "ダブルラリアット",
-            "note": "首次披露，嘉宾 アゴアニキ"
-          },
-          {
-            "id": 1360,
-            "title": "Just Be Friends",
-            "note": "首次披露"
-          },
-          {
-            "id": 5166,
-            "title": "magnet",
-            "note": "首次披露"
-          },
-          {
-            "id": 4051,
-            "title": "Alice",
-            "note": "首次披露"
-          },
-          {
-            "id": 2917,
-            "title": "あなたの歌姫"
-          },
-          {
-            "id": 5701,
-            "title": "moon"
-          },
-          {
-            "id": 295872,
-            "title": "初音ミクの消失"
-          },
-          {
-            "id": 3022,
-            "title": "炉心融解"
-          },
-          {
-            "id": 1357,
-            "title": "ココロ",
-            "note": "嘉宾 baker"
-          },
-          {
-            "id": 1949,
-            "title": "右肩の蝶[39's Giving Day Edition]"
-          },
-          {
-            "id": 1437,
-            "title": "Promise",
-            "note": "嘉宾 samfree"
-          },
-          {
-            "id": 4230,
-            "title": "from Y to Y"
-          },
-          {
-            "id": 459,
-            "title": "サイハテ",
-            "note": "嘉宾 小林オニキス"
-          },
-          {
-            "id": 2442,
-            "title": "ストロボナイツ"
-          },
-          {
-            "id": 1516,
-            "title": "SPiCa",
-            "note": "嘉宾 とく"
-          },
-          {
-            "id": 3019,
-            "title": "愛言葉",
-            "note": "安可，嘉宾 DECO*27"
-          },
-          {
-            "id": 1322,
-            "title": "メルト",
-            "note": "安可"
-          }
-        ]
-      },
-      "sources": [
-        {
-          "url": "https://w.atwiki.jp/hmiku/pages/67147.html",
-          "title": "初音ミク Wiki：ミクの日感謝祭39's Giving Day（东京）",
-          "accessedAt": "2026-11-06",
-          "confidence": "medium",
-          "note": "逐曲表，含メドレー 拆分；40 行"
-        }
-      ],
-      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），40 行"
     },
     "2523": {
       "setlist": {

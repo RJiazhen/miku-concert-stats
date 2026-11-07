@@ -5768,6 +5768,118 @@
       ]
     },
     {
+      "performanceId": 2521,
+      "label": "洛杉矶",
+      "source": "https://w.atwiki.jp/hmiku/pages/67234.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Project Diva desu.",
+          "when": ""
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "えれくとりっく・えんじぇぅ",
+          "when": ""
+        },
+        {
+          "title": "恋するVOC@LOID",
+          "when": ""
+        },
+        {
+          "title": "クローバー♣クラブ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "when": ""
+        },
+        {
+          "title": "ロミオとシンデレラ",
+          "when": ""
+        },
+        {
+          "title": "裏表ラバーズ",
+          "when": "",
+          "note": "メドレー"
+        },
+        {
+          "title": "パズル",
+          "when": "",
+          "note": "メドレー"
+        },
+        {
+          "title": "VOiCE",
+          "when": "",
+          "note": "メドレー"
+        },
+        {
+          "title": "1/6 -out of the gravity-",
+          "when": "",
+          "note": "メドレー"
+        },
+        {
+          "title": "moon",
+          "when": ""
+        },
+        {
+          "title": "初音ミクの消失",
+          "when": ""
+        },
+        {
+          "title": "右肩の蝶[39's Giving Day Edition]",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "炉心融解",
+          "when": ""
+        },
+        {
+          "title": "Just Be Friends",
+          "when": ""
+        },
+        {
+          "title": "ワールズエンド・ダンスホール[English Edition]",
+          "when": "",
+          "note": "英語版※"
+        },
+        {
+          "title": "from Y to Y",
+          "when": ""
+        },
+        {
+          "title": "サイハテ",
+          "when": ""
+        },
+        {
+          "title": "ファインダー(DSLR remix-re:edit)",
+          "when": ""
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "愛言葉",
+          "when": ""
+        },
+        {
+          "title": "StargazeR",
+          "when": ""
+        },
+        {
+          "title": "ハジメテノオト",
+          "when": "",
+          "note": "初披露"
+        }
+      ]
+    },
+    {
       "performanceId": 2523,
       "label": "东京",
       "source": "https://w.atwiki.jp/hmiku/pages/67149.html",
@@ -10364,6 +10476,560 @@
         },
         {
           "title": "Tell Your World",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "performanceId": 4765,
+      "label": "名古屋",
+      "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング・初披露"
+        },
+        {
+          "title": "Satisfaction",
+          "when": ""
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": ""
+        },
+        {
+          "title": "Gimme×Gimme",
+          "when": ""
+        },
+        {
+          "title": "千年の独奏歌",
+          "when": ""
+        },
+        {
+          "title": "ANIMAL",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ぼかろころしあむ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Change me",
+          "when": ""
+        },
+        {
+          "title": "独りんぼエンヴィー",
+          "when": ""
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "when": ""
+        },
+        {
+          "title": "秘密警察",
+          "when": ""
+        },
+        {
+          "title": "ハイパーリアリティショウ",
+          "when": ""
+        },
+        {
+          "title": "それがあなたの幸せとしても",
+          "when": ""
+        },
+        {
+          "title": "命に嫌われている。",
+          "when": ""
+        },
+        {
+          "title": "いいねってYEAH!",
+          "when": ""
+        },
+        {
+          "title": "Decade",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "アイ",
+          "when": ""
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "千本桜",
+          "when": ""
+        },
+        {
+          "title": "桜ノ雨",
+          "when": ""
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "ノヴァ",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "performanceId": 4766,
+      "label": "大阪",
+      "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング・初披露"
+        },
+        {
+          "title": "気まぐれメルシィ",
+          "when": ""
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": ""
+        },
+        {
+          "title": "Gimme×Gimme",
+          "when": ""
+        },
+        {
+          "title": "みかぼし",
+          "when": ""
+        },
+        {
+          "title": "ANIMAL",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ぼかろころしあむ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "私の恋はヘルファイア",
+          "when": ""
+        },
+        {
+          "title": "ヒビカセ",
+          "when": ""
+        },
+        {
+          "title": "on the rocks",
+          "when": ""
+        },
+        {
+          "title": "秘密警察",
+          "when": ""
+        },
+        {
+          "title": "ダブルラリアット",
+          "when": ""
+        },
+        {
+          "title": "完全性コンプレックス",
+          "when": ""
+        },
+        {
+          "title": "命に嫌われている。",
+          "when": ""
+        },
+        {
+          "title": "いいねってYEAH!",
+          "when": ""
+        },
+        {
+          "title": "魔法みたいなミュージック！",
+          "when": ""
+        },
+        {
+          "title": "好き！雪！本気マジック",
+          "when": ""
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "千本桜",
+          "when": ""
+        },
+        {
+          "title": "桜ノ雨",
+          "when": ""
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "ノヴァ",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "performanceId": 4767,
+      "label": "福冈",
+      "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング・初披露"
+        },
+        {
+          "title": "Satisfaction",
+          "when": ""
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": ""
+        },
+        {
+          "title": "Gimme×Gimme",
+          "when": ""
+        },
+        {
+          "title": "千年の独奏歌",
+          "when": ""
+        },
+        {
+          "title": "ANIMAL",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ぼかろころしあむ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Change me",
+          "when": ""
+        },
+        {
+          "title": "独りんぼエンヴィー",
+          "when": ""
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "when": ""
+        },
+        {
+          "title": "秘密警察",
+          "when": ""
+        },
+        {
+          "title": "ストリーミングハート",
+          "when": ""
+        },
+        {
+          "title": "それがあなたの幸せとしても",
+          "when": ""
+        },
+        {
+          "title": "命に嫌われている。",
+          "when": ""
+        },
+        {
+          "title": "いいねってYEAH!",
+          "when": ""
+        },
+        {
+          "title": "Decade",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "アイ",
+          "when": ""
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "千本桜",
+          "when": ""
+        },
+        {
+          "title": "桜ノ雨",
+          "when": ""
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "ノヴァ",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "performanceId": 4768,
+      "label": "东京",
+      "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング・初披露"
+        },
+        {
+          "title": "Satisfaction",
+          "when": "d2"
+        },
+        {
+          "title": "気まぐれメルシィ",
+          "when": "d1"
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": ""
+        },
+        {
+          "title": "Gimme×Gimme",
+          "when": ""
+        },
+        {
+          "title": "千年の独奏歌",
+          "when": "d2"
+        },
+        {
+          "title": "みかぼし",
+          "when": "d1"
+        },
+        {
+          "title": "ANIMAL",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ぼかろころしあむ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Change me",
+          "when": "d2"
+        },
+        {
+          "title": "私の恋はヘルファイア",
+          "when": "d1"
+        },
+        {
+          "title": "独りんぼエンヴィー",
+          "when": "d2"
+        },
+        {
+          "title": "ヒビカセ",
+          "when": "d1"
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "when": "d2"
+        },
+        {
+          "title": "on the rocks",
+          "when": "d1"
+        },
+        {
+          "title": "秘密警察",
+          "when": ""
+        },
+        {
+          "title": "聖槍爆裂ボーイ",
+          "when": "d1"
+        },
+        {
+          "title": "ルカルカ★ナイトフィーバー",
+          "when": "d2"
+        },
+        {
+          "title": "それがあなたの幸せとしても",
+          "when": "d2"
+        },
+        {
+          "title": "完全性コンプレックス",
+          "when": "d1"
+        },
+        {
+          "title": "命に嫌われている。",
+          "when": ""
+        },
+        {
+          "title": "いいねってYEAH!",
+          "when": ""
+        },
+        {
+          "title": "Decade",
+          "when": "d2",
+          "note": "国内初披露"
+        },
+        {
+          "title": "魔法みたいなミュージック！",
+          "when": "d1"
+        },
+        {
+          "title": "アイ",
+          "when": "d2"
+        },
+        {
+          "title": "好き！雪！本気マジック",
+          "when": "d1"
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "千本桜",
+          "when": ""
+        },
+        {
+          "title": "桜ノ雨",
+          "when": ""
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "ノヴァ",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "performanceId": 4769,
+      "label": "札幌",
+      "source": "https://w.atwiki.jp/hmiku/pages/67159.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング・初披露"
+        },
+        {
+          "title": "気まぐれメルシィ",
+          "when": ""
+        },
+        {
+          "title": "アンハッピーリフレイン",
+          "when": ""
+        },
+        {
+          "title": "Gimme×Gimme",
+          "when": ""
+        },
+        {
+          "title": "みかぼし",
+          "when": ""
+        },
+        {
+          "title": "ANIMAL",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ぼかろころしあむ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "私の恋はヘルファイア",
+          "when": ""
+        },
+        {
+          "title": "ヒビカセ",
+          "when": ""
+        },
+        {
+          "title": "on the rocks",
+          "when": ""
+        },
+        {
+          "title": "秘密警察",
+          "when": ""
+        },
+        {
+          "title": "シャボン",
+          "when": ""
+        },
+        {
+          "title": "完全性コンプレックス",
+          "when": ""
+        },
+        {
+          "title": "命に嫌われている。",
+          "when": ""
+        },
+        {
+          "title": "いいねってYEAH!",
+          "when": ""
+        },
+        {
+          "title": "魔法みたいなミュージック！",
+          "when": ""
+        },
+        {
+          "title": "好き！雪！本気マジック",
+          "when": ""
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": ""
+        },
+        {
+          "title": "千本桜",
+          "when": ""
+        },
+        {
+          "title": "桜ノ雨",
+          "when": ""
+        },
+        {
+          "title": "ラッキー☆オーブ",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        },
+        {
+          "title": "ノヴァ",
           "when": ""
         }
       ]
@@ -16023,6 +16689,795 @@
       ]
     },
     {
+      "performanceId": 8380,
+      "label": "大阪",
+      "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "プシ",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "when": ""
+        },
+        {
+          "title": "二次元ドリームフィーバー",
+          "when": ""
+        },
+        {
+          "title": "キレキャリオン",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "Caged Flower",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "夜舞うシルエット",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "カルチャ",
+          "when": ""
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "Someday'z Coming",
+          "when": ""
+        },
+        {
+          "title": "REALITY",
+          "when": ""
+        },
+        {
+          "title": "アカツキアライヴァル",
+          "when": ""
+        },
+        {
+          "title": "ロキ",
+          "when": ""
+        },
+        {
+          "title": "メズマライザー",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "Catch the Wave",
+          "when": ""
+        },
+        {
+          "title": "Snow Fairy Story",
+          "when": ""
+        },
+        {
+          "title": "Intergalactic Bound",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": ""
+        },
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング"
+        },
+        {
+          "title": "Blue Star",
+          "when": ""
+        },
+        {
+          "title": "Over Flow(er)",
+          "when": "",
+          "note": "JP TOUR ‘25 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
+      "performanceId": 8381,
+      "label": "爱知",
+      "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "プシ",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "ダーリンダンス",
+          "when": ""
+        },
+        {
+          "title": "キャットフード",
+          "when": ""
+        },
+        {
+          "title": "キレキャリオン",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "Caged Flower",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "夜舞うシルエット",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "深海少女",
+          "when": ""
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "Someday'z Coming",
+          "when": ""
+        },
+        {
+          "title": "REALITY",
+          "when": ""
+        },
+        {
+          "title": "magnet",
+          "when": ""
+        },
+        {
+          "title": "いーあるふぁんくらぶ",
+          "when": ""
+        },
+        {
+          "title": "メズマライザー",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "セカイ",
+          "when": ""
+        },
+        {
+          "title": "四角い地球を丸くする",
+          "when": ""
+        },
+        {
+          "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": ""
+        },
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング"
+        },
+        {
+          "title": "Blue Star",
+          "when": ""
+        },
+        {
+          "title": "Over Flow(er)",
+          "when": "",
+          "note": "JP TOUR ‘25 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
+      "performanceId": 8382,
+      "label": "福冈",
+      "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "プシ",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "when": ""
+        },
+        {
+          "title": "二次元ドリームフィーバー",
+          "when": ""
+        },
+        {
+          "title": "キレキャリオン",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "Caged Flower",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "夜舞うシルエット",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "二息歩行",
+          "when": ""
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "Someday'z Coming",
+          "when": ""
+        },
+        {
+          "title": "REALITY",
+          "when": ""
+        },
+        {
+          "title": "アカツキアライヴァル",
+          "when": ""
+        },
+        {
+          "title": "ロキ",
+          "when": ""
+        },
+        {
+          "title": "メズマライザー",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "Catch the Wave",
+          "when": ""
+        },
+        {
+          "title": "Snow Fairy Story",
+          "when": ""
+        },
+        {
+          "title": "Intergalactic Bound",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": ""
+        },
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング"
+        },
+        {
+          "title": "Blue Star",
+          "when": ""
+        },
+        {
+          "title": "Over Flow(er)",
+          "when": "",
+          "note": "JP TOUR ‘25 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
+      "performanceId": 8383,
+      "label": "东京",
+      "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "プシ",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "when": "d2"
+        },
+        {
+          "title": "ダーリンダンス",
+          "when": "d1"
+        },
+        {
+          "title": "二次元ドリームフィーバー",
+          "when": "d2"
+        },
+        {
+          "title": "キャットフード",
+          "when": "d1"
+        },
+        {
+          "title": "キレキャリオン",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "Caged Flower",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "夜舞うシルエット",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "脳内革命ガール",
+          "when": "d1"
+        },
+        {
+          "title": "メランコリック",
+          "when": "d2"
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "Someday'z Coming",
+          "when": ""
+        },
+        {
+          "title": "REALITY",
+          "when": ""
+        },
+        {
+          "title": "アカツキアライヴァル",
+          "when": "d2"
+        },
+        {
+          "title": "magnet",
+          "when": "d1"
+        },
+        {
+          "title": "ロキ",
+          "when": "d2"
+        },
+        {
+          "title": "いーあるふぁんくらぶ",
+          "when": "d1"
+        },
+        {
+          "title": "メズマライザー",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "Catch the Wave",
+          "when": "d2"
+        },
+        {
+          "title": "セカイ",
+          "when": "d1"
+        },
+        {
+          "title": "Snow Fairy Story",
+          "when": "d2"
+        },
+        {
+          "title": "四角い地球を丸くする",
+          "when": "d1"
+        },
+        {
+          "title": "Intergalactic Bound",
+          "when": "d2",
+          "note": "国内初披露"
+        },
+        {
+          "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+          "when": "d1",
+          "note": "国内初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": ""
+        },
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング"
+        },
+        {
+          "title": "Blue Star",
+          "when": ""
+        },
+        {
+          "title": "Over Flow(er)",
+          "when": "",
+          "note": "JP TOUR ‘25 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
+      "performanceId": 8384,
+      "label": "香川",
+      "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "プシ",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "ダーリンダンス",
+          "when": ""
+        },
+        {
+          "title": "キャットフード",
+          "when": ""
+        },
+        {
+          "title": "キレキャリオン",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "Caged Flower",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "夜舞うシルエット",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "when": ""
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "Someday'z Coming",
+          "when": ""
+        },
+        {
+          "title": "REALITY",
+          "when": ""
+        },
+        {
+          "title": "magnet",
+          "when": ""
+        },
+        {
+          "title": "いーあるふぁんくらぶ",
+          "when": ""
+        },
+        {
+          "title": "メズマライザー",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "セカイ",
+          "when": ""
+        },
+        {
+          "title": "四角い地球を丸くする",
+          "when": ""
+        },
+        {
+          "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": ""
+        },
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング"
+        },
+        {
+          "title": "Blue Star",
+          "when": ""
+        },
+        {
+          "title": "Over Flow(er)",
+          "when": "",
+          "note": "JP TOUR ‘25 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
+      "performanceId": 8385,
+      "label": "北海道",
+      "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "プシ",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "エイリアンエイリアン",
+          "when": ""
+        },
+        {
+          "title": "二次元ドリームフィーバー",
+          "when": ""
+        },
+        {
+          "title": "キレキャリオン",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "Caged Flower",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "夜舞うシルエット",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "ドリームレス・ドリームス",
+          "when": ""
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "Someday'z Coming",
+          "when": ""
+        },
+        {
+          "title": "REALITY",
+          "when": ""
+        },
+        {
+          "title": "アカツキアライヴァル",
+          "when": ""
+        },
+        {
+          "title": "ロキ",
+          "when": ""
+        },
+        {
+          "title": "メズマライザー",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "Catch the Wave",
+          "when": ""
+        },
+        {
+          "title": "Snow Fairy Story",
+          "when": ""
+        },
+        {
+          "title": "Intergalactic Bound",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": ""
+        },
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング"
+        },
+        {
+          "title": "Blue Star",
+          "when": ""
+        },
+        {
+          "title": "Over Flow(er)",
+          "when": "",
+          "note": "JP TOUR ‘25 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
+      "performanceId": 8386,
+      "label": "冲绳",
+      "source": "https://w.atwiki.jp/hmiku/pages/67158.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "プシ",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "ダーリンダンス",
+          "when": ""
+        },
+        {
+          "title": "キャットフード",
+          "when": ""
+        },
+        {
+          "title": "キレキャリオン",
+          "when": ""
+        },
+        {
+          "title": "Fire◎Flower",
+          "when": ""
+        },
+        {
+          "title": "Caged Flower",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "夜舞うシルエット",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "裏表ラバーズ",
+          "when": ""
+        },
+        {
+          "title": "東京テディベア",
+          "when": ""
+        },
+        {
+          "title": "Someday'z Coming",
+          "when": ""
+        },
+        {
+          "title": "REALITY",
+          "when": ""
+        },
+        {
+          "title": "magnet",
+          "when": ""
+        },
+        {
+          "title": "いーあるふぁんくらぶ",
+          "when": ""
+        },
+        {
+          "title": "メズマライザー",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "セカイ",
+          "when": ""
+        },
+        {
+          "title": "四角い地球を丸くする",
+          "when": ""
+        },
+        {
+          "title": "M@GICAL☆CURE!LOVE ♥ SHOT!",
+          "when": "",
+          "note": "国内初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "ODDS&ENDS",
+          "when": ""
+        },
+        {
+          "title": "THUNDERBOLT",
+          "when": "",
+          "note": "JP TOUR ‘23 テーマソング"
+        },
+        {
+          "title": "Blue Star",
+          "when": ""
+        },
+        {
+          "title": "Over Flow(er)",
+          "when": "",
+          "note": "JP TOUR ‘25 テーマソング・初披露※"
+        }
+      ]
+    },
+    {
       "performanceId": 8710,
       "label": "大阪公演",
       "source": "https://w.atwiki.jp/hmiku/pages/80551.html",
@@ -21574,6 +23029,142 @@
           "title": "橙交差点",
           "when": "",
           "note": "エンディング（スタッフロール）"
+        }
+      ]
+    },
+    {
+      "performanceId": 3000000011,
+      "label": "东京",
+      "source": "https://w.atwiki.jp/hmiku/pages/67148.html",
+      "accessedAt": "2026-11-06",
+      "rows": [
+        {
+          "title": "Tell Your World",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ゆめゆめ",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "ワールドイズマイン",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "えれくとりっく・えんじぇぅ",
+          "when": ""
+        },
+        {
+          "title": "恋スルVOC@LOID",
+          "when": ""
+        },
+        {
+          "title": "クローバー♣クラブ",
+          "when": ""
+        },
+        {
+          "title": "ぽっぴっぽー",
+          "when": ""
+        },
+        {
+          "title": "ロミオとシンデレラ",
+          "when": ""
+        },
+        {
+          "title": "ファインダー(DSLR remix-re:edit)",
+          "when": ""
+        },
+        {
+          "title": "裏表ラバーズ",
+          "when": ""
+        },
+        {
+          "title": "StargazeR",
+          "when": ""
+        },
+        {
+          "title": "moon",
+          "when": ""
+        },
+        {
+          "title": "初音ミクの消失",
+          "when": ""
+        },
+        {
+          "title": "Change me",
+          "when": "",
+          "note": "初披露※"
+        },
+        {
+          "title": "右肩の蝶",
+          "when": ""
+        },
+        {
+          "title": "Just Be Friends",
+          "when": ""
+        },
+        {
+          "title": "magnet",
+          "when": ""
+        },
+        {
+          "title": "ワールズエンド・ダンスホール",
+          "when": ""
+        },
+        {
+          "title": "炉心融解",
+          "when": ""
+        },
+        {
+          "title": "孤独の果て",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "Promise",
+          "when": ""
+        },
+        {
+          "title": "タイムリミット",
+          "when": "",
+          "note": "初披露"
+        },
+        {
+          "title": "パズル",
+          "when": ""
+        },
+        {
+          "title": "1/6 -out of the gravity-",
+          "when": ""
+        },
+        {
+          "title": "SPiCa",
+          "when": ""
+        },
+        {
+          "title": "愛言葉",
+          "when": ""
+        },
+        {
+          "title": "メルト",
+          "when": ""
+        },
+        {
+          "title": "ハジメテノオト",
+          "when": ""
+        },
+        {
+          "title": "Project Diva desu.",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "ワールドイズマイン（ダブルアンコール）",
+          "when": "",
+          "note": "※"
         }
       ]
     }

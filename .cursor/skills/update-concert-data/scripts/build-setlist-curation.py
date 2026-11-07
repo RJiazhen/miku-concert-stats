@@ -523,6 +523,68 @@ add(
     note="官方页：8/16、8/17 各一场，共 2 场。Fandom 只写 8/17，不采用",
 )
 
+# ---------------------------------------------------------------- 感謝祭 / JAPAN LIVE TOUR
+# 2010 的 ミクの日感謝祭 逐曲表已在 TOUR_TABLES；这里只用它补日程（百科写明昼 + 夜 2 场），
+# 再补上 2011 的海外衍生公演、2012 的最终场以及 2023 THUNDERBOLT / 2025 BLOOMING 两轮日本巡演。
+add(
+    2520,
+    day_night=["2010-03-09"],
+    sources=[
+        wiki(
+            "https://w.atwiki.jp/hmiku/pages/67147.html",
+            "初音ミク Wiki：ミクの日感謝祭 39's Giving Day",
+            "'10/3/9 Zepp Tokyo 昼 + 夜 2 场；逐曲表 40 行，两场共用",
+        )
+    ],
+    note="2010-03-09 Zepp Tokyo 昼 + 夜 2 场，每场 40 首；昼场的嘉宾环节与夜场的应援 P MC 是舞台段落，不计入曲目",
+)
+MIKUDay2011Wiki = "https://w.atwiki.jp/hmiku/pages/67234.html"
+MIKUDay2012Wiki = "https://w.atwiki.jp/hmiku/pages/67148.html"
+JAPANTOUR2023Wiki = "https://w.atwiki.jp/hmiku/pages/67159.html"
+JAPANTOUR2025Wiki = "https://w.atwiki.jp/hmiku/pages/67158.html"
+add(
+    2521,
+    single_show=["2011-07-02"],
+    sources=[
+        official_page(
+            "http://miku.sega.jp/39/mikula_20111014.html",
+            "MIKUNOPOLIS in Los Angeles 公式サイト",
+            "2011-07-02 Nokia Theatre，单场",
+        ),
+        wiki(MIKUDay2011Wiki, "初音ミク Wiki：MIKUNOPOLIS in Los Angeles", "2011-07-02 单场 24 首，沿用 2010 感謝祭节目并加入英语版"),
+    ],
+    note="2011-07-02 洛杉矶 Nokia Theatre 单场，24 首；以 2010 感謝祭为基础，部分曲目为英语版",
+)
+add(
+    3000000011,
+    day_night=["2012-03-09"],
+    sources=[
+        official_page("https://miku.sega.jp/39/", "ミクの日大感謝祭 公式サイト", "2012-03-09 TOKYO DOME CITY HALL 昼 + 夜两场"),
+        wiki(MIKUDay2012Wiki, "初音ミク Wiki：初音ミクコンサート 最後のミクの日感謝祭", "2012-03-09 昼 + 夜两场，29 首；昼场音响故障后追加「ワールドイズマイン」再演"),
+    ],
+    note="2012-03-09 TOKYO DOME CITY HALL 昼 + 夜两场，29 首；昼场第 3 首音响故障后追加「ワールドイズマイン」再演，不计入曲数",
+)
+thunderbolt = [
+    wiki(JAPANTOUR2023Wiki, "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜", "5 城 10 场；3/11 福岡与 3/25 札幌仅夜场"),
+    official_page("https://piapro.net/japantour2023/", "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト", "5 城巡演日程"),
+]
+add(4765, day_night=["2023-02-23"], sources=thunderbolt, note="2023-02-23 Zepp Nagoya 昼 + 夜两场")
+add(4766, day_night=["2023-03-04"], sources=thunderbolt, note="2023-03-04 Zepp Namba 昼 + 夜两场")
+add(4767, halves={"2023-03-11": ["night"]}, sources=thunderbolt, note="2023-03-11 Zepp Fukuoka 仅夜场")
+add(4768, day_night=["2023-03-18", "2023-03-19"], sources=thunderbolt, note="2023-03-18–19 Zepp DiverCity 每天昼 + 夜，共 4 场")
+add(4769, halves={"2023-03-25": ["night"]}, sources=thunderbolt, note="2023-03-25 Zepp Sapporo 仅夜场")
+blooming = [
+    wiki(JAPANTOUR2025Wiki, "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜", "7 城 14 场；5/6 香川仅昼场、5/17 北海道仅夜场"),
+    official_page("https://piapro.net/japantour2025/", "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト", "7 城巡演日程"),
+]
+add(8380, day_night=["2025-04-19"], sources=blooming, note="2025-04-19 Zepp Namba 昼 + 夜两场")
+add(8381, day_night=["2025-04-26"], sources=blooming, note="2025-04-26 Zepp Nagoya 昼 + 夜两场")
+add(8382, day_night=["2025-04-29"], sources=blooming, note="2025-04-29 Zepp Fukuoka 昼 + 夜两场")
+add(8383, day_night=["2025-05-02", "2025-05-03"], sources=blooming, note="2025-05-02–03 Zepp Haneda 每天昼 + 夜，共 4 场")
+add(8384, halves={"2025-05-06": ["day"]}, sources=blooming, note="2025-05-06 レクザムホール 大ホール 仅昼场")
+add(8385, halves={"2025-05-17": ["night"]}, sources=blooming, note="2025-05-17 Zepp Sapporo 仅夜场")
+add(8386, day_night=["2025-05-31"], sources=blooming, note="2025-05-31 那覇文化芸術劇場なはーと 大劇場 昼 + 夜两场")
+
 lists: dict[str, dict] = {}
 
 # ---------------------------------------------------------------- 逐曲备注更正（以百科为准）
@@ -1145,6 +1207,21 @@ SCHEDULE_NOTES = {
     3000000007: "2021-12-18–19 在线演唱会，两天同一套 12 首",
     3000000008: "2026-01-17 昼+夜、01-18 仅昼，共 3 场；每场 24 首，第 8 首按场次替换",
     3000000009: "2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场；每场 27 首",
+    2520: "2010-03-09 Zepp Tokyo 昼 + 夜 2 场，逐曲表 40 行两场共用；昼场的嘉宾环节与夜场的应援 P MC 不计入曲目",
+    2521: "2011-07-02 洛杉矶 Nokia Theatre 单场，24 首；沿用 2010 感謝祭节目并加入英语版",
+    3000000011: "2012-03-09 TOKYO DOME CITY HALL 昼 + 夜 2 场，每场 29 首；昼场音响故障后「ワールドイズマイン」再演不计入曲数",
+    4765: "2023-02-23 Zepp Nagoya 昼 + 夜 2 场，每场 23 首",
+    4766: "2023-03-04 Zepp Namba 昼 + 夜 2 场，每场 23 首",
+    4767: "2023-03-11 Zepp Fukuoka 仅夜场 1 场，歌单 23 首",
+    4768: "2023-03-18–19 Zepp DiverCity 每天昼 + 夜，共 4 场，每场 23 首",
+    4769: "2023-03-25 Zepp Sapporo 仅夜场 1 场，歌单 23 首",
+    8380: "2025-04-19 Zepp Namba 昼 + 夜 2 场，每场 23 首",
+    8381: "2025-04-26 Zepp Nagoya 昼 + 夜 2 场，每场 23 首",
+    8382: "2025-04-29 Zepp Fukuoka 昼 + 夜 2 场，每场 23 首",
+    8383: "2025-05-02–03 Zepp Haneda 每天昼 + 夜，共 4 场，每场 23 首",
+    8384: "2025-05-06 レクザムホール 大ホール 仅昼场 1 场，歌单 23 首",
+    8385: "2025-05-17 Zepp Sapporo 仅夜场 1 场，歌单 23 首",
+    8386: "2025-05-31 那覇文化芸術劇場なはーと 大劇場 昼 + 夜 2 场，每场 23 首",
 }
 for pid, schedule_note in SCHEDULE_NOTES.items():
     entry = performances.get(str(pid))
@@ -1220,7 +1297,33 @@ EXTRA_SOURCES = {
             "2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场",
         )
     ],
+    "2521": [
+        official_page(
+            "http://miku.sega.jp/39/mikula_20111014.html",
+            "MIKUNOPOLIS in Los Angeles 公式サイト",
+            "2011-07-02 Nokia Theatre，单场",
+        )
+    ],
+    "3000000011": [
+        official_page("https://miku.sega.jp/39/", "ミクの日大感謝祭 公式サイト", "2012-03-09 TOKYO DOME CITY HALL 昼 + 夜两场")
+    ],
 }
+for pid in (4765, 4766, 4767, 4768, 4769):
+    EXTRA_SOURCES[str(pid)] = [
+        official_page(
+            "https://piapro.net/japantour2023/",
+            "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト",
+            "5 城巡演日程",
+        )
+    ]
+for pid in (8380, 8381, 8382, 8383, 8384, 8385, 8386):
+    EXTRA_SOURCES[str(pid)] = [
+        official_page(
+            "https://piapro.net/japantour2025/",
+            "初音ミク JAPAN LIVE TOUR 2025 〜BLOOMING〜 公式サイト",
+            "7 城巡演日程",
+        )
+    ]
 for pid, extra in EXTRA_SOURCES.items():
     entry = performances.get(pid)
     if entry is not None:

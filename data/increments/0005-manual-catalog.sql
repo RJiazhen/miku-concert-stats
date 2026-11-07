@@ -10,6 +10,7 @@
 --   3. MIKU WITH YOU 2026 in Chengdu (no VocaDB event)
 --   4. デコミク LIVE starring 初音ミク『Hello』 (VocaDB event 9401, no series upstream)
 --   5. Standalone lives with no VocaDB event at all
+--   6. 初音ミクコンサート 最後のミクの日感謝祭 (no VocaDB event, filed under series 219)
 --
 -- Ids from 3,000,000,000 up are reserved for 演出 VocaDB does not list
 -- (shared/repertoire.ts: LOCAL_PERFORMANCE_ID_BASE); local series ids start at 900,000,000.
@@ -865,4 +866,19 @@ INSERT OR IGNORE INTO edition_premieres (series_id, series_number, premiere_perf
 (900000004, 2021, 3000000007, '2021-12-18', NULL, 'Manual: the second GALAXY LIVE.'),
 (900000005, 2026, 3000000008, '2026-01-17', NULL, 'Manual: a one-off anniversary live.'),
 (900000006, 2026, 3000000009, '2026-03-20', NULL, 'Manual: a one-off collaboration live.');
+
+-- 3000000011  初音ミクコンサート 最後のミクの日感謝祭, 2012-03-09 at TOKYO DOME CITY HALL.
+--             VocaDB has no release event for this concert: searching 感謝祭 returns only the 2010
+--             event (2520) and the 2012 TV special (1413). It is the finale of the ミクの日感謝祭
+--             line, so it is filed under the existing 初音ミクライブパーティー series (219), whose
+--             2012 edition is the 2012-03-08 Live Party Tokyo. Local performance id, no VocaDB
+--             page or song list; the wiki table at data/wiki-raw/mikuday2012.json supplies the
+--             programme, and the show is 昼 + 夜 on one day.
+-- Sources: https://w.atwiki.jp/hmiku/pages/67148.html (setlist, 29 songs, day/night)
+--          https://miku.sega.jp/39/ (official site)
+INSERT OR IGNORE INTO performances (id, series_id, name, name_ja, venue_name, country_code, start_date, end_date, showtime_local, timezone, time_precision, time_evidence, role, series_number, series_suffix, song_list_id, vocadb_status, source_url, retrieved_at) VALUES
+(3000000011, 219, '初音ミクコンサート 最後のミクの日感謝祭', '初音ミクコンサート 最後のミクの日感謝祭', 'TOKYO DOME CITY HALL', 'JP', '2012-03-09', NULL, NULL, NULL, 'day', NULL, 'show', 2012, NULL, NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67148.html', '2026-11-07T14:55:00.000Z');
+INSERT OR IGNORE INTO performance_links (performance_id, url, description) VALUES
+(3000000011, 'https://w.atwiki.jp/hmiku/pages/67148.html', 'Setlist (Hatsune Miku Wiki)'),
+(3000000011, 'https://miku.sega.jp/39/', 'Official website');
 COMMIT;
