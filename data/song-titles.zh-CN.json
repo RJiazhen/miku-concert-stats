@@ -17,6 +17,10 @@
     "title": "黄泉樱",
     "source": "vocawiki"
   },
+  "453": {
+    "title": "嫉妒猫步",
+    "source": "萌娘百科"
+  },
   "459": {
     "title": "最终之所",
     "source": "vocawiki"
@@ -50,10 +54,23 @@
     ],
     "source": "vocawiki"
   },
+  "1061": {
+    "title": "白化病",
+    "source": "vocawiki"
+  },
   "1088": {
     "title": "新月骑士",
     "source": "人工核定",
     "comment": "直译；voca.wiki 条目名为「新月rider」，VocaDB 英文名 Crescent Moon Rider"
+  },
+  "1277": {
+    "title": "维诺马尼亚公爵的疯狂",
+    "source": "vocawiki"
+  },
+  "1319": {
+    "title": "拼图",
+    "source": "人工核定",
+    "comment": "直译"
   },
   "1320": {
     "title": "恋爱战争",
@@ -64,6 +81,10 @@
   },
   "1322": {
     "title": "融化",
+    "source": "萌娘百科"
+  },
+  "1323": {
+    "title": "黑岩★射手",
     "source": "萌娘百科"
   },
   "1326": {
@@ -81,6 +102,11 @@
   "1331": {
     "title": "拜拜，明天见",
     "source": "vocawiki"
+  },
+  "1340": {
+    "title": "Sound",
+    "source": "人工核定",
+    "comment": "直译；曲名即英文 Sound"
   },
   "1354": {
     "title": "時光機",
@@ -105,6 +131,10 @@
   "1363": {
     "title": "活动小丑",
     "source": "vocadb-alias"
+  },
+  "1381": {
+    "title": "马赛克卷",
+    "source": "vocawiki"
   },
   "1383": {
     "title": "甜蜜恶魔",
@@ -135,9 +165,21 @@
     "title": "里表情人",
     "source": "vocadb-alias"
   },
+  "1588": {
+    "title": "恶食娘空琪塔",
+    "source": "vocawiki"
+  },
   "1590": {
     "title": "恶之娘",
     "source": "萌娘百科"
+  },
+  "1598": {
+    "title": "恶贯满盈的审判",
+    "source": "vocawiki"
+  },
+  "1612": {
+    "title": "安眠公主的赠礼",
+    "source": "vocawiki"
   },
   "1674": {
     "title": "鸟葬",
@@ -170,13 +212,29 @@
     "title": "纺歌",
     "source": "vocadb-alias"
   },
+  "2322": {
+    "title": "虽然歌声无形",
+    "source": "vocawiki"
+  },
   "2440": {
     "title": "Finder",
     "source": "vocawiki",
     "comment": "原名 ファインダー；官方英文名"
   },
+  "2442": {
+    "title": "流光之夜",
+    "source": "vocawiki"
+  },
   "2477": {
     "title": "开笔",
+    "source": "vocawiki"
+  },
+  "2532": {
+    "title": "四瓣三叶草",
+    "source": "vocawiki"
+  },
+  "2652": {
+    "title": "再见·goodbye",
     "source": "vocawiki"
   },
   "2716": {
@@ -191,6 +249,10 @@
     "title": "伊吕波歌",
     "source": "萌娘百科"
   },
+  "2808": {
+    "title": "圆尾坂的裁缝店",
+    "source": "vocawiki"
+  },
   "2879": {
     "title": "积雨云的涂鸦",
     "source": "vocawiki"
@@ -202,6 +264,15 @@
   "2915": {
     "title": "电子天使",
     "source": "萌娘百科"
+  },
+  "2917": {
+    "title": "你唯一的歌姬",
+    "source": "vocawiki"
+  },
+  "2920": {
+    "title": "彩色旋律",
+    "source": "人工核定",
+    "comment": "直译；wiki 未给中文名"
   },
   "2924": {
     "title": "＊你好，行星。",
@@ -215,9 +286,17 @@
     "title": "边缘",
     "source": "萌娘百科"
   },
+  "2982": {
+    "title": "分分合合的罗刹与骨骸",
+    "source": "vocawiki"
+  },
   "2988": {
     "title": "仙境与羊之歌",
     "source": "萌娘百科"
+  },
+  "3008": {
+    "title": "崩坏歌姬",
+    "source": "简繁转换"
   },
   "3015": {
     "title": "恋色病栋",
@@ -238,9 +317,17 @@
     "title": "千年的独奏歌",
     "source": "vocadb-alias"
   },
+  "3177": {
+    "title": "快乐合成器",
+    "source": "vocawiki"
+  },
   "3254": {
     "title": "漫游癖",
     "source": "萌娘百科"
+  },
+  "3269": {
+    "title": "天乐",
+    "source": "简繁转换"
   },
   "3301": {
     "title": "才不是脱了就好",
@@ -253,6 +340,10 @@
   "3387": {
     "title": "遥控器",
     "source": "vocadb-alias"
+  },
+  "3658": {
+    "title": "魔法笔刷",
+    "source": "萌娘百科"
   },
   "4083": {
     "title": "蔬菜汁",
@@ -334,6 +425,10 @@
     "title": "音阶圆舞曲",
     "source": "vocawiki"
   },
+  "8734": {
+    "title": "红一叶",
+    "source": "简繁转换"
+  },
   "8739": {
     "title": "喜欢讨厌",
     "source": "vocadb-alias"
@@ -350,6 +445,18 @@
     "title": "心脏民主",
     "source": "vocadb-alias"
   },
+  "8843": {
+    "title": "寻找你的天空",
+    "source": "vocawiki"
+  },
+  "8844": {
+    "title": "光与影的乐园",
+    "source": "vocawiki"
+  },
+  "9000": {
+    "title": "遗忘殉情",
+    "source": "vocawiki"
+  },
   "9034": {
     "title": "钢琴×强音×丑闻",
     "source": "萌娘百科"
@@ -362,9 +469,17 @@
     "title": "月影舞华",
     "source": "vocawiki"
   },
+  "9376": {
+    "title": "二次元Dream Fever",
+    "source": "萌娘百科"
+  },
   "9538": {
     "title": "采访者",
     "source": "萌娘百科"
+  },
+  "9553": {
+    "title": "拂晓抵达",
+    "source": "vocawiki"
   },
   "10951": {
     "title": "最初的声音",
@@ -413,10 +528,18 @@
     "title": "梦想碎片",
     "source": "vocawiki"
   },
+  "16459": {
+    "title": "有耳朵的机器人之歌",
+    "source": "vocawiki"
+  },
   "16943": {
     "title": "大家一起MIKUMIKU",
     "source": "人工核定",
     "comment": "与「把你给MIKUMIKU掉」区分；直译"
+  },
+  "17195": {
+    "title": "巡回世界的镇魂歌",
+    "source": "vocawiki"
   },
   "17294": {
     "title": "某名娼妇之恋",
@@ -449,6 +572,10 @@
     "title": "Lost One的号哭",
     "source": "vocawiki"
   },
+  "22869": {
+    "title": "上弦之月",
+    "source": "vocawiki"
+  },
   "23276": {
     "title": "Sugar Bits",
     "source": "vocadb-alias",
@@ -466,6 +593,10 @@
   "25666": {
     "title": "学园×∀ssassinatioИ",
     "source": "简繁转换"
+  },
+  "25667": {
+    "title": "深爱着深爱着深爱着",
+    "source": "vocawiki"
   },
   "25668": {
     "title": "Orange Crossroads",
@@ -489,13 +620,33 @@
     "source": "vocawiki",
     "comment": "原名 カラフルポップビート；官方英文名"
   },
+  "31226": {
+    "title": "瓮星",
+    "source": "vocawiki"
+  },
   "35256": {
     "title": "笼中花",
     "source": "萌娘百科"
   },
+  "35377": {
+    "title": "MIKU菌出没注意♪",
+    "source": "vocawiki"
+  },
+  "35603": {
+    "title": "快乐万岁",
+    "source": "萌娘百科"
+  },
+  "35874": {
+    "title": "四季折之羽",
+    "source": "vocawiki"
+  },
   "38393": {
     "title": "圣枪爆裂男孩",
     "source": "萌娘百科"
+  },
+  "38420": {
+    "title": "再次再次沸腾",
+    "source": "vocawiki"
   },
   "38835": {
     "title": "脑内革命少女",
@@ -504,6 +655,13 @@
       "脑内革命女孩"
     ],
     "source": "萌娘百科"
+  },
+  "42649": {
+    "title": "隐羞青春期",
+    "aliases": [
+      "隐羞思春期"
+    ],
+    "source": "vocawiki"
   },
   "42733": {
     "title": "爱之诗",
@@ -516,6 +674,18 @@
   "47354": {
     "title": "喜欢！雪！真实的魔法",
     "source": "vocadb-alias"
+  },
+  "47401": {
+    "title": "Dreamin Chuchu",
+    "source": "萌娘百科"
+  },
+  "48029": {
+    "title": "流心",
+    "source": "vocawiki"
+  },
+  "48030": {
+    "title": "麻烦鬼",
+    "source": "vocawiki"
   },
   "49871": {
     "title": "海百合海底谭",
@@ -533,6 +703,10 @@
     "title": "拼凑的断音",
     "source": "vocadb-alias"
   },
+  "62774": {
+    "title": "涅墨西斯的枪口",
+    "source": "vocawiki"
+  },
   "63276": {
     "title": "让其响彻",
     "source": "vocadb-alias"
@@ -548,6 +722,13 @@
     ],
     "source": "vocadb-alias"
   },
+  "67964": {
+    "title": "心动模式",
+    "aliases": [
+      "心跳闹钟"
+    ],
+    "source": "萌娘百科"
+  },
   "68091": {
     "title": "初次见面，地球人。",
     "source": "萌娘百科"
@@ -555,6 +736,10 @@
   "71629": {
     "title": "两人的空白地图",
     "source": "人工核定"
+  },
+  "75939": {
+    "title": "七宗罪与罚",
+    "source": "vocawiki"
   },
   "79100": {
     "title": "阳炎眩乱",
@@ -573,6 +758,18 @@
     "title": "医生=放克节拍",
     "source": "萌娘百科"
   },
+  "90781": {
+    "title": "仙女座仙女座",
+    "source": "vocawiki"
+  },
+  "97905": {
+    "title": "无赖式自我均衡器",
+    "source": "vocawiki"
+  },
+  "99595": {
+    "title": "节日 Hey come on",
+    "source": "vocawiki"
+  },
   "101224": {
     "title": "一万颗星",
     "source": "萌娘百科"
@@ -580,6 +777,17 @@
   "106773": {
     "title": "外星人外星人",
     "source": "vocadb-alias"
+  },
+  "107188": {
+    "title": "暖暖KAITO",
+    "source": "vocawiki"
+  },
+  "108735": {
+    "title": "鸽子",
+    "aliases": [
+      "鸠"
+    ],
+    "source": "vocawiki"
   },
   "109873": {
     "title": "融雪之前",
@@ -594,6 +802,14 @@
       "幽灵守则"
     ],
     "source": "vocadb-alias"
+  },
+  "121112": {
+    "title": "罪之名",
+    "source": "vocawiki"
+  },
+  "121935": {
+    "title": "反复无常的宽赦",
+    "source": "vocawiki"
   },
   "124436": {
     "title": "只做喜欢的事就好",
@@ -613,6 +829,10 @@
       "太阳系迪斯科"
     ],
     "source": "vocadb-alias"
+  },
+  "131090": {
+    "title": "妄想感伤代偿联盟",
+    "source": "vocawiki"
   },
   "131351": {
     "title": "VOCALOID们只是在喊叫",
@@ -702,6 +922,15 @@
     "title": "起航",
     "source": "萌娘百科"
   },
+  "176937": {
+    "title": "你的百科",
+    "source": "vocawiki"
+  },
+  "178226": {
+    "title": "融化之国的梦魇",
+    "source": "人工核定",
+    "comment": "直译；wiki 未给中文名"
+  },
   "178433": {
     "title": "把方方的地球变圆",
     "aliases": [
@@ -734,6 +963,22 @@
     "title": "灰姑娘 10th Anniversary",
     "source": "萌娘百科"
   },
+  "207476": {
+    "title": "直到我舍弃梦想成为大人",
+    "source": "vocawiki"
+  },
+  "212802": {
+    "title": "呐、粘乎乎先生",
+    "source": "vocawiki"
+  },
+  "214844": {
+    "title": "最重要的事",
+    "source": "vocawiki"
+  },
+  "215656": {
+    "title": "EYE",
+    "source": "萌娘百科"
+  },
   "217889": {
     "title": "幸运☆天体",
     "source": "vocawiki"
@@ -743,6 +988,10 @@
     "aliases": [
       "暴力触发"
     ],
+    "source": "vocawiki"
+  },
+  "220728": {
+    "title": "花出淤泥",
     "source": "vocawiki"
   },
   "221277": {
@@ -765,6 +1014,13 @@
     "title": "火花 -Reloaded-",
     "source": "vocawiki"
   },
+  "230406": {
+    "title": "机器女孩",
+    "aliases": [
+      "安卓女孩"
+    ],
+    "source": "vocawiki"
+  },
   "232031": {
     "title": "超真人实境秀",
     "source": "vocawiki"
@@ -773,6 +1029,11 @@
     "title": "Lonely Universe",
     "source": "vocawiki",
     "comment": "原名 ロンリーユニバース；官方英文名"
+  },
+  "232494": {
+    "title": "吸引光芒",
+    "source": "人工核定",
+    "comment": "直译；wiki 未给中文名"
   },
   "234901": {
     "title": "祝福你的呼吸",
@@ -790,6 +1051,23 @@
     "title": "白化病 -revive-",
     "source": "vocawiki"
   },
+  "248865": {
+    "title": "地狱",
+    "source": "vocawiki"
+  },
+  "249561": {
+    "title": "尝试用原创曲将 MEIKO 调教成萝莉音",
+    "source": "人工核定",
+    "comment": "直译；标题本身是句子"
+  },
+  "251477": {
+    "title": "女孩的友谊",
+    "source": "vocawiki"
+  },
+  "252707": {
+    "title": "主人公",
+    "source": "萌娘百科"
+  },
   "256954": {
     "title": "Jitterbug",
     "source": "人工核定"
@@ -802,9 +1080,18 @@
     "title": "暖暖的星",
     "source": "vocadb-alias"
   },
+  "262740": {
+    "title": "幽灵东京",
+    "source": "vocawiki"
+  },
   "262958": {
     "title": "败走",
     "source": "萌娘百科"
+  },
+  "265552": {
+    "title": "致化作蛹的你",
+    "source": "人工核定",
+    "comment": "直译；wiki 未给中文名"
   },
   "266250": {
     "title": "告诉我答案",
@@ -813,6 +1100,10 @@
   "269364": {
     "title": "ROKI",
     "source": "萌娘百科"
+  },
+  "269651": {
+    "title": "环状海洋",
+    "source": "vocawiki"
   },
   "271920": {
     "title": "未来最终战争",
@@ -830,6 +1121,11 @@
     "title": "电吉他摇滚男孩",
     "source": "vocadb-alias"
   },
+  "282018": {
+    "title": "褪去暗灰之日",
+    "source": "人工核定",
+    "comment": "意译 ungray days；wiki 未给中文名"
+  },
   "284993": {
     "title": "就算没有爱 只要有你就好",
     "source": "vocadb-alias"
@@ -838,9 +1134,17 @@
     "title": "你我二人的共鸣",
     "source": "vocawiki"
   },
+  "289363": {
+    "title": "#心里总是有点寂寞",
+    "source": "vocawiki"
+  },
   "290231": {
     "title": "世界",
     "source": "萌娘百科"
+  },
+  "290577": {
+    "title": "哇哇世界",
+    "source": "vocawiki"
   },
   "293286": {
     "title": "达令舞",
@@ -849,6 +1153,10 @@
   "295872": {
     "title": "初音未来的消失",
     "source": "萌娘百科"
+  },
+  "307658": {
+    "title": "虹色物语",
+    "source": "vocawiki"
   },
   "321205": {
     "title": "吸血鬼",
@@ -862,8 +1170,20 @@
     "title": "刺猬",
     "source": "萌娘百科"
   },
+  "333025": {
+    "title": "电影",
+    "source": "vocawiki"
+  },
+  "335986": {
+    "title": "呐呐呐。",
+    "source": "vocawiki"
+  },
   "335988": {
     "title": "无呼吸义务",
+    "source": "vocawiki"
+  },
+  "340035": {
+    "title": "不可思议的Wonders",
     "source": "vocawiki"
   },
   "341383": {
@@ -877,12 +1197,30 @@
     "title": "初音天地开辟神话",
     "source": "vocadb-alias"
   },
+  "343869": {
+    "title": "雨中的雪花莲",
+    "source": "人工核定",
+    "comment": "直译；wiki 未给中文名"
+  },
+  "344890": {
+    "title": "素养",
+    "source": "人工核定",
+    "comment": "直译；wiki 未给中文名"
+  },
+  "346457": {
+    "title": "灰姑娘",
+    "source": "萌娘百科"
+  },
   "354245": {
     "title": "像神一样呐",
     "aliases": [
       "像神一样啊"
     ],
     "source": "vocadb-alias"
+  },
+  "354784": {
+    "title": "流星的脉搏",
+    "source": "vocawiki"
   },
   "360978": {
     "title": "新星",
@@ -896,8 +1234,20 @@
     "title": "我的恋爱是地狱火",
     "source": "萌娘百科"
   },
+  "371426": {
+    "title": "动物",
+    "source": "vocawiki"
+  },
   "371523": {
     "title": "你的颜色Marine Snow",
+    "source": "vocawiki"
+  },
+  "376689": {
+    "title": "沙罗曼蛇",
+    "source": "vocawiki"
+  },
+  "381464": {
+    "title": "怪人",
     "source": "vocawiki"
   },
   "391129": {
@@ -908,6 +1258,15 @@
     "title": "玩火",
     "source": "vocadb-alias"
   },
+  "393333": {
+    "title": "Pheles",
+    "source": "人工核定",
+    "comment": "音译 Pheles；wiki 未给中文名"
+  },
+  "396081": {
+    "title": "奇美拉",
+    "source": "萌娘百科"
+  },
   "400280": {
     "title": "不想死。",
     "source": "萌娘百科"
@@ -916,8 +1275,17 @@
     "title": "88流星",
     "source": "vocawiki"
   },
+  "401761": {
+    "title": "消失",
+    "source": "人工核定",
+    "comment": "直译 Vanish；wiki 未给中文名"
+  },
   "406200": {
     "title": "Next Nest (Magical Mirai 10th edit)",
+    "source": "vocawiki"
+  },
+  "411304": {
+    "title": "转生苹果",
     "source": "vocawiki"
   },
   "415813": {
@@ -928,9 +1296,26 @@
     "title": "兴奋剂舞蹈",
     "source": "萌娘百科"
   },
+  "436413": {
+    "title": "染红青天",
+    "source": "vocawiki"
+  },
+  "437831": {
+    "title": "向阳处的刹那",
+    "source": "vocawiki"
+  },
   "445823": {
     "title": "文化",
     "source": "萌娘百科"
+  },
+  "449282": {
+    "title": "拉薇",
+    "source": "萌娘百科"
+  },
+  "450680": {
+    "title": "红色大地标记",
+    "source": "人工核定",
+    "comment": "直译 Red Land Marker；wiki 未给中文名"
   },
   "460547": {
     "title": "Ψ",
@@ -952,9 +1337,17 @@
     ],
     "source": "萌娘百科"
   },
+  "478851": {
+    "title": "恶鲨",
+    "source": "vocawiki"
+  },
   "480295": {
     "title": "新人类",
     "source": "萌娘百科"
+  },
+  "486770": {
+    "title": "在黄昏中苟活",
+    "source": "vocawiki"
   },
   "495802": {
     "title": "天乐 -双响-",
@@ -1009,6 +1402,11 @@
     "title": "Happy Cheat Day",
     "source": "人工核定"
   },
+  "557307": {
+    "title": "覆写",
+    "source": "人工核定",
+    "comment": "意译 Override；wiki 未给中文名"
+  },
   "557560": {
     "title": "战斗！初音未来",
     "source": "vocawiki"
@@ -1022,6 +1420,10 @@
   },
   "563199": {
     "title": "捉到你了！",
+    "source": "vocawiki"
+  },
+  "565533": {
+    "title": "在那千年誓约的尽头",
     "source": "vocawiki"
   },
   "579184": {
@@ -1040,6 +1442,10 @@
     "title": "无限船票",
     "source": "vocawiki"
   },
+  "588460": {
+    "title": "卑怯战队UROTANDA",
+    "source": "vocawiki"
+  },
   "592083": {
     "title": "旅行之前，旅行之后",
     "source": "vocawiki"
@@ -1050,6 +1456,10 @@
   },
   "594927": {
     "title": "着迷之音",
+    "source": "vocawiki"
+  },
+  "610187": {
+    "title": "催眠者",
     "source": "vocawiki"
   },
   "625986": {
@@ -1065,6 +1475,15 @@
     "title": "天线39",
     "source": "萌娘百科"
   },
+  "630477": {
+    "title": "维纳斯",
+    "source": "人工核定",
+    "comment": "直译 Venus；wiki 未给中文名"
+  },
+  "640212": {
+    "title": "好",
+    "source": "萌娘百科"
+  },
   "650687": {
     "title": "冠军",
     "source": "vocawiki"
@@ -1072,6 +1491,19 @@
   "657591": {
     "title": "都说了让你闭嘴去摇滚 (niconico ver.)",
     "source": "萌娘百科"
+  },
+  "668053": {
+    "title": "兔子洞",
+    "source": "vocawiki"
+  },
+  "668055": {
+    "title": "视奸",
+    "source": "vocawiki"
+  },
+  "687114": {
+    "title": "原点",
+    "source": "人工核定",
+    "comment": "直译 げんてん；wiki 未给中文名"
   },
   "703459": {
     "title": "水晶之雪",
@@ -1081,8 +1513,16 @@
     "title": "进化进化进化",
     "source": "vocawiki"
   },
+  "730922": {
+    "title": "星之碎片",
+    "source": "vocawiki"
+  },
   "746114": {
     "title": "街灯",
+    "source": "萌娘百科"
+  },
+  "752940": {
+    "title": "心灵感应",
     "source": "萌娘百科"
   },
   "753184": {
@@ -1098,12 +1538,41 @@
     "title": "表象疑问",
     "source": "vocawiki"
   },
+  "777659": {
+    "title": "胆小鬼蒙布朗",
+    "source": "vocawiki"
+  },
+  "789209": {
+    "title": "星汉灿烂",
+    "source": "vocawiki"
+  },
+  "816725": {
+    "title": "樱桃汽水",
+    "source": "人工核定",
+    "comment": "意译 Cherry Pop；wiki 未给中文名"
+  },
+  "831610": {
+    "title": "演奏",
+    "source": "vocawiki"
+  },
   "840401": {
     "title": "时代错误遗物",
     "source": "vocawiki"
   },
+  "848354": {
+    "title": "棉花糖",
+    "source": "vocawiki"
+  },
   "853916": {
     "title": "心跳不已！",
+    "source": "vocawiki"
+  },
+  "878206": {
+    "title": "爱迷挽歌",
+    "source": "vocawiki"
+  },
+  "884096": {
+    "title": "回答",
     "source": "vocawiki"
   },
   "887891": {
@@ -1138,6 +1607,11 @@
   "1011745": {
     "title": "开演",
     "source": "人工核定"
+  },
+  "1013335": {
+    "title": "峰之风",
+    "source": "人工核定",
+    "comment": "直译 峰の風；wiki 未给中文名"
   },
   "1013337": {
     "title": "南部赶牛歌",

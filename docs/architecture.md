@@ -26,7 +26,7 @@
 
 `data/increments/0012-performance-name-fixes.sql` 只做**显示名更正**：上游 13120 只叫 `MIKU WITH YOU 2026`（当时系列只有上海一站），加了成都站后两者无法区分，所以用 `UPDATE` 把 `name` / `name_ja` / `series_suffix` 改成 `MIKU WITH YOU 2026 in Shanghai`。它同样写在 `0001` 之后，`pnpm collect` 重写 `0001` 后仍然生效；只改这三列，不动日期、场馆与 `song_list_id`。
 
-`data/increments/0015-song-english-names.sql` 补 **VocaDB 没给英文名的四首已演出歌曲**：`サンドリヨン` → `Cendrillon`、`タイムリミット` → `Time Limit`、`ダンスロボットダンス` → `Dance Robot Dance`、`クリスタルスノウ` → `Crystal Snow`。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文；该文件同样在 `0001` 之后用 `UPDATE`，可重复执行。`data/increments/0017-standalone-song-english-names.sql` 用同样的方式补 `0016` 新增演出的英文名；它排在 `0010` 之后，所以也能更新手工登记的本地曲目（`2000000024`–`2000000028`）。
+`data/increments/0015-song-english-names.sql` 是**唯一**的英文名文件：VocaDB 没给英文名的行、百科写法与 VocaDB 不一致的行（`アイ` 的 `AI` → `EYE`、`げんてん` 的 `Origin` → `Genten`、`ビバハピ` 的 `Viva Happy` → `VIVA HAPPY` 等）全在这里，只写可重复执行的 `UPDATE`。最后一个插入 `songs` 行的增量是 `0010`，所以这个文件在 `0001` 之后按文件名顺序执行时，VocaDB 曲目、`0009` 补的歌与 `0010` 手工登记的本地曲目（`2000000024`–`2000000029`）都已经存在。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文。
 
 ## 技术栈
 
