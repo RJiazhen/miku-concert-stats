@@ -30,6 +30,21 @@
 
 **建议**：演出结束后补 `data/wiki-raw/*.json` 与 `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py`（见 `.cursor/skills/update-concert-data/SKILL.md`）。上游若补了 `songList`，需要先清 `data/cache/` 再跑 `pnpm collect`（见 4.1）。
 
+### 1.4 海外演出的 `country_code` 大面积缺失（已解决）
+
+**现象**：2026-11 时 232 个演出里有 129 行的 `country_code` 为空（含 4 行空字符串），其中 2020 / 2024 / 2026 的海外站几乎全空；时间线第 6 张图的「国家未知」就是这批行。中国 / 印尼等少数行上游给了代码，其余只写了城市与场馆。
+
+**处理**：新增手工表 `data/show-locations.json`（按城市登记国家），`pnpm locations --sync` / `--set` 维护，生成的 `data/increments/0013-show-locations.sql` 只填空值：
+
+```sql
+UPDATE performances SET country_code = 'CA'
+WHERE (country_code IS NULL OR trim(country_code) = '') AND id IN (…);
+```
+
+**与 VocaDB 的差异**：保留上游已有的 `JP` / `CN` / `ID` 代码不动；本表补上的国家以「演出城市所在国家」为准（官方巡演日程页与场馆城市），不依赖 VocaDB 以后是否回填。上游若给出不同代码，`pnpm locations --sync` / `--set` 会打印 conflict 并且**不覆盖**已有值。补完后仍未登记国家的只剩 6 个线上演出（Twitch / オンライン），它们本来就不属于任何国家，且默认不计入国内 / 海外拆分。
+
+**复核**：`pnpm locations --missing` 应为空；`sqlite3 public/data/catalog.sqlite "SELECT country_code, count(*) FROM performances GROUP BY country_code"` 只剩 6 行 `NULL`。
+
 ## 二、模型与语义张力
 
 ### 2.1 `series_number` 是系列年度标签，不是日历年

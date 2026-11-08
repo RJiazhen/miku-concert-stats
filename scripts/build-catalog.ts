@@ -13,8 +13,11 @@ export const repoRoot = (): string => {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 }
 
-/** Applies schema.sql and every increment in lexical order. */
-export const applyCatalogSql = (db: Database.Database, root = repoRoot()): void => {
+/**
+ * Applies schema.sql and every increment in lexical order.
+ * `skip` leaves named increments out, so a generator can read the catalog before its own output.
+ */
+export const applyCatalogSql = (db: Database.Database, root = repoRoot(), skip: readonly string[] = []): void => {
   const schema = readFileSync(path.join(root, 'data', 'schema.sql'), 'utf8')
   db.exec(schema)
   const directory = path.join(root, 'data', 'increments')
@@ -26,6 +29,7 @@ export const applyCatalogSql = (db: Database.Database, root = repoRoot()): void 
     if (!missing) throw error
   }
   for (const name of files) {
+    if (skip.includes(name)) continue
     db.exec(readFileSync(path.join(directory, name), 'utf8'))
   }
 }

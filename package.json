@@ -19,6 +19,7 @@
     "report:setlist-review": "tsx scripts/setlist-review-report.ts",
     "report:confirmation": "uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py",
     "derive:setlists": "tsx scripts/derive-performance-setlists.ts",
+    "locations": "tsx scripts/show-locations.ts",
     "report:producers": "tsx scripts/producer-conflict-report.ts"
   },
   "devDependencies": {

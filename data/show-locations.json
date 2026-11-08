@@ -1,0 +1,795 @@
+{
+  "version": 1,
+  "note": "按城市登记演出国家。aliases / venues 由 pnpm locations --sync 从目录刷新，country 手工维护；出现冲突时不覆盖 performances.country_code。",
+  "locations": [
+    {
+      "city": "阿姆斯特丹",
+      "country": "NL",
+      "aliases": [
+        "Amsterdam"
+      ],
+      "venues": [
+        "AFA",
+        "AFAS Live",
+        "Ziggo Dome De Passage 100, 1101 AX Amsterdam"
+      ]
+    },
+    {
+      "city": "阿斯伯里帕克（新泽西）",
+      "country": "US",
+      "aliases": [
+        "Asbury Park (New Jersey)"
+      ],
+      "venues": [
+        "Asbury Park Convention Hall"
+      ]
+    },
+    {
+      "city": "奥克兰",
+      "country": "NZ",
+      "aliases": [
+        "Auckland"
+      ],
+      "venues": [
+        "Spark Arena"
+      ]
+    },
+    {
+      "city": "奥兰多",
+      "country": "US",
+      "aliases": [
+        "Orlando"
+      ],
+      "venues": [
+        "Dr. Phillips Center for the Performing Arts",
+        "Walt Disney Theatre"
+      ]
+    },
+    {
+      "city": "奥斯汀",
+      "country": "US",
+      "aliases": [
+        "Austin"
+      ],
+      "venues": [
+        "H-E-B Center"
+      ]
+    },
+    {
+      "city": "巴黎",
+      "country": "FR",
+      "aliases": [
+        "Paris"
+      ],
+      "venues": [
+        "Accor Arena",
+        "La Seine Musicale, Île Seguin, 92100 Boulogne-Billancourt",
+        "Zenith Paris - La Villette 211 Avenue Jean Jaurès, 75019 Paris",
+        "Zénith Paris"
+      ]
+    },
+    {
+      "city": "巴塞罗那",
+      "country": "ES",
+      "aliases": [
+        "Barcelona"
+      ],
+      "venues": [
+        "Club Sant Jordi Passeig Olímpic, 5-7, 08038 Barcelone"
+      ]
+    },
+    {
+      "city": "柏林",
+      "country": "DE",
+      "aliases": [
+        "Berlin"
+      ],
+      "venues": [
+        "Uber Eats Music Hall",
+        "Velodrom",
+        "Verti Music Hall Mercedes Platz, 10243 Berlin"
+      ]
+    },
+    {
+      "city": "北京",
+      "country": "CN",
+      "aliases": [
+        "Beijing"
+      ],
+      "venues": [
+        "Beijing Exhibition Centre",
+        "M Space",
+        "五棵松M空间 (M Space)"
+      ]
+    },
+    {
+      "city": "滨松",
+      "country": "JP",
+      "aliases": [
+        "HAMAMATSU"
+      ],
+      "venues": [
+        "アクトシティ"
+      ]
+    },
+    {
+      "city": "波士顿",
+      "country": "US",
+      "aliases": [
+        "Boston"
+      ],
+      "venues": [
+        "House of Blues Boston",
+        "The Wang Theatre",
+        "Wang Theatre"
+      ]
+    },
+    {
+      "city": "波特兰",
+      "country": "US",
+      "aliases": [
+        "Portland"
+      ],
+      "venues": [
+        "Keller Auditorium"
+      ]
+    },
+    {
+      "city": "布里斯班",
+      "country": "AU",
+      "aliases": [
+        "Brisbane"
+      ],
+      "venues": [
+        "Brisbane Convention & Exhibition Centre"
+      ]
+    },
+    {
+      "city": "布鲁塞尔",
+      "country": "BE",
+      "aliases": [
+        "Brussels"
+      ],
+      "venues": [
+        "ING Arena"
+      ]
+    },
+    {
+      "city": "成都",
+      "country": "CN",
+      "aliases": [
+        "Chengdu"
+      ],
+      "venues": [
+        "HUAXI LIVE 528 M Space",
+        "华熙LIVE·528",
+        "成都金融城演艺中心"
+      ]
+    },
+    {
+      "city": "达拉斯",
+      "country": "US",
+      "aliases": [
+        "Dallas"
+      ],
+      "venues": [
+        "Bomb Factory",
+        "The Bomb Factory",
+        "The Factory In Deep Ellum"
+      ]
+    },
+    {
+      "city": "大阪",
+      "country": "JP",
+      "aliases": [
+        "OSAKA",
+        "Osaka",
+        "大阪"
+      ],
+      "venues": [
+        "Festival Hall",
+        "Zepp Namba",
+        "インテックス大阪",
+        "オリックス劇場",
+        "グランフロント大阪 北館4F ナレッジシアター",
+        "ザ・シンフォニーホール",
+        "大阪府立国際会議場"
+      ]
+    },
+    {
+      "city": "大草原城",
+      "country": "US",
+      "aliases": [
+        "Grand Prairie"
+      ],
+      "venues": [
+        "Texas Trust CU Theatre"
+      ]
+    },
+    {
+      "city": "丹佛",
+      "country": "US",
+      "aliases": [
+        "Denver"
+      ],
+      "venues": [
+        "Mission Ballroom"
+      ]
+    },
+    {
+      "city": "底特律",
+      "country": "US",
+      "aliases": [
+        "Detroit"
+      ],
+      "venues": [
+        "Fisher Theatre"
+      ]
+    },
+    {
+      "city": "东京",
+      "country": "JP",
+      "aliases": [
+        "TOKYO",
+        "Tokyo",
+        "東京",
+        "東京都"
+      ],
+      "venues": [
+        "TOKYO DOME CITY HALL",
+        "Zepp DiverCity",
+        "Zepp Haneda",
+        "Zepp Tokyo",
+        "サントリーホール",
+        "ベルサール秋葉原 B1F",
+        "幕張メッセ",
+        "新木場STUDIO COAST",
+        "日本武道館",
+        "東京オペラシティ コンサートホール",
+        "東京体育館",
+        "東京国際フォーラム",
+        "横浜国際平和会議場"
+      ]
+    },
+    {
+      "city": "杜卢斯",
+      "country": "US",
+      "aliases": [
+        "Duluth"
+      ],
+      "venues": [
+        "Gas South Arena"
+      ]
+    },
+    {
+      "city": "杜塞尔多夫",
+      "country": "DE",
+      "aliases": [
+        "Düsseldorf"
+      ],
+      "venues": [
+        "Mitsubishi Electric Halle",
+        "PSD Bank Dome"
+      ]
+    },
+    {
+      "city": "多伦多",
+      "country": "CA",
+      "aliases": [
+        "Toronto"
+      ],
+      "venues": [
+        "Coca Cola Coliseum",
+        "Coca-Cola Coliseum",
+        "Sony Centre for the Performing Arts"
+      ]
+    },
+    {
+      "city": "凤凰城",
+      "country": "US",
+      "aliases": [
+        "Phoenix"
+      ],
+      "venues": [
+        "Mullett Arena"
+      ]
+    },
+    {
+      "city": "福冈",
+      "country": "JP",
+      "aliases": [
+        "FUKUOKA",
+        "Fukuoka",
+        "福岡"
+      ],
+      "venues": [
+        "Zepp Fukuoka",
+        "福岡国際会議場"
+      ]
+    },
+    {
+      "city": "格伦代尔",
+      "country": "US",
+      "aliases": [
+        "Glendale"
+      ],
+      "venues": [
+        "Desert Diamond Arena"
+      ]
+    },
+    {
+      "city": "关西",
+      "country": "JP",
+      "aliases": [
+        "Kansai"
+      ],
+      "venues": [
+        "和歌山ビッグホエール"
+      ]
+    },
+    {
+      "city": "广州",
+      "country": "CN",
+      "aliases": [
+        "Guangzhou"
+      ],
+      "venues": [
+        "Guangzhou Canton Art Theater (Guangzhou Opera House)",
+        "广东艺术剧院"
+      ]
+    },
+    {
+      "city": "哈密尔顿",
+      "country": "CA",
+      "aliases": [
+        "Hamilton"
+      ],
+      "venues": [
+        "TD Coliseum"
+      ]
+    },
+    {
+      "city": "横滨",
+      "country": "JP",
+      "aliases": [
+        "YOKOHAMA",
+        "横浜",
+        "横浜市"
+      ],
+      "venues": [
+        "横浜アリーナ",
+        "横浜国際平和会議場",
+        "横浜赤レンガ倉庫 イベント広場"
+      ]
+    },
+    {
+      "city": "华盛顿",
+      "country": "US",
+      "aliases": [
+        "Washington"
+      ],
+      "venues": [
+        "Anthem",
+        "The Anthem"
+      ]
+    },
+    {
+      "city": "华盛顿特区",
+      "country": "US",
+      "aliases": [
+        "Washington D.C.",
+        "Washington, D.C."
+      ],
+      "venues": [
+        "MGM National Harbor",
+        "The Anthem"
+      ]
+    },
+    {
+      "city": "吉隆坡",
+      "country": "MY",
+      "aliases": [
+        "Kuala Lumpur"
+      ],
+      "venues": [
+        "Idea Live KL",
+        "Kuala Lumpur Axiata Arena(Bukit Jalil)"
+      ]
+    },
+    {
+      "city": "旧金山",
+      "country": "US",
+      "aliases": [
+        "San Francisco"
+      ],
+      "venues": [
+        "The Warfield"
+      ]
+    },
+    {
+      "city": "科隆",
+      "country": "DE",
+      "aliases": [
+        "Cologne"
+      ],
+      "venues": [
+        "Lanxess Arena"
+      ]
+    },
+    {
+      "city": "里斯本",
+      "country": "PT",
+      "aliases": [
+        "Lisbon"
+      ],
+      "venues": [
+        "Sagres Campo Pequeno"
+      ]
+    },
+    {
+      "city": "伦敦",
+      "country": "GB",
+      "aliases": [
+        "London"
+      ],
+      "venues": [
+        "O2 Academy Brixton",
+        "OVO Arena Wembley",
+        "Olympia London",
+        "The O2"
+      ]
+    },
+    {
+      "city": "洛杉矶",
+      "country": "US",
+      "aliases": [
+        "LOS ANGELES",
+        "Los Angeles"
+      ],
+      "venues": [
+        "Microsoft Theater",
+        "Nokia Theatre",
+        "Nokia theater",
+        "Peacock Theater",
+        "Shrine Auditorium",
+        "Shrine Auditorium and Expo Hall"
+      ]
+    },
+    {
+      "city": "马德里",
+      "country": "ES",
+      "aliases": [
+        "Madrid"
+      ],
+      "venues": [
+        "Palacio Vistalegre"
+      ]
+    },
+    {
+      "city": "马尼拉",
+      "country": "PH",
+      "aliases": [
+        "Manila"
+      ],
+      "venues": [
+        "SM Mall of Asia Arena"
+      ]
+    },
+    {
+      "city": "曼谷",
+      "country": "TH",
+      "aliases": [
+        "Bangkok"
+      ],
+      "venues": [
+        "UOB LIVE"
+      ]
+    },
+    {
+      "city": "蒙特雷",
+      "country": "MX",
+      "aliases": [
+        "Monterrey"
+      ],
+      "venues": [
+        "Monterrey, Mexico: Auditorio Banamex"
+      ]
+    },
+    {
+      "city": "蒙特利尔",
+      "country": "CA",
+      "aliases": [
+        "Montreal"
+      ],
+      "venues": [
+        "Place Bell"
+      ]
+    },
+    {
+      "city": "名古屋",
+      "country": "JP",
+      "aliases": [
+        "Nagoya",
+        "名古屋"
+      ],
+      "venues": [
+        "Zepp Nagoya"
+      ]
+    },
+    {
+      "city": "墨尔本",
+      "country": "AU",
+      "aliases": [
+        "Melbourne"
+      ],
+      "venues": [
+        "John Cain Arena"
+      ]
+    },
+    {
+      "city": "墨西哥城",
+      "country": "MX",
+      "aliases": [
+        "Mexico City"
+      ],
+      "venues": [
+        "El Plaza Condesa",
+        "Pepsi Center WTC"
+      ]
+    },
+    {
+      "city": "纽瓦克",
+      "country": "US",
+      "aliases": [
+        "Newark"
+      ],
+      "venues": [
+        "Prudential Center"
+      ]
+    },
+    {
+      "city": "纽约",
+      "country": "US",
+      "aliases": [
+        "New York"
+      ],
+      "venues": [
+        "Hammerstein Ballroom"
+      ]
+    },
+    {
+      "city": "珀斯",
+      "country": "AU",
+      "aliases": [
+        "Perth"
+      ],
+      "venues": [
+        "RAC Arena"
+      ]
+    },
+    {
+      "city": "千叶",
+      "country": "JP",
+      "aliases": [
+        "千葉"
+      ],
+      "venues": [
+        "LaLa arena TOKYO-BAY"
+      ]
+    },
+    {
+      "city": "上海",
+      "country": "CN",
+      "aliases": [
+        "Shanghai"
+      ],
+      "venues": [
+        "1862 Theater",
+        "1862時尚芸術中心",
+        "E-Sports Arena",
+        "Jing'an Sports Center",
+        "Shanghai Happy Valley",
+        "上海新国际博览中心E5馆",
+        "上海静安体育中心",
+        "前滩31演艺中心·大剧场"
+      ]
+    },
+    {
+      "city": "神户",
+      "country": "JP",
+      "aliases": [
+        "神戸",
+        "神戸市"
+      ],
+      "venues": [
+        "神戸国際会館"
+      ]
+    },
+    {
+      "city": "圣何塞",
+      "country": "US",
+      "aliases": [
+        "San Jose"
+      ],
+      "venues": [
+        "City National Civic",
+        "San Jose Civic"
+      ]
+    },
+    {
+      "city": "首尔",
+      "country": "KR",
+      "aliases": [
+        "Seoul"
+      ],
+      "venues": [
+        "Hwajeong Gymnasium"
+      ]
+    },
+    {
+      "city": "台北",
+      "country": "TW",
+      "aliases": [
+        "Taipei"
+      ],
+      "venues": [
+        "Taipei Arena"
+      ]
+    },
+    {
+      "city": "台湾",
+      "country": "TW",
+      "aliases": [
+        "Taiwan"
+      ],
+      "venues": [
+        "Taipeishow(台北展演二館)"
+      ]
+    },
+    {
+      "city": "温哥华",
+      "country": "CA",
+      "aliases": [
+        "Vancouver"
+      ],
+      "venues": [
+        "Doug Mitchell Thunderbird Sports Centre",
+        "Thunderbird Arena"
+      ]
+    },
+    {
+      "city": "西雅图",
+      "country": "US",
+      "aliases": [
+        "Seattle"
+      ],
+      "venues": [
+        "Seattle, Washington: WaMu Theater",
+        "WAMU Theater"
+      ]
+    },
+    {
+      "city": "悉尼",
+      "country": "AU",
+      "aliases": [
+        "Sydney"
+      ],
+      "venues": [
+        "ICC Sydney Theatre"
+      ]
+    },
+    {
+      "city": "锡达帕克",
+      "country": "US",
+      "aliases": [
+        "Cedar Park"
+      ],
+      "venues": [
+        "H-E-B Center"
+      ]
+    },
+    {
+      "city": "仙台",
+      "country": "JP",
+      "aliases": [
+        "SENDAI"
+      ],
+      "venues": [
+        "仙台サンプラザ"
+      ]
+    },
+    {
+      "city": "香港",
+      "country": "HK",
+      "aliases": [
+        "Hong Kong"
+      ],
+      "venues": [
+        "AsiaWorld-Arena",
+        "KITEC Star Hall",
+        "STAR HALL"
+      ]
+    },
+    {
+      "city": "新北",
+      "country": "TW",
+      "aliases": [
+        "New Taipei City"
+      ],
+      "venues": [
+        "New Taipei City Exhibition Hall"
+      ]
+    },
+    {
+      "city": "新加坡",
+      "country": "SG",
+      "aliases": [
+        "Singapore"
+      ],
+      "venues": [
+        "Suntec Singapore Exhibition Hall 402",
+        "The Star Theatre"
+      ]
+    },
+    {
+      "city": "休斯敦",
+      "country": "US",
+      "aliases": [
+        "Houston"
+      ],
+      "venues": [
+        "NRG Arena"
+      ]
+    },
+    {
+      "city": "雅加达",
+      "country": "ID",
+      "aliases": [
+        "Jakarta"
+      ],
+      "venues": [
+        "Balai Sidang Jakarta Convention Center",
+        "Tennis Indoor Senayan"
+      ]
+    },
+    {
+      "city": "亚特兰大",
+      "country": "US",
+      "aliases": [
+        "Atlanta"
+      ],
+      "venues": [
+        "Gateway Center Arena"
+      ]
+    },
+    {
+      "city": "札幌",
+      "country": "JP",
+      "aliases": [
+        "SAPPORO",
+        "Sapporo",
+        "札幌"
+      ],
+      "venues": [
+        "Zepp Sapporo",
+        "カナモトホール",
+        "札幌コンサートホール Kitara",
+        "札幌市教育文化会館",
+        "札幌文化芸術劇場 (hitaru)"
+      ]
+    },
+    {
+      "city": "芝加哥",
+      "country": "US",
+      "aliases": [
+        "Chicago"
+      ],
+      "venues": [
+        "Aragon Ballroom",
+        "Auditorium Theatre",
+        "The Auditorium Theatre",
+        "The Chicago Theatre"
+      ]
+    }
+  ]
+}

@@ -34,7 +34,7 @@ VocaDB 没有的演出 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `
 
 **增量文件分层。** `data/increments/` 按「谁生成」分两类，不再按日期堆积小文件：
 
-- **生成物**（不要手改，重跑脚本）：`0001` 采集目录、`0004` 专辑曲目补位、`0006` 出演声库、`0007` 制作人、`0008` 场次歌单、`0009` 百科曲目（两个 Block）。
+- **生成物**（不要手改，重跑脚本）：`0001` 采集目录、`0004` 专辑曲目补位、`0006` 出演声库、`0007` 制作人、`0008` 场次歌单、`0009` 百科曲目（两个 Block）、`0013` 演出地点国家（由 `data/show-locations.json` 生成）。
 - **手工维护**：`0005-manual-catalog.sql` 补录 VocaDB 没有的场次与系列，`0011-manual-corrections.sql` 更正或合并上游行，`0012-song-english-names.sql` 补英文名。
 
 数字前缀只决定执行顺序；新的人工数据加进对应的手工文件，不再新建 `00xx-*.sql`。三条手工文件都写在 `0001` 之后，且语句幂等。
@@ -435,6 +435,33 @@ flowchart TD
 
 对象。键是 VocaDB performance id，值是 `albumId`（VocaDB 专辑 id）、`albumType`（`bluray` / `cd` / `dvd`）与可选 `note`。只收录人工核对过的对应关系：同一系列年度有多座城市时共用该系列年度的官方专辑，并在 `note` 里写明这是系列年度级对应。没有发行专辑的年份（2026、2027）不写。目录里的歌单 id 是 `1_000_000_000 + albumId`，`song_lists.source = 'album'`，`medium` 取这里的 `albumType`。曲目沿 `originalVersionId` 解析到原曲，因此排行榜仍落在原曲上。核对单个场次时查询 `sqlite3 public/data/catalog.sqlite "SELECT id, name, album_id, medium FROM song_lists WHERE id = 1000000000 + <albumId>"`，或直接打开 `/shows/{performanceId}` 看来源提示；例如 2017 系列年度东京演出（演出 2959）指向专辑 30961（蓝光）。
 
+### `data/show-locations.json`
+
+对象。`locations` 是一张按城市登记的演出地点表：`city` 是 `matchCity` 返回的中文城市键，`country` 是 ISO 3166-1 alpha-2 国家代码（尚未登记时写 `null`），`aliases` / `venues` 是目录里出现过的原始拼写与场馆名，由 `pnpm locations --sync` 自动刷新，`note` 可选。这张表解决的是 VocaDB 的 `performances.country_code` 大面积缺失（2026-11 时有 129 行没有国家代码，海外站几乎全空，时间线的「国家未知」就是它们）：构建期由国家代码补上，但不改已有值。
+
+`scripts/show-locations.ts`（`pnpm locations`）只做数据与命令行，不加页面：
+
+```bash
+pnpm locations                     # 列出全部地点（城市、国家、演出数、场次、场馆）
+pnpm locations --search 温哥华      # 按城市 / 原拼写 / 场馆 / 国家搜索
+pnpm locations --missing           # 只看还没有国家的行
+pnpm locations --sync              # 从目录刷新 aliases / venues，沿用已有国家，并推断新城市
+pnpm locations --set 温哥华 --country CA
+pnpm locations --generate          # 重写 data/increments/0013-show-locations.sql
+pnpm locations --check             # CI 用，只比对不写入
+```
+
+`--sync` 只在 `country` 为 `null` 且该城市所有演出的 `country_code` 一致时自动填国家；手工写入的值永远不会被覆盖，目录里已经没有的城市行也会保留（`Kept ... the catalog no longer names`）。`--set` 支持中文城市名或 `aliases` 里的原文拼写，命中多个时列出候选并要求写完整城市名。
+
+生成的 `0013-show-locations.sql` 按国家分组，逐条写成
+
+```sql
+UPDATE performances SET country_code = 'CA'
+WHERE (country_code IS NULL OR trim(country_code) = '') AND id IN (…);
+```
+
+条件里的空值判断是幂等与防覆盖的关键：`pnpm collect` 重写 `0001` 后重新构建，人工登记的国家仍然生效，VocaDB 后来给出的代码不会被本表改写。读取目录生成计划时刻意跳过 `0013` 本身（`applyCatalogSql(db, root, ['0013-show-locations.sql'])`），否则自己写出的代码会被当成上游数据，计划永远为空。
+
 ### `data/song-titles.zh-CN.json`
 
 对象。键是 VocaDB 歌曲 id，值含非空 `title`、非空 `source`、可选 `aliases`（其他通行中文名，只参与搜索匹配、不参与显示）与可选 `comment`。繁体写法不进这里，放到 `data/song-titles.zh-Hant.json`，结构与这里相同，暂不参与显示。
@@ -475,6 +502,8 @@ vp dev --port 3001
 ```bash
 pnpm derive:setlists          # 重写 data/increments/0008-performance-setlists.sql
 pnpm derive:setlists --check  # CI 用，只比对不写入
+pnpm locations                # 查看 / 维护 data/show-locations.json
+pnpm locations --check        # CI 用，校验 0013 没有过期
 pnpm report:setlist-review    # 重写 docs/reports/setlist-review.md（已存在时需 --force）
 pnpm report:confirmation      # 重写给人看的 docs/setlist-confirmation.md
 ```

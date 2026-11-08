@@ -23,15 +23,17 @@ jobs:
       - run: pnpm collect:producers
       - name: Re-derive the per-show setlists
         run: pnpm derive:setlists
+      - name: Refresh the show-location country table
+        run: pnpm locations --sync
       - name: Regenerate the setlist difference report
         run: pnpm report:setlist
       - name: Regenerate the producer conflict report
         run: pnpm report:producers
       - name: Commit SQL increments and report
         run: |
-          git diff --quiet -- data/increments docs/reports && exit 0
+          git diff --quiet -- data/increments docs/reports data/show-locations.json && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/increments docs/reports
+          git add data/increments docs/reports data/show-locations.json
           git commit -m "Update VocaDB catalog, playback snapshots, and setlist report."
           git push

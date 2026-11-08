@@ -61,6 +61,7 @@ npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g   # 全局安�
 | `data/song-titles.zh-Hant.json` | 歌曲繁体中文名，暂不显示 |
 | `data/song-notes.json` | 单曲页顶部的补充说明（例如「演唱会演奏的是改编后的短版」） |
 | `data/place-names.zh-CN.json` | 演出名里的地点中文名，跟随页眉同一个开关切换 |
+| `data/show-locations.json` | 按城市登记演出国家，`pnpm locations` 搜索 / 维护，生成的 `0013` 补上 VocaDB 缺失的 `country_code` |
 | `data/characters.json` | 声库名到角色的映射与应援色，用于「歌手」列 |
 
 两个清单都只收录人工核对过的条目，格式与校验规则见 [docs/architecture.md](docs/architecture.md)。
@@ -103,7 +104,7 @@ Workers Builds（Git 集成）监听 `main`，push 后自动构建并部署。�
 
 Previews（非 `main` 分支）用同一套 Build command，deploy 换成 `npx wrangler versions upload`，只上传版本、不影响生产；`NODE_VERSION=22` 单独配在 previews 里。
 
-`catalog.sqlite` 是构建产物。构建同时写出 `catalog.sqlite.gz`：Cloudflare 不压缩 sqlite 类型，浏览器改为下载 gzip 副本（约 200 KB，未压缩时 676 KB）并在本地解压，URL 带构建时的内容哈希，可以长期缓存。每周工作流只提交 `data/increments/*.sql` 与 `docs/reports/`，因此数据更新后要再触发一次部署才会出现在线上。
+`catalog.sqlite` 是构建产物。构建同时写出 `catalog.sqlite.gz`：Cloudflare 不压缩 sqlite 类型，浏览器改为下载 gzip 副本（约 200 KB，未压缩时 676 KB）并在本地解压，URL 带构建时的内容哈希，可以长期缓存。每周工作流只提交 `data/increments/*.sql`、`data/show-locations.json` 与 `docs/reports/`，因此数据更新后要再触发一次部署才会出现在线上。
 
 ## 后台（维护者）
 

@@ -21,6 +21,7 @@ jobs:
       - run: pnpm test
       - run: pnpm build:catalog
       - run: pnpm derive:setlists --check
+      - run: pnpm locations --check
       - run: pnpm report:setlist --check
       - run: pnpm report:setlist-review --check
       - run: pnpm report:producers --check
