@@ -45,6 +45,6 @@ describe('place localization', () => {
   })
 
   it('leaves the original language untouched', () => {
-    expect(localizePlaceNames('MIKU EXPO 2024 Vancouver', index, 'original')).toBe('MIKU EXPO 2024 Vancouver')
+    expect(localizePlaceNames('MIKU EXPO 2024 Vancouver', index, 'ja')).toBe('MIKU EXPO 2024 Vancouver')
   })
 })

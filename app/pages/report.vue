@@ -5,6 +5,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSetlistMerges } from '~/composables/useSetlistMerges.ts'
 import { useSongAliases } from '~/composables/useSongAliases.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 import { setlistSourceTag, setlistSourceUrl } from '~~/shared/album-setlists.ts'
 import {
   SEVERITY_LABELS,
@@ -20,6 +21,7 @@ const merges = useSetlistMerges()
 const { songName, songHref, vocadbSongUrl } = useSongLookup()
 const { jaTitle } = useSongAliases()
 const { localizeSeries } = useSeriesTitles()
+const { t } = useLocale()
 const toast = useToast()
 
 /** Starts the browser catalog load after hydration. */
@@ -34,19 +36,19 @@ const severity = ref<'all' | SetlistPairSeverity>('all')
 const mergedFilter = ref<'all' | 'merged' | 'unmerged'>('all')
 const scope = ref<'edition' | 'adjacent'>('edition')
 
-const severityItems = [
-  { label: '全部分级', value: 'all' },
+const severityItems = computed(() => [
+  { label: t('report.allGrades'), value: 'all' },
   ...(Object.keys(SEVERITY_LABELS) as SetlistPairSeverity[]).map((key) => ({ label: SEVERITY_LABELS[key], value: key })),
-]
-const mergedItems = [
-  { label: '全部', value: 'all' },
-  { label: '已合并', value: 'merged' },
-  { label: '未合并', value: 'unmerged' },
-]
-const scopeItems = [
-  { label: '同一系列年度', value: 'edition' },
-  { label: '相邻系列年度', value: 'adjacent' },
-]
+])
+const mergedItems = computed(() => [
+  { label: t('report.all'), value: 'all' },
+  { label: t('report.merged'), value: 'merged' },
+  { label: t('report.unmerged'), value: 'unmerged' },
+])
+const scopeItems = computed(() => [
+  { label: t('report.rangeEdition'), value: 'edition' },
+  { label: t('report.rangeAdjacent'), value: 'adjacent' },
+])
 
 const basePairs = computed<SetlistPair[]>(() => {
   if (!report.value) return []
@@ -81,31 +83,31 @@ const copyMarkdown = async (): Promise<void> => {
     // Same song names as `pnpm report:setlist`: a registered `ja` alias wins over the catalog name.
     const markdown = renderSetlistDiffMarkdown(catalog.value, report.value, (song) => jaTitle(song.id, song.name))
     await navigator.clipboard.writeText(markdown)
-    toast.add({ title: '已复制 Markdown 报告', color: 'success', icon: 'i-lucide-clipboard-check' })
+    toast.add({ title: t('report.copied'), color: 'success', icon: 'i-lucide-clipboard-check' })
   } catch {
-    toast.add({ title: '复制失败，请手动选择文本', color: 'error', icon: 'i-lucide-circle-alert' })
+    toast.add({ title: t('report.copyFailed'), color: 'error', icon: 'i-lucide-circle-alert' })
   }
 }
 
-useHead({ title: '歌单差异核验' })
+useHead({ title: computed(() => t('report.title')) })
 </script>
 
 <template>
   <main class="space-y-6">
     <header class="space-y-3">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Review</p>
-      <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">歌单差异核验</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">{{ t('report.title') }}</h1>
       <p class="max-w-3xl text-sm text-muted">
-        同一系列不同演出之间的曲目数量与编排差异，分级越高越值得优先核对。
+        {{ t('report.description') }}
       </p>
       <div class="flex flex-wrap gap-2">
         <UButton to="https://github.com/RJiazhen/miku-concert-stats/blob/main/docs/reports/setlist-differences.md" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-file-text">
-          Markdown 报告
+          {{ t('report.copyReport') }}
         </UButton>
         <UButton to="https://github.com/RJiazhen/miku-concert-stats/blob/main/docs/reports/setlist-differences.csv" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-table">
           CSV
         </UButton>
-        <UButton color="neutral" variant="outline" size="xs" icon="i-lucide-clipboard" @click="copyMarkdown">复制为 Markdown</UButton>
+        <UButton color="neutral" variant="outline" size="xs" icon="i-lucide-clipboard" @click="copyMarkdown">{{ t('report.copyMarkdown') }}</UButton>
       </div>
     </header>
 
@@ -113,31 +115,31 @@ useHead({ title: '歌单差异核验' })
 
     <UCard>
       <div class="flex flex-wrap items-end gap-3">
-        <FilterField label="范围">
+        <FilterField :label="t('report.range')">
           <USelect v-model="scope" :items="scopeItems" size="sm" class="w-32" />
         </FilterField>
-        <FilterField label="分级">
+        <FilterField :label="t('report.grade')">
           <USelect v-model="severity" :items="severityItems" size="sm" class="w-48" />
         </FilterField>
-        <FilterField label="合并状态">
+        <FilterField :label="t('report.mergeStatus')">
           <USelect v-model="mergedFilter" :items="mergedItems" size="sm" class="w-32" />
         </FilterField>
         <p class="pb-2 text-xs text-muted">
-          共 {{ pairs.length }} / {{ basePairs.length }} 对
-          <template v-if="report">· 同一系列年度 {{ report.pairCount }} 对，其中 {{ report.mergedPairCount }} 对已合并</template>
+          {{ t('report.pairCount', { shown: pairs.length, total: basePairs.length }) }}
+          <template v-if="report">{{ t('report.pairDetail', { pairs: report.pairCount, merged: report.mergedPairCount }) }}</template>
         </p>
       </div>
     </UCard>
 
     <USkeleton v-if="pending" class="h-64 w-full rounded-xl" />
-    <UEmpty v-else-if="pairs.length === 0" icon="i-lucide-check-check" title="没有符合条件的组合" description="换一个分级或合并状态看看。" />
+    <UEmpty v-else-if="pairs.length === 0" icon="i-lucide-check-check" :title="t('report.noPairs')" :description="t('report.noPairsDesc')" />
 
     <div v-else class="space-y-3">
       <UCard v-for="pair in pairs" :key="`${pair.scope}-${pair.leftId}-${pair.rightId}`">
         <div class="flex flex-wrap items-center gap-2">
           <span class="font-semibold text-highlighted" :title="pair.seriesName">{{ localizeSeries(pair.seriesName) }} {{ pair.seriesNumber }}</span>
           <UBadge :color="severityColor(pair.severity)" variant="subtle" size="sm">{{ SEVERITY_LABELS[pair.severity] }}</UBadge>
-          <UBadge :color="pair.merged ? 'primary' : 'neutral'" variant="outline" size="sm">{{ pair.merged ? '已合并' : '未合并' }}</UBadge>
+          <UBadge :color="pair.merged ? 'primary' : 'neutral'" variant="outline" size="sm">{{ pair.merged ? t('report.merged') : t('report.unmerged') }}</UBadge>
           <UBadge v-if="setlistSourceTag(pair.leftId)" color="info" variant="subtle" size="sm">{{ setlistSourceTag(pair.leftId) }}</UBadge>
           <ULink
             :to="setlistSourceUrl(pair.leftId)"
@@ -155,18 +157,18 @@ useHead({ title: '歌单差异核验' })
 
         <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4">
           <div>
-            <dt class="text-muted">行数</dt>
+            <dt class="text-muted">{{ t('report.rowCount') }}</dt>
             <dd class="text-highlighted">{{ pair.left.itemCount }} → {{ pair.right.itemCount }}（{{ pair.countDelta > 0 ? '+' : '' }}{{ pair.countDelta }}）</dd>
           </div>
           <div>
-            <dt class="text-muted">正片 / 安可</dt>
+            <dt class="text-muted">{{ t('report.mainEncore') }}</dt>
             <dd class="text-highlighted">
               {{ pair.left.mainCount }}/{{ pair.left.encoreCount }} → {{ pair.right.mainCount }}/{{ pair.right.encoreCount }}
-              （安可 {{ pair.encoreDelta > 0 ? '+' : '' }}{{ pair.encoreDelta }}）
+              {{ t('report.encoreDelta', { delta: `${pair.encoreDelta > 0 ? '+' : ''}${pair.encoreDelta}` }) }}
             </dd>
           </div>
           <div>
-            <dt class="text-muted">共有 / 仅左 / 仅右</dt>
+            <dt class="text-muted">{{ t('report.sharedOnly') }}</dt>
             <dd class="text-highlighted">{{ pair.shared }} / {{ pair.onlyLeft }} / {{ pair.onlyRight }}</dd>
           </div>
           <div>
@@ -179,19 +181,19 @@ useHead({ title: '歌单差异核验' })
 
         <div class="mt-2 space-y-1 text-xs">
           <p v-if="differencesOf(pair).onlyLeft.length > 0" class="text-muted">
-            <span class="text-highlighted">仅 A：</span>
+            <span class="text-highlighted">{{ t('report.onlyA') }}</span>
             <template v-for="(songId, index) in differencesOf(pair).onlyLeft" :key="songId">
               <span v-if="index > 0"> / </span>
               <ULink :to="songHref(songId)" class="text-primary">{{ songName(songId) }}</ULink>
-              <ULink v-if="vocadbSongUrl(songId)" :to="vocadbSongUrl(songId) ?? ''" target="_blank" class="ml-1 text-dimmed hover:text-primary" aria-label="在 VocaDB 查看"><UIcon name="i-lucide-external-link" class="size-3" /></ULink>
+              <ULink v-if="vocadbSongUrl(songId)" :to="vocadbSongUrl(songId) ?? ''" target="_blank" class="ml-1 text-dimmed hover:text-primary" aria-label="VocaDB"><UIcon name="i-lucide-external-link" class="size-3" /></ULink>
             </template>
           </p>
           <p v-if="differencesOf(pair).onlyRight.length > 0" class="text-muted">
-            <span class="text-highlighted">仅 B：</span>
+            <span class="text-highlighted">{{ t('report.onlyB') }}</span>
             <template v-for="(songId, index) in differencesOf(pair).onlyRight" :key="songId">
               <span v-if="index > 0"> / </span>
               <ULink :to="songHref(songId)" class="text-primary">{{ songName(songId) }}</ULink>
-              <ULink v-if="vocadbSongUrl(songId)" :to="vocadbSongUrl(songId) ?? ''" target="_blank" class="ml-1 text-dimmed hover:text-primary" aria-label="在 VocaDB 查看"><UIcon name="i-lucide-external-link" class="size-3" /></ULink>
+              <ULink v-if="vocadbSongUrl(songId)" :to="vocadbSongUrl(songId) ?? ''" target="_blank" class="ml-1 text-dimmed hover:text-primary" aria-label="VocaDB"><UIcon name="i-lucide-external-link" class="size-3" /></ULink>
             </template>
           </p>
         </div>

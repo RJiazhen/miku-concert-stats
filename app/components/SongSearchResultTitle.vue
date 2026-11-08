@@ -1,21 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useSongAliases } from '~/composables/useSongAliases.ts'
-import { useSongLanguage } from '~/composables/useSongLanguage.ts'
-import { matchSongTitle } from '~~/shared/song-titles.ts'
+import { useSongTitle } from '~/composables/useSongTitle.ts'
 
 const props = defineProps<{
   songId: number
-  /** Catalog name the caller has, used when no registered Japanese title exists. */
+  /** Catalog name the caller has, used when the catalog has not loaded. */
   original: string
-  /** `songs.name_en`, shown under the original title. */
+  /** `songs.name_en`, another spelling the query may hit. */
   nameEn?: string | null
   /** Query the row matched, so the secondary line can say which alias hit. */
   query: string
 }>()
 
-const { language, translationFor, chineseTitle, chineseAliases } = useSongLanguage()
-const { jaTitle, aliasOthers } = useSongAliases()
+const { titleHit } = useSongTitle()
 
 /** Segment of the secondary line, flagged when it is the matched query text. */
 type Segment = {
@@ -23,15 +20,7 @@ type Segment = {
   match: boolean
 }
 
-const view = computed(() => {
-  const songId = props.songId
-  return matchSongTitle(props.query, jaTitle(songId, props.original), translationFor(songId), language.value, {
-    zhTitle: chineseTitle(songId),
-    zhAliases: chineseAliases(songId),
-    originalAliases: aliasOthers(songId),
-    nameEn: props.nameEn ?? null,
-  })
-})
+const view = computed(() => titleHit(props.songId, props.original, props.query))
 
 /** Splits the secondary line so the query text it matched can be highlighted. */
 const segments = computed<Segment[]>(() => {

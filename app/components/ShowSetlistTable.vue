@@ -5,7 +5,8 @@ import { derivedItemSongIds, type ShowSetlistPrintItem, type ShowSetlistPrintRow
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import { isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
+import { useLocale } from '~/composables/useLocale.ts'
+import { songCategoryLabel } from '~~/shared/repertoire.ts'
 
 const props = defineProps<{
   catalog: Catalog
@@ -22,6 +23,7 @@ const props = defineProps<{
 }>()
 
 const { songById, songName, songHref, vocadbSongUrl } = useSongLookup()
+const { locale, t } = useLocale()
 
 /** One table row: a single song or medley of a printed 序号. */
 type SetlistTableRow = {
@@ -80,12 +82,12 @@ const rowClass = (row: SetlistRow): string =>
 const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
   {
     id: 'position',
-    header: '序号',
+    header: t('col.position'),
     meta: { rowspan: { td: positionRowSpan }, class: { th: 'w-14', td: positionCellClass } },
   },
-  { id: 'song', header: '歌曲' },
-  { id: 'characters', header: '歌手' },
-  { id: 'note', header: '备注' },
+  { id: 'song', header: t('col.song') },
+  { id: 'characters', header: t('col.characters') },
+  { id: 'note', header: t('col.note') },
 ])
 
 /** Song ids of one printed item, with a medley expanded to its parts. */
@@ -94,7 +96,7 @@ const songIdsOf = (item: PerformanceShowSetlistItemRow): number[] => derivedItem
 /** Medley name when an item points at a medley instead of a single song. */
 const medleyName = (item: PerformanceShowSetlistItemRow): string | null => {
   if (item.medley_id === null) return null
-  return props.catalog.medleys.find((row) => row.id === item.medley_id)?.name ?? `串烧 ${item.medley_id}`
+  return props.catalog.medleys.find((row) => row.id === item.medley_id)?.name ?? t('setlist.medley', { id: item.medley_id })
 }
 
 /** 演出角色 for one printed item, merged without duplicates. */
@@ -114,7 +116,7 @@ const noteOf = (item: PerformanceShowSetlistItemRow): string => {
   for (const songId of songIdsOf(item)) {
     const song = songById(songId)
     if (song === null || isVocaloidSong(song)) continue
-    labels.add(songCategoryLabels[song.category])
+    labels.add(songCategoryLabel(song.category, locale.value))
   }
   return labels.size === 0 ? '—' : [...labels].join('、')
 }/** `M/D` of a stored date; the year is already on the page. */
@@ -123,9 +125,9 @@ const monthDay = (date: string): string => `${Number(date.slice(5, 7))}/${Number
 /** Compact 场次 label for a cell, e.g. `8/11 日场`; the year is already on the page. */
 const shortShowLabel = (show: PerformanceShowSetlistRow): string => {
   const date = show.date
-  const label = date === null ? '日期未知' : monthDay(date)
-  if (show.half === 'day') return `${label} 日场`
-  if (show.half === 'night') return `${label} 夜场`
+  const label = date === null ? t('common.unknownDate') : monthDay(date)
+  if (show.half === 'day') return `${label} ${t('common.dayShow')}`
+  if (show.half === 'night') return `${label} ${t('common.nightShow')}`
   return label
 }
 
@@ -147,13 +149,13 @@ const showScopeOf = (item: ShowSetlistPrintItem): string => {
   if (first === undefined) return ''
   const halves = new Set(played.map((show) => show.half))
   if (halves.size === 1 && (first.half === 'day' || first.half === 'night') && played.length === halfCount(first.half)) {
-    return first.half === 'day' ? '仅日场' : '仅夜场'
+    return first.half === 'day' ? t('setlist.onlyDay') : t('setlist.onlyNight')
   }
   const dates = new Set(played.map((show) => show.date))
   if (dates.size === 1 && first.date !== null && played.length === dateCount(first.date)) {
-    return `仅 ${monthDay(first.date)}`
+    return t('setlist.onlyDate', { date: monthDay(first.date) })
   }
-  return `仅 ${played.map(shortShowLabel).join('、')}`
+  return t('setlist.onlyShows', { shows: played.map(shortShowLabel).join(t('setlist.join')) })
 }
 
 /**
@@ -183,7 +185,7 @@ const remarkOf = (item: ShowSetlistPrintItem): string => {
     <template #song-cell="{ row }">
       <template v-if="row.original.entry.item.medley_id !== null">
         <span class="text-highlighted">{{ medleyName(row.original.entry.item) }}</span>
-        <span class="text-muted">（串烧：{{ songIdsOf(row.original.entry.item).map((id) => songName(id)).join(' / ') }}）</span>
+        <span class="text-muted">{{ t('setlist.medleyParts', { songs: songIdsOf(row.original.entry.item).map((id) => songName(id)).join(' / ') }) }}</span>
       </template>
       <span v-else class="inline-flex flex-wrap items-center gap-x-1">
         <template v-for="(songId, index) in songIdsOf(row.original.entry.item)" :key="songId">
@@ -196,7 +198,7 @@ const remarkOf = (item: ShowSetlistPrintItem): string => {
             :to="vocadbSongUrl(songId) ?? ''"
             target="_blank"
             class="shrink-0 text-dimmed hover:text-primary"
-            aria-label="在 VocaDB 查看"
+            aria-label="VocaDB"
           >
             <UIcon name="i-lucide-external-link" class="size-3" />
           </ULink>

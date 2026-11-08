@@ -1,3 +1,12 @@
+<script setup lang="ts">
+import { useLocale, useLocaleDocument } from '~/composables/useLocale.ts'
+
+const { t } = useLocale()
+
+/** Keeps `<html lang>` and the title template in step with the language switch. */
+useLocaleDocument()
+</script>
+
 <template>
   <div class="min-h-screen">
     <HeroBackdrop />
@@ -8,16 +17,10 @@
     <footer class="border-t border-default/60">
       <div class="mx-auto max-w-6xl space-y-2 px-4 pt-8 pb-24 text-xs text-muted sm:px-6 sm:pb-8">
         <p>
-          曲目、演出和歌单来自
-          <ULink to="https://vocadb.net/" target="_blank" class="text-primary">VocaDB</ULink>
-          公共 API；VocaDB 没有收录的曲目（古典改编、器乐曲等）按
-          <ULink to="https://w.atwiki.jp/hmiku/" target="_blank" class="text-primary">初音ミク Wiki</ULink>
-          的逐曲表登记，页内会标注。转载这些数据库内容时请链回 VocaDB。许可说明见
-          <ULink to="https://wiki.vocadb.net/docs/license" target="_blank" class="text-primary">VocaDB License</ULink>。
+          {{ t('footer.data1') }}<ULink to="https://vocadb.net/" target="_blank" class="text-primary">VocaDB</ULink>{{ t('footer.data2') }}<ULink to="https://w.atwiki.jp/hmiku/" target="_blank" class="text-primary">初音ミク Wiki</ULink>{{ t('footer.data3') }}<ULink to="https://wiki.vocadb.net/docs/license" target="_blank" class="text-primary">VocaDB License</ULink>.
         </p>
         <p>
-          让外部 AI 直接读取本站说明：<ULink to="/skill.md" target="_blank" class="text-primary">/skill.md</ULink>
-          （纯文本，无需安装）。
+          {{ t('footer.ai1') }}<ULink to="/skill.md" target="_blank" class="text-primary">/skill.md</ULink>{{ t('footer.ai2') }}
         </p>
       </div>
     </footer>

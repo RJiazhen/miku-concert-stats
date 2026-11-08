@@ -1,4 +1,5 @@
-import { parseNameMap, type NameMap, type SongLanguage } from './name-map.ts'
+import type { Locale } from './i18n/index.ts'
+import { parseNameMap, type NameMap } from './name-map.ts'
 
 /** Place as written by VocaDB to its Chinese name. */
 export type PlaceNameFile = NameMap
@@ -62,10 +63,10 @@ export const parsePlaceNames = (value: unknown): PlaceNameIndex => {
 /**
  * Replaces checked place names with their Chinese name.
  * An English `in` / `at` directly in front of the place is dropped with it, so the note reads `10th Anniversary 大阪`.
- * Non-Chinese languages keep the VocaDB text untouched.
+ * Japanese and English keep the VocaDB text untouched, because the checked list only has Chinese names.
  */
-export const localizePlaceNames = (text: string, index: PlaceNameIndex, language: SongLanguage): string => {
-  if (language !== 'zh' || text === '') return text
+export const localizePlaceNames = (text: string, index: PlaceNameIndex, locale: Locale): string => {
+  if (locale !== 'zh' || text === '') return text
   let localized = text
   for (const entry of index.entries) {
     localized = localized.replace(entry.connectorPattern, entry.name).replace(entry.pattern, entry.name)

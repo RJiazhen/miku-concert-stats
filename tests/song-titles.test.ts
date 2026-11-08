@@ -14,10 +14,25 @@ describe('Chinese song titles', () => {
     expect(() => parseSongTitles({ melt: { title: '融化', source: 'vocadb-alias' } })).toThrow(/not an id/)
     expect(songTitleFor(parseSongTitles({ '10': { title: '融化', source: 'vocadb-alias' } }), 10)?.title).toBe('融化')
     expect(songTitleFor(parseSongTitles({}), 10)).toBeNull()
-    expect(formatSongTitle('メルト', '融化', 'zh')).toEqual({ primary: '融化', originalNote: 'メルト', aliases: [] })
-    expect(formatSongTitle('メルト', '融化', 'original')).toEqual({ primary: 'メルト', originalNote: null, aliases: [] })
-    expect(formatSongTitle('融化', '融化', 'zh')).toEqual({ primary: '融化', originalNote: null, aliases: [] })
-    expect(formatSongTitle('Tell Your World', null, 'zh')).toEqual({ primary: 'Tell Your World', originalNote: null, aliases: [] })
+    expect(formatSongTitle('zh', { jaTitle: 'メルト', translation: '融化' })).toEqual({ primary: '融化', originalNames: ['メルト'], aliases: [] })
+    expect(formatSongTitle('ja', { jaTitle: 'メルト' })).toEqual({ primary: 'メルト', originalNames: [], aliases: [] })
+    expect(formatSongTitle('zh', { jaTitle: '融化', translation: '融化' })).toEqual({ primary: '融化', originalNames: [], aliases: [] })
+    expect(formatSongTitle('zh', { jaTitle: 'Tell Your World' })).toEqual({ primary: 'Tell Your World', originalNames: [], aliases: [] })
+    // An alias that replaced the catalog name keeps the catalog spelling in gray, e.g. song 404329.
+    expect(formatSongTitle('ja', { jaTitle: 'ナイフ、ナイフ、ナイフ', catalogName: '🔪、🔪、🔪' })).toEqual({
+      primary: 'ナイフ、ナイフ、ナイフ',
+      originalNames: ['🔪、🔪、🔪'],
+      aliases: [],
+    })
+  })
+
+  it('drops the Japanese original under a translation when the reader hides it', () => {
+    const sources = { jaTitle: 'メルト', catalogName: 'メルト', translation: '融化' }
+    expect(formatSongTitle('zh', sources, { showOriginalTitle: false })).toEqual({ primary: '融化', originalNames: [], aliases: [] })
+    // Japanese is already the original, so the switch does not remove anything there.
+    expect(formatSongTitle('ja', sources, { showOriginalTitle: false })).toEqual({ primary: 'メルト', originalNames: [], aliases: [] })
+    // A matched Japanese spelling is still explained while the original line is hidden.
+    expect(matchSongTitle('メルト', 'zh', sources, { showOriginalTitle: false }).secondary).toBe('メルト')
   })
 
   it('keeps alias lists valid and separate from the displayed title', () => {
@@ -37,21 +52,24 @@ describe('Chinese song titles', () => {
   })
 
   it('lists the other names of the active language, deduplicated and without the primary', () => {
-    const zh = formatSongTitle('メルト', '融化', 'zh', {
+    const zh = formatSongTitle('zh', {
+      jaTitle: 'メルト',
+      translation: '融化',
       zhTitle: '融化',
       zhAliases: [' 融化 ', '', '溶化', '溶化'],
       originalAliases: ['Melt'],
       nameEn: 'Melt',
     })
-    expect(zh).toEqual({ primary: '融化', originalNote: 'メルト', aliases: ['溶化'] })
-    // The original mode shows the Japanese aliases and name_en, never the Chinese spellings.
-    const original = formatSongTitle('メルト', null, 'original', {
+    expect(zh).toEqual({ primary: '融化', originalNames: ['メルト'], aliases: ['溶化'] })
+    // Japanese shows the aliases and name_en, never the Chinese spellings.
+    const japanese = formatSongTitle('ja', {
+      jaTitle: 'メルト',
       zhTitle: '融化',
       zhAliases: ['溶化'],
       originalAliases: ['Melt', 'メルト'],
       nameEn: 'Melt',
     })
-    expect(original).toEqual({ primary: 'メルト', originalNote: null, aliases: ['Melt'] })
+    expect(japanese).toEqual({ primary: 'メルト', originalNames: [], aliases: ['Melt'] })
   })
 
   it('shows the alias a search hit while keeping the primary title first', () => {
@@ -61,20 +79,20 @@ describe('Chinese song titles', () => {
       originalAliases: ['World End Dancehall'],
       nameEn: 'World End Dancehall',
     }
-    const aliasHit = matchSongTitle('世界末日舞厅', 'ワールドエンド・ダンスホール', '世末舞厅', 'zh', sources)
+    const aliasHit = matchSongTitle('世界末日舞厅', 'zh', { jaTitle: 'ワールドエンド・ダンスホール', translation: '世末舞厅', ...sources })
     expect(aliasHit.primary).toBe('世末舞厅')
     expect(aliasHit.matchedAlias).toBe('世界末日舞厅')
     expect(aliasHit.secondary).toBe('世界末日舞厅')
 
-    // A primary hit does not repeat itself: the secondary line keeps the original note.
-    const primaryHit = matchSongTitle('世末', 'ワールドエンド・ダンスホール', '世末舞厅', 'zh', sources)
+    // A primary hit does not repeat itself: the secondary line keeps the Japanese name.
+    const primaryHit = matchSongTitle('世末', 'zh', { jaTitle: 'ワールドエンド・ダンスホール', translation: '世末舞厅', ...sources })
     expect(primaryHit.matchedAlias).toBeNull()
     expect(primaryHit.secondary).toBe('ワールドエンド・ダンスホール')
 
-    // A Chinese search hit is explained even while the original title is active.
-    const chineseInOriginal = matchSongTitle('世界末日舞厅', 'ワールドエンド・ダンスホール', null, 'original', sources)
-    expect(chineseInOriginal.primary).toBe('ワールドエンド・ダンスホール')
-    expect(chineseInOriginal.secondary).toBe('世界末日舞厅')
+    // A Chinese search hit is explained even while Japanese is active.
+    const chineseInJapanese = matchSongTitle('世界末日舞厅', 'ja', { jaTitle: 'ワールドエンド・ダンスホール', ...sources })
+    expect(chineseInJapanese.primary).toBe('ワールドエンド・ダンスホール')
+    expect(chineseInJapanese.secondary).toBe('世界末日舞厅')
   })
 
   it('only keeps catalog songs with a non-empty title and a source', () => {

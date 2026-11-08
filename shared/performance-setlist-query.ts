@@ -1,3 +1,4 @@
+import { translate, type Locale } from './i18n/index.ts'
 import { performanceSchedules, type PerformanceShow } from './event-schedule.ts'
 import type { RotationReview } from './rotation.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from './types.ts'
@@ -6,7 +7,7 @@ import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow 
  * 場次 of every 演出 read from the derived layer, only for 演出 that have derived rows.
  * The keys are the same `PerformanceShow` objects the pages print.
  */
-export const catalogSchedules = (catalog: Catalog): Map<number, PerformanceShow[]> => {
+export const catalogSchedules = (catalog: Catalog, locale: Locale = 'zh'): Map<number, PerformanceShow[]> => {
   const map = new Map<number, PerformanceShow[]>()
   for (const row of catalog.performanceShowSetlists) {
     const bucket = map.get(row.performance_id) ?? []
@@ -15,7 +16,9 @@ export const catalogSchedules = (catalog: Catalog): Map<number, PerformanceShow[
       performanceId: row.performance_id,
       date: row.date ?? '',
       half: row.half,
-      label: row.half === null ? (row.date ?? '日期未知') : `${row.date} ${row.half === 'day' ? '日场' : '夜场'}`,
+      label: row.half === null
+        ? (row.date ?? translate(locale, 'calendar.dateUnknown'))
+        : `${row.date} ${translate(locale, row.half === 'day' ? 'common.dayShow' : 'common.nightShow')}`,
     })
     map.set(row.performance_id, bucket)
   }

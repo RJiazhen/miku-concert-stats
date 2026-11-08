@@ -7,6 +7,8 @@ import { placeNames, usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { useLocale } from '~/composables/useLocale.ts'
+import { localeTag } from '~~/shared/i18n/index.ts'
 import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { buildProducerIndex } from '~~/shared/producers.ts'
 import { emptySongVariantIndex } from '~~/shared/song-variants.ts'
@@ -34,18 +36,19 @@ const PALETTE = [
 const OTHER_COLOR = 'var(--color-slate-400)'
 
 /** Years a chart can jump to, in page order. */
-const CHARTS = [
-  { key: 'shows', label: '场次 / 系列' },
-  { key: 'characters', label: '角色曲目' },
-  { key: 'new-songs', label: '新曲 / 复演' },
-  { key: 'series-spans', label: '系列活跃' },
-  { key: 'cities', label: '城市迁移' },
-] as const
+const CHARTS = computed(() => [
+  { key: 'shows', label: t('timeline.chartShows') },
+  { key: 'characters', label: t('timeline.chartCharacters') },
+  { key: 'new-songs', label: t('timeline.chartNewSongs') },
+  { key: 'series-spans', label: t('timeline.chartSeriesSpans') },
+  { key: 'cities', label: t('timeline.chartCities') },
+] as const)
 
 /** Sentinel for an open side of the year range; Reka UI cannot bind an empty select value. */
 const YEAR_ANY = 0
 
 const { catalog, error, pending, load } = useCatalog()
+const { locale, t } = useLocale()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizeCharacter, compareCharacters } = useCharacterNames()
@@ -118,13 +121,13 @@ const seriesById = computed(() => new Map((catalog.value?.series ?? []).map((row
 /** Series name in the site language; the id stands in when the catalog has no row. */
 const seriesLabel = (id: number): string => {
   const series = seriesById.value.get(id)
-  return series === undefined ? `系列 ${id}` : localizeSeries(series.name)
+  return series === undefined ? t('series.seriesFallback', { id }) : localizeSeries(series.name)
 }
 
 /** Series options for the filter and the chart focus control. */
 const seriesItems = computed(() => {
   const rows = [...(catalog.value?.series ?? [])].sort(
-    (left, right) => localizeSeries(left.name).localeCompare(localizeSeries(right.name), 'zh'),
+    (left, right) => localizeSeries(left.name).localeCompare(localizeSeries(right.name), localeTag(locale.value)),
   )
   return rows.map((series) => ({ label: localizeSeries(series.name), value: series.id }))
 })
@@ -138,8 +141,7 @@ const cityItems = computed(() => {
     counts.set(match.city, (counts.get(match.city) ?? 0) + 1)
   }
   const rows = [...counts].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], 'zh'))
-  return rows.map(([city, count]) => ({ label: `${city}（${count}）`, value: city }))
-})
+  return rows.map(([city, count]) => ({ label: `${city}（${count}）`, value: city }))})
 
 /** Producer names from the catalog index, the same list `/producers` prints. */
 const producerItems = computed(() => {
@@ -165,8 +167,8 @@ const yearOptions = computed(() => availablePerformanceYears(catalog.value?.perf
 
 /** Items shared by both year pickers. */
 const yearItems = computed(() => [
-  { label: '不限', value: YEAR_ANY },
-  ...yearOptions.value.map((year) => ({ label: `${year} 年`, value: year })),
+  { label: t('common.anyYear'), value: YEAR_ANY },
+  ...yearOptions.value.map((year) => ({ label: t('common.year', { year }), value: year })),
 ])
 
 /** Series rows behind the stacked chart, grouped into the top five plus 其他. */
@@ -196,7 +198,7 @@ const seriesChartBars = computed<ChartSeries[]>(() => {
   if (rest.length > 0) {
     bars.push({
       key: 'other',
-      label: `其他（${rest.length} 个系列）`,
+      label: t('timeline.otherSeries', { n: rest.length }),
       color: OTHER_COLOR,
       values: current.years.map((year) => rest.reduce((sum, span) => sum + (index.get(`${year}:${span.seriesId}`) ?? 0), 0)),
     })
@@ -205,7 +207,7 @@ const seriesChartBars = computed<ChartSeries[]>(() => {
 })
 
 /** Series focus options: 全部 plus every catalog series. */
-const seriesFocusItems = computed(() => [{ label: '全部系列', value: 0 }, ...seriesItems.value])
+const seriesFocusItems = computed(() => [{ label: t('timeline.allSeries'), value: 0 }, ...seriesItems.value])
 
 /** Distinct-song counts of each character bucket by year, behind the stacked bars of chart 3. */
 const characterSongYearIndex = computed(() => {
@@ -262,16 +264,16 @@ const characterChartBuckets = computed<CharacterBucket[]>(() => {
     if (rest.length > 0) {
       buckets.push({
         key: '__other',
-        label: `其他（${rest.length} 位）`,
+        label: t('timeline.otherCharacters', { n: rest.length }),
         color: OTHER_COLOR,
         songs: current.years.map((year) => rest.reduce((sum, row) => sum + (characterSongYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
-        legendDetail: `其他（${rest.length} 位）：${[...rest].sort(compareByCharacterRank).map((row) => localizeCharacter(row.name)).join('、')}`,
+        legendDetail: t('timeline.otherCharactersDetail', { n: rest.length, names: [...rest].sort(compareByCharacterRank).map((row) => localizeCharacter(row.name)).join(t('setlist.join')) }),
         segmentDetails: current.years.map((year) => rest
           .map((row) => ({ name: row.name, count: characterSongYearIndex.value.get(row.name)?.get(year) ?? 0 }))
           .filter((entry) => entry.count > 0)
           .sort((left, right) => right.count - left.count || compareCharacters(left.name, right.name))
           .map((entry) => `${localizeCharacter(entry.name)} ${formatSongCount(entry.count)}`)
-          .join('、')),
+          .join(t('setlist.join'))),
       })
     }
   }
@@ -308,7 +310,7 @@ const characterShareLines = computed<ChartSeries[]>(() => {
     .filter((bucket) => bucket.key !== '__other')
     .map((bucket) => ({
       key: bucket.key,
-      label: `${bucket.label}占比`,
+      label: t('timeline.shareOf', { name: bucket.label }),
       color: bucket.color,
       values: current.years.map((year) => index.get(bucket.key)?.get(year) ?? 0),
     }))
@@ -319,8 +321,8 @@ const songChartBars = computed<ChartSeries[]>(() => {
   const current = timeline.value
   if (current === null) return []
   return [
-    { key: 'new', label: '新曲', color: PALETTE[0], values: current.songByYear.map((row) => row.newSongs) },
-    { key: 'returning', label: '复演曲', color: PALETTE[1], values: current.songByYear.map((row) => row.returning) },
+    { key: 'new', label: t('timeline.newSong'), color: PALETTE[0], values: current.songByYear.map((row) => row.newSongs) },
+    { key: 'returning', label: t('timeline.returning'), color: PALETTE[1], values: current.songByYear.map((row) => row.returning) },
   ]
 })
 
@@ -330,7 +332,7 @@ const songChartLines = computed<ChartSeries[]>(() => {
   if (current === null) return []
   return [{
     key: 'ratio',
-    label: '新曲占比',
+    label: t('timeline.newRatio'),
     color: PALETTE[2],
     values: current.songByYear.map((row) => row.newRatio ?? 0),
   }]
@@ -341,9 +343,9 @@ const cityChartBars = computed<ChartSeries[]>(() => {
   const current = timeline.value
   if (current === null) return []
   return [
-    { key: 'domestic', label: '日本国内', color: PALETTE[0], values: current.cityByYear.map((row) => row.domestic) },
-    { key: 'overseas', label: '海外', color: PALETTE[1], values: current.cityByYear.map((row) => row.overseas) },
-    { key: 'unknown-country', label: '国家未知', color: OTHER_COLOR, values: current.cityByYear.map((row) => row.unknownCountry) },
+    { key: 'domestic', label: t('timeline.domestic'), color: PALETTE[0], values: current.cityByYear.map((row) => row.domestic) },
+    { key: 'overseas', label: t('timeline.overseas'), color: PALETTE[1], values: current.cityByYear.map((row) => row.overseas) },
+    { key: 'unknown-country', label: t('timeline.unknownCountry'), color: OTHER_COLOR, values: current.cityByYear.map((row) => row.unknownCountry) },
   ]
 })
 
@@ -353,7 +355,7 @@ const cityChartLines = computed<ChartSeries[]>(() => {
   if (current === null) return []
   return [{
     key: 'new-cities',
-    label: '当年新城市',
+    label: t('timeline.newCities'),
     color: PALETTE[2],
     values: current.cityByYear.map((row) => row.newCities),
   }]
@@ -365,7 +367,7 @@ const cityChartRatios = computed<ChartSeries[]>(() => {
   if (current === null) return []
   return [{
     key: 'overseas-ratio',
-    label: '海外占比',
+    label: t('timeline.overseasRatio'),
     color: PALETTE[4],
     values: current.cityByYear.map((row) => row.overseasRatio ?? 0),
   }]
@@ -501,7 +503,7 @@ watch(state, syncUrl, { deep: true })
 /** Chart key of a URL hash such as `#new-songs`; empty when the hash names no chart. */
 const chartFromHash = (hash: string): string => {
   const key = hash.replace(/^#/, '')
-  return CHARTS.some((entry) => entry.key === key) ? key : ''
+  return CHARTS.value.some((entry) => entry.key === key) ? key : ''
 }
 
 /** Splits a comma-separated URL filter into its values, ignoring blanks. */
@@ -548,17 +550,20 @@ type Chip = { key: string; label: string }
 /** Every non-default condition, in display order. */
 const chips = computed<Chip[]>(() => {
   const list: Chip[] = []
-  if (!includeBroadcast.value) list.push({ key: 'broadcast', label: '不含配信' })
-  if (mergeVariants.value) list.push({ key: 'merge', label: '合并版本' })
-  if (splitChorusSongs.value) list.push({ key: 'chorus', label: '合唱按人数均分' })
-  if (showCharacterShares.value) list.push({ key: 'share', label: '角色占比折线' })
-  if (newSongBaseline.value === 'filtered') list.push({ key: 'baseline', label: '新曲基准：当前筛选' })
+  if (!includeBroadcast.value) list.push({ key: 'broadcast', label: t('timeline.chipNoBroadcast') })
+  if (mergeVariants.value) list.push({ key: 'merge', label: t('timeline.chipMerge') })
+  if (splitChorusSongs.value) list.push({ key: 'chorus', label: t('timeline.chipChorus') })
+  if (showCharacterShares.value) list.push({ key: 'share', label: t('timeline.chipShare') })
+  if (newSongBaseline.value === 'filtered') list.push({ key: 'baseline', label: t('timeline.chipBaseline') })
   for (const id of selectedSeries.value) list.push({ key: `series:${id}`, label: seriesLabel(id) })
-  for (const name of selectedCities.value) list.push({ key: `city:${name}`, label: `城市：${name}` })
-  for (const name of selectedProducers.value) list.push({ key: `producer:${name}`, label: `P主：${name}` })
-  for (const name of selectedCharacters.value) list.push({ key: `character:${name}`, label: `角色：${name}` })
+  for (const name of selectedCities.value) list.push({ key: `city:${name}`, label: t('timeline.chipCity', { name }) })
+  for (const name of selectedProducers.value) list.push({ key: `producer:${name}`, label: t('timeline.chipProducer', { name }) })
+  for (const name of selectedCharacters.value) list.push({ key: `character:${name}`, label: t('timeline.chipCharacter', { name }) })
   if (yearRange.value.from !== null || yearRange.value.to !== null) {
-    list.push({ key: 'range', label: `年份：${yearRange.value.from ?? '最早'}–${yearRange.value.to ?? '最近'}` })
+    list.push({
+      key: 'range',
+      label: t('timeline.chipRange', { from: yearRange.value.from ?? t('timeline.earliest'), to: yearRange.value.to ?? t('timeline.latest') }),
+    })
   }
   return list
 })
@@ -710,33 +715,31 @@ const selectCityYear = (payload: { year: number }): void => {
 
 /** Unit line printed on the character chart, naming the active song-count rule and optional lines. */
 const characterUnit = computed(() => {
-  const rule = splitChorusSongs.value ? '合唱按人数均分' : '每首计 1'
-  const bars = `柱=该年不同曲目数（按角色堆叠） · ${rule}`
-  return showCharacterShares.value ? `${bars} · 线=各角色曲目占比` : bars
+  const rule = splitChorusSongs.value ? t('timeline.characterRuleSplit') : t('timeline.characterRulePerSong')
+  const bars = t('timeline.characterBars', { rule })
+  return showCharacterShares.value ? `${bars}${t('timeline.characterLines')}` : bars
 })
 
 /** Note printed on the character chart; the share lines are only explained while they are drawn. */
 const characterNote = computed(() => {
-  const base = '角色取自每场实际曲目的演出角色，只统计 data/characters.json 里登记的虚拟歌手。柱高是该年该角色演唱的不同曲目数，同一首歌在同一年只计一次；默认每首计 1，打开「合唱按人数均分」后，多人合唱的一首按 1 / 合唱人数 计给每个角色（双人 0.5、三人 1/3）。'
+  const base = t('timeline.characterNote')
   if (!showCharacterShares.value) return base
-  return `${base}右轴虚线是每个角色该年曲目数占全部角色曲目数的比例（「其他」不画线）；分子分母用同一套曲目计数规则，所以会跟着上面的开关一起变。`
+  return `${base}${t('timeline.characterShareNote')}`
 })
 
 /** Note under the new-song chart, which explains the active baseline. */
-const newSongNote = computed(() => (newSongBaseline.value === 'catalog'
-  ? '新曲 = 站内最早演出年份等于该年的曲目（全目录基准，不受系列 / 城市 / 角色筛选影响）；复演曲 = 更早年份已经登场。'
-  : '新曲 = 当前筛选范围内最早演出年份等于该年的曲目；复演曲 = 筛选范围内更早年份已经登场。'))
+const newSongNote = computed(() => t(newSongBaseline.value === 'catalog' ? 'timeline.newSongsCatalog' : 'timeline.newSongsFiltered'))
 
 /** Note printed with the excluded-row totals at the top of the page. */
 const exclusionNote = computed(() => {
   const current = timeline.value
   if (current === null) return ''
-  const parts: string[] = [`无日期的演出 ${current.excludedUndated} 个未进入年份图表`]
-  if (current.excludedByYear > 0) parts.push(`另 ${current.excludedByYear} 个演出在年份范围外`)
+  const parts: string[] = [t('timeline.excludedUndated', { n: current.excludedUndated })]
+  if (current.excludedByYear > 0) parts.push(t('timeline.excludedOutOfRange', { n: current.excludedByYear }))
   if (current.unknownCityPerformances > 0) {
-    parts.push(`${current.unknownCityPerformances} 个演出（${current.unknownCityShows} 场次）未识别城市`)
+    parts.push(t('timeline.excludedUnknownCity', { performances: current.unknownCityPerformances, shows: current.unknownCityShows }))
   }
-  return `${parts.join('；')}。`
+  return `${parts.join(t('common.sentenceJoin'))}${t('common.sentenceEnd')}`
 })
 
 /** Number of identified cities in the catalog. */
@@ -765,13 +768,13 @@ watch(() => route.hash, (value) => {
   focusedChart.value = chartFromHash(value)
 })
 
-useHead({ title: '时间线' })
+useHead({ title: computed(() => t('timeline.title')) })
 </script>
 
 <template>
   <div class="xl:flex xl:items-start xl:gap-8">
-    <nav class="hidden xl:sticky xl:top-24 xl:block xl:w-36 xl:shrink-0" aria-label="图表导航">
-      <p class="mb-1.5 px-2.5 text-xs font-medium tracking-[0.12em] text-muted uppercase">图表</p>
+    <nav class="hidden xl:sticky xl:top-24 xl:block xl:w-36 xl:shrink-0" :aria-label="t('timeline.chartNav')">
+      <p class="mb-1.5 px-2.5 text-xs font-medium tracking-[0.12em] text-muted uppercase">{{ t('timeline.charts') }}</p>
       <ul class="flex flex-col gap-0.5">
         <li v-for="chart in CHARTS" :key="chart.key">
           <UButton
@@ -791,20 +794,20 @@ useHead({ title: '时间线' })
     <section class="pt-4 sm:pt-8">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
-        演唱会<br class="sm:hidden">时间线
+        {{ t('timeline.heading1') }}<br class="sm:hidden">{{ t('timeline.heading2') }}
       </h1>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-        <UBadge v-if="timeline" color="primary" variant="subtle" icon="i-lucide-clock">{{ timeline.totals.shows }} 个场次</UBadge>
-        <UBadge v-if="timeline" color="neutral" variant="subtle" icon="i-lucide-calendar-range">{{ timeline.totals.performances }} 个演出</UBadge>
+        <UBadge v-if="timeline" color="primary" variant="subtle" icon="i-lucide-clock">{{ t('common.shows', { n: timeline.totals.shows }) }}</UBadge>
+        <UBadge v-if="timeline" color="neutral" variant="subtle" icon="i-lucide-calendar-range">{{ t('common.performances', { n: timeline.totals.performances }) }}</UBadge>
         <UBadge v-if="timeline?.years.length" color="neutral" variant="subtle">
           {{ timeline.years[0] }}–{{ timeline.years[timeline.years.length - 1] }}
         </UBadge>
-        <UBadge v-if="timeline" color="neutral" variant="subtle" icon="i-lucide-map-pin">{{ cityCount }} 个城市</UBadge>
-        <UButton to="/series" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">系列总览</UButton>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">曲目排行</UButton>
+        <UBadge v-if="timeline" color="neutral" variant="subtle" icon="i-lucide-map-pin">{{ t('common.cities', { n: cityCount }) }}</UBadge>
+        <UButton to="/series" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('timeline.seriesOverview') }}</UButton>
+        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('timeline.viewRanking') }}</UButton>
       </div>
       <p v-if="timeline" class="mt-3 text-xs leading-relaxed text-muted">
-        统计在浏览器里完成，口径与 /series、/cities、/producers、曲目排行一致。{{ exclusionNote }}
+        {{ t('timeline.intro', { exclusions: exclusionNote }) }}
       </p>
     </section>
 
@@ -813,7 +816,7 @@ useHead({ title: '时间线' })
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
-      title="目录加载失败"
+      :title="t('common.catalogError')"
       :description="error"
     />
 
@@ -840,7 +843,7 @@ useHead({ title: '时间线' })
     </div>
 
     <div v-if="chips.length > 0" class="flex flex-wrap items-center gap-2">
-      <span class="text-xs text-muted">已选条件</span>
+      <span class="text-xs text-muted">{{ t('timeline.selected') }}</span>
       <UButton
         v-for="chip in chips"
         :key="chip.key"
@@ -851,7 +854,7 @@ useHead({ title: '时间线' })
         :label="chip.label"
         @click="removeChip(chip.key)"
       />
-      <UButton color="neutral" variant="ghost" size="xs" label="清空" @click="reset" />
+      <UButton color="neutral" variant="ghost" size="xs" :label="t('common.clear')" @click="reset" />
     </div>
 
     <template v-if="pending && !timeline">
@@ -861,12 +864,12 @@ useHead({ title: '时间线' })
     <template v-else-if="timeline">
       <section id="chart-shows" class="scroll-mt-24">
         <TimelineChartCard
-          title="场次数年度变化"
-          unit="按场次计数 · 颜色区分系列"
-          note="默认堆叠前 5 个系列，其余并入「其他」；日场 / 夜场由场次说明中已核实的昼夜证据拆分。点击柱段进入系列页，点击柱间空白展开该年演出列表。"
+          :title="t('timeline.chartShows')"
+          :unit="t('timeline.modeByShow')"
+          :note="t('timeline.modeByShowNote')"
         >
           <template #actions>
-            <FilterField label="系列聚焦">
+            <FilterField :label="t('timeline.seriesFocus')">
               <USelect v-model="seriesFocus" :items="seriesFocusItems" size="sm" class="w-48" />
             </FilterField>
           </template>
@@ -875,17 +878,17 @@ useHead({ title: '时间线' })
             :span="chartSpan"
             :bars="seriesChartBars"
             stacked
-            unit="场次"
+            :unit="t('timeline.unitShows')"
             @select="selectSeriesSegment"
           />
           <template #footer>
             <div v-if="showsYear !== null" class="mt-3 border-t border-default/60 pt-3">
-              <p class="mb-2 text-xs text-muted">{{ showsYear }} 年 · {{ showsYearPerformances.length }} 个演出</p>
+              <p class="mb-2 text-xs text-muted">{{ t('timeline.yearShows', { year: showsYear, n: showsYearPerformances.length }) }}</p>
               <ul class="max-h-64 space-y-1 overflow-y-auto pr-1 text-xs">
                 <li v-for="row in showsYearPerformances" :key="row.id" class="flex flex-wrap items-baseline gap-x-2">
                   <span class="font-mono text-dimmed">{{ row.startDate }}</span>
                   <NuxtLink :to="`/shows/${row.id}`" class="text-primary hover:underline">{{ row.label }}</NuxtLink>
-                  <span class="text-muted">{{ row.shows }} 场</span>
+                  <span class="text-muted">{{ t('common.showsShort', { n: row.shows }) }}</span>
                 </li>
               </ul>
             </div>
@@ -895,13 +898,13 @@ useHead({ title: '时间线' })
 
       <section id="chart-characters" class="scroll-mt-24">
         <TimelineChartCard
-          title="角色曲目数年度变化"
+          :title="t('timeline.characterTitle')"
           :unit="characterUnit"
           :note="characterNote"
         >
           <template #actions>
-            <USwitch v-model="splitChorusSongs" label="合唱按人数均分" size="sm" />
-            <USwitch v-model="showCharacterShares" label="显示角色占比" size="sm" />
+            <USwitch v-model="splitChorusSongs" :label="t('timeline.characterRuleSplit')" size="sm" />
+            <USwitch v-model="showCharacterShares" :label="t('timeline.showShares')" size="sm" />
           </template>
           <TimelineBarChart
             :years="timeline.years"
@@ -909,15 +912,15 @@ useHead({ title: '时间线' })
             :bars="characterChartBars"
             :right-lines="characterShareLines"
             :right-format="showCharacterShares ? 'percent' : 'number'"
-            :right-unit="showCharacterShares ? '占比' : ''"
+            :right-unit="showCharacterShares ? t('timeline.unitShare') : ''"
             stacked
-            unit="曲目"
+            :unit="t('timeline.unitSongs')"
             height="320"
             @select="selectCharacterYear"
           />
           <template #footer>
             <div v-if="characterYear !== null" class="mt-3 border-t border-default/60 pt-3">
-              <p class="mb-2 text-xs text-muted">{{ characterYear }} 年角色曲目</p>
+              <p class="mb-2 text-xs text-muted">{{ t('timeline.yearCharacterSongs', { year: characterYear }) }}</p>
               <div class="flex flex-wrap gap-2">
                 <UBadge v-for="row in characterYearRows" :key="row.name" color="neutral" variant="subtle" size="sm">
                   {{ localizeCharacter(row.name) }} {{ formatSongCount(row.count) }}
@@ -930,20 +933,20 @@ useHead({ title: '时间线' })
 
       <section id="chart-new-songs" class="scroll-mt-24">
         <TimelineChartCard
-          title="新曲 / 复演曲年度变化"
-          unit="柱=曲目数，右轴线=新曲占比"
+          :title="t('timeline.newSongsTitle')"
+          :unit="t('timeline.newSongsUnit')"
           :note="newSongNote"
         >
           <template #actions>
             <UFieldGroup size="sm">
               <UButton
                 :variant="newSongBaseline === 'catalog' ? 'solid' : 'outline'"
-                label="全目录基准"
+                :label="t('timeline.baselineCatalog')"
                 @click="newSongBaseline = 'catalog'"
               />
               <UButton
                 :variant="newSongBaseline === 'filtered' ? 'solid' : 'outline'"
-                label="当前筛选范围"
+                :label="t('timeline.baselineFiltered')"
                 @click="newSongBaseline = 'filtered'"
               />
             </UFieldGroup>
@@ -954,25 +957,24 @@ useHead({ title: '时间线' })
             :bars="songChartBars"
             :right-lines="songChartLines"
             right-format="percent"
-            unit="曲目"
-            right-unit="占比"
+            :unit="t('timeline.unitSongs')"
+            :right-unit="t('timeline.unitShare')"
             @select="selectSongsYear"
           />
           <template #footer>
             <div v-if="songsYearRow" class="mt-3 space-y-2 border-t border-default/60 pt-3 text-xs">
               <p class="text-muted">
-                {{ songsYearRow.year }} 年 · 新曲 {{ songsYearRow.newSongs }} · 复演 {{ songsYearRow.returning }} ·
-                当年曲目 {{ songsYearRow.distinctSongs }}
-                <template v-if="songsYearRow.newRatio !== null"> · 新曲占比 {{ Math.round(songsYearRow.newRatio * 100) }}%</template>
+                {{ t('timeline.yearNewOld', { year: songsYearRow.year, newSongs: songsYearRow.newSongs, returning: songsYearRow.returning, distinct: songsYearRow.distinctSongs }) }}
+                <template v-if="songsYearRow.newRatio !== null"> · {{ t('timeline.newRatio') }} {{ Math.round(songsYearRow.newRatio * 100) }}%</template>
               </p>
               <div class="max-h-56 overflow-y-auto pr-1">
-                <p v-if="songsYearRow.newSongIds.length > 0" class="mb-1 font-medium text-highlighted">新曲</p>
+                <p v-if="songsYearRow.newSongIds.length > 0" class="mb-1 font-medium text-highlighted">{{ t('timeline.newSong') }}</p>
                 <ul class="mb-2 flex flex-wrap gap-x-3 gap-y-1">
                   <li v-for="songId in songsYearRow.newSongIds" :key="`new:${songId}`">
                     <NuxtLink :to="`/songs/${songId}`" class="text-primary hover:underline">{{ songName(songId) }}</NuxtLink>
                   </li>
                 </ul>
-                <p v-if="songsYearRow.returningSongIds.length > 0" class="mb-1 font-medium text-highlighted">复演曲</p>
+                <p v-if="songsYearRow.returningSongIds.length > 0" class="mb-1 font-medium text-highlighted">{{ t('timeline.returning') }}</p>
                 <ul class="flex flex-wrap gap-x-3 gap-y-1">
                   <li v-for="songId in songsYearRow.returningSongIds" :key="`returning:${songId}`">
                     <NuxtLink :to="`/songs/${songId}`" class="text-muted hover:text-primary">{{ songName(songId) }}</NuxtLink>
@@ -986,9 +988,9 @@ useHead({ title: '时间线' })
 
       <section id="chart-series-spans" class="scroll-mt-24">
         <TimelineChartCard
-          title="系列活跃年份"
-          unit="横轴=年份，条带=该系列首末演出年份"
-          note="点击条带进入系列页；条带按演出数从多到少排列。"
+          :title="t('timeline.seriesSpansTitle')"
+          :unit="t('timeline.seriesSpansUnit')"
+          :note="t('timeline.seriesSpansNote')"
         >
           <TimelineGantt
             :years="timeline.years"
@@ -1001,9 +1003,9 @@ useHead({ title: '时间线' })
 
       <section id="chart-cities" class="scroll-mt-24">
         <TimelineChartCard
-          title="巡演城市迁移"
-          unit="柱=日本国内 / 海外 / 国家未知演出数，线=当年新城市与海外占比"
-          :note="`城市由 buildCityIndex / matchCity 归一化；${unknownCountryTotal} 个演出没有国家代码，未计入国内外拆分；${timeline.unknownCityPerformances} 个演出（${timeline.unknownCityShows} 场次）未识别城市，只在页头计数。`"
+          :title="t('timeline.citiesTitle')"
+          :unit="t('timeline.citiesUnit')"
+          :note="t('timeline.citiesNote', { unknownCountry: unknownCountryTotal, unknownCityPerformances: timeline.unknownCityPerformances, unknownCityShows: timeline.unknownCityShows })"
         >
           <TimelineBarChart
             :years="timeline.years"
@@ -1013,15 +1015,14 @@ useHead({ title: '时间线' })
             :lines="cityChartLines"
             :right-lines="cityChartRatios"
             right-format="percent"
-            unit="演出"
-            right-unit="海外占比"
+            :unit="t('timeline.unitPerformances')"
+            :right-unit="t('timeline.overseasRatio')"
             @select="selectCityYear"
           />
           <template #footer>
             <div v-if="cityYearRow" class="mt-3 border-t border-default/60 pt-3 text-xs text-muted">
-              {{ cityYearRow.year }} 年：{{ cityYearRow.cities }} 个城市，其中新出现 {{ cityYearRow.newCities }} 个；
-              日本国内 {{ cityYearRow.domestic }} 个演出，海外 {{ cityYearRow.overseas }} 个
-              <template v-if="cityYearRow.unknownCountry > 0">，{{ cityYearRow.unknownCountry }} 个国家未知</template>。
+              {{ t('timeline.cityYear', { year: cityYearRow.year, cities: cityYearRow.cities, newCities: cityYearRow.newCities, domestic: cityYearRow.domestic, overseas: cityYearRow.overseas })
+              }}<template v-if="cityYearRow.unknownCountry > 0">{{ t('timeline.cityYearUnknown', { n: cityYearRow.unknownCountry }) }}</template>。
             </div>
           </template>
         </TimelineChartCard>
@@ -1038,7 +1039,7 @@ useHead({ title: '时间线' })
           variant="solid"
           size="sm"
           class="rounded-full shadow-lg shadow-black/25"
-          aria-label="图表导航"
+          :aria-label="t('timeline.chartNav')"
           aria-haspopup="dialog"
           :aria-expanded="chartMenuOpen"
         />
@@ -1072,7 +1073,7 @@ useHead({ title: '时间线' })
             variant="solid"
             size="sm"
             class="rounded-full shadow-lg shadow-black/25"
-            aria-label="筛选"
+            :aria-label="t('timeline.filter')"
             aria-haspopup="dialog"
             :aria-expanded="filterMenuOpen"
           />

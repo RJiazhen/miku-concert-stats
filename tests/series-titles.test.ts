@@ -36,13 +36,13 @@ describe('Chinese series titles', () => {
 
   it('follows the language and falls back to the catalog name', () => {
     expect(localizeSeriesName(titles, '初音ミクシンフォニー', 'zh')).toBe('初音未来交响乐')
-    expect(localizeSeriesName(titles, '初音ミクシンフォニー', 'original')).toBe('初音ミクシンフォニー')
+    expect(localizeSeriesName(titles, '初音ミクシンフォニー', 'ja')).toBe('初音ミクシンフォニー')
     expect(localizeSeriesName(titles, 'MIKU EXPO', 'zh')).toBe('MIKU EXPO')
     expect(formatSeriesTitle('初音ミクシンフォニー', '初音未来交响乐', 'zh')).toEqual({
       primary: '初音未来交响乐',
       originalNote: '初音ミクシンフォニー',
     })
-    expect(formatSeriesTitle('初音ミクシンフォニー', '初音未来交响乐', 'original')).toEqual({
+    expect(formatSeriesTitle('初音ミクシンフォニー', '初音未来交响乐', 'ja')).toEqual({
       primary: '初音ミクシンフォニー',
       originalNote: null,
     })
@@ -64,7 +64,7 @@ describe('Chinese series titles', () => {
     )
     expect(localizeSeriesInName('MIKU EXPO 2024 Vancouver', 'MIKU EXPO', 2024, titles, 'zh')).toBe('MIKU EXPO 2024 Vancouver')
     expect(localizeSeriesInName('MIKU WITH YOU 2024 in Shanghai', 'MIKU WITH YOU', 2024, titles, 'zh')).toBe('未来有你 2024 in Shanghai')
-    expect(localizeSeriesInName('初音ミクシンフォニー 2016 東京都', '初音ミクシンフォニー', 2016, titles, 'original')).toBe(
+    expect(localizeSeriesInName('初音ミクシンフォニー 2016 東京都', '初音ミクシンフォニー', 2016, titles, 'ja')).toBe(
       '初音ミクシンフォニー 2016 東京都',
     )
   })

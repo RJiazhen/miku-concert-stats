@@ -4,11 +4,13 @@ import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames } from '~/composables/usePlaceNames.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 import { buildCityIndex, rankCities } from '~~/shared/cities.ts'
 import { showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const { catalog, error, pending, load } = useCatalog()
+const { t } = useLocale()
 
 /** Parsed once: the checked place list and its matchers never change at runtime. */
 const cityIndex = buildCityIndex(placeNames)
@@ -70,19 +72,19 @@ const totals = computed(() => {
 /** Sortable header button, shared with every other table on the site. */
 const sortableHeader = useSortableHeader()
 
-const columns: TableColumn<RankedCity>[] = [
-  { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
-  { accessorKey: 'city', header: sortableHeader('城市'), enableSorting: true },
-  { accessorKey: 'concerts', header: sortableHeader('演出数'), enableSorting: true },
-  { accessorKey: 'shows', header: sortableHeader('场次'), enableSorting: true },
-  { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
-  { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
-]
+const columns = computed<TableColumn<RankedCity>[]>(() => [
+  { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true },
+  { accessorKey: 'city', header: sortableHeader(t('col.city')), enableSorting: true },
+  { accessorKey: 'concerts', header: sortableHeader(t('col.performanceCount')), enableSorting: true },
+  { accessorKey: 'shows', header: sortableHeader(t('col.shows')), enableSorting: true },
+  { accessorKey: 'firstYear', header: sortableHeader(t('col.firstYear')), enableSorting: true },
+  { accessorKey: 'lastYear', header: sortableHeader(t('col.lastYear')), enableSorting: true },
+])
 
 /** Blank marker for a missing value. */
 const cell = (value: number | null): string => (value === null ? '—' : String(value))
 
-useHead({ title: '城市排行' })
+useHead({ title: computed(() => t('cities.title')) })
 </script>
 
 <template>
@@ -90,11 +92,11 @@ useHead({ title: '城市排行' })
     <section class="pt-4 sm:pt-8">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
-        城市演出场次<br class="sm:hidden">排名
+        {{ t('cities.heading1') }}<br class="sm:hidden">{{ t('cities.heading2') }}
       </h1>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-        <UBadge color="primary" variant="subtle" icon="i-lucide-map-pin">按场次排序</UBadge>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">查看曲目排行</UButton>
+        <UBadge color="primary" variant="subtle" icon="i-lucide-map-pin">{{ t('cities.sortBadge') }}</UBadge>
+        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('cities.viewRanking') }}</UButton>
       </div>
     </section>
 
@@ -103,22 +105,22 @@ useHead({ title: '城市排行' })
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
-      title="目录加载失败"
+      :title="t('common.catalogError')"
       :description="error"
     />
 
     <TableSection
       v-if="catalog || pending"
-      title="排行"
-      :count="`${rows.length} 个城市 · ${totals.concerts} 个演出 · ${totals.shows} 个场次`"
-      note="「场次」按演出日计数，日场 / 夜场分别计数"
+      :title="t('cities.tableTitle')"
+      :count="t('cities.count', { cities: rows.length, performances: totals.concerts, shows: totals.shows })"
+      :note="t('cities.note')"
       v-model:sorting="sorting"
       :data="rows"
       :columns="columns"
       :loading="pending"
       empty-icon="i-lucide-map-pin-off"
-      empty-title="没有可统计的城市"
-      empty-description="目录里还没有带城市名称的演出。"
+      :empty-title="t('cities.emptyTitle')"
+      :empty-description="t('cities.emptyDesc')"
     >
       <template #rank-cell="{ row }">
         <span class="font-mono text-muted">{{ row.original.rank }}</span>
@@ -142,7 +144,7 @@ useHead({ title: '城市排行' })
     </TableSection>
 
     <p v-if="ranking && ranking.unknown.concerts > 0" class="text-xs text-muted">
-      另有 {{ ranking.unknown.concerts }} 个线上或没有标明城市的演出未计入排名。
+      {{ t('cities.unknown', { n: ranking.unknown.concerts }) }}
     </p>
   </main>
 </template>

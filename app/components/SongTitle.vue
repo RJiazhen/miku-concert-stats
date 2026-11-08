@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useSongAliases } from '~/composables/useSongAliases.ts'
-import { useSongLanguage } from '~/composables/useSongLanguage.ts'
-import { formatSongTitle } from '~~/shared/song-titles.ts'
+import { useSongTitle } from '~/composables/useSongTitle.ts'
 
 const props = withDefaults(defineProps<{
   songId: number
@@ -11,19 +9,18 @@ const props = withDefaults(defineProps<{
   truncate?: boolean
 }>(), { truncate: false })
 
-const { language, translationFor } = useSongLanguage()
-const { jaTitle } = useSongAliases()
+const { titleView } = useSongTitle()
 
-/** The registered Japanese alias wins over the name the caller passed in. */
-const view = computed(() => formatSongTitle(jaTitle(props.songId, props.original), translationFor(props.songId), language.value))
+/** Primary title plus the gray Japanese names under it. */
+const view = computed(() => titleView(props.songId, props.original))
 </script>
 
 <template>
   <span :class="truncate ? 'song-title flex min-w-0 max-w-full flex-col' : 'song-title inline-flex flex-col'">
     <span :class="truncate ? 'truncate' : undefined">{{ view.primary }}</span>
     <span
-      v-if="view.originalNote"
+      v-if="view.originalNames.length > 0"
       :class="['song-original text-xs font-normal text-muted', truncate ? 'truncate' : undefined]"
-    >{{ view.originalNote }}</span>
+    >{{ view.originalNames.join(' · ') }}</span>
   </span>
 </template>

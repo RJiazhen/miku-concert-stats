@@ -1,10 +1,9 @@
-/**
- * Shared shape of the three hand-checked translation files: songs, series, and places all map a
- * catalog spelling to one Chinese name and are displayed through the same language switch.
- */
+import type { Locale } from './i18n/index.ts'
 
-/** Which title script the visitor asked for. */
-export type SongLanguage = 'original' | 'zh'
+/**
+ * Shared shape of the hand-checked translation files: songs, series, places, and characters all
+ * map a catalog spelling to one Chinese name and are displayed through the same language switch.
+ */
 
 /** Primary name plus the original beside it, when a translation is showing. */
 export type NameView = {
@@ -42,14 +41,15 @@ export const parseNameMap = (value: unknown, what: string): NameMap => {
 
 /**
  * Formats one name for the active language.
- * Chinese mode keeps the catalog name beside the translation unless they are the same string.
+ * Japanese shows the catalog name alone; Chinese and English show the translation with the
+ * original underneath, unless the two are the same string.
  */
 export const formatLocalizedName = (
   original: string,
   translation: string | null,
-  language: SongLanguage,
+  locale: Locale,
 ): NameView => {
-  if (language !== 'zh' || translation === null || translation.trim() === '' || translation === original) {
+  if (locale === 'ja' || translation === null || translation.trim() === '' || translation === original) {
     return { primary: original, originalNote: null }
   }
   return { primary: translation, originalNote: original }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const props = withDefaults(defineProps<{
   /** Other names of the active language, primary excluded. */
@@ -7,6 +8,8 @@ const props = withDefaults(defineProps<{
   /** Names shown inline before the rest collapse behind `+N`. */
   limit?: number
 }>(), { limit: 3 })
+
+const { t } = useLocale()
 
 /** Names shown inline plus the names revealed by the counter button. */
 const split = computed(() => ({
@@ -17,7 +20,7 @@ const split = computed(() => ({
 
 <template>
   <div class="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted">
-    <span class="shrink-0">其他名称</span>
+    <span class="shrink-0">{{ t('song.otherNames') }}</span>
     <template v-for="(alias, index) in split.visible" :key="alias">
       <span v-if="index > 0" aria-hidden="true">·</span>
       <span class="min-w-0 break-words">{{ alias }}</span>

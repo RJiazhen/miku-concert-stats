@@ -1,3 +1,4 @@
+import { translate, type Locale } from './i18n/index.ts'
 import type { Catalog, PerformanceRow } from './types.ts'
 
 /** Fields the rotation parser reads from a performance that shares a song list. */
@@ -553,15 +554,17 @@ const addReason = (line: ResolvedRotationLine, reason: string): void => {
   line.uncertain = true
 }
 
-/** Human-readable Chinese text for one parser reason. */
-export const formatRotationReason = (reason: string): string => {
+/** Human-readable text for one parser reason in the active language. */
+export const formatRotationReason = (reason: string, locale: Locale = 'zh'): string => {
   const mismatch = reason.match(/^setlist length mismatch: (\d+) vs expected (\d+)$/)
-  if (mismatch) return `本场 ${mismatch[1]} 首，同歌单其他场次多为 ${mismatch[2]} 首`
-  if (reason === 'unknown format') return '备注写法未识别'
-  if (reason === 'unmatched city') return '城市没有对到任何一场'
+  if (mismatch) {
+    return translate(locale, 'rotation.lengthMismatch', { count: mismatch[1] ?? '', expected: mismatch[2] ?? '' })
+  }
+  if (reason === 'unknown format') return translate(locale, 'rotation.unknownFormat')
+  if (reason === 'unmatched city') return translate(locale, 'rotation.unmatchedCity')
   const cityOnly = reason.match(/^city-only when city has several shows(?:: (\d+))?$/)
-  if (cityOnly) return cityOnly[1] ? `共 ${cityOnly[1]} 场` : '该城市有多场'
-  if (reason === 'day with day/night shows') return '备注写到日场 / 夜场或当天有多场，解析器只定位到当天'
+  if (cityOnly) return cityOnly[1] ? translate(locale, 'rotation.cityOnlyCount', { n: cityOnly[1] }) : translate(locale, 'rotation.cityOnly')
+  if (reason === 'day with day/night shows') return translate(locale, 'rotation.dayNight')
   return reason
 }
 

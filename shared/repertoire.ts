@@ -1,3 +1,4 @@
+import { translate, type Locale } from './i18n/index.ts'
 import type { SongCategory, SongRow } from './types.ts'
 
 /**
@@ -13,15 +14,12 @@ export const LOCAL_SONG_ID_BASE = 2_000_000_000
  */
 export const LOCAL_PERFORMANCE_ID_BASE = 3_000_000_000
 
-/**
- * Repertoire VocaDB does not list, registered from a wiki setlist so a 場次 keeps its complete
- * programme. The classification is stored on `songs.category`; `vocaloid` is the normal case.
- */
-export const songCategoryLabels: Record<SongCategory, string> = {
-  vocaloid: 'VOCALOID 歌曲',
-  classical: '古典・管弦乐曲',
-  traditional: '民谣・传统曲',
-  instrumental: '器乐曲',
+/** Localized label of a repertoire class, e.g. `古典・管弦乐曲` / `Classical / orchestral`. */
+export const songCategoryLabel = (category: SongCategory, locale: Locale): string => {
+  if (category === 'classical') return translate(locale, 'category.classical')
+  if (category === 'traditional') return translate(locale, 'category.traditional')
+  if (category === 'instrumental') return translate(locale, 'category.instrumental')
+  return translate(locale, 'category.vocaloid')
 }
 
 /**

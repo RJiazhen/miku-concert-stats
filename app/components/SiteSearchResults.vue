@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { SearchSection as SearchSectionData } from '~/composables/useSearchHits.ts'
 import { searchPagePath } from '~/composables/useSearchHits.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const props = defineProps<{
   /** Query as typed; the footer link keeps it. */
@@ -19,14 +20,16 @@ const emit = defineEmits<{
   select: []
 }>()
 
+const { t } = useLocale()
+
 /** Query trimmed, so a whitespace-only box never produces a `/search?q=` link. */
 const trimmed = computed(() => props.query.trim())
 
 /** Footer label: name the real song count when the cap hid part of the list. */
 const moreLabel = computed(() => {
   const songs = props.sections.find((section) => section.key === 'songs')
-  if (songs && songs.truncated) return `查看全部 ${songs.total} 首`
-  return '查看全部结果'
+  if (songs && songs.truncated) return t('search.viewAllSongs', { n: songs.total })
+  return t('search.viewAll')
 })
 </script>
 
@@ -39,7 +42,7 @@ const moreLabel = computed(() => {
       <USkeleton class="h-3 w-1/4" />
       <USkeleton class="h-8 w-full" />
     </div>
-    <p v-else-if="error" class="px-2 py-3 text-xs text-error">目录加载失败：{{ error }}</p>
+    <p v-else-if="error" class="px-2 py-3 text-xs text-error">{{ t('common.catalogErrorInline', { error }) }}</p>
     <template v-else-if="sections.length > 0">
       <SearchSection
         v-for="section in sections"
@@ -55,6 +58,6 @@ const moreLabel = computed(() => {
         @click="emit('select')"
       >{{ moreLabel }}</NuxtLink>
     </template>
-    <p v-else class="px-2 py-3 text-xs text-muted">没有找到，试试更短的名称。</p>
+    <p v-else class="px-2 py-3 text-xs text-muted">{{ t('search.noMatch') }}</p>
   </div>
 </template>

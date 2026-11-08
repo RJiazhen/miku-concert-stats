@@ -17,13 +17,13 @@ const names = parseCharacterNames({
 describe('character names', () => {
   it('follows the language and falls back to the canonical name', () => {
     expect(localizeCharacterName(names, '初音ミク', 'zh')).toBe('初音未来')
-    expect(localizeCharacterName(names, '初音ミク', 'original')).toBe('初音ミク')
+    expect(localizeCharacterName(names, '初音ミク', 'ja')).toBe('初音ミク')
     expect(localizeCharacterName(names, '寒音ジミ', 'zh')).toBe('寒音ジミ')
   })
 
   it('sorts by the displayed name in each language', () => {
     expect(compareCharacterNames(names, '初音ミク', '鏡音リン', 'zh')).toBeLessThan(0)
-    expect(compareCharacterNames(names, '初音ミク', '鏡音リン', 'original')).toBeGreaterThan(0)
+    expect(compareCharacterNames(names, '初音ミク', '鏡音リン', 'ja')).toBeGreaterThan(0)
   })
 
   it('orders the ranking filter by the displayed names when counts tie', () => {

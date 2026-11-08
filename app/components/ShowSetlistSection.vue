@@ -2,11 +2,14 @@
 import { computed } from 'vue'
 import { derivedItemsByShow, mergeShowSetlists, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
 import type { Catalog, PerformanceSetlistRow, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const props = defineProps<{
   catalog: Catalog
   performanceId: number
 }>()
+
+const { t } = useLocale()
 
 /** Derived 演出 row, or null when the catalog has no derived layer for this 演出. */
 const setlist = computed<PerformanceSetlistRow | null>(
@@ -26,11 +29,11 @@ const itemsOf = (showKey: string): PerformanceShowSetlistItemRow[] =>
     .filter((row) => row.show_key === showKey)
     .sort((left, right) => left.position - right.position)
 
-/** Chinese label of one 场次. */
+/** Localized label of one 场次. */
 const showLabel = (row: PerformanceShowSetlistRow): string => {
-  const date = row.date ?? '日期未知'
-  if (row.half === 'day') return `${date} 日场`
-  if (row.half === 'night') return `${date} 夜场`
+  const date = row.date ?? t('common.unknownDate')
+  if (row.half === 'day') return `${date} ${t('common.dayShow')}`
+  if (row.half === 'night') return `${date} ${t('common.nightShow')}`
   return date
 }
 
@@ -57,9 +60,9 @@ const mergedRows = computed<ShowSetlistPrintRow[] | null>(() => {
 /** Song count summary of the whole 演出. */
 const lengthSummary = computed<string>(() => {
   const counts = [...new Set(shows.value.map((row) => row.item_count))]
-  if (counts.length === 0) return '无歌单'
-  if (counts.length === 1) return `每场 ${counts[0]} 首`
-  return `各场 ${counts.join(' / ')} 首`
+  if (counts.length === 0) return t('setlist.noSetlist')
+  if (counts.length === 1) return t('setlist.everyShow', { n: counts[0] ?? 0 })
+  return t('setlist.perShow', { list: counts.join(' / ') })
 })
 </script>
 
@@ -70,8 +73,8 @@ const lengthSummary = computed<string>(() => {
       color="warning"
       variant="subtle"
       icon="i-lucide-info"
-      title="这个演出还没有派生的场次歌单"
-      description="目录里没有该演出的场次级数据，无法列出曲目。"
+      :title="t('show.notDerivedTitle')"
+      :description="t('show.notDerivedDesc')"
     />
     <template v-else>
       <!-- 场次日期与数量已经写在页头，这里不再重复列出。 -->
@@ -80,7 +83,7 @@ const lengthSummary = computed<string>(() => {
         :catalog="catalog"
         :rows="mergedRows"
         :shows="shows"
-        title="合并歌单"
+        :title="t('setlist.mergedTitle')"
         :count="lengthSummary"
       />
 
@@ -89,8 +92,8 @@ const lengthSummary = computed<string>(() => {
         v-else-if="singleShow"
         :catalog="catalog"
         :rows="singleShowRows"
-        title="歌单"
-        :count="`${singleShow.item_count} 首`"
+        :title="t('setlist.title')"
+        :count="t('common.songs', { n: singleShow.item_count })"
       />
 
       <template v-else>
@@ -100,7 +103,7 @@ const lengthSummary = computed<string>(() => {
           :catalog="catalog"
           :rows="rowsOf(show)"
           :title="showLabel(show)"
-          :count="`${show.item_count} 首`"
+          :count="t('common.songs', { n: show.item_count })"
         />
       </template>
     </template>

@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import {
   buildProducerIndex,
@@ -13,6 +14,7 @@ import {
 
 const { catalog, error, pending, load } = useCatalog()
 const { songById } = useSongLookup()
+const { t } = useLocale()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -86,22 +88,22 @@ const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'songCount', desc: t
 const sortableHeader = useSortableHeader()
 
 const columns: TableColumn<RankedProducer>[] = [
-  { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true },
-  { accessorKey: 'name', header: sortableHeader('制作人'), enableSorting: true },
-  { accessorKey: 'songCount', header: sortableHeader('曲目数'), enableSorting: true },
-  { accessorKey: 'performedSongCount', header: sortableHeader('演出曲目'), enableSorting: true },
-  { accessorKey: 'appearanceCount', header: sortableHeader('表演次数'), enableSorting: true },
-  { accessorKey: 'performanceCount', header: sortableHeader('演出数'), enableSorting: true },
-  { accessorKey: 'showCount', header: sortableHeader('场次'), enableSorting: true },
-  { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
-  { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
-  { accessorKey: 'topSongs', header: '代表作', enableSorting: false },
+  { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true },
+  { accessorKey: 'name', header: sortableHeader(t('producers.breadcrumb')), enableSorting: true },
+  { accessorKey: 'songCount', header: sortableHeader(t('col.songCount')), enableSorting: true },
+  { accessorKey: 'performedSongCount', header: sortableHeader(t('col.performedSongCount')), enableSorting: true },
+  { accessorKey: 'appearanceCount', header: sortableHeader(t('col.appearanceCount')), enableSorting: true },
+  { accessorKey: 'performanceCount', header: sortableHeader(t('col.performanceCount')), enableSorting: true },
+  { accessorKey: 'showCount', header: sortableHeader(t('col.shows')), enableSorting: true },
+  { accessorKey: 'firstYear', header: sortableHeader(t('col.firstYear')), enableSorting: true },
+  { accessorKey: 'lastYear', header: sortableHeader(t('col.lastYear')), enableSorting: true },
+  { accessorKey: 'topSongs', header: t('col.topSongs'), enableSorting: false },
 ]
 
 /** Blank marker for a missing value. */
 const cell = (value: number | null): string => (value === null ? '—' : String(value))
 
-useHead({ title: '制作人排行' })
+useHead({ title: computed(() => t('producers.indexTitle')) })
 </script>
 
 <template>
@@ -109,13 +111,13 @@ useHead({ title: '制作人排行' })
     <section class="pt-4 sm:pt-8">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
-        制作人<br class="sm:hidden">排行榜
+        {{ t('producers.heading1') }}<br class="sm:hidden">{{ t('producers.heading2') }}
       </h1>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-        <UBadge color="primary" variant="subtle" icon="i-lucide-user-round">{{ totals.producers }} 位制作人</UBadge>
-        <UBadge color="neutral" variant="subtle">{{ totals.songs }} 首署名曲目</UBadge>
-        <UBadge color="neutral" variant="subtle">{{ totals.performed }} 首上过演唱会</UBadge>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">查看曲目排行</UButton>
+        <UBadge color="primary" variant="subtle" icon="i-lucide-user-round">{{ t('common.producers', { n: totals.producers }) }}</UBadge>
+        <UBadge color="neutral" variant="subtle">{{ t('producers.creditedSongs', { n: totals.songs }) }}</UBadge>
+        <UBadge color="neutral" variant="subtle">{{ t('producers.performedSongs', { n: totals.performed }) }}</UBadge>
+        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('producers.viewRanking') }}</UButton>
       </div>
     </section>
 
@@ -124,31 +126,31 @@ useHead({ title: '制作人排行' })
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
-      title="目录加载失败"
+      :title="t('common.catalogError')"
       :description="error"
     />
 
     <TableSection
       v-if="catalog || pending"
-      title="排行"
-      :count="`${filtered.length} 位`"
+      :title="t('producers.tableTitle')"
+      :count="t('common.producers', { n: filtered.length })"
       v-model:sorting="sorting"
       :data="filtered"
       :columns="columns"
       :loading="pending"
       empty-icon="i-lucide-user-x"
-      empty-title="没有符合条件的制作人"
-      empty-description="换一个更短的名字。"
+      :empty-title="t('producers.emptyTitle')"
+      :empty-description="t('producers.emptyDesc')"
     >
       <template #note>
         <ul class="grid gap-1 text-xs leading-relaxed text-muted">
-          <li>「曲目数」：有署名的不同歌曲数，不同版本分别计数；</li>
-          <li>「演出曲目」：其中至少上过一场演唱会的歌曲数；</li>
-          <li>「表演次数」按场次累计，「演出数」每场演出计一次，「场次」按天计数、日场 / 夜场分开。</li>
+          <li>{{ t('producers.noteSongs') }}</li>
+          <li>{{ t('producers.notePerformed') }}</li>
+          <li>{{ t('producers.noteCounts') }}</li>
         </ul>
       </template>
       <template #actions>
-        <FilterField label="搜索制作人">
+        <FilterField :label="t('producers.filter')">
           <UInput v-model="query" icon="i-lucide-search" size="sm" class="w-44" autocomplete="off" />
         </FilterField>
       </template>

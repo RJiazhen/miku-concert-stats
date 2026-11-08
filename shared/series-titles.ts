@@ -1,4 +1,5 @@
-import { formatLocalizedName, parseNameMap, type NameView, type SongLanguage } from './name-map.ts'
+import type { Locale } from './i18n/index.ts'
+import { formatLocalizedName, parseNameMap, type NameView } from './name-map.ts'
 import { seriesLabels } from './performance-name.ts'
 
 /**
@@ -26,18 +27,18 @@ export type SeriesTitleView = NameView
 
 /**
  * Formats a series name for the active language.
- * Chinese mode keeps the catalog name beside the translation unless they are the same string.
+ * Chinese and English keep the catalog name beside the translation unless they are the same string.
  */
-export const formatSeriesTitle = (original: string, translation: string | null, language: SongLanguage): SeriesTitleView => {
-  return formatLocalizedName(original, translation, language)
+export const formatSeriesTitle = (original: string, translation: string | null, locale: Locale): SeriesTitleView => {
+  return formatLocalizedName(original, translation, locale)
 }
 
 /**
  * Chinese series name for the active language, falling back to the catalog name.
  * A series without a row still renders its VocaDB name instead of an empty string.
  */
-export const localizeSeriesName = (file: SeriesTitleFile, name: string, language: SongLanguage): string => {
-  return formatSeriesTitle(name, seriesTitleFor(file, name), language).primary
+export const localizeSeriesName = (file: SeriesTitleFile, name: string, locale: Locale): string => {
+  return formatSeriesTitle(name, seriesTitleFor(file, name), locale).primary
 }
 
 /** Closes the bracket that may hold a series year inside a series name. */
@@ -67,16 +68,16 @@ const translatedLabel = (label: string, seriesName: string, translation: string)
 /**
  * Replaces the series label inside a performance name with its Chinese name.
  * Longer labels win, so `初音ミク「マジカルミライ 2024」in TOKYO` becomes `魔法未来 2024 in TOKYO`.
- * Non-Chinese languages and series without a row keep the VocaDB text untouched.
+ * Japanese, English, and series without a row keep the VocaDB text untouched.
  */
 export const localizeSeriesInName = (
   text: string,
   seriesName: string,
   seriesNumber: number | null,
   file: SeriesTitleFile,
-  language: SongLanguage,
+  locale: Locale,
 ): string => {
-  if (language !== 'zh' || text === '') return text
+  if (locale !== 'zh' || text === '') return text
   const translation = seriesTitleFor(file, seriesName)
   if (translation === null) return text
   for (const label of seriesLabels(seriesName, seriesNumber)) {

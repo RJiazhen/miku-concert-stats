@@ -6,7 +6,8 @@ import { shortPerformanceName } from '~~/shared/performance-name.ts'
 import { songCharacters } from '~/composables/useCharacters.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import { isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
+import { useLocale } from '~/composables/useLocale.ts'
+import { songCategoryLabel } from '~~/shared/repertoire.ts'
 
 const props = defineProps<{
   display: SetlistDisplay
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>()
 
 const { songById, songName, songHref, vocadbSongUrl } = useSongLookup()
+const { locale, t } = useLocale()
 const { localizePlace } = usePlaceNames()
 
 /** Other 演出 names shortened to their city, in the site language. */
@@ -73,9 +75,9 @@ const noteOf = (row: SetlistDisplayRow): string => {
   for (const songId of songIdsOf(row)) {
     const song = songById(songId)
     if (song === null || isVocaloidSong(song)) continue
-    labels.add(songCategoryLabels[song.category])
+    labels.add(songCategoryLabel(song.category, locale.value))
   }
-  return labels.size === 0 ? '—' : [...labels].join('、')
+  return labels.size === 0 ? '—' : [...labels].join(t('setlist.join'))
 }
 
 /** `rowspan` of the 序号 cell: the slot size on its first row, 1 on the absorbed rows. */
@@ -97,23 +99,23 @@ const rowClass = (row: { original: SetlistTableRow }): string =>
 const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
   {
     id: 'position',
-    header: '序号',
+    header: t('col.position'),
     meta: { rowspan: { td: positionRowSpan }, class: { th: 'w-14', td: positionCellClass } },
   },
-  { id: 'song', header: '歌曲' },
-  { id: 'characters', header: '歌手' },
+  { id: 'song', header: t('col.song') },
+  { id: 'characters', header: t('col.characters') },
   {
     id: 'shows',
-    header: props.currentPerformanceId === null || props.currentPerformanceId === undefined ? '演出' : '场次',
+    header: props.currentPerformanceId === null || props.currentPerformanceId === undefined ? t('col.performance') : t('col.shows'),
   },
-  { id: 'note', header: '备注' },
+  { id: 'note', header: t('col.note') },
 ])
 </script>
 
 <template>
   <TableSection
-    title="歌单"
-    :count="`${display.slotCount} 个序号`"
+    :title="t('setlist.title')"
+    :count="t('setlist.slotCount', { n: display.slotCount })"
     :fill="false"
     :data="data"
     :columns="columns"
@@ -134,7 +136,7 @@ const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
             :to="vocadbSongUrl(songId) ?? ''"
             target="_blank"
             class="shrink-0 text-dimmed hover:text-primary"
-            aria-label="在 VocaDB 查看"
+            aria-label="VocaDB"
           >
             <UIcon name="i-lucide-external-link" class="size-3" />
           </ULink>
@@ -147,7 +149,7 @@ const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
     <template #shows-cell="{ row }">
       <UTooltip
         v-if="row.original.cell.text"
-        :text="row.original.cell.title.map(localizePlace).join('、')"
+        :text="row.original.cell.title.map(localizePlace).join(t('setlist.join'))"
         :content="{ side: 'top' }"
       >
         <span class="text-highlighted">{{ row.original.cell.text }}</span>

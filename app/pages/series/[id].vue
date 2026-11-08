@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
@@ -13,6 +14,7 @@ const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { localizePerformanceSeries, seriesTitle } = useSeriesTitles()
+const { t } = useLocale()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -25,12 +27,12 @@ const series = computed(() => catalog.value?.series.find((row) => row.id === ser
 
 /** Series name in the site language; the id stands in when the catalog has no row. */
 const seriesView = computed(() =>
-  series.value ? seriesTitle(series.value.name) : { primary: `系列 ${seriesId.value}`, originalNote: null },
+  series.value ? seriesTitle(series.value.name) : { primary: t('series.seriesFallback', { id: seriesId.value }), originalNote: null },
 )
 
 /** Source button label: a local series points at its own site, not at a VocaDB series page. */
 const seriesSourceLabel = computed(() =>
-  (series.value?.source_url ?? '').startsWith('https://vocadb.net/') ? 'VocaDB 系列' : '系列来源',
+  (series.value?.source_url ?? '').startsWith('https://vocadb.net/') ? 'VocaDB' : t('common.source'),
 )
 
 /** 演出 name with its series label and place in the site language. */
@@ -84,13 +86,13 @@ useHead({ title: computed(() => seriesView.value.primary) })
 
 <template>
   <main class="space-y-6">
-    <p v-if="pending" class="text-sm text-muted">正在浏览器中加载目录…</p>
+    <p v-if="pending" class="text-sm text-muted">{{ t('common.loadingCatalog') }}</p>
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UEmpty
       v-else-if="catalog && series === null"
       icon="i-lucide-list-x"
-      title="找不到这个系列"
-      description="这个 id 不在已提交的目录里。"
+      :title="t('series.pageNotFound')"
+      :description="t('common.notFoundId')"
     />
 
     <template v-else-if="series">
@@ -98,12 +100,12 @@ useHead({ title: computed(() => seriesView.value.primary) })
         <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ seriesView.primary }}</h1>
         <p v-if="seriesView.originalNote" class="text-xs text-muted">{{ seriesView.originalNote }}</p>
         <p class="text-sm text-muted">
-          系列主页 · {{ performances.length }} 个演出 · {{ totalShows }} 个场次
+          {{ t('series.pageSummary', { performances: performances.length, shows: totalShows }) }}
           <template v-if="yearRange">· {{ yearRange }}</template>
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <UButton to="/series" color="neutral" variant="link" size="xs" icon="i-lucide-layers">
-            全部系列
+            {{ t('series.allSeries') }}
           </UButton>
           <UButton :to="series.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
             {{ seriesSourceLabel }}
@@ -113,7 +115,7 @@ useHead({ title: computed(() => seriesView.value.primary) })
 
       <UCard>
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">演出</h2>
+          <h2 class="text-base font-semibold text-highlighted">{{ t('series.performancesHeading') }}</h2>
         </template>
         <ul class="divide-y divide-default/40">
           <li v-for="entry in entries" :key="entry.performance.id" class="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
@@ -122,23 +124,23 @@ useHead({ title: computed(() => seriesView.value.primary) })
                 {{ entry.label }}
               </NuxtLink>
               <p class="text-xs text-muted">
-                {{ entry.dates ?? '日期未知' }}
+                {{ entry.dates ?? t('common.unknownDate') }}
                 <template v-if="entry.venue">· {{ entry.venue }}</template>
-                · {{ entry.showCount }} 个场次
-                <template v-if="!entry.hasSetlist">· 无歌单</template>
+                {{ t('series.showCountLine', { n: entry.showCount }) }}
+                <template v-if="!entry.hasSetlist">{{ t('series.noSetlistLine') }}</template>
               </p>
             </div>
             <ULink
               :to="entry.performance.source_url"
               target="_blank"
               class="text-xs text-dimmed hover:text-primary"
-              aria-label="查看这个演出的来源页面"
-              title="查看这个演出的来源页面"
+              :aria-label="t('series.sourcePage')"
+              :title="t('series.sourcePage')"
             >
               <UIcon name="i-lucide-external-link" class="size-4" />
             </ULink>
           </li>
-          <li v-if="entries.length === 0" class="py-3 text-sm text-muted">这个系列没有演出记录。</li>
+          <li v-if="entries.length === 0" class="py-3 text-sm text-muted">{{ t('series.noPerformances') }}</li>
         </ul>
       </UCard>
     </template>

@@ -1,9 +1,10 @@
 import { computed, ref, type Ref } from 'vue'
 import { producerCredit } from '~~/shared/credit.ts'
-import { songCategoryLabels } from '~~/shared/repertoire.ts'
+import { songCategoryLabel } from '~~/shared/repertoire.ts'
 import type { SongVariantIndex } from '~~/shared/song-variants.ts'
 import type { Catalog } from '~~/shared/types.ts'
 import { songCharacters } from '~/composables/useCharacters.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 export type Cell = { text: string; href?: string; chips?: string[] }
 export type RawTable = { id: string; label: string; headers: string[]; rows: Cell[][] }
@@ -25,6 +26,7 @@ export const useRawTables = (
   lookup: RawSongLookup,
 ) => {
   const { songName, songHref, vocadbSongUrl } = lookup
+  const { locale, t } = useLocale()
   const shown = ref<Record<string, number>>({})
 
   /** Visible row count for a table. */
@@ -46,8 +48,8 @@ const tables = computed<RawTable[]>(() => {
   const tables: RawTable[] = [
     {
       id: 'series',
-      label: '系列',
-      headers: ['id', '名称', 'VocaDB'],
+      label: t('raw.tableSeries'),
+      headers: ['id', t('raw.colName'), 'VocaDB'],
       rows: catalog.value.series.map((row) => [
         { text: String(row.id) },
         { text: row.name },
@@ -56,8 +58,8 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'performances',
-      label: '演出',
-      headers: ['id', '系列', '名称', '场馆', '开始', '结束', '角色', '歌单', 'VocaDB'],
+      label: t('raw.tablePerformances'),
+      headers: ['id', t('raw.colSeries'), t('raw.colName'), t('raw.colVenue'), t('raw.colStart'), t('raw.colEnd'), t('raw.colRole'), t('raw.colSetlist'), 'VocaDB'],
       rows: catalog.value.performances.map((row) => [
         { text: String(row.id) },
         { text: seriesById.get(row.series_id)?.name ?? String(row.series_id) },
@@ -72,8 +74,8 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'premieres',
-      label: '年度首演',
-      headers: ['系列', '年度', '首演日', '演出', '规则'],
+      label: t('raw.tablePremieres'),
+      headers: [t('raw.colSeries'), t('raw.colYear'), t('raw.colPremiereDate'), t('raw.colPerformance'), t('raw.colRule')],
       rows: catalog.value.premieres.map((row) => [
         { text: seriesById.get(row.series_id)?.name ?? String(row.series_id) },
         { text: String(row.series_number) },
@@ -87,20 +89,20 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'songLists',
-      label: '歌单',
-      headers: ['id', '名称', '来源', '公布时间', 'VocaDB'],
+      label: t('raw.tableSongLists'),
+      headers: ['id', t('raw.colName'), t('raw.colSource'), t('raw.colAnnouncedAt'), 'VocaDB'],
       rows: catalog.value.songLists.map((row) => [
         { text: String(row.id) },
         { text: row.name },
-        { text: row.source === 'album' ? '专辑曲目' : 'VocaDB', href: row.source === 'album' ? row.source_url : undefined },
+        { text: row.source === 'album' ? t('raw.valueAlbum') : 'VocaDB', href: row.source === 'album' ? row.source_url : undefined },
         { text: row.announced_at ?? '—' },
         { text: row.source_url, href: row.source_url },
       ]),
     },
     {
       id: 'setlistItems',
-      label: '歌单行',
-      headers: ['歌单', '序号', '歌曲', '备注', 'VocaDB'],
+      label: t('raw.tableSetlistItems'),
+      headers: [t('raw.colSongList'), t('raw.colPosition'), t('raw.colSong'), t('raw.colNote'), 'VocaDB'],
       rows: catalog.value.setlistItems.map((row) => [
         { text: String(row.song_list_id) },
         { text: String(row.position) },
@@ -111,8 +113,8 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'setlistItemSongs',
-      label: '歌单行对应歌曲',
-      headers: ['歌单', '序号', '歌曲', '角色', 'VocaDB'],
+      label: t('raw.tableSetlistItemSongs'),
+      headers: [t('raw.colSongList'), t('raw.colPosition'), t('raw.colSong'), t('raw.colCharacters'), 'VocaDB'],
       rows: catalog.value.setlistItemSongs.map((row) => [
         { text: String(row.song_list_id) },
         { text: String(row.position) },
@@ -123,24 +125,24 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'songs',
-      label: '歌曲',
-      headers: ['id', '名称', '日文名', '制作人', '歌手', '类型', '类别', '投稿日期', '来源'],
+      label: t('raw.tableSongs'),
+      headers: ['id', t('raw.colName'), t('raw.colJapaneseName'), t('raw.colProducers'), t('raw.colSingers'), t('raw.colType'), t('raw.colCategory'), t('raw.colPublishDate'), t('raw.colSource')],
       rows: catalog.value.songs.map((row) => [
         { text: String(row.id) },
         { text: row.name },
         { text: row.name_ja ?? '—' },
         { text: producerCredit(row.artist_string) ?? '—' },
-        { text: songCharacters(row).join('、'), chips: songCharacters(row) },
+        { text: songCharacters(row).join(t('setlist.join')), chips: songCharacters(row) },
         { text: row.song_type },
-        { text: row.category === 'vocaloid' ? 'VOCALOID' : songCategoryLabels[row.category] },
+        { text: row.category === 'vocaloid' ? 'VOCALOID' : songCategoryLabel(row.category, locale.value) },
         { text: row.publish_date ?? '—' },
-        { text: row.category === 'vocaloid' ? 'VocaDB' : '初音ミク Wiki', href: row.source_url },
+        { text: row.category === 'vocaloid' ? 'VocaDB' : t('raw.valueWiki'), href: row.source_url },
       ]),
     },
     {
       id: 'videos',
-      label: '投稿链接',
-      headers: ['PV id', '歌曲', '平台', '标题', '类型', '日期', '链接'],
+      label: t('raw.tableVideos'),
+      headers: ['PV id', t('raw.colSong'), t('raw.colPlatform'), t('raw.colTitle'), t('raw.colType'), t('raw.colDate'), t('raw.colLink')],
       rows: catalog.value.videos.map((row) => [
         { text: String(row.vocadb_pv_id) },
         { text: songNameOf(row.song_id), href: songHref(row.song_id) },
@@ -153,8 +155,8 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'medley',
-      label: '串烧隔离',
-      headers: ['歌单', '序号', '原曲', '原因'],
+      label: t('raw.tableQuarantine'),
+      headers: [t('raw.colSongList'), t('raw.colPosition'), t('raw.colOriginalSong'), t('raw.colReason')],
       rows: catalog.value.medleyQuarantine.map((row) => [
         { text: String(row.song_list_id) },
         { text: String(row.position) },
@@ -164,8 +166,8 @@ const tables = computed<RawTable[]>(() => {
     },
     {
       id: 'sources',
-      label: '来源',
-      headers: ['id', '名称', '许可', '说明'],
+      label: t('raw.tableSources'),
+      headers: ['id', t('raw.colName'), t('raw.colLicense'), t('raw.colDescription')],
       rows: catalog.value.sources.map((row) => [
         { text: row.id },
         { text: row.name, href: row.url },
@@ -186,7 +188,7 @@ const tables = computed<RawTable[]>(() => {
       { text: songName(variantId) },
     ])
   }
-  tables.push({ id: 'variants', label: '版本合并', headers: ['变体 id', '并入', '类型', '说明', '变体名'], rows: variantRows })
+  tables.push({ id: 'variants', label: t('raw.tableVariants'), headers: [t('raw.colVariantId'), t('raw.colMergedInto'), t('raw.colKind'), t('raw.colDescription'), t('raw.colVariantName')], rows: variantRows })
   return tables
 })
 

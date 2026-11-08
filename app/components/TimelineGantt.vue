@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLocale } from '~/composables/useLocale.ts'
 
 /** One gantt row: a continuous span of years plus a clickable key. */
 export type TimelineGanttRow = {
@@ -26,13 +27,15 @@ const props = withDefaults(defineProps<{
   span: 0,
   rows: () => [],
   height: 0,
-  emptyText: '当前筛选下没有数据。',
+  emptyText: undefined,
 })
 
 const emit = defineEmits<{
   /** A row strip was activated; the parent decides where to go. */
   select: [payload: { key: string }]
 }>()
+
+const { t } = useLocale()
 
 const MIN_WIDTH = 720
 const ROW_HEIGHT = 28
@@ -90,12 +93,12 @@ const hoveredRow = computed(() => props.rows.find((row) => row.key === hovered.v
       <template v-if="hoveredRow !== null">
         <span class="font-medium text-highlighted">{{ hoveredRow.label }}</span>
         <span>{{ hoveredRow.first }}–{{ hoveredRow.last }}</span>
-        <span>{{ hoveredRow.count }} 个演出</span>
+        <span>{{ t('chart.ganttShows', { n: hoveredRow.count }) }}</span>
       </template>
-      <span v-else>悬停查看系列跨度 · 点击条带进入系列页</span>
+      <span v-else>{{ t('chart.ganttHint') }}</span>
     </div>
 
-    <p v-if="rows.length === 0 || years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText }}</p>
+    <p v-if="rows.length === 0 || years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText ?? t('chart.noData') }}</p>
     <div v-else class="-mx-1 overflow-x-auto px-1">
       <svg
         :width="width"
@@ -103,7 +106,7 @@ const hoveredRow = computed(() => props.rows.find((row) => row.key === hovered.v
         :viewBox="`0 0 ${width} ${chartHeight}`"
         class="block"
         role="img"
-        aria-label="系列活跃年份甘特图"
+        :aria-label="t('chart.ganttAria')"
         @mouseleave="hovered = null"
       >
         <g v-for="(year, index) in years" :key="`grid:${year}`">
@@ -139,7 +142,7 @@ const hoveredRow = computed(() => props.rows.find((row) => row.key === hovered.v
             fill-opacity="0.85"
             rx="4"
           />
-          <title>{{ strip.row.label }} · {{ strip.row.first }}–{{ strip.row.last }} · {{ strip.row.count }} 个演出</title>
+          <title>{{ t('chart.ganttStrip', { label: strip.row.label, first: strip.row.first, last: strip.row.last, n: strip.row.count }) }}</title>
         </g>
 
         <g v-for="strip in strips" :key="`label:${strip.row.key}`">

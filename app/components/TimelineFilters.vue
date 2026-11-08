@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useLocale } from '~/composables/useLocale.ts'
+
 /** One option of a filter control; `value` is what the statistics and the URL receive. */
 type FilterItem<T extends string | number> = { label: string; value: T }
 
@@ -22,6 +24,8 @@ withDefaults(defineProps<{
 /** Emitted when the visitor clears every filter. */
 const emit = defineEmits<{ reset: [] }>()
 
+const { t } = useLocale()
+
 /** First year of the range; `0` means no lower bound. */
 const yearFrom = defineModel<number>('yearFrom', { required: true })
 /** Last year of the range; `0` means no upper bound. */
@@ -43,13 +47,13 @@ const mergeVariants = defineModel<boolean>('mergeVariants', { required: true })
 <template>
   <div>
     <div class="flex flex-wrap items-end gap-3">
-      <FilterField label="起始年">
+      <FilterField :label="t('timeline.filtersFromYear')">
         <USelect v-model="yearFrom" :items="yearItems" size="sm" class="w-24" />
       </FilterField>
-      <FilterField label="结束年">
+      <FilterField :label="t('timeline.filtersToYear')">
         <USelect v-model="yearTo" :items="yearItems" size="sm" class="w-24" />
       </FilterField>
-      <FilterField label="系列">
+      <FilterField :label="t('timeline.filtersSeries')">
         <USelectMenu
           v-model="selectedSeries"
           :items="seriesItems"
@@ -57,12 +61,12 @@ const mergeVariants = defineModel<boolean>('mergeVariants', { required: true })
           multiple
           search-input
           :filter-fields="['label']"
-          placeholder="全部系列"
+          :placeholder="t('timeline.filtersAllSeries')"
           size="sm"
           class="w-44"
         />
       </FilterField>
-      <FilterField label="城市">
+      <FilterField :label="t('timeline.filtersCities')">
         <USelectMenu
           v-model="selectedCities"
           :items="cityItems"
@@ -70,12 +74,12 @@ const mergeVariants = defineModel<boolean>('mergeVariants', { required: true })
           multiple
           search-input
           :filter-fields="['label']"
-          placeholder="全部城市"
+          :placeholder="t('timeline.filtersAllCities')"
           size="sm"
           class="w-36"
         />
       </FilterField>
-      <FilterField label="制作人">
+      <FilterField :label="t('timeline.filtersProducers')">
         <USelectMenu
           v-model="selectedProducers"
           :items="producerItems"
@@ -83,12 +87,12 @@ const mergeVariants = defineModel<boolean>('mergeVariants', { required: true })
           multiple
           search-input
           :filter-fields="['label']"
-          placeholder="全部制作人"
+          :placeholder="t('timeline.filtersAllProducers')"
           size="sm"
           class="w-40"
         />
       </FilterField>
-      <FilterField label="角色">
+      <FilterField :label="t('timeline.filtersCharacters')">
         <USelectMenu
           v-model="selectedCharacters"
           :items="characterItems"
@@ -96,7 +100,7 @@ const mergeVariants = defineModel<boolean>('mergeVariants', { required: true })
           multiple
           search-input
           :filter-fields="['label']"
-          placeholder="全部角色"
+          :placeholder="t('timeline.filtersAllCharacters')"
           size="sm"
           class="w-36"
         />
@@ -106,7 +110,7 @@ const mergeVariants = defineModel<boolean>('mergeVariants', { required: true })
         variant="outline"
         size="sm"
         icon="i-lucide-rotate-ccw"
-        :label="activeCount > 0 ? `重置 ${activeCount}` : '重置'"
+        :label="activeCount > 0 ? t('common.resetCount', { n: activeCount }) : t('common.reset')"
         :disabled="activeCount === 0"
         class="ml-auto"
         @click="emit('reset')"
@@ -114,9 +118,9 @@ const mergeVariants = defineModel<boolean>('mergeVariants', { required: true })
     </div>
 
     <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-      <UCheckbox v-model="includeBroadcast" label="计入配信 / 线上 / VR" size="sm" />
-      <UCheckbox v-model="mergeVariants" label="合并版本" size="sm" />
-      <span v-if="showNote" class="text-xs text-muted">默认连线上直播和 VR 演出一起统计，所以总数与「系列总览」一致；取消勾选后只算现场演唱会，与「城市」「曲目排行」的口径一致。</span>
+      <UCheckbox v-model="includeBroadcast" :label="t('timeline.filtersBroadcast')" size="sm" />
+      <UCheckbox v-model="mergeVariants" :label="t('timeline.filtersMerge')" size="sm" />
+      <span v-if="showNote" class="text-xs text-muted">{{ t('timeline.filtersNote') }}</span>
     </div>
   </div>
 </template>

@@ -1,3 +1,5 @@
+import { translate, type Locale } from './i18n/index.ts'
+
 /** How a variant differs from its canonical song. */
 export type VariantKind = 'remix' | 'remaster' | 'voicebank' | 'cover' | 'language'
 
@@ -128,13 +130,13 @@ const buildIndex = (entries: ReadonlyMap<number, SongVariantEntry>): SongVariant
   }
 }
 
-/** Chinese label for each variant kind, used in version notes. */
-export const variantKindLabels: Record<VariantKind, string> = {
-  remix: '混音',
-  remaster: '重制',
-  voicebank: '声库',
-  cover: '翻唱',
-  language: '语言',
+/** Localized label of a variant kind, e.g. `混音` / `Remix`. */
+export const variantKindLabel = (kind: VariantKind, locale: Locale): string => {
+  if (kind === 'remix') return translate(locale, 'variant.remix')
+  if (kind === 'remaster') return translate(locale, 'variant.remaster')
+  if (kind === 'voicebank') return translate(locale, 'variant.voicebank')
+  if (kind === 'cover') return translate(locale, 'variant.cover')
+  return translate(locale, 'variant.language')
 }
 
 /** Brackets, dashes, and spacing that a removed title leaves at either end. */
@@ -184,8 +186,9 @@ export const variantVersionNote = (
   variantName: string,
   kind?: VariantKind,
   performers?: readonly string[],
+  locale: Locale = 'zh',
 ): string => {
-  const kindLabel = kind ? variantKindLabels[kind] : '其他版本'
+  const kindLabel = kind ? variantKindLabel(kind, locale) : translate(locale, 'variant.other')
   const remainder = titleRemainder(variantName, canonicalName)
   const base = remainder === '' ? kindLabel : `${kindLabel} · ${remainder}`
   if (kind !== 'cover' || !performers) return base

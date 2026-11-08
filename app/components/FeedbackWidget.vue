@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { FEEDBACK_DESCRIPTION_MAX, FEEDBACK_URL_MAX, isHttpUrl } from '~~/shared/feedback.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 /** Response body of `POST /api/feedback`. */
 type FeedbackResponse = { ok: true; id: string }
 
 const { description, sourceUrl, clearDraft } = useFeedbackDraft()
+const { t } = useLocale()
 
 const open = ref(false)
 const pending = ref(false)
@@ -113,7 +115,7 @@ const messageFromError = (error: unknown): string => {
       if (typeof message === 'string' && message.trim() !== '') return message
     }
   }
-  return '提交失败，请稍后再试。已填写的内容仍保存在本地。'
+  return t('feedback.failed')
 }
 
 /** Sends the report, keeps the draft on failure and clears it only on success. */
@@ -121,12 +123,12 @@ const submit = async (): Promise<void> => {
   if (pending.value) return
   const trimmedDescription = description.value.trim()
   if (trimmedDescription === '') {
-    errorMessage.value = '请先填写问题描述'
+    errorMessage.value = t('feedback.needDescription')
     return
   }
   const trimmedSource = sourceUrl.value.trim()
   if (trimmedSource !== '' && !isHttpUrl(trimmedSource)) {
-    errorMessage.value = '数据来源链接必须是 http:// 或 https:// 开头的网址'
+    errorMessage.value = t('feedback.invalidSource')
     return
   }
 
@@ -163,7 +165,7 @@ const submit = async (): Promise<void> => {
     color="primary"
     variant="solid"
     size="lg"
-    aria-label="报告错误"
+    :aria-label="t('feedback.button')"
     aria-haspopup="dialog"
     :aria-expanded="open"
     @click="openModal"
@@ -172,12 +174,12 @@ const submit = async (): Promise<void> => {
     <span
       class="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 motion-reduce:transition-none"
       :class="collapsed ? 'max-w-0 opacity-0 sm:max-w-24 sm:opacity-100' : 'max-w-24'"
-    >报告错误</span>
+    >{{ t('feedback.button') }}</span>
   </UButton>
 
   <UModal
     v-model:open="open"
-    title="报告错误"
+    :title="t('feedback.title')"
     :ui="{ content: 'sm:max-w-xl' }"
   >
     <template #body>
@@ -187,13 +189,13 @@ const submit = async (): Promise<void> => {
           color="success"
           variant="subtle"
           icon="i-lucide-circle-check"
-          title="已收到，谢谢！"
-          :description="`编号 ${successId}，稍后会自动关闭。`"
+          :title="t('feedback.successTitle')"
+          :description="t('feedback.successDesc', { id: successId })"
         />
 
         <template v-else>
           <div class="space-y-3">
-            <UFormField label="页面链接">
+            <UFormField :label="t('feedback.pageUrl')">
               <UInput
                 :model-value="pageUrl"
                 readonly
@@ -202,25 +204,25 @@ const submit = async (): Promise<void> => {
               />
             </UFormField>
 
-            <UFormField label="页面标题">
+            <UFormField :label="t('feedback.pageTitle')">
               <UInput :model-value="pageTitle" readonly class="w-full cursor-default" :ui="readonlyFieldUi" />
             </UFormField>
           </div>
 
-          <UFormField label="问题描述" required :hint="`${description.length}/${FEEDBACK_DESCRIPTION_MAX}`">
+          <UFormField :label="t('feedback.description')" required :hint="`${description.length}/${FEEDBACK_DESCRIPTION_MAX}`">
             <UTextarea
               v-model="description"
               :rows="4"
               :maxlength="FEEDBACK_DESCRIPTION_MAX"
-              placeholder="哪个数据不对？期望是什么？"
+              :placeholder="t('feedback.descriptionPlaceholder')"
               class="w-full"
               :autofocus="autofocusDescription"
             />
           </UFormField>
 
           <UFormField
-            label="正确的数据来源（可选）"
-            help="如果知道正确数据的出处，把网页地址贴在这里，例如 VocaDB 的链接。"
+            :label="t('feedback.source')"
+            :help="t('feedback.sourceHelp')"
           >
             <UInput
               v-model="sourceUrl"
@@ -239,10 +241,10 @@ const submit = async (): Promise<void> => {
 
     <template #footer>
       <div class="flex w-full justify-end gap-2">
-        <UButton v-if="successId" color="primary" variant="soft" label="关闭" @click="closeModal" />
+        <UButton v-if="successId" color="primary" variant="soft" :label="t('feedback.close')" @click="closeModal" />
         <template v-else>
-          <UButton color="neutral" variant="ghost" label="取消" @click="closeModal" />
-          <UButton color="primary" label="提交" :loading="pending" :disabled="pending" @click="submit" />
+          <UButton color="neutral" variant="ghost" :label="t('feedback.cancel')" @click="closeModal" />
+          <UButton color="primary" :label="t('feedback.submit')" :loading="pending" :disabled="pending" @click="submit" />
         </template>
       </div>
     </template>

@@ -8,13 +8,14 @@ import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setl
 import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { catalogSchedules } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 import { fromVocaDB } from '~~/shared/repertoire.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
-const { showChinese } = useSongLanguage()
+const { locale, t } = useLocale()
 const { localizePerformanceSeries, seriesTitle } = useSeriesTitles()
 
 /** Parsed once: the city matcher only depends on the static place list. */
@@ -116,7 +117,7 @@ const cityName = computed(() => {
   if (!current) return null
   const match = matchCity(current, cityIndex)
   if (match === null) return null
-  return showChinese.value ? match.city : match.original
+  return locale.value === 'zh' ? match.city : match.original
 })
 
 /** Series name for the first crumb; null when the catalog has no series row. */
@@ -138,10 +139,10 @@ const breadcrumb = computed(() => {
 const headerLine = computed(() => {
   const facts = headerFacts.value
   const parts = [
-    facts?.dates ?? '日期未知',
+    facts?.dates ?? t('common.unknownDate'),
     cityName.value,
     facts?.venue,
-    facts?.showtime ? `开演 ${facts.showtime}` : null,
+    facts?.showtime ? t('show.showtime', { time: facts.showtime }) : null,
   ]
   return parts.filter((part): part is string => part !== null && part !== '').join(' · ')
 })
@@ -150,8 +151,8 @@ const headerLine = computed(() => {
 const shortShowLabel = (show: { date: string, half: 'day' | 'night' | null, label: string }): string => {
   if (show.date === '') return show.label
   const monthDay = `${Number(show.date.slice(5, 7))}/${Number(show.date.slice(8, 10))}`
-  if (show.half === 'day') return `${monthDay} 日场`
-  if (show.half === 'night') return `${monthDay} 夜场`
+  if (show.half === 'day') return `${monthDay} ${t('common.dayShow')}`
+  if (show.half === 'night') return `${monthDay} ${t('common.nightShow')}`
   return monthDay
 }
 
@@ -164,20 +165,20 @@ const showLabelsInHeader = computed<string[]>(() => {
   const singleDay = facts !== null && facts.dates !== null && facts.dates === performance.value?.start_date
   if (!singleDay) return shows.value.map(shortShowLabel)
   return shows.value.flatMap((show) => {
-    if (show.half === 'day') return ['日场']
-    if (show.half === 'night') return ['夜场']
+    if (show.half === 'day') return [t('common.dayShow')]
+    if (show.half === 'night') return [t('common.nightShow')]
     return []
   })
 })
 
-useHead({ title: computed(() => performanceLabel.value || '演出') })
+useHead({ title: computed(() => performanceLabel.value || t('col.performance')) })
 </script>
 
 <template>
   <main class="space-y-6">
-    <p v-if="pending" class="text-sm text-muted">正在浏览器中加载目录…</p>
+    <p v-if="pending" class="text-sm text-muted">{{ t('common.loadingCatalog') }}</p>
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
-    <UEmpty v-else-if="catalog && !performance" icon="i-lucide-calendar-x" title="找不到这个演出" description="这个 id 不在已提交的目录里。" />
+    <UEmpty v-else-if="catalog && !performance" icon="i-lucide-calendar-x" :title="t('show.notFound')" :description="t('common.notFoundId')" />
 
     <template v-else-if="performance">
       <UBreadcrumb :items="breadcrumb" />
@@ -190,11 +191,11 @@ useHead({ title: computed(() => performanceLabel.value || '演出') })
             :to="`/series/${performance.series_id}`"
             class="text-primary hover:underline"
           >
-            {{ seriesView.primary }} 系列
+            {{ t('show.seriesLabel', { name: seriesView.primary }) }}
           </NuxtLink>
         </p>
         <p v-if="showLabelsInHeader.length > 0" class="text-xs text-muted">
-          场次（{{ shows.length }}）：
+          {{ t('show.showsHeading', { n: shows.length }) }}
           <template v-for="(label, index) in showLabelsInHeader" :key="index">
             <span v-if="index > 0"> · </span>
             <span class="text-highlighted">{{ label }}</span>
@@ -202,16 +203,16 @@ useHead({ title: computed(() => performanceLabel.value || '演出') })
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <UButton :to="performance.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            {{ performanceOnVocaDB ? 'VocaDB 演出' : '演出来源' }}
+            {{ performanceOnVocaDB ? t('show.vocadbEvent') : t('show.eventSource') }}
           </UButton>
           <UButton v-if="vocaDBListUrl" :to="vocaDBListUrl" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            VocaDB 歌单
+            {{ t('show.vocadbSetlist') }}
           </UButton>
           <UButton v-if="albumSource" :to="albumSource.url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            专辑曲目
+            {{ t('show.albumTracks') }}
           </UButton>
           <UButton v-if="wikiSource" :to="wikiSource.url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            初音ミク Wiki
+            {{ t('song.wiki') }}
           </UButton>
         </div>
       </header>
@@ -221,7 +222,7 @@ useHead({ title: computed(() => performanceLabel.value || '演出') })
         color="info"
         variant="subtle"
         icon="i-lucide-info"
-        title="歌单说明"
+        :title="t('show.pageNoteTitle')"
         :description="pageNote"
       />
       <UAlert
@@ -229,12 +230,12 @@ useHead({ title: computed(() => performanceLabel.value || '演出') })
         :color="statusNote.status === 'cancelled' ? 'error' : 'warning'"
         variant="subtle"
         icon="i-lucide-calendar-x"
-        :title="statusNote.status === 'cancelled' ? '这场演出已取消' : statusNote.status === 'postponed' ? '这场演出已延期' : '这场演出尚未举行'"
+        :title="statusNote.status === 'cancelled' ? t('show.cancelled') : statusNote.status === 'postponed' ? t('show.postponed') : t('show.upcoming')"
         :description="statusNote.note ?? undefined"
       >
         <template #actions>
           <UButton :to="statusNote.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            来源
+            {{ t('common.source') }}
           </UButton>
         </template>
       </UAlert>
@@ -243,7 +244,7 @@ useHead({ title: computed(() => performanceLabel.value || '演出') })
         color="warning"
         variant="subtle"
         icon="i-lucide-info"
-        title="暂无歌单"
+        :title="t('show.noSetlist')"
       />
       <!-- A cancelled or not-yet-played 演出 has nothing to list; its status alert already says so. -->
       <template v-else-if="hasDerived || !statusNote">

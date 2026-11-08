@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 /** One active sort, matching the `v-model:sorting` shape of `UTable`. */
 type Sorting = { id: string; desc: boolean }[]
@@ -36,9 +37,11 @@ const props = withDefaults(defineProps<{
   meta: undefined,
   ui: undefined,
   emptyIcon: 'i-lucide-search-x',
-  emptyTitle: '没有符合条件的数据',
+  emptyTitle: undefined,
   emptyDescription: undefined,
 })
+
+const { t } = useLocale()
 
 /** Sort state owned by the caller; without a binding the table keeps its own order. */
 const sorting = defineModel<Sorting>('sorting', { default: () => [] })
@@ -81,7 +84,7 @@ const hasHeader = computed(() => props.title !== '' || props.count !== null)
         <slot name="empty">
           <UEmpty
             :icon="emptyIcon"
-            :title="emptyTitle"
+            :title="emptyTitle ?? t('common.noData')"
             :description="emptyDescription"
             variant="naked"
           />

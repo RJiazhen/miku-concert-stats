@@ -1,6 +1,6 @@
 import { albumIdFromSongListId, albumPageUrl, albumSetlistNotice } from '../../shared/album-setlists.ts'
 import { isBroadcastAppearance } from '../../shared/stats.ts'
-import { songCategoryLabels } from '../../shared/repertoire.ts'
+import { songCategoryLabel } from '../../shared/repertoire.ts'
 import { japaneseAliasTitle, type SongAliasFile } from '../../shared/song-aliases.ts'
 import type { SongVariantIndex } from '../../shared/song-variants.ts'
 import type { CharacterRule } from '../../shared/characters.ts'
@@ -60,7 +60,7 @@ export const songSummary = (input: {
     producers,
     characters: charactersOf(groupSongs, rules),
     category: song.category,
-    categoryLabel: songCategoryLabels[song.category],
+    categoryLabel: songCategoryLabel(song.category, 'zh'),
     publishDate: song.publish_date,
     showCount: summary.show,
     eventCount: summary.event,

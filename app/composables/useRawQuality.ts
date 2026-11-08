@@ -6,6 +6,7 @@ import type { Catalog } from '~~/shared/types.ts'
 import type { SetlistMergeIndex } from '~~/shared/edition-setlists.ts'
 import type { RotationReview } from '~~/shared/rotation.ts'
 import type { SongVariantIndex } from '~~/shared/song-variants.ts'
+import { useLocale } from './useLocale.ts'
 
 /** Quality-report inputs computed from the loaded catalog. */
 export const useRawQuality = (
@@ -14,6 +15,8 @@ export const useRawQuality = (
   merges: SetlistMergeIndex,
   review: Ref<RotationReview | null>,
 ) => {
+  const { t } = useLocale()
+
 /** VocaDB songs that have no PV link at all; the wiki repertoire has none by definition. */
 const songsWithoutVideo = computed(() => {
   if (!catalog.value) return []
@@ -81,12 +84,12 @@ const duplicateCandidates = computed(() => {
 const qualitySummary = computed(() => {
   if (!catalog.value) return []
   return [
-    { label: '歌曲', value: catalog.value.songs.length },
-    { label: '演出', value: catalog.value.performances.length },
-    { label: '歌单', value: catalog.value.songLists.length },
-    { label: '投稿链接', value: catalog.value.videos.length },
-    { label: '已合并版本', value: variants.size },
-    { label: '已合并歌单组', value: merges.groups.size },
+    { label: t('raw.summarySongs'), value: catalog.value.songs.length },
+    { label: t('raw.summaryPerformances'), value: catalog.value.performances.length },
+    { label: t('raw.summarySetlists'), value: catalog.value.songLists.length },
+    { label: t('raw.summaryVideos'), value: catalog.value.videos.length },
+    { label: t('raw.summaryVariants'), value: variants.size },
+    { label: t('raw.summaryMergeGroups'), value: merges.groups.size },
   ]
 })
 

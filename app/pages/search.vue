@@ -7,9 +7,11 @@ import {
   type SearchSectionKey,
 } from '~/composables/useSearchHits.ts'
 import { LOOKUP_ALL } from '~~/shared/lookup.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
+const { t } = useLocale()
 
 /** Rows revealed per section before the visitor asks for more. */
 const PAGE_STEP = 20
@@ -94,7 +96,7 @@ const start = (): void => {
 onMounted(start)
 
 useHead({
-  title: computed(() => (needle.value === '' ? '搜索' : `${needle.value} · 搜索`)),
+  title: computed(() => (needle.value === '' ? t('search.title') : t('search.titleQuery', { query: needle.value }))),
 })
 </script>
 
@@ -102,20 +104,20 @@ useHead({
   <main class="space-y-6">
     <section class="pt-4 sm:pt-8">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
-      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">搜索</h1>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">{{ t('search.title') }}</h1>
       <UInput
         ref="searchInput"
         v-model="query"
         icon="i-lucide-search"
-        placeholder="搜索歌曲、系列、演出、地点或制作人"
+        :placeholder="t('search.placeholder')"
         size="lg"
         class="mt-4 w-full"
         autocomplete="off"
         autofocus
-        aria-label="搜索站内内容"
+        :aria-label="t('search.ariaPage')"
       />
       <p v-if="!loading && !error && sections.length > 0" class="mt-2 text-xs text-muted">
-        「{{ needle }}」共 {{ total }} 条结果
+        {{ t('search.resultCount', { query: needle, total }) }}
       </p>
     </section>
 
@@ -126,23 +128,23 @@ useHead({
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
-      title="目录加载失败"
+      :title="t('common.catalogError')"
       :description="error"
     />
 
     <UEmpty
       v-else-if="needle === ''"
       icon="i-lucide-search"
-      title="输入关键词开始搜索"
-      description="可以搜歌曲、系列、演出、地点或制作人；日文、中文和英文写法都能命中。"
+      :title="t('search.startTitle')"
+      :description="t('search.startDesc')"
       variant="naked"
     />
 
     <UEmpty
       v-else-if="sections.length === 0"
       icon="i-lucide-search-x"
-      :title="`没有找到「${needle}」`"
-      description="试试更短的名称，或换用日文、中文、英文写法。"
+      :title="t('search.notFound', { query: needle })"
+      :description="t('search.notFoundDesc')"
       variant="naked"
     />
 

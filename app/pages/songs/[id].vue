@@ -15,12 +15,12 @@ import { producerPath } from '~~/shared/producers.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 import { derivedItemSongIds } from '~~/shared/performance-setlists.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
-import { variantKindLabels, variantVersionNote } from '~~/shared/song-variants.ts'
+import { variantKindLabel, variantVersionNote } from '~~/shared/song-variants.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
-import { useSongAliases } from '~/composables/useSongAliases.ts'
-import { useSongLanguage } from '~/composables/useSongLanguage.ts'
-import { formatSongTitle } from '~~/shared/song-titles.ts'
-import { fromVocaDB, isVocaloidSong, songCategoryLabels } from '~~/shared/repertoire.ts'
+import { useSongTitle } from '~/composables/useSongTitle.ts'
+import { useLocale } from '~/composables/useLocale.ts'
+import { songCategoryLabel } from '~~/shared/repertoire.ts'
+import { fromVocaDB, isVocaloidSong } from '~~/shared/repertoire.ts'
 import {
   compareAppearances,
 } from '~~/shared/appearance-sort.ts'
@@ -32,8 +32,8 @@ const { noteFor } = useSongNotes()
 const { songById, songHref, vocadbSongUrl } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
-const { language, translationFor, chineseTitle, chineseAliases } = useSongLanguage()
-const { jaTitle, aliasOthers } = useSongAliases()
+const { titleView } = useSongTitle()
+const { locale, t } = useLocale()
 const sortableHeader = useSortableHeader()
 
 /** Starts the browser catalog load after hydration. */
@@ -47,27 +47,21 @@ const canonicalId = computed(() => variants.canonicalSongId(songId.value))
 const song = computed(() => songById(canonicalId.value))
 
 /** Title in the current language plus the other names of that language. */
-const titleView = computed(() => {
+const title = computed(() => {
   const current = song.value
   if (!current) return null
-  const songId = canonicalId.value
-  return formatSongTitle(jaTitle(songId, current.name), translationFor(songId), language.value, {
-    zhTitle: chineseTitle(songId),
-    zhAliases: chineseAliases(songId),
-    originalAliases: aliasOthers(songId),
-    nameEn: current.name_en,
-  })
+  return titleView(canonicalId.value, current.name)
 })
 
 /** Title in the current language, matching the `<h1>`; the breadcrumb never shows aliases. */
 const breadcrumbSongLabel = computed(() => {
-  const view = titleView.value
+  const view = title.value
   if (!view) return ''
-  return view.originalNote ? `${view.primary} (${view.originalNote})` : view.primary
+  return view.originalNames.length === 0 ? view.primary : `${view.primary} (${view.originalNames.join(' · ')})`
 })
 
 /** Other names under the `<h1>`; empty hides the line, so a song without aliases adds no blank row. */
-const titleAliases = computed(() => titleView.value?.aliases ?? [])
+const titleAliases = computed(() => title.value?.aliases ?? [])
 
 /** One part of the 备注 cell, in display order. */
 type NotePart = {
@@ -84,7 +78,7 @@ type NotePart = {
  */
 const appearanceNoteParts = (versionNote: string, coverage: string | null): NotePart[] => {
   const parts: NotePart[] = []
-  if (versionNote !== '') parts.push({ text: `版本：${versionNote}`, warning: false })
+  if (versionNote !== '') parts.push({ text: t('song.versionNote', { note: versionNote }), warning: false })
   if (coverage !== null) parts.push({ text: coverage, warning: false })
   return parts
 }
@@ -116,7 +110,7 @@ const variantRows = computed(() => {
       id,
       name: variantSong?.name ?? String(id),
       /** Chinese kind label; the raw `kind` token stays in the lookup file. */
-      kindLabel: entry ? variantKindLabels[entry.kind] : '其他版本',
+      kindLabel: entry ? variantKindLabel(entry.kind, locale.value) : t('variant.other'),
       /** 制作人 names, each linked to its producer page. */
       producerNames,
       /** 演出角色 of the variant; an empty list hides that half of the line. */
@@ -149,7 +143,7 @@ const appearances = computed(() => {
   const ids = new Set(groupIds.value)
   const review = reviewRotations(catalog.value)
   const lineByKey = new Map(review.lines.map((line) => [`${line.songListId}:${line.position}`, line]))
-  const coverageByPerformance = showCoverage(catalog.value, review, groupIds.value)
+  const coverageByPerformance = showCoverage(catalog.value, review, groupIds.value, locale.value)
   const canonicalName = song.value?.name ?? ''
   const showVersion = variantIds.value.length > 0
 
@@ -160,7 +154,7 @@ const appearances = computed(() => {
     const variantSong = songById(songId)
     // A cover is sung by the variant's own cast, not the canonical song's.
     const performers = entry.kind === 'cover' ? songCharacters(variantSong ?? null) : []
-    return variantVersionNote(canonicalName, variantSong?.name ?? String(songId), entry.kind, performers)
+    return variantVersionNote(canonicalName, variantSong?.name ?? String(songId), entry.kind, performers, locale.value)
   }
 
   const rows: AppearanceRow[] = []
@@ -173,7 +167,7 @@ const appearances = computed(() => {
       if (line && !line.performanceIds.includes(performance.id)) continue
       const series = catalog.value.series.find((row) => row.id === performance.series_id)
       const seriesName = series?.name ?? String(performance.series_id)
-      const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, [])
+      const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, [], locale.value)
       const noteParts = appearanceNoteParts(versionNoteOf(link.song_id), coverage)
       rows.push({
         key: `${performance.id}:${link.song_id}:${link.position}`,
@@ -185,7 +179,7 @@ const appearances = computed(() => {
         performanceName: localizePlace(localizePerformanceSeries(performance.name, seriesName, performance.series_number)),
         date: performance.start_date,
         role: performance.role,
-        noteText: noteParts.map((part) => part.text).join('；'),
+        noteText: noteParts.map((part) => part.text).join(t('setlist.join')),
         noteParts,
       })
     }
@@ -202,7 +196,7 @@ const appearances = computed(() => {
     const show = catalog.value.performanceShowSetlists.find((row) => row.show_key === item.show_key)
     const series = catalog.value.series.find((row) => row.id === performance.series_id)
     const seriesName = series?.name ?? String(performance.series_id)
-    const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, [])
+    const coverage = formatShowCoverage(coverageByPerformance.get(performance.id) ?? null, [], locale.value)
     const noteParts = appearanceNoteParts(versionNoteOf(matched), coverage)
     rows.push({
       key: `${performance.id}:${matched}:${item.show_key}`,
@@ -214,7 +208,7 @@ const appearances = computed(() => {
       performanceName: localizePlace(localizePerformanceSeries(performance.name, seriesName, performance.series_number)),
       date: show?.date ?? performance.start_date,
       role: performance.role,
-      noteText: noteParts.map((part) => part.text).join('；'),
+      noteText: noteParts.map((part) => part.text).join(t('setlist.join')),
       noteParts,
     })
     covered.add(performance.id)
@@ -230,25 +224,25 @@ const appearanceSorting = ref([{ id: 'date', desc: false }])
 const appearanceColumns = computed<TableColumn<AppearanceRow>[]>(() => [
   {
     accessorKey: 'date',
-    header: sortableHeader('日期'),
+    header: sortableHeader(t('col.date')),
     enableSorting: true,
     sortingFn: (left, right) => compareAppearances(left.original, right.original, 'date'),
   },
   {
     accessorKey: 'seriesLabel',
-    header: sortableHeader('系列'),
+    header: sortableHeader(t('col.series')),
     enableSorting: true,
     sortingFn: (left, right) => compareAppearances(left.original, right.original, 'series'),
   },
   {
     accessorKey: 'performanceName',
-    header: sortableHeader('演出'),
+    header: sortableHeader(t('col.performance')),
     enableSorting: true,
     sortingFn: (left, right) => compareAppearances(left.original, right.original, 'venue'),
   },
   {
     accessorKey: 'noteText',
-    header: sortableHeader('备注'),
+    header: sortableHeader(t('col.note')),
     enableSorting: true,
     sortingFn: (left, right) => compareAppearances(left.original, right.original, 'note'),
   },
@@ -257,12 +251,12 @@ const appearanceColumns = computed<TableColumn<AppearanceRow>[]>(() => [
 /** Columns of the 相关投稿 table. */
 const videoColumns = computed<TableColumn<VideoRow>[]>(() => {
   const list: TableColumn<VideoRow>[] = [
-    { accessorKey: 'platform', header: '平台' },
-    { accessorKey: 'title', header: '标题' },
-    { accessorKey: 'pvType', header: '类型' },
-    { accessorKey: 'publishDate', header: '日期' },
+    { accessorKey: 'platform', header: t('col.platform') },
+    { accessorKey: 'title', header: t('col.title') },
+    { accessorKey: 'pvType', header: t('col.pvType') },
+    { accessorKey: 'publishDate', header: t('col.date') },
   ]
-  list.push({ id: 'url', header: '链接' })
+  list.push({ id: 'url', header: t('col.link') })
   return list
 })
 
@@ -317,36 +311,36 @@ const outsideVocaDB = computed(() => {
 const categoryLabel = computed(() => {
   const current = song.value
   if (current === null || current.category === 'vocaloid') return null
-  return songCategoryLabels[current.category]
+  return songCategoryLabel(current.category, locale.value)
 })
 
 const headerFacts = computed(() => {
   const facts: string[] = []
-  if (song.value?.publish_date) facts.push(`投稿日期 ${song.value.publish_date}`)
+  if (song.value?.publish_date) facts.push(t('song.publishedAt', { date: song.value.publish_date }))
   return facts.join(' · ')
 })
 
 /** Whether the header prints the 演出角色 chip line; a non-VOCALOID piece has none by definition. */
 const showsCharacterLine = computed(() => (!outsideVocaDB.value || isVocaloidSong(song.value)) && characters.value.length > 0)
 
-useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
+useHead({ title: computed(() => title.value?.primary ?? t('song.breadcrumb')) })
 </script>
 
 <template>
   <main class="space-y-6">
-    <p v-if="pending" class="text-sm text-muted">正在浏览器中加载目录…</p>
+    <p v-if="pending" class="text-sm text-muted">{{ t('common.loadingCatalog') }}</p>
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UEmpty
       v-else-if="catalog && !song"
       icon="i-lucide-music"
-      title="找不到这首歌"
-      description="这个 id 不在已提交的目录里。"
+      :title="t('song.notFound')"
+      :description="t('common.notFoundId')"
     />
 
     <template v-else-if="song">
       <UBreadcrumb
         :items="[
-          { label: '歌曲' },
+          { label: t('song.breadcrumb') },
           { label: breadcrumbSongLabel },
         ]"
       />
@@ -360,18 +354,18 @@ useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
           <UBadge v-if="categoryLabel" color="neutral" variant="subtle">{{ categoryLabel }}</UBadge>
           <template v-else>
             <UBadge color="primary" variant="subtle">{{ song.song_type }}</UBadge>
-            <UBadge v-if="variantIds.length > 0" color="secondary" variant="subtle">共 {{ groupIds.length }} 个版本</UBadge>
+            <UBadge v-if="variantIds.length > 0" color="secondary" variant="subtle">{{ t('common.versions', { n: groupIds.length }) }}</UBadge>
           </template>
           <span class="text-muted">
-            {{ outsideVocaDB && !isVocaloidSong(song) ? `作曲 ${displayArtistString(song.artist_string) ?? '未记录'}` : displayArtistString(song.artist_string) ?? '未记录' }}
+            {{ outsideVocaDB && !isVocaloidSong(song) ? t('song.composer', { name: displayArtistString(song.artist_string) ?? t('common.notRecorded') }) : displayArtistString(song.artist_string) ?? t('common.notRecorded') }}
           </span>
           <UButton :to="song.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            {{ outsideVocaDB ? '初音ミク Wiki' : 'VocaDB' }}
+            {{ outsideVocaDB ? t('song.wiki') : 'VocaDB' }}
           </UButton>
         </div>
         <p v-if="headerFacts" class="text-sm text-muted">{{ headerFacts }}</p>
         <div v-if="showsCharacterLine" class="flex flex-wrap items-center gap-2 text-sm text-muted">
-          <span>演出角色</span>
+          <span>{{ t('song.performedBy') }}</span>
           <CharacterChips :names="characters" size="sm" />
         </div>
       </header>
@@ -381,13 +375,13 @@ useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
         color="neutral"
         variant="subtle"
         icon="i-lucide-info"
-        title="演唱会演奏的版本"
+        :title="t('song.playVersion')"
         :description="songNote"
       />
 
       <UCard v-if="variantRows.length > 0">
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">其他版本</h2>
+          <h2 class="text-base font-semibold text-highlighted">{{ t('song.otherVersions') }}</h2>
         </template>
         <ul class="space-y-3 text-sm">
           <li v-for="row in variantRows" :key="row.id" class="space-y-1">
@@ -399,22 +393,22 @@ useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
                 :to="vocadbSongUrl(row.id) ?? ''"
                 target="_blank"
                 class="text-dimmed hover:text-primary"
-                aria-label="在 VocaDB 查看"
+                aria-label="VocaDB"
               >
                 <UIcon name="i-lucide-external-link" class="size-3" />
               </ULink>
             </div>
             <p v-if="row.producerNames.length > 0" class="text-xs text-muted">
               <template v-if="row.producerNames.length > 0">
-                制作人
+                {{ t('song.producer') }}
                 <template v-for="(name, nameIndex) in row.producerNames" :key="name">
-                  <span v-if="nameIndex > 0">、</span>
+                  <span v-if="nameIndex > 0">{{ t('setlist.join') }}</span>
                   <NuxtLink :to="producerPath(name)" class="text-muted no-underline hover:text-primary">{{ name }}</NuxtLink>
                 </template>
               </template>
             </p>
             <div v-if="row.characters.length > 0" class="flex flex-wrap items-center gap-2 text-xs text-muted">
-              <span>演出角色</span>
+              <span>{{ t('song.performedBy') }}</span>
               <CharacterChips :names="row.characters" />
             </div>
           </li>
@@ -422,15 +416,15 @@ useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
       </UCard>
 
       <TableSection
-        title="出场记录"
-        :count="`${appearances.length} 个演出 · ${seriesCount} 个系列`"
+        :title="t('song.appearances')"
+        :count="t('song.appearancesCount', { performances: appearances.length, series: seriesCount })"
         :fill="false"
         v-model:sorting="appearanceSorting"
         :data="appearances"
         :columns="appearanceColumns"
         empty-icon="i-lucide-calendar-x"
-        empty-title="没有出场记录"
-        empty-description="没有在已收录的歌单里出现。"
+        :empty-title="t('song.noAppearances')"
+        :empty-description="t('song.noAppearancesDesc')"
       >
         <template #date-cell="{ row }">
           <span class="font-mono text-muted">{{ row.original.date ?? '—' }}</span>
@@ -450,7 +444,7 @@ useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
         <template #noteText-cell="{ row }">
           <span class="text-xs">
             <template v-for="(part, partIndex) in row.original.noteParts" :key="`${part.warning ? 'w' : 'm'}:${part.text}`">
-              <span v-if="partIndex > 0" class="text-muted">；</span>
+              <span v-if="partIndex > 0" class="text-muted">{{ t('setlist.join') }}</span>
               <span :class="part.warning ? 'text-warning' : 'text-muted'">{{ part.text }}</span>
             </template>
             <span v-if="row.original.noteParts.length === 0" class="text-muted">—</span>
@@ -459,13 +453,13 @@ useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
       </TableSection>
 
       <TableSection
-        title="相关投稿"
+        :title="t('song.videos')"
         :fill="false"
         :data="videoRows"
         :columns="videoColumns"
         empty-icon="i-lucide-video-off"
-        empty-title="没有投稿链接"
-        :empty-description="outsideVocaDB ? '这首曲目不在 VocaDB 上，没有登记投稿链接。' : 'VocaDB 上没有登记投稿链接。'"
+        :empty-title="t('song.noVideos')"
+        :empty-description="outsideVocaDB ? t('song.noVideosOutside') : t('song.noVideosVocadb')"
       >
         <template #platform-cell="{ row }">
           <span class="text-muted">{{ row.original.platform }}</span>
@@ -480,7 +474,7 @@ useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
           <span class="font-mono text-muted">{{ row.original.publishDate }}</span>
         </template>
         <template #url-cell="{ row }">
-          <ULink :to="row.original.url" target="_blank" class="text-primary">打开</ULink>
+          <ULink :to="row.original.url" target="_blank" class="text-primary">{{ t('common.open') }}</ULink>
         </template>
       </TableSection>
     </template>

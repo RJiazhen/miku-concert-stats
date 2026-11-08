@@ -445,7 +445,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const summary = baseSummaries.get(song.id) ?? emptySummary()
     const groupSongs = groupSongsOf(song)
     const groupIds = groupSongs.map((row) => row.id)
-    const coverage = showCoverage(catalog, review, groupIds)
+    const coverage = showCoverage(catalog, review, groupIds, 'zh')
     const alt = broadcastSummaries.get(song.id)
     const altDiffers = alt !== undefined && !sameCounts(summary, alt)
     writeJson(root, path.join(API_DIRECTORY, 'songs', `${song.id}.json`), {

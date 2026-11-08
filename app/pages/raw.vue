@@ -11,11 +11,13 @@ import { formatRotationReason, reviewRotations } from '~~/shared/rotation.ts'
 import { countedSongIds } from '~~/shared/stats.ts'
 import { useRawTables } from '~/composables/useRawTables.ts'
 import { useRawQuality } from '~/composables/useRawQuality.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
 const merges = useSetlistMerges()
 const { songName, songHref, vocadbSongUrl } = useSongLookup()
+const { locale, t } = useLocale()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -39,12 +41,12 @@ const {
 
 type Tab = 'edition' | 'shows' | 'tables' | 'quality'
 const tab = ref<Tab>('edition')
-const tabs: { value: Tab; label: string }[] = [
-  { value: 'edition', label: '跨演出歌单' },
-  { value: 'shows', label: '场次歌单' },
-  { value: 'tables', label: '数据表' },
-  { value: 'quality', label: '质量报告' },
-]
+const tabs = computed<{ value: Tab; label: string }[]>(() => [
+  { value: 'edition', label: t('raw.tabEdition') },
+  { value: 'shows', label: t('raw.tabShows') },
+  { value: 'tables', label: t('raw.tabTables') },
+  { value: 'quality', label: t('raw.tabQuality') },
+])
 
 /** Builds the series-year comparison view of the merged setlist. */
 const editions = computed(() => {
@@ -95,7 +97,7 @@ const sides = computed(() => {
 /** Side options: a merged group or one song list. */
 const sideOptions = computed(() =>
   sides.value.map((side, index) => ({
-    label: side.length > 1 ? `合并 ${side.length} 份歌单（${side.join(' / ')}）` : `歌单 ${side[0] ?? ''}`,
+    label: side.length > 1 ? t('raw.mergeSides', { n: side.length, list: side.join(' / ') }) : t('raw.setlistSide', { name: side[0] ?? '' }),
     value: index,
   })),
 )
@@ -111,7 +113,7 @@ const splitNote = computed(() => {
   const listId = side[0]
   if (listId === undefined || merges.groupOf(listId) === null) return null
   if (!review.value.shows.some((show) => show.songListId === listId)) return null
-  return '这个演出的歌单长度与同组其他演出不一致，因此单独显示，不与它们合并。'
+  return t('raw.lengthMismatch')
 })
 
 const display = computed(() => {
@@ -145,16 +147,16 @@ type ShowSetlistRow = {
 }
 
 /** Columns of the 场次歌单 table. */
-const showSetlistColumns: TableColumn<ShowSetlistRow>[] = [
-  { accessorKey: 'name', header: '演出' },
-  { accessorKey: 'series', header: '系列' },
-  { accessorKey: 'startDate', header: '日期' },
-  { accessorKey: 'shows', header: '场次' },
-  { accessorKey: 'sourceRows', header: '源行数' },
-  { id: 'status', header: '状态' },
-  { accessorKey: 'resolution', header: '归属方式' },
-  { accessorKey: 'sources', header: '来源' },
-]
+const showSetlistColumns = computed<TableColumn<ShowSetlistRow>[]>(() => [
+  { accessorKey: 'name', header: t('col.performance') },
+  { accessorKey: 'series', header: t('col.series') },
+  { accessorKey: 'startDate', header: t('col.date') },
+  { accessorKey: 'shows', header: t('col.shows') },
+  { accessorKey: 'sourceRows', header: t('col.sourceRows') },
+  { id: 'status', header: t('col.status') },
+  { accessorKey: 'resolution', header: t('col.resolution') },
+  { accessorKey: 'sources', header: t('col.sources') },
+])
 
 /** Derived 演出 rows joined with their 场次 counts, grouped by series for the 场次歌单 tab. */
 const showSetlists = computed<ShowSetlistRow[]>(() => {
@@ -188,16 +190,16 @@ const showSetlists = computed<ShowSetlistRow[]>(() => {
     })
     .sort((left, right) => left.series.localeCompare(right.series, 'ja') || (left.startDate ?? '9999').localeCompare(right.startDate ?? '9999'))
 })/** Download links for the raw files. */
-const downloads = [
-  { label: '目录 SQLite', href: '/data/catalog.sqlite' },
-  { label: '表结构 schema.sql', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/schema.sql' },
-  { label: '增量 SQL', href: 'https://github.com/RJiazhen/miku-concert-stats/tree/main/data/increments' },
-  { label: '版本合并清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-variants.json' },
-  { label: '歌单合并清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/setlist-merges.json' },
-  { label: '场次歌单来源', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/performance-setlists.json' },
-  { label: '待确认清单', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/docs/reports/setlist-review.md' },
-  { label: '中文歌名', href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-titles.zh-CN.json' },
-]
+const downloads = computed(() => [
+  { label: t('raw.linkCatalog'), href: '/data/catalog.sqlite' },
+  { label: t('raw.linkSchema'), href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/schema.sql' },
+  { label: t('raw.linkIncrements'), href: 'https://github.com/RJiazhen/miku-concert-stats/tree/main/data/increments' },
+  { label: t('raw.linkVariants'), href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-variants.json' },
+  { label: t('raw.linkMerges'), href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/setlist-merges.json' },
+  { label: t('raw.linkShowSetlists'), href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/performance-setlists.json' },
+  { label: t('raw.linkReview'), href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/docs/reports/setlist-review.md' },
+  { label: t('raw.linkZhTitles'), href: 'https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-titles.zh-CN.json' },
+])
 
 /** Song counts for one list, used in the year view header. */
 const editionSongCount = computed(() => {
@@ -209,16 +211,16 @@ const editionSongCount = computed(() => {
   return countedSongIds(catalog.value, [...new Set(listIds)], variants).length
 })
 
-useHead({ title: '原始数据' })
+useHead({ title: computed(() => t('raw.title')) })
 </script>
 
 <template>
   <main class="space-y-6">
     <header class="space-y-3">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Raw Data</p>
-      <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">原始数据</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">{{ t('raw.title') }}</h1>
       <p class="max-w-3xl text-sm text-muted">
-        每一行都来自 VocaDB 公共 API，并附上可核验的链接。
+        {{ t('raw.description') }}
       </p>
       <div class="flex flex-wrap gap-2">
         <UButton
@@ -249,26 +251,26 @@ useHead({ title: '原始数据' })
 
     <section v-if="tab === 'edition'" class="space-y-4">
       <p class="text-xs text-muted">
-        同一系列年度的多个演出并排对照；它们各自独立，不是一场演出。
+        {{ t('raw.editionNote') }}
       </p>
       <UCard>
         <div class="flex flex-wrap items-end gap-3">
-          <FilterField label="系列年度">
+          <FilterField :label="t('raw.editionYear')">
             <USelectMenu
               :model-value="editionModel"
               :items="editionItems"
               by="value"
               search-input
-              placeholder="选择系列年度"
+              :placeholder="t('raw.editionYearPlaceholder')"
               size="sm"
               class="w-72"
               @update:model-value="selectEdition"
             />
           </FilterField>
-          <FilterField label="显示范围">
+          <FilterField :label="t('raw.editionRange')">
             <USelect v-model="sideIndex" :items="sideOptions" size="sm" class="w-72" />
           </FilterField>
-          <p class="pb-2 text-xs text-muted">{{ editionSongCount }} 首（合并版本后去重）</p>
+          <p class="pb-2 text-xs text-muted">{{ t('raw.editionSongCount', { n: editionSongCount }) }}</p>
         </div>
       </UCard>
       <UAlert v-if="splitNote" color="warning" variant="subtle" icon="i-lucide-info" :description="splitNote" />
@@ -277,34 +279,34 @@ useHead({ title: '原始数据' })
       <UEmpty
         v-else-if="!display"
         icon="i-lucide-list-x"
-        title="这个系列年度没有歌单"
-        description="VocaDB 上没有记录歌单，或这个演出没有关联歌单。"
+        :title="t('raw.editionEmptyTitle')"
+        :description="t('raw.editionEmptyDesc')"
       />
       <SetlistTable v-else-if="display" :display="display" />
     </section>
 
     <section v-else-if="tab === 'shows'" class="space-y-4">
       <TableSection
-        title="场次歌单"
-        :count="`${showSetlists.length} 个演出`"
-        note="每个演出派生出的场次歌单，点演出席名可进入该演出的歌单页。"
+        :title="t('raw.showsTitle')"
+        :count="t('raw.showsCount', { n: showSetlists.length })"
+        :note="t('raw.showsNote')"
         :fill="false"
         :data="showSetlists"
         :columns="showSetlistColumns"
         empty-icon="i-lucide-list-x"
-        empty-title="没有场次歌单"
-        empty-description="目录里还没有派生的场次数据。"
+        :empty-title="t('raw.showsEmptyTitle')"
+        :empty-description="t('raw.showsEmptyDesc')"
       >
         <template #name-cell="{ row }">
           <NuxtLink :to="`/shows/${row.original.performanceId}`" class="text-primary">{{ row.original.name }}</NuxtLink>
-          <span v-if="row.original.pendingReview" class="ml-1 text-warning">· 待复核</span>
-          <span v-if="row.original.conflict" class="ml-1 text-error">· 冲突</span>
+          <span v-if="row.original.pendingReview" class="ml-1 text-warning">· {{ t('raw.pendingReview') }}</span>
+          <span v-if="row.original.conflict" class="ml-1 text-error">· {{ t('raw.conflict') }}</span>
         </template>
         <template #series-cell="{ row }">
           <span class="text-muted">{{ row.original.series }}</span>
         </template>
         <template #startDate-cell="{ row }">
-          <span class="text-muted">{{ row.original.startDate ?? '日期未知' }}</span>
+          <span class="text-muted">{{ row.original.startDate ?? t('common.unknownDate') }}</span>
         </template>
         <template #shows-cell="{ row }">
           <span class="tabular-nums text-muted">{{ row.original.shows }}</span>
@@ -330,12 +332,12 @@ useHead({ title: '原始数据' })
           <div class="flex items-baseline justify-between gap-2">
             <h2 class="text-base font-semibold text-highlighted">{{ table.label }}</h2>
             <span class="text-xs text-muted">
-              {{ table.rows.length }} 行
-              <template v-if="table.rows.length > pageSize">· 显示前 {{ Math.min(limitOf(table.id), table.rows.length) }}</template>
+              {{ t('raw.rows', { n: table.rows.length }) }}
+              <template v-if="table.rows.length > pageSize">{{ t('raw.showingFirst', { n: Math.min(limitOf(table.id), table.rows.length) }) }}</template>
             </span>
           </div>
         </template>
-        <p v-if="table.rows.length === 0" class="text-sm text-muted">这张表没有数据。</p>
+        <p v-if="table.rows.length === 0" class="text-sm text-muted">{{ t('raw.tableEmpty') }}</p>
         <div v-else class="overflow-x-auto">
           <table class="w-max min-w-full whitespace-nowrap text-sm">
             <thead class="text-left text-xs tracking-wide text-muted uppercase">
@@ -355,7 +357,7 @@ useHead({ title: '原始数据' })
           </table>
         </div>
         <template v-if="table.rows.length > limitOf(table.id)" #footer>
-          <UButton color="neutral" variant="outline" size="xs" @click="showMore(table.id)">显示更多</UButton>
+          <UButton color="neutral" variant="outline" size="xs" @click="showMore(table.id)">{{ t('common.more') }}</UButton>
         </template>
       </UCard>
     </section>
@@ -372,24 +374,24 @@ useHead({ title: '原始数据' })
 
       <UCard>
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">未解析的备注与长度不一致的演出</h2>
+          <h2 class="text-base font-semibold text-highlighted">{{ t('raw.uncertainTitle') }}</h2>
         </template>
-        <p class="text-sm text-muted">{{ uncertainLines.length }} 行备注无法确定到具体演出，{{ mismatchedShows.length }} 个演出的歌单长度与该歌单的常见长度不一致。</p>
+        <p class="text-sm text-muted">{{ t('raw.uncertainLine', { lines: uncertainLines.length, shows: mismatchedShows.length }) }}</p>
         <div v-if="mismatchedShows.length > 0" class="mt-3 space-y-1 text-sm">
           <p v-for="show in mismatchedShows.slice(0, 10)" :key="show.performanceId" class="text-muted">
-            <NuxtLink :to="`/shows/${show.performanceId}`" class="text-primary">演出 {{ show.performanceId }}</NuxtLink>
-            · 歌单 {{ show.songListId }} · {{ show.reasons.map(formatRotationReason).join('；') }}
+            <NuxtLink :to="`/shows/${show.performanceId}`" class="text-primary">{{ t('raw.performanceLink', { id: show.performanceId }) }}</NuxtLink>
+            · {{ t('raw.colSongList') }} {{ show.songListId }} · {{ show.reasons.map((reason) => formatRotationReason(reason, locale)).join(t('setlist.join')) }}
           </p>
         </div>
       </UCard>
 
       <UCard>
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">疑似重复但未合并</h2>
+          <h2 class="text-base font-semibold text-highlighted">{{ t('raw.duplicatesTitle') }}</h2>
         </template>
         <p class="text-sm text-muted">
-          去掉括号与版本后缀后同名的歌曲。确认是同一首歌后，写入
-          <ULink to="https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-variants.json" target="_blank" class="text-primary">版本合并清单</ULink>。
+          {{ t('raw.duplicatesNote') }}
+          <ULink to="https://github.com/RJiazhen/miku-concert-stats/blob/main/data/song-variants.json" target="_blank" class="text-primary">{{ t('raw.linkVariants') }}</ULink>.
         </p>
         <ul class="mt-3 space-y-2 text-sm">
           <li v-for="group in duplicateCandidates.slice(0, 40)" :key="group.key">
@@ -403,7 +405,7 @@ useHead({ title: '原始数据' })
                   :to="vocadbSongUrl(song.id) ?? ''"
                   target="_blank"
                   class="ml-1 text-dimmed hover:text-primary"
-                  aria-label="在 VocaDB 查看"
+                  aria-label="VocaDB"
                 >
                   <UIcon name="i-lucide-external-link" class="size-3" />
                 </ULink>
@@ -411,22 +413,22 @@ useHead({ title: '原始数据' })
             </span>
           </li>
         </ul>
-        <p v-if="duplicateCandidates.length === 0" class="mt-2 text-sm text-muted">没有候选。</p>
+        <p v-if="duplicateCandidates.length === 0" class="mt-2 text-sm text-muted">{{ t('raw.noCandidates') }}</p>
       </UCard>
 
       <UCard>
         <template #header>
-          <h2 class="text-base font-semibold text-highlighted">缺数据的记录</h2>
+          <h2 class="text-base font-semibold text-highlighted">{{ t('raw.missingTitle') }}</h2>
         </template>
         <div class="space-y-2 text-sm text-muted">
-          <p>没有投稿链接的歌曲：{{ songsWithoutVideo.length }} 首</p>
-          <p>没有歌单或开始日期的演出：{{ incompletePerformances.length }} 个</p>
+          <p>{{ t('raw.songsWithoutVideo', { n: songsWithoutVideo.length }) }}</p>
+          <p>{{ t('raw.incompletePerformances', { n: incompletePerformances.length }) }}</p>
           <p>
-            用专辑曲目代替歌单的演出：{{ albumFallbackPerformances.length }} 个（{{ albumFallbackLists }} 张专辑）。
-            这些曲目不是 VocaDB 上该演出的歌单，演出页与系列年度索引会标注来源。
+            {{ t('raw.albumFallback', { performances: albumFallbackPerformances.length, albums: albumFallbackLists }) }}
+            {{ t('raw.albumFallbackNote') }}
           </p>
-          <p>没有公布时间的歌单：{{ listsWithoutAnnouncement.length }} 份（公开 API 没有该字段）</p>
-          <p>未拆分的串烧：{{ catalog?.medleyQuarantine.length ?? 0 }} 行</p>
+          <p>{{ t('raw.listsWithoutAnnouncement', { n: listsWithoutAnnouncement.length }) }}</p>
+          <p>{{ t('raw.medleyQuarantine', { n: catalog?.medleyQuarantine.length ?? 0 }) }}</p>
         </div>
       </UCard>
     </section>

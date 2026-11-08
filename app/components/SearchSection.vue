@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { SearchRow, SearchSection as SearchSectionData } from '~/composables/useSearchHits.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const props = withDefaults(defineProps<{
   /** One non-empty result type with its real total. */
@@ -24,6 +25,8 @@ const emit = defineEmits<{
   showMore: []
 }>()
 
+const { t } = useLocale()
+
 /** Rows printed now; the results page passes a growing slice. */
 const visibleRows = computed(() => props.rows ?? props.section.rows)
 
@@ -37,11 +40,11 @@ const headingId = computed(() => `search-section-${props.section.key}`)
       :id="headingId"
       :class="variant === 'page' ? 'text-lg font-semibold text-highlighted' : 'px-2 py-1 text-[11px] tracking-wide text-muted uppercase'"
     >
-      {{ section.label }}{{ variant === 'panel' ? ' 共' : '' }} {{ section.total }} {{ section.unit }}
+      {{ section.label }} {{ section.total }} {{ section.unit }}
       <span
         v-if="section.truncated"
         :class="variant === 'page' ? 'ml-1 text-sm font-normal text-muted' : 'normal-case'"
-      >· 已显示前 {{ section.rows.length }} 条</span>
+      >{{ t('search.shown', { n: section.rows.length }) }}</span>
     </h2>
     <ul class="space-y-0.5">
       <li v-for="row in visibleRows" :key="row.key">
@@ -55,7 +58,7 @@ const headingId = computed(() => `search-section-${props.section.key}`)
         size="xs"
         @click="emit('showMore')"
       >
-        显示更多
+        {{ t('common.more') }}
       </UButton>
     </div>
   </section>

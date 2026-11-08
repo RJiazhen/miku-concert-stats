@@ -1,6 +1,7 @@
 import { useRuntimeConfig, useState } from 'nuxt/app'
 import initSqlJs from 'sql.js'
 import { loadCatalog } from '~~/shared/catalog.ts'
+import { useLocale } from './useLocale.ts'
 import type { Catalog, SqlRow } from '~~/shared/types.ts'
 
 /** Minimal sql.js types. The 1.14 package does not ship its own declarations. */
@@ -44,17 +45,17 @@ const rowsFromSqlJs = (columns: string[], values: (string | number | null | Uint
 }
 
 /** Inflates a gzip response body into the raw sqlite bytes. */
-const inflateCatalog = async (response: Response): Promise<Uint8Array> => {
+const inflateCatalog = async (response: Response, t: ReturnType<typeof useLocale>['t']): Promise<Uint8Array> => {
   const body = response.body
-  if (!body) throw new Error('目录响应缺少内容。')
+  if (!body) throw new Error(t('common.catalogEmptyResponse'))
   const stream = body.pipeThrough(new DecompressionStream('gzip'))
   return new Uint8Array(await new Response(stream).arrayBuffer())
 }
 
 /** Fetches one catalog URL, turning a failed response into the build hint. */
-const fetchCatalog = async (url: string): Promise<Response> => {
+const fetchCatalog = async (url: string, t: ReturnType<typeof useLocale>['t']): Promise<Response> => {
   const response = await fetch(url)
-  if (!response.ok) throw new Error('找不到目录数据库。请先运行 pnpm build:catalog。')
+  if (!response.ok) throw new Error(t('common.catalogMissingDb'))
   return response
 }
 
@@ -66,21 +67,29 @@ const fetchCatalog = async (url: string): Promise<Response> => {
  * @param gzipUrl gzipped copy to inflate, or null to read the plain file only
  * @param plainUrl uncompressed sqlite file
  */
-const readCatalogBytes = async (gzipUrl: string | null, plainUrl: string): Promise<Uint8Array> => {
+const readCatalogBytes = async (
+  gzipUrl: string | null,
+  plainUrl: string,
+  t: ReturnType<typeof useLocale>['t'],
+): Promise<Uint8Array> => {
   if (gzipUrl && typeof DecompressionStream === 'function') {
     try {
-      return await inflateCatalog(await fetchCatalog(gzipUrl))
+      return await inflateCatalog(await fetchCatalog(gzipUrl, t), t)
     } catch {
       // Missing or corrupt gzip copy: use the plain file below.
     }
   }
-  return new Uint8Array(await (await fetchCatalog(plainUrl)).arrayBuffer())
+  return new Uint8Array(await (await fetchCatalog(plainUrl, t)).arrayBuffer())
 }
 
 /** Downloads the built catalog and loads it with sql.js in the browser. */
-export const loadCatalogFromNetwork = async (gzipUrl: string | null, plainUrl: string): Promise<Catalog> => {
+export const loadCatalogFromNetwork = async (
+  gzipUrl: string | null,
+  plainUrl: string,
+  t: ReturnType<typeof useLocale>['t'],
+): Promise<Catalog> => {
   const SQL = await initSqlJs({ locateFile: () => '/sql-wasm.wasm' })
-  const bytes = await readCatalogBytes(gzipUrl, plainUrl)
+  const bytes = await readCatalogBytes(gzipUrl, plainUrl, t)
   const db = new SQL.Database(bytes)
   try {
     return loadCatalog({
@@ -103,6 +112,7 @@ export const useCatalog = () => {
   const error = useState<string | null>('catalog-error', emptyError)
   const pending = useState<boolean>('catalog-pending', notPending)
   const version = useRuntimeConfig().public.catalogVersion
+  const { t } = useLocale()
 
   /**
    * Versioned gzip URL so repeat visits reuse the cached catalog.
@@ -120,7 +130,7 @@ export const useCatalog = () => {
     pending.value = true
     error.value = null
     try {
-      catalog.value = await loadCatalogFromNetwork(gzipUrl(), '/data/catalog.sqlite')
+      catalog.value = await loadCatalogFromNetwork(gzipUrl(), '/data/catalog.sqlite', t)
     } catch (caught) {
       error.value = caught instanceof Error ? caught.message : String(caught)
     } finally {

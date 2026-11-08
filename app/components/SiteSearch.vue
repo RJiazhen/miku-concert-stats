@@ -2,11 +2,13 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { searchPagePath, useSearchHits } from '~/composables/useSearchHits.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const { catalog, error, pending, load } = useCatalog()
+const { t } = useLocale()
 
 /** Placeholder shared by the desktop input and the mobile panel. */
-const placeholder = '搜索歌曲、系列、演出、地点或制作人'
+const placeholder = computed(() => t('search.placeholder'))
 
 /** Starts the browser catalog load after hydration so search works without visiting the ranking first. */
 const startLoad = (): void => {
@@ -76,9 +78,9 @@ onUnmounted(stopListening)
       icon="i-lucide-search"
       :placeholder="placeholder"
       size="sm"
-      class="hidden w-56 md:block lg:w-72"
+      class="hidden w-56 xl:block xl:w-64"
       autocomplete="off"
-      aria-label="站内搜索"
+      :aria-label="t('search.aria')"
       @focus="open = true"
       @keydown.enter.prevent="submit"
       @keydown.esc="open = false"
@@ -102,11 +104,11 @@ onUnmounted(stopListening)
       color="neutral"
       variant="ghost"
       size="sm"
-      aria-label="站内搜索"
-      class="md:hidden"
+      :aria-label="t('search.aria')"
+      class="xl:hidden"
       @click="mobileOpen = true"
     />
-    <div v-if="mobileOpen" class="fixed inset-0 z-50 bg-default/95 backdrop-blur md:hidden">
+    <div v-if="mobileOpen" class="fixed inset-0 z-50 bg-default/95 backdrop-blur xl:hidden">
       <div class="mx-auto flex max-w-xl flex-col gap-3 p-4">
         <div class="flex items-center gap-2">
           <UInput
@@ -117,11 +119,11 @@ onUnmounted(stopListening)
             class="flex-1"
             autocomplete="off"
             autofocus
-            aria-label="站内搜索"
+            :aria-label="t('search.aria')"
             @keydown.enter.prevent="submit"
             @keydown.esc="reset"
           />
-          <UButton icon="i-lucide-x" color="neutral" variant="ghost" aria-label="关闭搜索" @click="reset" />
+          <UButton icon="i-lucide-x" color="neutral" variant="ghost" :aria-label="t('search.close')" @click="reset" />
         </div>
         <div v-if="query.trim() !== ''" class="rounded-xl bg-default ring ring-default">
           <SiteSearchResults

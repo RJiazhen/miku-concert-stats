@@ -1,3 +1,4 @@
+import { translate, type Locale } from './i18n/index.ts'
 import { performanceSchedules, showsForNotes, type PerformanceShow } from './event-schedule.ts'
 import { catalogSchedules, derivedItemSongIds } from './performance-setlists.ts'
 import type { RotationReview } from './rotation.ts'
@@ -32,11 +33,13 @@ export type ShowCoverage = {
  * @param catalog Loaded catalog, for the derived rows and the 演出 list.
  * @param review Rotation review of the same catalog, used for 場次 without a derived row.
  * @param songIds Song ids to credit, usually every id of a merged variant group.
+ * @param locale Language of the short show labels.
  */
 export const showCoverage = (
   catalog: Catalog,
   review: RotationReview,
   songIds: readonly number[],
+  locale: Locale = 'zh',
 ): Map<number, ShowCoverage> => {
   const result = new Map<number, ShowCoverage>()
   const wanted = new Set(songIds)
@@ -96,19 +99,19 @@ export const showCoverage = (
     result.set(performance.id, {
       total: shows.length,
       covered: played.length,
-      labels: played.map(shortShowLabel),
+      labels: played.map((show) => shortShowLabel(show, locale)),
     })
   }
   return result
 }
 
 /** Short 场次 label for an appearance note, e.g. `8/10 夜场`; the year is on the row already. */
-const shortShowLabel = (show: PerformanceShow): string => {
+const shortShowLabel = (show: PerformanceShow, locale: Locale): string => {
   const date = show.date
   if (!date) return show.label
   const monthDay = `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
-  if (show.half === 'day') return `${monthDay} 日场`
-  if (show.half === 'night') return `${monthDay} 夜场`
+  if (show.half === 'day') return `${monthDay} ${translate(locale, 'common.dayShow')}`
+  if (show.half === 'night') return `${monthDay} ${translate(locale, 'common.nightShow')}`
   return monthDay
 }
 
@@ -125,14 +128,22 @@ const shortShowLabel = (show: PerformanceShow): string => {
  *
  * @param coverage Coverage for the row's performance, or null when the song is unknown.
  * @param reasons Raw rotation reasons of the row's setlist line, before localization.
+ * @param locale Language the note is written in.
  */
 export const formatShowCoverage = (
   coverage: ShowCoverage | null,
   reasons: readonly string[],
+  locale: Locale = 'zh',
 ): string | null => {
   if (coverage === null || coverage.total < 2) return null
   if (reasons.some((reason) => reason.startsWith('city-only when city has several shows'))) return null
   if (coverage.covered >= coverage.total) return null
-  const played = coverage.labels !== undefined && coverage.labels.length > 0 ? `：${coverage.labels.join('、')}` : ''
-  return `${coverage.total} 场中 ${coverage.covered} 场${played}`
+  if (coverage.labels !== undefined && coverage.labels.length > 0) {
+    return translate(locale, 'coverage.partialWithLabels', {
+      total: coverage.total,
+      covered: coverage.covered,
+      shows: coverage.labels.join(translate(locale, 'setlist.join')),
+    })
+  }
+  return translate(locale, 'coverage.partial', { total: coverage.total, covered: coverage.covered })
 }

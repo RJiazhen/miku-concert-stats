@@ -7,11 +7,10 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import { useSongAliases } from '~/composables/useSongAliases.ts'
-import { useSongLanguage } from '~/composables/useSongLanguage.ts'
+import { useSongTitle } from '~/composables/useSongTitle.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 import { useCharacterNames } from '~/composables/useCharacterNames.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
-import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { availableProducers, producerNamesForSongs } from '~~/shared/producer-options.ts'
 import { producerPath } from '~~/shared/producers.ts'
@@ -31,9 +30,9 @@ const variants = useSongVariants()
 const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
-const { language, translationFor, chineseSpellings } = useSongLanguage()
+const { spellings, titleView } = useSongTitle()
+const { t } = useLocale()
 const { localizeCharacter, compareCharacters, compareCharacterLists } = useCharacterNames()
-const { jaTitle, aliasTitles } = useSongAliases()
 const sortableHeader = useSortableHeader()
 
 /** Width the 歌曲 cell may occupy before it truncates; keeps every column visible at 1280px. */
@@ -137,7 +136,7 @@ const ranked = computed<RankedSong[]>(() => {
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
-    const title = formatSongTitle(jaTitle(row.songId, row.name), translationFor(row.songId), language.value)
+    const title = titleView(row.songId, row.name)
     return {
       songId: row.songId,
       rank: index + 1,
@@ -154,13 +153,13 @@ const ranked = computed<RankedSong[]>(() => {
       variantSongIds: row.variantSongIds,
       versionCount: row.variantSongIds.length + 1,
       variantNames,
-      titleText: title.originalNote === null ? title.primary : `${title.primary}（${title.originalNote}）`,
+      titleText: title.originalNames.length === 0 ? title.primary : `${title.primary}（${title.originalNames.join(' · ')}）`,
     }
   })
 })
 
-/** Song spellings matched by the `?q=` filter, reusing the header search's alias and Chinese titles. */
-const songSpellings = (song: SongRow): string[] => [...aliasTitles(song.id), ...chineseSpellings(song.id)]
+/** Song spellings matched by the `?q=` filter, reusing every registered and translated name. */
+const songSpellings = (song: SongRow): string[] => spellings(song.id)
 
 /** Song ids matching `?q=`, or null when the ranking is not search-filtered. */
 const searchedSongIds = computed<ReadonlySet<number> | null>(() => {
@@ -185,24 +184,24 @@ const filtered = computed(() =>
 /** Sortable header button, shared with every other table on the site. */
 
 const columns = computed<TableColumn<RankedSong>[]>(() => [
-  { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true, meta: { class: { th: 'w-14' } } },
-  { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true, meta: { class: { td: 'max-w-[220px]' } } },
-  { accessorKey: 'artists', header: '制作人', enableSorting: true, meta: { class: { td: 'max-w-32' } } },
+  { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true, meta: { class: { th: 'w-14' } } },
+  { accessorKey: 'name', header: sortableHeader(t('col.song')), enableSorting: true, meta: { class: { td: 'max-w-[220px]' } } },
+  { accessorKey: 'artists', header: t('col.producers'), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
   {
     id: 'characters',
     accessorFn: (row) => row.characterList.map(localizeCharacter).join('、'),
-    header: sortableHeader('歌手'),
+    header: sortableHeader(t('col.characters')),
     enableSorting: true,
     sortingFn: (left, right) => compareCharacterLists(left.original.characterList, right.original.characterList),
     meta: { class: { th: 'w-[236px]', td: 'w-[236px]' } },
   },
-  { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? '场次数' : '演出数'), enableSorting: true },
+  { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? t('col.showCount') : t('col.performanceCount')), enableSorting: true },
   // 按演出统计时 count 已经是演出数，不再重复一列。
   ...(mode.value === 'show'
-    ? [{ accessorKey: 'performanceCount', header: sortableHeader('演出数'), enableSorting: true }]
+    ? [{ accessorKey: 'performanceCount', header: sortableHeader(t('col.performanceCount')), enableSorting: true }]
     : []),
-  { accessorKey: 'firstYear', header: sortableHeader('最早年份'), enableSorting: true },
-  { accessorKey: 'lastYear', header: sortableHeader('最晚年份'), enableSorting: true },
+  { accessorKey: 'firstYear', header: sortableHeader(t('col.firstYear')), enableSorting: true },
+  { accessorKey: 'lastYear', header: sortableHeader(t('col.lastYear')), enableSorting: true },
 ])
 
 /** Blank marker for a missing value. */
@@ -386,8 +385,8 @@ const yearOptions = computed(() => availablePerformanceYears(catalog.value?.perf
 
 /** Items shared by both year pickers: 不限 plus every year the data contains. */
 const yearItems = computed(() => [
-  { label: '不限', value: YEAR_ANY },
-  ...yearOptions.value.map((year) => ({ label: `${year} 年`, value: String(year) })),
+  { label: t('common.anyYear'), value: YEAR_ANY },
+  ...yearOptions.value.map((year) => ({ label: t('common.year', { year }), value: String(year) })),
 ])
 
 /** Bounds currently selected; `null` marks an open end. */
@@ -409,7 +408,7 @@ const yearToItems = computed(() =>
   }),
 )
 
-useHead({ title: '曲目排行' })
+useHead({ title: computed(() => t('rank.title')) })
 </script>
 
 <template>
@@ -417,7 +416,7 @@ useHead({ title: '曲目排行' })
     <section class="pt-4 sm:pt-8">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
-        初音未来演唱会<br class="sm:hidden">曲目统计
+        {{ t('rank.heading1') }}<br class="sm:hidden">{{ t('rank.heading2') }}
       </h1>
     </section>
 
@@ -426,22 +425,22 @@ useHead({ title: '曲目排行' })
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
-      title="目录加载失败"
+      :title="t('common.catalogError')"
       :description="error"
     />
     <UCard v-else>
       <div class="flex flex-wrap items-end gap-3">
         <UFieldGroup size="sm">
-          <UButton :variant="mode === 'show' ? 'solid' : 'outline'" label="按场次" @click="mode = 'show'" />
-          <UButton :variant="mode === 'event' ? 'solid' : 'outline'" label="按演出" @click="mode = 'event'" />
+          <UButton :variant="mode === 'show' ? 'solid' : 'outline'" :label="t('rank.modeShow')" @click="mode = 'show'" />
+          <UButton :variant="mode === 'event' ? 'solid' : 'outline'" :label="t('rank.modeEvent')" @click="mode = 'event'" />
         </UFieldGroup>
-        <FilterField label="起始年">
+        <FilterField :label="t('rank.fromYear')">
           <USelect v-model="yearFrom" :items="yearFromItems" size="sm" class="w-24" />
         </FilterField>
-        <FilterField label="结束年">
+        <FilterField :label="t('rank.toYear')">
           <USelect v-model="yearTo" :items="yearToItems" size="sm" class="w-24" />
         </FilterField>
-        <FilterField label="角色">
+        <FilterField :label="t('rank.characters')">
           <USelectMenu
             v-model="characterFilter"
             :items="characterItems"
@@ -449,12 +448,12 @@ useHead({ title: '曲目排行' })
             multiple
             search-input
             :filter-fields="['label']"
-            placeholder="全部角色"
+            :placeholder="t('rank.allCharacters')"
             size="sm"
             class="w-36"
           />
         </FilterField>
-        <FilterField label="制作人">
+        <FilterField :label="t('rank.producer')">
           <USelectMenu
             v-model="producerFilter"
             :items="producerItems"
@@ -462,7 +461,7 @@ useHead({ title: '曲目排行' })
             multiple
             search-input
             :filter-fields="['label']"
-            placeholder="全部制作人"
+            :placeholder="t('rank.allProducers')"
             size="sm"
             class="w-40"
           />
@@ -474,10 +473,10 @@ useHead({ title: '曲目排行' })
           size="sm"
           icon="i-lucide-search"
           class="max-w-52 justify-start"
-          aria-label="清除搜索筛选"
+          :aria-label="t('rank.clearSearch')"
           @click="searchQuery = ''"
         >
-          <span class="truncate">搜索：{{ searchQuery.trim() }}</span>
+          <span class="truncate">{{ t('rank.searchChip', { query: searchQuery.trim() }) }}</span>
           <UIcon name="i-lucide-x" class="size-3.5 shrink-0" />
         </UButton>
         <UButton
@@ -485,7 +484,7 @@ useHead({ title: '曲目排行' })
           variant="outline"
           size="sm"
           icon="i-lucide-rotate-ccw"
-          :label="activeFilters > 0 ? `重置 ${activeFilters}` : '重置'"
+          :label="activeFilters > 0 ? t('common.resetCount', { n: activeFilters }) : t('common.reset')"
           :disabled="activeFilters === 0"
           class="ml-auto"
           @click="reset"
@@ -493,8 +492,8 @@ useHead({ title: '曲目排行' })
       </div>
 
       <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-        <UCheckbox v-model="includeBroadcast" label="计入配信 / 线上 / VR" size="sm" />
-        <UCheckbox v-model="includeMedleyComponents" label="计入串烧组成" size="sm" />
+        <UCheckbox v-model="includeBroadcast" :label="t('rank.broadcast')" size="sm" />
+        <UCheckbox v-model="includeMedleyComponents" :label="t('rank.medley')" size="sm" />
         <UCheckboxGroup
           v-model="selectedSeries"
           :items="seriesItems"
@@ -507,21 +506,21 @@ useHead({ title: '曲目排行' })
 
     <TableSection
       v-if="catalog || pending"
-      title="排行"
-      :count="`${filtered.length} 首`"
+      :title="t('rank.tableTitle')"
+      :count="t('common.songs', { n: filtered.length })"
       v-model:sorting="sorting"
       :data="filtered"
       :columns="columns"
       :loading="pending"
       empty-icon="i-lucide-search-x"
-      empty-title="没有符合条件的歌曲"
-      empty-description="放宽年份与系列筛选。"
+      :empty-title="t('rank.emptyTitle')"
+      :empty-description="t('rank.emptyDesc')"
     >
       <template #note>
         <ul class="grid gap-1 text-xs leading-relaxed text-muted">
-          <li>「场次数」：每场实际表演计为一次，同一天的日夜场都各自计为一次；</li>
-          <li>「演出数」：每次演出计为一次，单次演出包含多场实际表演也只计为一次；</li>
-          <li>「含 N 个版本」：表示包括原版与 remix、不同声库或翻唱版本共 N 个版本，全部合并计数。</li>
+          <li>{{ t('rank.noteShows') }}</li>
+          <li>{{ t('rank.notePerformances') }}</li>
+          <li>{{ t('rank.noteVersions') }}</li>
         </ul>
       </template>
       <template #rank-cell="{ row }">
@@ -537,9 +536,9 @@ useHead({ title: '曲目排行' })
                 <SongTitle :song-id="row.original.songId" :original="row.original.name" truncate />
               </NuxtLink>
             </UTooltip>
-            <UTooltip v-if="row.original.variantSongIds.length > 0" :text="`并入：${row.original.variantNames}`">
+            <UTooltip v-if="row.original.variantSongIds.length > 0" :text="t('rank.mergedInto', { names: row.original.variantNames })">
               <UBadge color="secondary" variant="subtle" size="xs" class="shrink-0">
-                含 {{ row.original.versionCount }} 个版本
+                {{ t('rank.versionsBadge', { n: row.original.versionCount }) }}
               </UBadge>
             </UTooltip>
             <ULink
@@ -547,7 +546,7 @@ useHead({ title: '曲目排行' })
               :to="vocadbSongUrl(row.original.songId) ?? ''"
               target="_blank"
               class="shrink-0 text-dimmed hover:text-primary"
-              aria-label="在 VocaDB 查看"
+              aria-label="VocaDB"
             >
               <UIcon name="i-lucide-external-link" class="size-3" />
             </ULink>
@@ -557,7 +556,7 @@ useHead({ title: '曲目排行' })
           <UTooltip v-if="row.original.producerList.length > 0" :content="{ side: 'top' }">
             <span class="block max-w-32 truncate text-muted">
               <template v-for="(name, index) in row.original.producerList" :key="name">
-                <span v-if="index > 0">、</span>
+                <span v-if="index > 0">{{ t('setlist.join') }}</span>
                 <NuxtLink :to="producerPath(name)" class="text-muted no-underline hover:text-primary">{{ name }}</NuxtLink>
               </template>
             </span>
@@ -592,7 +591,7 @@ useHead({ title: '曲目排行' })
             </UBadge>
             <template #content>
               <div class="w-60 space-y-1">
-                <p class="text-xs">以下演出尚未确认具体表演场次数：</p>
+                <p class="text-xs">{{ t('rank.approximateTitle') }}</p>
                 <ul class="list-disc space-y-0.5 pl-4 text-xs">
                   <li v-for="show in row.original.approximateShows" :key="show.id">
                     <NuxtLink :to="`/shows/${show.id}`" class="text-primary underline-offset-2 hover:underline">

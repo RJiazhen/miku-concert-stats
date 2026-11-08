@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { AlbumSetlistSource } from '~~/shared/album-setlists.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 
 const props = defineProps<{
   sources: AlbumSetlistSource[]
 }>()
+
+const { t } = useLocale()
 </script>
 
 <template>
@@ -14,7 +17,7 @@ const props = defineProps<{
       color="info"
       variant="subtle"
       icon="i-lucide-disc"
-      title="歌单来自专辑曲目"
+      :title="t('album.title')"
     >
       <template #description>
         {{ source.notice.before }}<ULink :to="source.url" target="_blank" class="text-primary">{{ source.name }}</ULink>{{ source.notice.after }}

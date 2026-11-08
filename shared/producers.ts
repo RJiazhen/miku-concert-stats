@@ -1,3 +1,4 @@
+import { translate, type Locale } from './i18n/index.ts'
 import { performanceSchedules, showsForNotes } from './event-schedule.ts'
 import type { LookupResult } from './lookup.ts'
 import { derivedItemSongIds } from './performance-setlists.ts'
@@ -12,12 +13,12 @@ export const PRODUCER_ROLES = ['producer', 'composer', 'arranger', 'voicemanipul
 /** One producer-side role a credit can carry. */
 export type ProducerRole = (typeof PRODUCER_ROLES)[number]
 
-/** Chinese label of each producer-side role. */
-export const producerRoleLabels: Record<ProducerRole, string> = {
-  producer: '制作',
-  composer: '作曲',
-  arranger: '编曲',
-  voicemanipulator: '调声',
+/** Localized label of a producer-side role. */
+export const producerRoleLabel = (role: ProducerRole, locale: Locale): string => {
+  if (role === 'composer') return translate(locale, 'producers.roleComposer')
+  if (role === 'arranger') return translate(locale, 'producers.roleArranger')
+  if (role === 'voicemanipulator') return translate(locale, 'producers.roleVoiceManipulator')
+  return translate(locale, 'producers.roleProducer')
 }
 
 /** One producer-side credit of a song, already resolved to the display rule. */

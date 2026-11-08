@@ -6,12 +6,14 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
-import { buildProducerIndex, producerRoleLabels, rolesPresent, type ProducerRoleCounts } from '~~/shared/producers.ts'
+import { useLocale } from '~/composables/useLocale.ts'
+import { buildProducerIndex, producerRoleLabel, rolesPresent, type ProducerRoleCounts } from '~~/shared/producers.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
+const { locale, t } = useLocale()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -47,11 +49,11 @@ const facts = computed(() => {
   const row = producer.value
   if (row === null) return []
   return [
-    { label: '曲目数', value: row.songCount },
-    { label: '演出曲目', value: row.performedSongCount },
-    { label: '表演次数', value: row.appearanceCount },
-    { label: '演出数', value: row.performanceCount },
-    { label: '场次', value: row.showCount },
+    { label: t('col.songCount'), value: row.songCount },
+    { label: t('col.performedSongCount'), value: row.performedSongCount },
+    { label: t('col.appearanceCount'), value: row.appearanceCount },
+    { label: t('col.performanceCount'), value: row.performanceCount },
+    { label: t('col.shows'), value: row.showCount },
   ]
 })
 
@@ -66,7 +68,7 @@ const yearSpan = computed(() => {
 const roleFacts = computed(() => {
   const roles: ProducerRoleCounts | undefined = producer.value?.roles
   if (roles === undefined) return []
-  return rolesPresent(roles).map((role) => ({ label: producerRoleLabels[role], count: roles[role] }))
+  return rolesPresent(roles).map((role) => ({ label: producerRoleLabel(role, locale.value), count: roles[role] }))
 })
 
 /** One row of the 署名曲目 table. */
@@ -128,7 +130,7 @@ const appearances = computed<AppearanceView[]>(() => {
       key: String(performance.id),
       date: performance.start_date,
       seriesId: performance.series_id,
-      seriesLabel: series === undefined ? `系列 ${performance.series_id}` : localizeSeries(series.name),
+      seriesLabel: series === undefined ? t('series.seriesFallback', { id: performance.series_id }) : localizeSeries(series.name),
       performanceId: performance.id,
       performanceLabel: localizePlace(localizePerformanceSeries(performance.name, seriesName, performance.series_number)),
       songs: songsByPerformance.value.get(performance.id) ?? [],
@@ -150,40 +152,40 @@ const appearanceSorting = ref<{ id: string; desc: boolean }[]>([])
 /** Sortable header button, shared with every other table on the site. */
 const sortableHeader = useSortableHeader()
 
-const songColumns: TableColumn<SongView>[] = [
-  { accessorKey: 'name', header: sortableHeader('曲名'), enableSorting: true },
-  { accessorKey: 'publishYear', header: sortableHeader('投稿年份'), enableSorting: true },
-  { accessorKey: 'showCount', header: sortableHeader('场次'), enableSorting: true },
-]
+const songColumns = computed<TableColumn<SongView>[]>(() => [
+  { accessorKey: 'name', header: sortableHeader(t('col.songTitle')), enableSorting: true },
+  { accessorKey: 'publishYear', header: sortableHeader(t('col.publishYear')), enableSorting: true },
+  { accessorKey: 'showCount', header: sortableHeader(t('col.shows')), enableSorting: true },
+])
 
-const appearanceColumns: TableColumn<AppearanceView>[] = [
-  { accessorKey: 'date', header: sortableHeader('日期'), enableSorting: true },
-  { accessorKey: 'seriesLabel', header: sortableHeader('系列'), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
-  { accessorKey: 'performanceLabel', header: sortableHeader('演出'), enableSorting: true, meta: { class: { td: 'max-w-[260px]' } } },
-  { id: 'songs', header: '歌曲', accessorFn: (row) => row.songs.map((song) => song.name).join('、'), meta: { class: { td: 'max-w-[280px]' } } },
-]
+const appearanceColumns = computed<TableColumn<AppearanceView>[]>(() => [
+  { accessorKey: 'date', header: sortableHeader(t('col.date')), enableSorting: true },
+  { accessorKey: 'seriesLabel', header: sortableHeader(t('col.series')), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
+  { accessorKey: 'performanceLabel', header: sortableHeader(t('col.performance')), enableSorting: true, meta: { class: { td: 'max-w-[260px]' } } },
+  { id: 'songs', header: t('col.songs'), accessorFn: (row) => row.songs.map((song) => song.name).join('、'), meta: { class: { td: 'max-w-[280px]' } } },
+])
 
 /** Blank marker for a missing value. */
 const cell = (value: string | number | null): string => (value === null || value === '' ? '—' : String(value))
 
-useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? '制作人') })
+useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t('producers.breadcrumb')) })
 </script>
 
 <template>
   <main class="space-y-6">
-    <p v-if="pending" class="text-sm text-muted">正在浏览器中加载目录…</p>
+    <p v-if="pending" class="text-sm text-muted">{{ t('common.loadingCatalog') }}</p>
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UEmpty
       v-else-if="catalog && !producer"
       icon="i-lucide-user-x"
-      title="找不到这位制作人"
-      description="这个名字不在已提交的目录里。"
+      :title="t('producers.notFound')"
+      :description="t('producers.notFoundDesc')"
     />
 
     <template v-else-if="producer">
       <UBreadcrumb
         :items="[
-          { label: '制作人', to: '/producers' },
+          { label: t('producers.breadcrumb'), to: '/producers' },
           { label: producer.name },
         ]"
       />
@@ -201,7 +203,7 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? '�
           >
             {{ fact.label }} {{ fact.value }}
           </UBadge>
-          <UBadge color="neutral" variant="subtle">年份 {{ yearSpan }}</UBadge>
+          <UBadge color="neutral" variant="subtle">{{ t('producers.yearSpan', { span: yearSpan }) }}</UBadge>
           <UButton
             v-if="vocadbArtistUrl"
             :to="vocadbArtistUrl"
@@ -215,7 +217,7 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? '�
           </UButton>
         </div>
         <p v-if="roleFacts.length > 0" class="text-sm text-muted">
-          署名角色
+          {{ t('producers.roles') }}
           <span class="text-highlighted">
             {{ roleFacts.map((role) => `${role.label} ${role.count}`).join(' · ') }}
           </span>
@@ -224,17 +226,17 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? '�
 
       <TableSection
         v-if="catalog || pending"
-        title="署名曲目"
-        :count="`${songRows.length} 首`"
-        note="「场次」是该曲在演唱会中被表演的场次数"
+        :title="t('producers.signedSongs')"
+        :count="t('common.songs', { n: songRows.length })"
+        :note="t('producers.signedSongsNote')"
         :fill="false"
         v-model:sorting="songSorting"
         :data="songRows"
         :columns="songColumns"
         :loading="pending"
         empty-icon="i-lucide-music"
-        empty-title="没有署名曲目"
-        empty-description="目录里没有这位制作人的署名。"
+        :empty-title="t('producers.noSongs')"
+        :empty-description="t('producers.noSongsDesc')"
       >
         <template #name-cell="{ row }">
           <NuxtLink :to="`/songs/${row.original.songId}`" class="text-highlighted no-underline hover:text-primary">
@@ -251,17 +253,17 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? '�
 
       <TableSection
         v-if="catalog || pending"
-        title="出场记录"
-        :count="`${appearances.length} 个演出`"
-        note="同一演出只列一行；「歌曲」是这位制作人在该演出中被表演的曲目"
+        :title="t('producers.appearances')"
+        :count="t('common.performances', { n: appearances.length })"
+        :note="t('producers.appearancesNote')"
         :fill="false"
         v-model:sorting="appearanceSorting"
         :data="appearances"
         :columns="appearanceColumns"
         :loading="pending"
         empty-icon="i-lucide-calendar-x"
-        empty-title="没有出场记录"
-        empty-description="这位制作人的署名曲目还没有出现在已收录的歌单里。"
+        :empty-title="t('producers.noAppearances')"
+        :empty-description="t('producers.noAppearancesDesc')"
       >
         <template #date-cell="{ row }">
           <span class="whitespace-nowrap font-mono text-muted">{{ cell(row.original.date) }}</span>
@@ -290,7 +292,7 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? '�
           <UTooltip v-if="row.original.songs.length > 0" :content="{ side: 'top' }">
             <div class="flex max-w-[280px] flex-nowrap items-center gap-x-2 overflow-hidden">
               <template v-for="(song, index) in row.original.songs" :key="song.songId">
-                <span v-if="index > 0" class="shrink-0 text-muted">、</span>
+                <span v-if="index > 0" class="shrink-0 text-muted">{{ t('setlist.join') }}</span>
                 <NuxtLink
                   :to="`/songs/${song.songId}`"
                   class="min-w-0 truncate text-highlighted no-underline hover:text-primary"

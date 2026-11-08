@@ -1,4 +1,5 @@
-import { parseNameMap, type NameMap, type SongLanguage } from './name-map.ts'
+import type { Locale } from './i18n/index.ts'
+import { parseNameMap, type NameMap } from './name-map.ts'
 
 /** Canonical (Japanese) character name to its checked Chinese name. */
 export type CharacterNameFile = NameMap
@@ -14,26 +15,30 @@ export const characterNameFor = (file: CharacterNameFile, name: string): string 
 
 /**
  * Display name of a character in the active language.
- * A character without a checked translation keeps its canonical Japanese name, never an empty label.
+ * The checked file only holds Chinese names, so Japanese and English keep the canonical
+ * Japanese name; a character without a translation never renders an empty label.
  */
-export const localizeCharacterName = (file: CharacterNameFile, name: string, language: SongLanguage): string => {
-  if (language !== 'zh') return name
+export const localizeCharacterName = (file: CharacterNameFile, name: string, locale: Locale): string => {
+  if (locale !== 'zh') return name
   const translation = characterNameFor(file, name)
   return translation === null || translation.trim() === '' ? name : translation
 }
 
-/** Collation locale for character names: pinyin order in Chinese, Japanese order otherwise. */
-export const characterSortLocale = (language: SongLanguage): string => (language === 'zh' ? 'zh-CN' : 'ja')
+/** Collation locale for character names: pinyin order in Chinese, English and Japanese order otherwise. */
+export const characterSortLocale = (locale: Locale): string => {
+  if (locale === 'en') return 'en'
+  return locale === 'zh' ? 'zh-CN' : 'ja'
+}
 
-/** Compares two canonical character names by the name each shows in `language`. */
+/** Compares two canonical character names by the name each shows in `locale`. */
 export const compareCharacterNames = (
   file: CharacterNameFile,
   left: string,
   right: string,
-  language: SongLanguage,
+  locale: Locale,
 ): number => {
-  return localizeCharacterName(file, left, language).localeCompare(
-    localizeCharacterName(file, right, language),
-    characterSortLocale(language),
+  return localizeCharacterName(file, left, locale).localeCompare(
+    localizeCharacterName(file, right, locale),
+    characterSortLocale(locale),
   )
 }

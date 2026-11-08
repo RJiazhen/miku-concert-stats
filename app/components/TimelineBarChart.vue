@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLocale } from '~/composables/useLocale.ts'
 
 /** One series drawn as bars or as a line; `values` is aligned with `years`. */
 export type TimelineSeries = {
@@ -54,13 +55,15 @@ const props = withDefaults(defineProps<{
   rightUnit: '',
   rightFormat: 'number',
   height: 260,
-  emptyText: '当前筛选下没有数据。',
+  emptyText: undefined,
 })
 
 const emit = defineEmits<{
   /** A bar or point was activated; the parent decides where to go. */
   select: [payload: { year: number; key: string }]
 }>()
+
+const { t } = useLocale()
 
 /** Narrowest drawing width; the wrapper scrolls horizontally below it. */
 const MIN_WIDTH = 720
@@ -389,7 +392,7 @@ const hoverDetails = computed<{ key: string; label: string; detail: string }[]>(
 
 /** Title of one bar segment, naming the roles a merged segment stands for. */
 const barTitle = (rect: BarRect): string => {
-  const base = `${props.years[rect.index] ?? ''} 年 · ${rect.label}：${formatBar(rect.value)}`
+  const base = t('chart.hoverYear', { year: props.years[rect.index] ?? '', label: rect.label, value: formatBar(rect.value) })
   return rect.detail === null ? base : `${base}（${rect.detail}）`
 }
 
@@ -431,13 +434,13 @@ const selectYear = (year: number, key: string): void => {
 
     <div class="mb-2 flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
       <template v-if="hoveredYear !== null">
-        <span class="font-medium text-highlighted">{{ hoveredYear }} 年</span>
+        <span class="font-medium text-highlighted">{{ t('common.year', { year: hoveredYear }) }}</span>
         <span v-for="item in hoverValues" :key="item.key">
           {{ item.label }}
           <span class="font-mono text-highlighted">{{ item.value }}</span>
         </span>
       </template>
-      <span v-else>悬停查看某年明细 · 点击柱或点打开该年列表</span>
+      <span v-else>{{ t('chart.hoverHint') }}</span>
     </div>
 
     <div v-if="hoveredYear !== null && hoverDetails.length > 0" class="-mt-1.5 mb-2 space-y-0.5 text-xs leading-relaxed text-muted">
@@ -446,7 +449,7 @@ const selectYear = (year: number, key: string): void => {
       </p>
     </div>
 
-    <p v-if="years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText }}</p>
+    <p v-if="years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText ?? t('chart.noData') }}</p>
     <div v-else class="-mx-1 overflow-x-auto px-1">
       <svg
         :width="width"
@@ -454,7 +457,7 @@ const selectYear = (year: number, key: string): void => {
         :viewBox="`0 0 ${width} ${height}`"
         class="block"
         role="img"
-        :aria-label="`年度图表，纵轴 ${unit || '数值'}`"
+        :aria-label="t('chart.ariaChart', { unit: unit || t('chart.value') })"
         @mouseleave="hovered = null"
       >
         <g v-for="(tick, tickIndex) in leftTicks" :key="`tick:${tickIndex}`">
@@ -511,7 +514,7 @@ const selectYear = (year: number, key: string): void => {
           class="cursor-pointer outline-none"
           role="button"
           tabindex="0"
-          :aria-label="`${years[rect.index]} 年 ${rect.label} ${formatBar(rect.value)}${rect.detail === null ? '' : `，${rect.detail}`}`"
+          :aria-label="t('chart.ariaBar', { year: years[rect.index], label: rect.label, value: formatBar(rect.value) }) + (rect.detail === null ? '' : ` · ${rect.detail}`)"
           @click="selectYear(years[rect.index] ?? 0, rect.seriesKey)"
           @keydown.enter.prevent="selectYear(years[rect.index] ?? 0, rect.seriesKey)"
           @focus="hovered = rect.index"
@@ -541,7 +544,7 @@ const selectYear = (year: number, key: string): void => {
           class="cursor-pointer outline-none"
           role="button"
           tabindex="0"
-          :aria-label="`${years[point.index]} 年 ${point.label} ${point.value}`"
+          :aria-label="t('chart.ariaPoint', { year: years[point.index], label: point.label, value: point.value })"
           @click="selectYear(years[point.index] ?? 0, point.seriesKey)"
           @keydown.enter.prevent="selectYear(years[point.index] ?? 0, point.seriesKey)"
           @focus="hovered = point.index"
@@ -549,7 +552,7 @@ const selectYear = (year: number, key: string): void => {
         >
           <circle :cx="point.x" :cy="point.y" r="8" fill="transparent" />
           <circle :cx="point.x" :cy="point.y" r="2.5" :fill="point.color" />
-          <title>{{ years[point.index] }} 年 · {{ point.label }}：{{ point.value }}</title>
+          <title>{{ t('chart.ariaPoint', { year: years[point.index], label: point.label, value: point.value }) }}</title>
         </g>
 
         <g v-for="(year, index) in years" :key="`label:${year}`">

@@ -1,0 +1,39 @@
+/**
+ * Locale primitives for the three site languages.
+ * Chinese is the source language: it defines the message keys, and every other catalog must
+ * provide all of them.
+ */
+
+/** Which language the interface and the names on it are shown in. */
+export type Locale = 'zh' | 'ja' | 'en'
+
+/** Every supported locale, in the order the switcher prints them. */
+export const LOCALES: readonly Locale[] = ['zh', 'ja', 'en']
+
+/** Whether a stored or browser value names a supported locale. */
+export const isLocale = (value: unknown): value is Locale => value === 'zh' || value === 'ja' || value === 'en'
+
+/**
+ * Picks the locale a browser asks for: Japanese and English browsers get their own language,
+ * everything else starts in Chinese, the site's source language.
+ */
+export const localeFromLanguage = (language: string): Locale => {
+  const tag = language.trim().toLowerCase()
+  if (tag.startsWith('ja')) return 'ja'
+  if (tag.startsWith('en')) return 'en'
+  return 'zh'
+}
+
+/** BCP 47 tag written to `<html lang>` and used for collation. */
+export const localeTag = (locale: Locale): string => {
+  if (locale === 'ja') return 'ja'
+  if (locale === 'en') return 'en'
+  return 'zh-Hans'
+}
+
+/** Name of a locale as its own speakers write it. */
+export const localeSelfName = (locale: Locale): string => {
+  if (locale === 'ja') return '日本語'
+  if (locale === 'en') return 'English'
+  return '中文'
+}

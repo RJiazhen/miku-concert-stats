@@ -261,7 +261,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `edition_premieres` 表与 `series_number` 列保留（来自 VocaDB，用于系列年度首演与歌单差异对照），但**不再**是导航层级：页面只按 系列 → 演出 → 场次 展示，`series_number` 只在需要时作为演出旁的年份标签出现。
 
-`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `shared/lookup.ts` 的五个 `local*Matches` 在已下载的目录里匹配，不向站外发请求；`app/composables/useSearchHits.ts` 把查询、译名与分区顺序集中到一处，`SiteSearch` 与 `/search` 都只消费它的 `sections`，因此两边的匹配、排序与分区顺序不会分叉。结果浮层依次列 系列 → 演出 → 地点 → 制作人 → 歌曲（`SEARCH_SECTIONS`），分区标题写真实命中总数，超过该类型上限时补「已显示前 M 条」；条目沿用同一套 `SearchRow`（系列名 + 演出数、演出名 + 日期·场馆、地点 + 演出数、制作人 + 角色徽章 + 歌曲数、歌曲 + 制作人）。系列 / 演出 / 地点 / 制作人默认各 5 条、歌曲 50 条，浮层底部固定一个「查看全部结果」入口，歌曲被截断时写成「查看全部 N 首」，都指向 `/search?q=`。中文名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongLanguage` 提供的中文名及其 `aliases`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 不再猜一个条目打开，而是 `navigateTo('/search?q=...')` 并关闭浮层；点击浮层里的某一条仍然直接进对应详情页。
+`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `shared/lookup.ts` 的五个 `local*Matches` 在已下载的目录里匹配，不向站外发请求；`app/composables/useSearchHits.ts` 把查询、译名与分区顺序集中到一处，`SiteSearch` 与 `/search` 都只消费它的 `sections`，因此两边的匹配、排序与分区顺序不会分叉。结果浮层依次列 系列 → 演出 → 地点 → 制作人 → 歌曲（`SEARCH_SECTIONS`），分区标题写真实命中总数，超过该类型上限时补「已显示前 M 条」；条目沿用同一套 `SearchRow`（系列名 + 演出数、演出名 + 日期·场馆、地点 + 演出数、制作人 + 角色徽章 + 歌曲数、歌曲 + 制作人）。系列 / 演出 / 地点 / 制作人默认各 5 条、歌曲 50 条，浮层底部固定一个「查看全部结果」入口，歌曲被截断时写成「查看全部 N 首」，都指向 `/search?q=`。中文名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongTitle.spellings` 提供的中文名、其 `aliases` 及 `songs.name_en`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 不再猜一个条目打开，而是 `navigateTo('/search?q=...')` 并关闭浮层；点击浮层里的某一条仍然直接进对应详情页。
 
 外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`），结构是「门面 + 每个端点一份子说明」：
 
@@ -285,9 +285,17 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 `partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同演出的歌曲数量对不上时不合并，按多份歌单分别显示。
 
-`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌（`public/logo.png` 徽标）、六个公开入口（歌曲 / 时间线 / 系列 / 城市 / 制作人 / 原始数据）、中文名称开关（`USwitch`，只在客户端生效，同时控制中文歌名、中文地点、中文系列名与中文角色名）、`UColorModeButton`。站点图标同样指向 `/logo.png`（`nuxt.config.ts` 的 `app.head.link`）。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
+`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌（`public/logo.png` 徽标）、六个公开入口（歌曲 / 时间线 / 系列 / 城市 / 制作人 / 原始数据）、语言按钮（`i-lucide-languages` 图标，`UPopover` 鼠标悬浮即展开，选项为不带国旗的 `中文 / 日本語 / English`，当前语言用 `soft` 底色加勾选图标标出）、弹层内的「显示日文原名」`USwitch`（语言为日语时置灰禁用并显示关闭态）、`UColorModeButton`。站点图标同样指向 `/logo.png`（`nuxt.config.ts` 的 `app.head.link`）。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
 
-`app/composables/useSongLanguage.ts` 保存歌名语言，`localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`），并暴露 `showChinese` 布尔绑定给开关。服务端和首屏先显示原文，挂载后再读选择，避免注水不一致。
+窄屏的折叠规则按「搜索先退」排：搜索输入框只在 `xl` 以上出现，`xl` 以下改为同一组件里的搜索图标按钮（点开是全屏搜索浮层）；左侧六个导航入口连同文字一直保留到 `lg`，`lg` 以下整组折进最右侧的 `i-lucide-menu` 按钮。`lg` 以下行内只留品牌、搜索图标、菜单按钮，AI 提示词 / 语言 / 主题 / GitHub 也一并收进菜单面板。`lg ~ xl` 之间是唯一「导航有文字、搜索只有图标」的区间，也是这次要保证的优先级。
+
+`lg` 以下点开菜单后不再是小浮层，而是一整屏面板：面板是 `<header>` 的兄弟节点（不能放 header 内，否则 header 的 `backdrop-filter` 会让 `fixed` 以 header 为参照），`fixed inset-0 z-30 bg-default` 覆盖整个视口，`header` 仍是 `z-40` 浮在上面，所以 header + 面板合起来占满屏幕、背后看不到任何页面内容；面板内容 `pt-16` 让开 header，`overflow-y-auto` 单独滚动，打开时 `body` 锁滚动、`Escape` 关闭、视口涨到 `lg` 时自动关闭。面板分组：六个入口 → 分隔线 → 语言三行 → 分隔线 → `显示日文原名` 开关行 → 分隔线 → `外观` 行（左侧文字、右侧 `USwitch`，开关内用实心的 `i-tabler:moon-filled` / `i-tabler:sun-filled` 表示深色与浅色）→ 分隔线 → `复制 AI 提示词` 独占一行 → 分隔线 → 底部居中的 GitHub 图标。AI 提示词复制与菜单图标共用 `app/composables/useAiPrompt.ts`，两处复制同一段文案。
+
+界面语言同时喂给 Nuxt UI 自身的 i18n：`app/app.vue` 把 `UApp :locale` 绑到 `uiLocaleOf(locale)`，所以表格空态、下拉无匹配、弹窗关闭、分页与 toast 等内置文案跟着切换；`ULocaleSelect` 因需要显示国旗 emoji，没有采用，改用本站自己的图标按钮加语言列表。
+
+共享的 i18n 目录是 `shared/i18n/`：`zh.ts` 定义全部键（`MessageKey`），`ja.ts` 与 `en.ts` 用 `Record<MessageKey, string>` 保证不缺条目，`index.ts` 的 `translate` 负责 `{name}` 占位替换，`locale.ts` 定义 `Locale`、浏览器语言映射与 `<html lang>` 标签。`app/composables/useLocale.ts` 保存语言状态（`localStorage` 键 `miku-concert-stats-locale`）与「显示日文原名」开关（`miku-concert-stats-show-original-title`，默认开），暴露 `t` 给所有页面与组件；服务端和首屏先渲染中文，挂载后按已存选择或 `navigator.language` 切换，避免注水不一致。`useLocaleDocument` 在默认布局里同步 `<html lang>` 与标题模板。
+
+`app/composables/useSongTitle.ts` 负责歌名显示：日语只显示日文名，若登记别名覆盖了目录原名（例如 404329 的 `ナイフ、ナイフ、ナイフ` 覆盖 `🔪、🔪、🔪`），目录原名用灰色小字附在下面；中文与英语显示译名（中文取 `song-titles.zh-CN.json`，英语取 `songs.name_en`）并把日文原名放进同一行灰色小字，这一行受「显示日文原名」开关控制，关掉后只留译名（搜索命中日文写法时仍在结果第二行说明命中项）。`shared/song-titles.ts` 的 `formatSongTitle` / `matchSongTitle` 只接收 `Locale`、名字来源与 `showOriginalTitle`，不再有独立的「原文 / 中文」布尔状态。
 
 `app/composables/usePlaceNames.ts` 读写同一个语言状态，并暴露 `localizePlace`，把演出名里的地点换成当前语言的地名。`/songs`、`/shows`、`/series` 与 `SetlistTable` 的演出名都经过它；`/raw` 保留 VocaDB 原文。
 
@@ -623,7 +631,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

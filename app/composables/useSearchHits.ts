@@ -2,8 +2,8 @@ import { computed, type Ref } from 'vue'
 import { useCatalog } from './useCatalog.ts'
 import { usePlaceNames } from './usePlaceNames.ts'
 import { useSeriesTitles } from './useSeriesTitles.ts'
-import { useSongAliases } from './useSongAliases.ts'
-import { useSongLanguage } from './useSongLanguage.ts'
+import { useSongTitle } from './useSongTitle.ts'
+import { useLocale } from './useLocale.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
 import {
   LOOKUP_LIMITS,
@@ -17,7 +17,7 @@ import {
   type PlaceLookupHit,
   type SeriesLookupHit,
 } from '~~/shared/lookup.ts'
-import { producerPath, producerRoleLabels, type ProducerLookupHit, type ProducerRole } from '~~/shared/producers.ts'
+import { producerPath, producerRoleLabel, type ProducerLookupHit, type ProducerRole } from '~~/shared/producers.ts'
 import type { PerformanceRow, SeriesRow, SongRow } from '~~/shared/types.ts'
 
 /** Types listed by the header panel and the results page, in display order. */
@@ -26,13 +26,13 @@ export const SEARCH_SECTIONS = ['series', 'performances', 'places', 'producers',
 /** One result type of the shared search. */
 export type SearchSectionKey = (typeof SEARCH_SECTIONS)[number]
 
-/** Chinese heading and counting unit of each result type. */
-export const SEARCH_SECTION_LABELS: Record<SearchSectionKey, { label: string; unit: string }> = {
-  series: { label: '系列', unit: '个' },
-  performances: { label: '演出', unit: '个' },
-  places: { label: '地点', unit: '个' },
-  producers: { label: '制作人', unit: '位' },
-  songs: { label: '歌曲', unit: '首' },
+/** Localized heading and counting unit of each result type. */
+const sectionText = (key: SearchSectionKey, t: ReturnType<typeof useLocale>['t']): { label: string; unit: string } => {
+  if (key === 'series') return { label: t('search.sectionSeries'), unit: t('search.unitSeries') }
+  if (key === 'performances') return { label: t('search.sectionPerformances'), unit: t('search.unitPerformances') }
+  if (key === 'places') return { label: t('search.sectionPlaces'), unit: t('search.unitPlaces') }
+  if (key === 'producers') return { label: t('search.sectionProducers'), unit: t('search.unitProducers') }
+  return { label: t('search.sectionSongs'), unit: t('search.unitSongs') }
 }
 
 /** One display row, already localized; the panel and the results page print the same row. */
@@ -73,10 +73,10 @@ export type SearchLimits = Partial<Record<SearchSectionKey, number>>
 /** Empty result for a catalog that has not loaded yet, keeping the requested cap visible. */
 const emptyLookup = <T,>(limit: number): LookupResult<T> => ({ items: [], total: 0, limit })
 
-/** Chinese role labels of one producer hit, or 制作 when no role is recorded. */
-const roleLabels = (roles: readonly ProducerRole[]): string[] => {
-  const labels = roles.map((role) => producerRoleLabels[role])
-  return labels.length === 0 ? ['制作'] : labels
+/** Localized role labels of one producer hit, or the plain producer role when none is recorded. */
+const roleLabels = (roles: readonly ProducerRole[], locale: ReturnType<typeof useLocale>['locale']): string[] => {
+  const labels = roles.map((role) => producerRoleLabel(role, locale.value))
+  return labels.length === 0 ? [producerRoleLabel('producer', locale.value)] : labels
 }
 
 /**
@@ -99,8 +99,8 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
   const { catalog } = useCatalog()
   const { localizePlace } = usePlaceNames()
   const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
-  const { aliasTitles } = useSongAliases()
-  const { chineseSpellings } = useSongLanguage()
+  const { spellings } = useSongTitle()
+  const { locale, t } = useLocale()
 
   const caps: Record<SearchSectionKey, number> = {
     series: limits.series ?? LOOKUP_LIMITS.series,
@@ -125,8 +125,8 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
   /** Venue names also match the localized place spelling. */
   const placeSpellings = (venue: string): string[] => [localizePlace(venue)]
 
-  /** Registered aliases plus the Chinese title and its aliases, matched alongside the catalog names. */
-  const songSpellings = (song: SongRow): string[] => [...aliasTitles(song.id), ...chineseSpellings(song.id)]
+  /** Every registered, translated, and English spelling of a song. */
+  const songSpellings = (song: SongRow): string[] => spellings(song.id)
 
   const hits = computed(() => {
     const data = catalog.value
@@ -155,7 +155,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       to: `/series/${hit.seriesId}`,
       icon: 'i-lucide-layers',
       title: localizeSeries(hit.name),
-      trailing: `${hit.performanceCount} 个演出`,
+      trailing: t('common.performances', { n: hit.performanceCount }),
     }))
 
   /** 演出 hits as rows: localized name plus date · venue. */
@@ -179,7 +179,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       to: `/series?place=${encodeURIComponent(hit.name)}`,
       icon: 'i-lucide-map-pin',
       title: localizePlace(hit.name),
-      trailing: `${hit.performanceCount} 个演出`,
+      trailing: t('common.performances', { n: hit.performanceCount }),
     }))
 
   /** Producer hits as rows: name, role badges, and the 曲目数. */
@@ -189,8 +189,8 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       to: producerPath(hit.name),
       icon: 'i-lucide-user-round',
       title: hit.name,
-      badges: roleLabels(hit.roles),
-      trailing: `${hit.songCount} 首`,
+      badges: roleLabels(hit.roles, locale),
+      trailing: t('common.songs', { n: hit.songCount }),
     }))
 
   /** Song hits as rows: the song row renders the active language and the alias the query hit. */
@@ -200,7 +200,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       to: `/songs/${song.id}`,
       icon: 'i-lucide-music',
       title: song.name_ja || song.name,
-      meta: displayArtistString(song.artist_string) ?? '未记录',
+      meta: displayArtistString(song.artist_string) ?? t('common.notRecorded'),
       song: { id: song.id, original: song.name_ja || song.name, nameEn: song.name_en },
     }))
 
@@ -224,7 +224,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
     return SEARCH_SECTIONS.flatMap((key) => {
       const total = totals[key]
       if (total === 0) return []
-      const meta = SEARCH_SECTION_LABELS[key]
+      const meta = sectionText(key, t)
       return [{
         key,
         label: meta.label,

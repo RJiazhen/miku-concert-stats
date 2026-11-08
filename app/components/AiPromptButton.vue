@@ -1,12 +1,9 @@
 <script setup lang="ts">
-/** Demo prompt pointing at the plain-text skill; kept to three short lines so it stays easy to skim.
- *  Request rules (encoding, error handling, source priority) live in `SKILL.md`, not here, so the
- *  user only sees the link and two questions. */
-const PROMPT = [
-  '读取 https://miku-concert-stats.rjiazhen.top/skill.md，根据其说明回答：',
-  '1. メルト 按场次、按演出各演了多少次？',
-  '2. マジカルミライ 2024 东京场歌单有哪些？',
-].join('\n')
+import { useAiPrompt } from '~/composables/useAiPrompt.ts'
+import { useLocale } from '~/composables/useLocale.ts'
+
+const { t } = useLocale()
+const { copyPrompt: writePrompt } = useAiPrompt()
 
 /** How long the button and the inline hint keep their transient state. */
 const CONFIRM_MS = 6000
@@ -38,12 +35,7 @@ const showHint = (value: CopyHint): void => {
 
 /** Copies the demo prompt and reports the outcome inline, next to the button. */
 const copyPrompt = async (): Promise<void> => {
-  try {
-    await navigator.clipboard.writeText(PROMPT)
-    showHint('copied')
-  } catch {
-    showHint('failed')
-  }
+  showHint((await writePrompt()) ? 'copied' : 'failed')
 }
 
 onBeforeUnmount(stopReset)
@@ -51,7 +43,7 @@ onBeforeUnmount(stopReset)
 
 <template>
   <div class="relative flex items-center justify-center">
-    <UTooltip :text="hint === 'copied' ? '已复制，粘贴到 AI 对话框测试' : '复制 AI 提示词'">
+    <UTooltip :text="hint === 'copied' ? t('ai.copiedHint') : t('ai.copyPrompt')">
       <!-- Icon-only: `tabler:ai` is the AI mark itself, so no text label is needed. -->
       <!-- 28px square button (same as `size="sm"`) with a 28px glyph box; `justify-center`
            centers it horizontally, since the base theme only centers vertically. -->
@@ -61,7 +53,7 @@ onBeforeUnmount(stopReset)
         :variant="hint === 'copied' ? 'soft' : 'ghost'"
         :ui="{ base: 'size-7 justify-center p-0', leadingIcon: 'size-7' }"
         size="sm"
-        :aria-label="hint === 'copied' ? '已复制 AI 提示词，粘贴到 AI 对话框测试' : '复制 AI 提示词'"
+        :aria-label="hint === 'copied' ? t('ai.copiedPrompt') : t('ai.copyPrompt')"
         @click="copyPrompt"
       />
     </UTooltip>
@@ -82,7 +74,7 @@ onBeforeUnmount(stopReset)
           ? 'border-error/40 text-error'
           : 'border-success/40 text-success'"
       >
-        {{ hint === 'failed' ? '复制失败，请手动让 AI 读取 /skill.md' : '粘贴到 AI 对话框中试试吧~' }}
+        {{ hint === 'failed' ? t('ai.failedHint') : t('ai.tryIt') }}
       </p>
     </Transition>
   </div>

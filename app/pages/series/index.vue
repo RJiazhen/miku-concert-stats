@@ -5,6 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
+import { useLocale } from '~/composables/useLocale.ts'
 import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overview.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
@@ -12,6 +13,7 @@ import { reviewRotations } from '~~/shared/rotation.ts'
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries, seriesTitle } = useSeriesTitles()
+const { t } = useLocale()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -95,7 +97,7 @@ const performanceRows = computed<PerformanceView[]>(() =>
       id: row.id,
       label: localizePlace(localizePerformanceSeries(row.name, series?.name ?? '', row.seriesNumber)),
       seriesId: row.seriesId,
-      seriesLabel: series === undefined ? `系列 ${row.seriesId}` : localizeSeries(series.name),
+      seriesLabel: series === undefined ? t('series.seriesFallback', { id: row.seriesId }) : localizeSeries(series.name),
       dates: row.dates,
       year: row.year,
       venue: row.venue,
@@ -118,7 +120,7 @@ const seriesItems = computed(() => {
   const ordered = [...seriesRows.value].sort(
     (left, right) => right.performances - left.performances || left.primary.localeCompare(right.primary, 'zh'),
   )
-  return [{ label: '全部系列', value: ALL_SERIES }, ...ordered.map((row) => ({ label: row.primary, value: String(row.seriesId) }))]
+  return [{ label: t('series.allSeries'), value: ALL_SERIES }, ...ordered.map((row) => ({ label: row.primary, value: String(row.seriesId) }))]
 })
 
 const filteredPerformances = computed(() => {
@@ -163,27 +165,27 @@ const performanceSorting = ref<{ id: string; desc: boolean }[]>([])
 /** Sortable header button, shared with every other table on the site. */
 const sortableHeader = useSortableHeader()
 
-const seriesColumns: TableColumn<SeriesView>[] = [
-  { accessorKey: 'primary', header: sortableHeader('系列'), enableSorting: true },
-  { accessorKey: 'performances', header: sortableHeader('演出数'), enableSorting: true },
-  { accessorKey: 'shows', header: sortableHeader('场次'), enableSorting: true },
-  { accessorKey: 'years', header: sortableHeader('年份'), enableSorting: true },
-  { accessorKey: 'firstDate', header: sortableHeader('首次演出'), enableSorting: true },
-  { accessorKey: 'lastDate', header: sortableHeader('最近演出'), enableSorting: true },
-]
+const seriesColumns = computed<TableColumn<SeriesView>[]>(() => [
+  { accessorKey: 'primary', header: sortableHeader(t('col.series')), enableSorting: true },
+  { accessorKey: 'performances', header: sortableHeader(t('col.performanceCount')), enableSorting: true },
+  { accessorKey: 'shows', header: sortableHeader(t('col.shows')), enableSorting: true },
+  { accessorKey: 'years', header: sortableHeader(t('col.years')), enableSorting: true },
+  { accessorKey: 'firstDate', header: sortableHeader(t('col.firstShow')), enableSorting: true },
+  { accessorKey: 'lastDate', header: sortableHeader(t('col.lastShow')), enableSorting: true },
+])
 
-const performanceColumns: TableColumn<PerformanceView>[] = [
-  { accessorKey: 'dates', header: sortableHeader('日期'), enableSorting: true },
-  { accessorKey: 'label', header: sortableHeader('演出'), enableSorting: true },
-  { accessorKey: 'seriesLabel', header: sortableHeader('系列'), enableSorting: true },
-  { accessorKey: 'venue', header: sortableHeader('场馆'), enableSorting: true },
-  { accessorKey: 'shows', header: sortableHeader('场次'), enableSorting: true },
-]
+const performanceColumns = computed<TableColumn<PerformanceView>[]>(() => [
+  { accessorKey: 'dates', header: sortableHeader(t('col.date')), enableSorting: true },
+  { accessorKey: 'label', header: sortableHeader(t('col.performance')), enableSorting: true },
+  { accessorKey: 'seriesLabel', header: sortableHeader(t('col.series')), enableSorting: true },
+  { accessorKey: 'venue', header: sortableHeader(t('col.venue')), enableSorting: true },
+  { accessorKey: 'shows', header: sortableHeader(t('col.shows')), enableSorting: true },
+])
 
 /** Blank marker for a missing value. */
 const cell = (value: string | null): string => (value === null || value === '' ? '—' : value)
 
-useHead({ title: '系列与演出总览' })
+useHead({ title: computed(() => t('series.indexTitle')) })
 </script>
 
 <template>
@@ -191,14 +193,14 @@ useHead({ title: '系列与演出总览' })
     <section class="pt-4 sm:pt-8">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
-        系列与演出<br class="sm:hidden">总览
+        {{ t('series.heading1') }}<br class="sm:hidden">{{ t('series.heading2') }}
       </h1>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-        <UBadge color="primary" variant="subtle" icon="i-lucide-layers">{{ totals.series }} 个系列</UBadge>
-        <UBadge color="primary" variant="subtle" icon="i-lucide-calendar-range">{{ totals.performances }} 个演出</UBadge>
-        <UBadge color="primary" variant="subtle" icon="i-lucide-clock">{{ totals.shows }} 个场次</UBadge>
+        <UBadge color="primary" variant="subtle" icon="i-lucide-layers">{{ t('common.seriesCount', { n: totals.series }) }}</UBadge>
+        <UBadge color="primary" variant="subtle" icon="i-lucide-calendar-range">{{ t('common.performances', { n: totals.performances }) }}</UBadge>
+        <UBadge color="primary" variant="subtle" icon="i-lucide-clock">{{ t('common.shows', { n: totals.shows }) }}</UBadge>
         <UBadge v-if="totals.years" color="neutral" variant="subtle">{{ totals.years }}</UBadge>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">查看曲目排行</UButton>
+        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('series.viewRanking') }}</UButton>
       </div>
     </section>
 
@@ -207,23 +209,23 @@ useHead({ title: '系列与演出总览' })
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
-      title="目录加载失败"
+      :title="t('common.catalogError')"
       :description="error"
     />
 
     <template v-else>
       <TableSection
         v-if="catalog || pending"
-        title="系列"
-        note="「场次」按演出日计数，日场 / 夜场分别计数"
+        :title="t('series.tableTitle')"
+        :note="t('series.note')"
         :fill="false"
         v-model:sorting="seriesSorting"
         :data="seriesRows"
         :columns="seriesColumns"
         :loading="pending"
         empty-icon="i-lucide-layers"
-        empty-title="没有系列"
-        empty-description="目录里还没有系列记录。"
+        :empty-title="t('series.emptyTitle')"
+        :empty-description="t('series.emptyDesc')"
       >
         <template #primary-cell="{ row }">
           <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-highlighted no-underline hover:text-primary">
@@ -250,19 +252,21 @@ useHead({ title: '系列与演出总览' })
 
       <TableSection
         v-if="catalog || pending"
-        title="演出"
-        :count="filteredPerformances.length !== performanceRows.length ? `筛选后 ${filteredPerformances.length} / ${performanceRows.length} 个` : `${performanceRows.length} 个`"
+        :title="t('series.performancesTitle')"
+        :count="filteredPerformances.length !== performanceRows.length
+          ? t('series.filteredCount', { shown: filteredPerformances.length, total: performanceRows.length })
+          : t('series.performanceCount', { n: performanceRows.length })"
         :fill="false"
         v-model:sorting="performanceSorting"
         :data="filteredPerformances"
         :columns="performanceColumns"
         :loading="pending"
         empty-icon="i-lucide-calendar-x"
-        empty-title="没有符合条件的演出"
-        empty-description="换一个系列或地点筛选。"
+        :empty-title="t('series.emptyPerformances')"
+        :empty-description="t('series.emptyPerformancesDesc')"
       >
         <template #actions>
-          <FilterField label="系列">
+          <FilterField :label="t('col.series')">
             <USelect v-model="seriesFilter" :items="seriesItems" size="sm" class="w-44" />
           </FilterField>
           <UButton
@@ -271,8 +275,8 @@ useHead({ title: '系列与演出总览' })
             variant="subtle"
             size="sm"
             trailing-icon="i-lucide-x"
-            :label="`地点：${placeFilter}`"
-            aria-label="清除地点筛选"
+            :label="t('series.filterPlace', { place: placeFilter })"
+            :aria-label="t('series.clearPlace')"
             @click="clearPlaceFilter"
           />
         </template>
@@ -283,7 +287,7 @@ useHead({ title: '系列与演出总览' })
           <NuxtLink :to="`/shows/${row.original.id}`" class="text-highlighted no-underline hover:text-primary">
             {{ row.original.label }}
           </NuxtLink>
-          <UBadge v-if="!row.original.hasSetlist" color="neutral" variant="subtle" size="sm" class="ml-2">暂无歌单</UBadge>
+          <UBadge v-if="!row.original.hasSetlist" color="neutral" variant="subtle" size="sm" class="ml-2">{{ t('series.noSetlist') }}</UBadge>
         </template>
         <template #seriesLabel-cell="{ row }">
           <NuxtLink :to="`/series/${row.original.seriesId}`" class="text-muted no-underline hover:text-primary">

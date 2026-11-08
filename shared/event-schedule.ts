@@ -1,3 +1,4 @@
+import { translate, type Locale } from './i18n/index.ts'
 import { parseNoteSelectors } from './setlist-slots.ts'
 import { performanceCityKey, splitNote, type RotationReview } from './rotation.ts'
 import type { Catalog, PerformanceRow } from './types.ts'
@@ -94,6 +95,7 @@ export const showsForPerformance = (
   performance: SchedulePerformance,
   dayNightDates: readonly string[] = [],
   halfOverrides?: ReadonlyMap<string, readonly ShowHalf[]>,
+  locale: Locale = 'zh',
 ): PerformanceShow[] => {
   const halved = new Set(dayNightDates)
   const shows: PerformanceShow[] = []
@@ -106,7 +108,7 @@ export const showsForPerformance = (
           performanceId: performance.id,
           date,
           half,
-          label: `${date} ${half === 'day' ? '日场' : '夜场'}`,
+          label: `${date} ${translate(locale, half === 'day' ? 'common.dayShow' : 'common.nightShow')}`,
         })
       }
       continue
@@ -117,14 +119,14 @@ export const showsForPerformance = (
         performanceId: performance.id,
         date,
         half: 'day',
-        label: `${date} 日场`,
+        label: `${date} ${translate(locale, 'common.dayShow')}`,
       })
       shows.push({
         key: `${performance.id}:${date}:night`,
         performanceId: performance.id,
         date,
         half: 'night',
-        label: `${date} 夜场`,
+        label: `${date} ${translate(locale, 'common.nightShow')}`,
       })
       continue
     }
@@ -277,6 +279,7 @@ export const performanceSchedules = (
   curatedDayNight?: CuratedDayNight,
   curatedNoShowDates?: CuratedNoShowDates,
   curatedHalves?: CuratedHalves,
+  locale: Locale = 'zh',
 ): Map<number, PerformanceShow[]> => {
   const listByPerformance = new Map(catalog.performances.map((row) => [row.id, row.song_list_id]))
   const notesByPerformance = new Map<number, string[]>()
@@ -296,7 +299,7 @@ export const performanceSchedules = (
       if (isDay(date)) dayNightDates.add(date)
     }
     const excluded = new Set(curatedNoShowDates?.get(performance.id) ?? [])
-    const shows = showsForPerformance(performance, [...dayNightDates], curatedHalves?.get(performance.id)).filter(
+    const shows = showsForPerformance(performance, [...dayNightDates], curatedHalves?.get(performance.id), locale).filter(
       (show) => !excluded.has(show.date),
     )
     schedules.set(performance.id, shows)
