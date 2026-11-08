@@ -556,7 +556,7 @@ git -C "$HOME/projects/full-stack/miku-concert-stats.worktrees/main" worktree ad
   "$HOME/projects/full-stack/miku-concert-stats.worktrees/<branch-name>" -b <branch-name> origin/main
 ```
 
-目录名等于分支名，并把该文件夹加进旁边的 `miku-concert-stats.code-workspace`。收尾时用 `/merge-and-deploy` 把整条分支 squash 成一个提交合入 `main` 再 push，不在 `main` 上留下逐条开发提交；合并后 worktree 保留，除非用户要求删除。纯文档 / 规则 / skill 的文字修订不算开发任务，可以直接在 `main` 提交并 push。
+目录名等于分支名，并把该文件夹加进旁边的 `miku-concert-stats.code-workspace`。收尾时用 `/merge-and-deploy` 把整条分支 squash 成一个提交合入 `main` 再 push，不在 `main` 上留下逐条开发提交；Workers Builds 成功后该 skill 会移除这个 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录（部署失败时保留，继续在原 worktree 里修）。纯文档 / 规则 / skill 的文字修订不算开发任务，可以直接在 `main` 提交并 push。
 
 ### 提交范围
 

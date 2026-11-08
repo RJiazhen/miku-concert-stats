@@ -33,7 +33,7 @@ git -C "$MAIN" worktree add \
 ## 3. 收尾
 
 - 需要上线时用 `/merge-and-deploy`：它把整条分支 squash 成一个提交合入 `main` 再 push，`main` 上不会留下逐条开发提交。
-- 合并后不要立刻删 worktree，除非用户明确要求。
+- 部署成功后由 `/merge-and-deploy` 收尾：移除该 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录。部署失败时不要清理，留在原地继续修；手工合并（没走 `/merge-and-deploy`）时保留 worktree，等用户确认后再删。
 
 ## 不要做
 

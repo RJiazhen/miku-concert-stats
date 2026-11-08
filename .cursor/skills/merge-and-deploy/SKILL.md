@@ -1,6 +1,6 @@
 ---
 name: merge-and-deploy
-description: Commit the current worktree, squash-merge the branch into main as a single commit, push to GitHub, and confirm the Cloudflare Workers production build finished. Use when the user asks to 部署上线, 合并到 main 并部署, ship current changes to production, or push to trigger a production deploy.
+description: Commit the current worktree, squash-merge the branch into main as a single commit, push to GitHub, confirm the Cloudflare Workers production build finished, then delete the task branch and its worktree. Use when the user asks to 部署上线, 合并到 main 并部署, ship current changes to production, or push to trigger a production deploy.
 disable-model-invocation: true
 ---
 
@@ -17,6 +17,7 @@ disable-model-invocation: true
 - 不要用 `git checkout` 切换主检出，也不要在 feat worktree 里改 `main`。
 - 任务分支以 **squash 合并**进入 `main`：一个任务在 `main` 上只对应一个提交，`main` 历史保持线性。
 - 成功标准只有一条：这次 push 触发的 Workers Builds check run 变成 `completed success`。不用 curl 线上页面，也不用 `wrangler deployments list` 核对内容。
+- 部署成功后收尾：删掉这条任务分支（本地，必要时连远端）和它的 worktree，并从 `miku-concert-stats.code-workspace` 移除该目录。失败的部署不清理，留着继续修。
 
 ## 流程
 
@@ -82,12 +83,42 @@ gh api "repos/RJiazhen/miku-concert-stats/commits/$SHA/check-runs" \
 
 **状态必须来自实际读到的一次查询。** 轮询命令被中断时（输出为 `Aborted`、`Command failed to spawn`、超时、退出码非 0 且没有打印任何状态行），这不是「还在构建」，而是没有状态：立刻在同一条回合里重跑上面那条单次查询，拿到真实结果再汇报。不要因为中断就挂起回合、说「还在等构建」，也不要凭上一次输出推断当前状态。
 
-- 拿到 `completed success` → 部署成功，结束。
+- 拿到 `completed success` → 部署成功，进入下一步清理。
 - `completed failure` → 用 `gh run list --workflow ci.yml` 或 Workers 面板日志找原因，修好重新提交；不要为了绕过失败直接本地 `wrangler deploy`，除非用户明确要求。
 - 未完成的查询连续超过约 10 分钟 → 带上最后一次真实读到的 `status` / `conclusion` 与等待时长，让用户决定，不要只说「还在跑」。
 
-### 5. 汇报
+### 5. 清理 worktree 与分支
 
-一句话说明：合入的提交 sha、check 结论、生产地址。失败时说明卡在哪一步和下一步建议。
+**只在 check run 变成 `completed success` 之后执行**，并且只在合并的是一条任务分支时执行：`BRANCH` 与 `main` 相同（本来就在主检出提交）、或者部署失败时，一律跳过清理。
+
+除了第 1 步用 `-C "$WORKTREE"` 检查自身状态，其余命令都在 `$MAIN` 里跑，不在待删的 worktree 内部删除自己：
+
+```bash
+WORKTREE="$HOME/projects/full-stack/miku-concert-stats.worktrees/$BRANCH"
+
+# 1. 先确认干净：squash 合并后这条分支不是 main 的祖先，脏文件不会被任何地方保住
+git -C "$WORKTREE" status --short
+
+# 2. 移除 worktree（第 1 步输出为空才继续）
+git -C "$MAIN" worktree remove "$WORKTREE"
+
+# 3. 删除本地分支（squash 合并必须用 -D，普通 -d 会拒绝）
+git -C "$MAIN" branch -D "$BRANCH"
+
+# 4. 分支推过远端时一并删除；只在本地建过、没 push 的分支会报错，跳过即可
+git -C "$MAIN" push origin --delete "$BRANCH"
+
+# 5. 确认目录已从 worktree 列表消失
+git -C "$MAIN" worktree list
+```
+
+- 第 1 步输出非空（有未提交改动）时停止，把文件列给用户，不要 `--force`，也不要先删再问。
+- `worktree remove` 报 “contains modified or untracked files” 时同样停止；需要 `--force` 的情况必须先征得用户同意。
+- 只能删本次任务自己的分支与 worktree：`$BRANCH` 不等于当前要清理的任务分支时停手，不要顺手清理别人的。
+- 第 6 步改的是旁边的 `miku-concert-stats.code-workspace`：删掉 `folders` 里 `name` 与 `path` 都等于 `$BRANCH` 的那一项。它不在任何仓库里，直接编辑即可，不需要提交。
+
+### 6. 汇报
+
+一句话说明：合入的提交 sha、check 结论、生产地址，以及已删除的 worktree 与分支。失败时说明卡在哪一步和下一步建议（失败的部署不清理，方便继续修）。
 
 汇报里的 check 结论必须是这一步亲手查到的结果，不能写「应该已部署」或「大概率成功」。如果还没查到状态，就先查，再汇报。
