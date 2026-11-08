@@ -5,9 +5,11 @@ alwaysApply: true
 
 # 每个开发任务用独立 worktree
 
-开工前先建 worktree，不要在 `main` 检出里直接改代码。`main` 只承担合并与推送（以及 `/merge-and-deploy` 的 squash 提交），不承载开发改动。
+开工前先建 worktree，不要在 `main` 检出里直接改代码。`main` 只承担合并与推送（以及 `/continue` 的 squash 提交），不承载开发改动。
 
 ## 1. 新建
+
+`/continue` 第一次调用会自动完成本节：建 worktree、从 `origin/main` 拉分支、登记 workspace、挑端口。手工建时照下面的命令。
 
 ```bash
 MAIN="$HOME/projects/full-stack/miku-concert-stats.worktrees/main"
@@ -32,8 +34,9 @@ git -C "$MAIN" worktree add \
 
 ## 3. 收尾
 
-- 需要上线时用 `/merge-and-deploy`：它把整条分支 squash 成一个提交合入 `main` 再 push，`main` 上不会留下逐条开发提交。
-- 部署成功后由 `/merge-and-deploy` 收尾：移除该 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录。部署失败时不要清理，留在原地继续修；手工合并（没走 `/merge-and-deploy`）时保留 worktree，等用户确认后再删。
+- 开发完成后用 `/continue` 起本地开发服务器（`vp dev`），把地址、改动与验收项交给用户检查；用户确认前不改 `main`、不合并、不开 PR。
+- 用户确认后再次执行 `/continue`：它把整条分支 squash 成一个提交合入 `main` 再 push，`main` 上不会留下逐条开发提交；没有该仓库合并权限时改为推送分支并开 PR，不碰 `main`。
+- 部署成功后由 `/continue` 收尾：先停掉开发服务器，再移除该 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录。部署失败时不要清理，留在原地继续修；手工合并时保留 worktree，等用户确认后再删。
 
 ## 不要做
 

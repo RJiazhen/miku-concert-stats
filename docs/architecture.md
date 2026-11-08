@@ -273,7 +273,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 门面另有两节专门写请求侧排错，因为外部 agent 最常见的失败不是数据缺口而是 URL 写法：`q` 里的非 ASCII 必须先 percent-encoding（裸日文会被 CDN 以 `400` 空响应挡在 API 之前），编码不了就改用 `nameEn` / `nameZh` 检索；再按 `400` / `403` / `404` / 返回 HTML / 批量里单条失败分别给出处理方式。演示请求因此改成 ASCII 的 `?q=Melt`（并保留编码后的日文写法），三条请求互相独立，其中一条失败不阻止回答另一问。`endpoints/search.md` 重复编码要点，`endpoints/songs.md` 说明 `search` 已带 `showCount` / `eventCount`、单曲详情只用于分解与 `coverage`。
 
-仓库内部的歌单采编流程（抓百科逐曲表 → 对曲名 → 展开场次 → 出报告）见 [`.cursor/skills/update-concert-data/SKILL.md`](../.cursor/skills/update-concert-data/SKILL.md)；只给一个网址 / 页面元素时的单场录入与冲突核对见 [`.cursor/skills/ingest-setlist-from-page/SKILL.md`](../.cursor/skills/ingest-setlist-from-page/SKILL.md)。这两个只作为 Cursor 内部 skill 使用，不对外发布。
+仓库内部的歌单采编流程（抓百科逐曲表 → 对曲名 → 展开场次 → 出报告）见 [`.cursor/skills/update-concert-data/SKILL.md`](../.cursor/skills/update-concert-data/SKILL.md)；只给一个网址 / 页面元素时的单场录入与冲突核对见 [`.cursor/skills/ingest-setlist-from-page/SKILL.md`](../.cursor/skills/ingest-setlist-from-page/SKILL.md)；开发任务从建 worktree、交付开发服务器到合并上线的两阶段流程见 [`.cursor/skills/continue/SKILL.md`](../.cursor/skills/continue/SKILL.md)。这些只作为 Cursor 内部 skill 使用，不对外发布。
 
 `app/components/SetlistTable.vue` 是 `/raw` 与 `/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾一列在演出页是「场次」（该行属于这个演出的哪一天 / 日场 / 夜场），在 `/raw` 的跨演出对照是「演出」（该行属于哪个城市站）；每个场次都演出的行留空。列是「序号 / 歌曲 / 歌手 / 场次或演出 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。`/shows` 会传入 `currentPerformanceId`、`currentCity` 与系列名：页头已经写出当前演出与场次，因此只属于当前演出的行留空，确实属于其他演出的行只显示 `shortPerformanceName` 留下的城市等短名（再经 `localizePlace`），完整演出名保留在气泡里；`/raw` 不传这些 prop，仍显示 VocaDB 完整名。
 
@@ -591,7 +591,7 @@ Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `np
 
 有一个明确的修改任务（用户提出或 subagent 完成）并且 `lint` / `test` / `typecheck` / `build` 通过后，直接提交并 push 到当前工作分支，不需要先问用户。提交信息用简短的祈使句英文，与现有历史一致；不要加任何 co-author trailer（含 Cursor）。
 
-`main` 是生产分支：本地在短分支上开发，完成后用 `/merge-and-deploy` 把分支 squash 成一个提交合回 `main` 并 push；Workers Builds 的生产分支配的就是 `main`，所以只有 push 到 `main` 之后线上才会更新。`feat/initial-build` 已废弃，不再作为开发分支使用。
+`main` 是生产分支：本地在短分支上开发，完成后用 `/continue` 起开发服务器交给用户检查；用户确认后再次执行 `/continue`，才把分支 squash 成一个提交合回 `main` 并 push。Workers Builds 的生产分支配的就是 `main`，所以只有 push 到 `main` 之后线上才会更新；没有该仓库合并权限时 `/continue` 只推送分支并开 PR，不碰 `main`。`feat/initial-build` 已废弃，不再作为开发分支使用。
 
 ### 每个开发任务用独立 worktree
 
@@ -603,7 +603,7 @@ git -C "$HOME/projects/full-stack/miku-concert-stats.worktrees/main" worktree ad
   "$HOME/projects/full-stack/miku-concert-stats.worktrees/<branch-name>" -b <branch-name> origin/main
 ```
 
-目录名等于分支名，并把该文件夹加进旁边的 `miku-concert-stats.code-workspace`。收尾时用 `/merge-and-deploy` 把整条分支 squash 成一个提交合入 `main` 再 push，不在 `main` 上留下逐条开发提交；Workers Builds 成功后该 skill 会移除这个 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录（部署失败时保留，继续在原 worktree 里修）。纯文档 / 规则 / skill 的文字修订不算开发任务，可以直接在 `main` 提交并 push。
+目录名等于分支名，并把该文件夹加进旁边的 `miku-concert-stats.code-workspace`。开发完成后 `/continue` 先起开发服务器交给用户检查；用户确认后再次执行，才把整条分支 squash 成一个提交合入 `main` 再 push，不在 `main` 上留下逐条开发提交；Workers Builds 成功后该 skill 会停掉开发服务器、移除这个 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录（部署失败时保留，继续在原 worktree 里修；没有合并权限时只推送分支并开 PR，worktree 与分支保留）。纯文档 / 规则 / skill 的文字修订不算开发任务，可以直接在 `main` 提交并 push。
 
 ### 提交范围
 
@@ -623,7 +623,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`，`feat-timeline-chart-nav` 用 `3151`，`fix-series-chart-shows` / `fix-character-chart-known-only` 用 `3153`，`fix-character-chart-line-order` 用 `3155`，`feat-character-song-weight` 用 `3157`，`feat-timeline-api` 用 `3159`，`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`，`feat-timeline-chart-nav` 用 `3151`，`fix-series-chart-shows` / `fix-character-chart-known-only` 用 `3153`，`fix-character-chart-line-order` 用 `3155`，`feat-character-song-weight` 用 `3157`，`feat-timeline-api` 用 `3159`，`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 
