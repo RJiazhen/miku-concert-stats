@@ -381,7 +381,7 @@ The catalogue no longer treats VocaDB as the only source of truth. It records a 
 
 1. `GET /api/v1/songs/{id}.json`.
 2. Read `performances[]`: `id`, `name`, `startDate`, `showCount`, `coverage`.
-3. `coverage` reads `本演出全部 N 场` when `covered === total`, otherwise `N 场中 M 场` with the labels.
+3. `coverage` is a `{ total, covered, labels }` object (or `null`); the site only prints a note when `0 < covered < total` — `N 场中 M 场` with the labels. Full coverage shows nothing, and `covered === 0` still reads `N 场中 0 场`.
 4. Link each 演出 as `https://miku-concert-stats.rjiazhen.top/shows/{id}`.
 
 **"Give me the setlist for show / performance X."**

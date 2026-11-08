@@ -62,8 +62,10 @@ type NotePart = {
 }
 
 /**
- * Builds the 备注 parts of one appearance row: the version note, then how many 场次
- * of the 演出 played it.
+ * Builds the 备注 parts of one appearance row: the version note, then — only when the song
+ * missed some 場次 of the 演出 — how many of them it played. A null coverage (full or
+ * single-場次 演出) contributes no part, so a row without a version note leaves the cell
+ * empty and the table prints `—`.
  */
 const appearanceNoteParts = (versionNote: string, coverage: string | null): NotePart[] => {
   const parts: NotePart[] = []

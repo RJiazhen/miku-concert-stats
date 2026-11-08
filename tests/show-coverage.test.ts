@@ -69,14 +69,14 @@ const catalogOf = (
 })
 
 describe('演出 coverage', () => {
-  it('credits every 场次 of a three-day run and prints 本演出全部 3 场', () => {
+  it('credits every 场次 of a three-day run without a note', () => {
     const catalog = catalogOf(
       [performance(1, '初音ミク「マジカルミライ 2021」in OSAKA', '2021-10-22', 100, 2021, '2021-10-24')],
       [item(100, 31, [50])],
     )
     const coverage = showCoverage(catalog, reviewRotations(catalog), [50])
     expect(coverage.get(1)).toMatchObject({ total: 3, covered: 3 })
-    expect(formatShowCoverage(coverage.get(1) ?? null, [])).toBe('本演出全部 3 场')
+    expect(formatShowCoverage(coverage.get(1) ?? null, [])).toBeNull()
   })
 
   it('credits only the day a note selects inside the same 演出', () => {
@@ -97,7 +97,7 @@ describe('演出 coverage', () => {
     const review = reviewRotations(catalog)
     const coverage = showCoverage(catalog, review, [70, 71, 72])
     expect(coverage.get(3)).toMatchObject({ total: 2, covered: 2 })
-    expect(formatShowCoverage(coverage.get(3) ?? null, [])).toBe('本演出全部 2 场')
+    expect(formatShowCoverage(coverage.get(3) ?? null, [])).toBeNull()
     expect(formatShowCoverage({ total: 2, covered: 1 }, [])).toBe('2 场中 1 场')
   })
 
