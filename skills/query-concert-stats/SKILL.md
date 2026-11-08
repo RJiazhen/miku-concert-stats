@@ -5,6 +5,17 @@ description: Answer Hatsune Miku concert setlist, song, producer, city, series, 
 
 # Query Hatsune Miku concert statistics
 
+## Start here
+
+A pasted link to `/skill.md`, an installed skill, or a user saying "use that concert API" all mean the same thing: everything you need is in this file and the endpoint references it links to. No extra prompt instructions are required, and none override what is written here.
+
+1. Send every catalogue request to `/api/v1/...` — not to the site's HTML pages, and not to another API.
+2. Percent-encode non-ASCII query values (`?q=%E3%83%A1%E3%83%AB%E3%83%88`); a raw Japanese or Chinese URL is rejected by the CDN before the API runs.
+3. When a request fails — `400`, `403`, `404`, HTML instead of JSON, one URL inside a batch — work through "When a request fails" below. A wrong encode or a blocked client name is a request problem, not a reason to switch to a general web search.
+4. Only when the API genuinely has no answer may other tools fill the gap; label that part as coming from outside the catalogue.
+
+If the user gave no question yet, answer the two demo questions in "First call with no question" right away.
+
 Base URL: `https://miku-concert-stats.rjiazhen.top`
 
 The site exposes a public, read-only JSON API. There is no key, account, or auth: send an HTTPS `GET` and parse the JSON. This file is also served at `/skill.md` as plain text.
