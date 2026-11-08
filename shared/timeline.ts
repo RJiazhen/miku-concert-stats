@@ -170,7 +170,7 @@ type SongUnit = {
 }
 
 /** Setlist of one 演出: one unit per 场次, plus the union used by 演出-level charts. */
-type PerformanceSongs = {
+export type PerformanceSongs = {
   byShow: SongUnit[]
   allSongIds: number[]
 }
@@ -271,6 +271,14 @@ const timelineData = (catalog: Catalog): CatalogTimelineData => {
   catalogCache.set(catalog, data)
   return data
 }
+
+/**
+ * Effective per-场次 song sets of every 演出, sharing the cache `buildTimeline` reads.
+ * The JSON API ships this map as a compact asset so the Worker can rebuild an equivalent
+ * catalog without the whole SQLite file; both paths therefore aggregate identical rows.
+ */
+export const timelineSetlists = (catalog: Catalog): ReadonlyMap<number, PerformanceSongs> =>
+  timelineData(catalog).songsByPerformance
 
 /** Year of one 演出, or null when the catalog stores no plain calendar day. */
 const yearOf = (performance: PerformanceRow): number | null => performanceYear(performance.start_date)

@@ -8,6 +8,7 @@ const SKILL_ASSET_KEY = 'query-concert-stats/SKILL.md'
  * Serves `skills/query-concert-stats/SKILL.md` as plain text at `/skill.md`.
  * An external agent can fetch this URL instead of installing the skill from the repository;
  * the file is bundled at build time so the Worker never needs a filesystem.
+ * The per-endpoint references it links to are served by `server/routes/skill/[...path].get.ts`.
  */
 const serveSkill = async () => {
   const content = await useStorage('assets:skill').getItem<string>(SKILL_ASSET_KEY)

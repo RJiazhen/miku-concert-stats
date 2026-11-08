@@ -261,7 +261,13 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `shared/lookup.ts` 的五个 `local*Matches` 在已下载的目录里匹配，不向站外发请求；`app/composables/useSearchHits.ts` 把查询、译名与分区顺序集中到一处，`SiteSearch` 与 `/search` 都只消费它的 `sections`，因此两边的匹配、排序与分区顺序不会分叉。结果浮层依次列 系列 → 演出 → 地点 → 制作人 → 歌曲（`SEARCH_SECTIONS`），分区标题写真实命中总数，超过该类型上限时补「已显示前 M 条」；条目沿用同一套 `SearchRow`（系列名 + 演出数、演出名 + 日期·场馆、地点 + 演出数、制作人 + 角色徽章 + 歌曲数、歌曲 + 制作人）。系列 / 演出 / 地点 / 制作人默认各 5 条、歌曲 50 条，浮层底部固定一个「查看全部结果」入口，歌曲被截断时写成「查看全部 N 首」，都指向 `/search?q=`。中文名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongLanguage` 提供的中文名及其 `aliases`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 不再猜一个条目打开，而是 `navigateTo('/search?q=...')` 并关闭浮层；点击浮层里的某一条仍然直接进对应详情页。
 
-外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`）。skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题（用户另行指定来源时例外）、在每条回答末尾附站的 `参考链接`（歌曲 / 演出 / 系列 / 制作人页），并在首次空提问的演示之后、且 skill 未被本地安装时，追加一次安装命令。API 覆盖不到的部分（未收录的演出、`null` 字段、发行信息、站外数据等）允许改用手上的其他工具或站外来源补齐，但站内数字仍以 API 为准，且必须标明哪部分来自站外。
+外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`），结构是「门面 + 每个端点一份子说明」：
+
+- `SKILL.md` 是门面：适用问题、措辞规则、三级术语与两种计数口径、包次规则、Workflows 索引、`参考链接` 与回答清单；它不再承载任何端点的完整字段说明，只给出端点表与对应的子说明文件名。
+- `endpoints/*.md` 是子说明，一个端点（或一组同族端点）一份：`search`（含 `filters.json`）、`songs`、`rank`、`debuts`、`performances`、`producers`、`series`、`cities`、`timeline`、`reports`。每份都带自己的 frontmatter `name` / `description`，正文写请求、参数与默认值、返回字段、怎么据此作答、常见错误。
+- 子说明不重复门面的措辞与计数规则，只写「这个端点额外要注意什么」，所以 agent 按需读一份就够，不必整份 skill 塞进上下文。
+
+skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题（用户另行指定来源时例外）、在每条回答末尾附站的 `参考链接`（歌曲 / 演出 / 系列 / 制作人页），并在首次空提问的演示之后、且 skill 未被本地安装时，追加一次安装命令。API 覆盖不到的部分（未收录的演出、`null` 字段、发行信息、站外数据等）允许改用手上的其他工具或站外来源补齐，但站内数字仍以 API 为准，且必须标明哪部分来自站外。
 
 仓库内部的歌单采编流程（抓百科逐曲表 → 对曲名 → 展开场次 → 出报告）见 [`.cursor/skills/update-concert-data/SKILL.md`](../.cursor/skills/update-concert-data/SKILL.md)；只给一个网址 / 页面元素时的单场录入与冲突核对见 [`.cursor/skills/ingest-setlist-from-page/SKILL.md`](../.cursor/skills/ingest-setlist-from-page/SKILL.md)。这两个只作为 Cursor 内部 skill 使用，不对外发布。
 
@@ -300,6 +306,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `server/routes/skill.md.ts` 从 `/skill.md` 以 `text/plain; charset=utf-8` 返回 `skills/query-concert-stats/SKILL.md` 的当前版本，供不想安装 skill 的外部 agent 直接读取。文件由 `nuxt.config.ts` 的 `nitro.serverAssets` 在构建期打包进 Worker（产物是 `chunks/raw/SKILL.mjs`），运行时不读文件系统；响应带 `cache-control: public, max-age=300`，改完 skill 重新部署即更新。页脚与 README 都链接这个地址。
 
+`server/routes/skill/[...path].get.ts` 用同一个 `assets:skill` 存储返回 `endpoints/<name>.md`（例如 `/skill/endpoints/timeline.md`）。路径必须匹配 `^endpoints/[a-z-]+\.md$`，所以这个路由只能读到端点子说明，读不到 `SKILL.md` 或仓库里的其他文件；找不到时返回 404。门面里的每个端点条目都写「本地 `endpoints/<name>.md`」与这个 URL 两种读法，只有 `/skill.md` 一个链接的 agent 也能顺着取到细节。
+
 ### 公开只读 JSON API `/api/v1`
 
 `scripts/build-api.ts` 在 `build:catalog` 末尾运行（`prebuild` 与 `scripts/dev.ts` 因此自动带上），把目录展开成供外部 AI 调用的只读 JSON；构建期直接从 `public/data/catalog.sqlite` 计算，运行时不读写 SQLite。出场统计在 `scripts/api/appearances.ts`，单曲 / 演出的公开投影在 `scripts/api/payloads.ts`，`build-api.ts` 只负责组装与写文件。产物分两处：
@@ -310,13 +318,19 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
   - `producers.json`、`producers/{id}.json`、`cities.json`
   - `reports/quality.json`、`reports/setlist-differences.json`
   约 1,100 个文件、8.6 MB。
-- `server/assets/api/rank.json`：构建期生成的紧凑计数（每首歌的场次 / 演出数、系列与日历年的分解、首次出现的系列年度、角色与制作人名单，以及计入配信后的另一套数字），由 `nuxt.config.ts` 的 `nitro.serverAssets` 以 `assets:api` 挂载，只给下面三个动态路由用。
+- `server/assets/api/rank.json`：构建期生成的紧凑计数（每首歌的场次 / 演出数、系列与日历年的分解、首次出现的系列年度、角色与制作人名单，以及计入配信后的另一套数字），由 `nuxt.config.ts` 的 `nitro.serverAssets` 以 `assets:api` 挂载，只给搜索 / 排行 / 首演三个动态路由用。
+- `server/assets/api/timeline.json`：构建期生成的逐年序列输入（每个演出只保留时间线读取的字段与逐场次曲目、曲目署名、系列名，以及 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` 原文），只给时间线动态路由用。约 300 KB，gzip 后约 50 KB。
 
 动态路由（`server/api/v1/`）读取 `assets:api` 并在内存里过滤，返回小页面而不是整库：
 
 - `GET /api/v1/search?q=&type=all|songs|producers|series`：歌曲按原名 / 日文名 / 英文名 / 中文名 / `data/song-aliases.json` 的别名匹配，制作人与系列按名字匹配；默认 10 条、上限 25 条。
 - `GET /api/v1/rank?mode=&series=&yearFrom=&yearTo=&character=&producer=&includeBroadcast=&includeMedleyComponents=&sort=&order=`：与排行页同一批筛选；`series` 与年份范围互斥；默认 20 条、上限 100 条。`character` / `producer` 只筛行不改计数，`includeMedleyComponents` 因派生层已展开串烧而不改变结果。
 - `GET /api/v1/debuts?year=&series=`：该年首次出现在目录里的歌曲；带 `series` 时用该系列的系列年度（`seriesNumber`）判断。
+- `GET /api/v1/timeline?mode=&series=&yearFrom=&yearTo=&character=&producer=&city=&includeBroadcast=&mergeVariants=&newSongBaseline=&includeSongIds=&includePerformances=`：`/timeline` 的逐年序列（场次 / 演出、按系列的堆叠、角色出场与角色曲目、新曲 / 复演、系列跨度、城市迁移）。Worker 从 `timeline.json` 还原一份等价目录，再调用页面用的同一个 `buildTimeline`，所以同一组筛选给出的数字与页面一致。**配信默认计入**（时间线页默认口径，与 `/series` 总数对齐）；`includeBroadcast=0` 才与排行默认口径一致。
+
+`shared/timeline-api.ts` 负责这份资产的生成与还原：`buildTimelineAsset` 在构建期读 `timelineSetlists`（`shared/timeline.ts` 导出的逐场次曲目）与 `showCountsByPerformance` 的两级场次来源，把每个演出的场次与曲目压成数组；`timelineCatalogFromAsset` 在 Worker 里填回 `Catalog`，其中每个演出都带自己的派生场次行，因此不需要源歌单层。角色、版本合并与城市匹配继续用 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` 的现有解析器，资产里存的是原文而不是解析结果。`tests/timeline-api.test.ts` 用真实目录多组筛选比对页面与还原目录的输出，任何一边改了口径都会失败。
+
+**新增或改动公开端点时，同一次提交里要一起给出接口说明与 skill 说明**：`index.json` 的 `endpoints` 自述、`skills/query-concert-stats/endpoints/<name>.md` 这份端点子说明、门面端点表里的一行、以及本节，缺一不可。`/skill.md` 读门面，`/skill/endpoints/<name>.md` 读子说明，改完部署即对站外 AI agent 生效。
 
 计数口径直接复用 `shared/stats.ts` 的 `rankSongAppearances`；`build-api.ts` 用同一套出场映射重算默认口径与「计入配信」两套，并逐首校验次数、演出数、系列数、年份区间与 `approximate`，任何偏差都会让构建失败，避免 API 与页面漂移。制作人、城市、质量报告与歌单差异分别复用 `shared/producers.ts`、`shared/cities.ts`、`shared/setlist-diff.ts` 与 `/raw` 页同一套判定。`nuxt.config.ts` 给 `/api/v1/**` 写了 `cache-control: public, max-age=300` 与 `access-control-allow-origin: *`。
 
@@ -605,7 +619,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`，`feat-timeline-chart-nav` 用 `3151`，`fix-series-chart-shows` / `fix-character-chart-known-only` 用 `3153`，`fix-character-chart-line-order` 用 `3155`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`，`feat-timeline-chart-nav` 用 `3151`，`fix-series-chart-shows` / `fix-character-chart-known-only` 用 `3153`，`fix-character-chart-line-order` 用 `3155`，`feat-timeline-api` 用 `3159`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

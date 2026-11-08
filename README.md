@@ -19,11 +19,13 @@ npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g   # 全局安�
 
 它不需要任何密钥或账号，只读取公开数据。装不了 skill 的 agent 可以直接读 [`skills/query-concert-stats/SKILL.md`](skills/query-concert-stats/SKILL.md)。
 
+skill 是「门面 + 每个端点一份子说明」：`SKILL.md` 写适用问题、措辞与计数口径、端点表、Workflows 与回答清单；每份 `skills/query-concert-stats/endpoints/<name>.md` 只写那个端点的请求、参数、字段与作答方式。装到本地时子说明就在 `SKILL.md` 旁边，按需读一份即可。
+
 不想安装也可以把这个链接交给 AI：
 
 <https://miku-concert-stats.rjiazhen.top/skill.md>
 
-它按纯文本（`text/plain`）返回上面这份 skill 的当前版本，构建时从 `skills/` 打包进 Worker，所以改完 skill 重新部署即生效。无需鉴权。页眉右侧有一个 `AI` 字样的图标按钮（`tabler:ai`）：点击即复制一段指向该地址的示例提问，粘贴到 AI 对话框就能试效果。
+它按纯文本（`text/plain`）返回上面这份 skill 的当前版本，构建时从 `skills/` 打包进 Worker，所以改完 skill 重新部署即生效。子说明同样可取，例如 <https://miku-concert-stats.rjiazhen.top/skill/endpoints/timeline.md>。无需鉴权。页眉右侧有一个 `AI` 字样的图标按钮（`tabler:ai`）：点击即复制一段指向该地址的示例提问，粘贴到 AI 对话框就能试效果。
 
 ## 站点
 

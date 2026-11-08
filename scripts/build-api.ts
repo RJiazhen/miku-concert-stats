@@ -24,6 +24,7 @@ import { parseSongTitles } from '../shared/song-titles.ts'
 import { japaneseAliasTitle, parseSongAliases, songAliasTitles } from '../shared/song-aliases.ts'
 import { parseSongVariants } from '../shared/song-variants.ts'
 import { performanceYear, rankSongAppearances } from '../shared/stats.ts'
+import { buildTimelineAsset } from '../shared/timeline-api.ts'
 import type { ApiRankFile, ApiSongRow } from '../shared/api-types.ts'
 import {
   altCountsOf,
@@ -337,6 +338,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       producers: '/api/v1/producers.json',
       producer: '/api/v1/producers/{id}.json',
       cities: '/api/v1/cities.json',
+      timeline: '/api/v1/timeline?mode=show&yearFrom=2015&yearTo=2025',
       qualityReport: '/api/v1/reports/quality.json',
       setlistDifferences: '/api/v1/reports/setlist-differences.json',
     },
@@ -683,6 +685,19 @@ export const buildApiFiles = (root = repoRoot()): void => {
     yearTo: years.at(-1) ?? null,
   }
   writeJson(root, path.join(SERVER_ASSET_DIRECTORY, 'rank.json'), rankFile)
+
+  // Compact per-演出 rows for the dynamic timeline endpoint: the Worker rebuilds an equivalent
+  // catalog from this file and runs the page's own `buildTimeline`, so filters stay available
+  // without bundling the SQLite catalog.
+  writeJson(root, path.join(SERVER_ASSET_DIRECTORY, 'timeline.json'), buildTimelineAsset({
+    catalog,
+    generatedAt,
+    catalogVersion: version,
+    nameZhOf: (songId) => titlesZh[String(songId)]?.title ?? null,
+    characters: readJsonFile(root, path.join('data', 'characters.json')),
+    variants: readJsonFile(root, path.join('data', 'song-variants.json')),
+    places: readJsonFile(root, path.join('data', 'place-names.zh-CN.json')),
+  }))
 
   console.log(
     `Wrote ${apiDirectory}: ${canonicalSongs.length} songs, ${catalog.performances.length} performances, ` +

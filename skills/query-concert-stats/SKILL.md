@@ -1,13 +1,13 @@
 ---
 name: query-concert-stats
-description: Answer Hatsune Miku concert setlist, song, producer, city, and series questions from the public JSON API at https://miku-concert-stats.rjiazhen.top. Use by default for any question about how many times a song was performed, a show's setlist, top songs, debut years, a producer's concert record, or city totals; when the API cannot answer, other tools or sources may fill the gap. When loaded with no question, it answers two demo questions, links to the site pages, and prints the local install command if the skill is not installed. No local files or database downloads are needed.
+description: Answer Hatsune Miku concert setlist, song, producer, city, series, and annual-timeline questions from the public JSON API at https://miku-concert-stats.rjiazhen.top. Use by default for any question about how many times a song was performed, a show's setlist, top songs, debut years, a producer's concert record, city totals, or how 场次 / 演出 / characters / new songs / cities changed year by year (the timeline); when the API cannot answer, other tools or sources may fill the gap. This file is the front door: each endpoint has its own reference file under endpoints/ (served at /skill/endpoints/<name>.md) with its parameters, response fields, and answer recipe. When loaded with no question, it answers two demo questions, links to the site pages, and prints the local install command if the skill is not installed. No local files or database downloads are needed.
 ---
 
 # Query Hatsune Miku concert statistics
 
 Base URL: `https://miku-concert-stats.rjiazhen.top`
 
-The site exposes a public, read-only JSON API. There is no key, account, or auth: send an HTTPS `GET` and parse the JSON. This document is also served at `/skill.md` as plain text.
+The site exposes a public, read-only JSON API. There is no key, account, or auth: send an HTTPS `GET` and parse the JSON. This file is also served at `/skill.md` as plain text.
 
 Use this API as the primary source. For anything it covers, take the numbers from it instead of the site's HTML pages, the SQLite files, or another API — do not re-derive catalogue counts elsewhere.
 
@@ -28,7 +28,7 @@ Answer in the user's language, in words the user could have used themselves. The
 
 ## When to use this skill
 
-Answer every question about Hatsune Miku concert setlists, song performance counts, series, producers, cities, and debut years with this API — both the first time and in follow-ups. Unless the user explicitly names another source, do not answer these from memory, from a general web search, or from a wiki page before trying the API. If no counting mode is named, use `show` (按场次) and say so.
+Answer every question about Hatsune Miku concert setlists, song performance counts, series, producers, cities, debut years, and year-by-year trends with this API — both the first time and in follow-ups. Unless the user explicitly names another source, do not answer these from memory, from a general web search, or from a wiki page before trying the API. If no counting mode is named, use `show` (按场次) and say so.
 
 This API is one source, not a cage. It only knows this catalogue's recorded setlists, so questions that reach past it — a song's release date or lyricist, tour news, a PV's current view count when `latestSnapshot` is `null`, a concert the catalogue has not recorded — should be answered with other tools once the API comes up short. See "When the API cannot answer" below.
 
@@ -43,7 +43,7 @@ Try the API first, then judge the gap:
 3. **Outside the catalogue's scope** — release dates, labels, lyricists, chart positions, tour announcements, non-Miku artists, personal news. Answer with other tools directly; a catalogue lookup is pointless here.
 4. **A producer's song missing from their page** — the producer pages list only songs this catalogue has recorded in concert setlists, never the producer's full discography. If a known song is absent, say the catalogue never recorded it, not that the producer did not write it, and use outside sources for the rest of their works.
 5. **A setlist line that is not a counted song** — a medley row is expanded into its parts, and a classical or instrumental programme item is kept as its own catalogue row with no VOCALOID vocalist credit. Do not add the printed lines up yourself to "fix" a number; report the catalogue's number.
-6. **Needs a different cut of the data** — a chart, a comparison, or a statistic the endpoints do not expose. Compute it yourself from the API response (say so), or use another tool; never invent numbers.
+6. **Needs a different cut of the data** — a statistic the endpoints do not expose. The timeline endpoint already covers the year-by-year cuts (場次 / 演出, series, characters, new vs returning songs, cities); for anything else, compute it yourself from the API response (say so), or use another tool; never invent numbers.
 
 When you mix sources, put the API-sourced numbers first and keep the outside material visibly separate — a one-line note such as 「以下为站外来源」 plus the link is enough. The counting rules in this document still apply to anything taken from this API.
 
@@ -88,249 +88,33 @@ npx skills add RJiazhen/miku-concert-stats@query-concert-stats -g    # 全局
 
 Skip this block when the skill was loaded from a local skills directory, and never repeat it in later replies.
 
-After the demo, answer follow-up questions normally using the endpoints below.
+After the demo, answer follow-up questions normally using the endpoint references below.
 
-## Endpoints
+## Endpoint references
 
 `GET /api/v1/index.json` is a machine-readable table of contents: counts, counting modes, supported filters, and every endpoint path.
 
-| Request | What it returns |
-| --- | --- |
-| `GET /api/v1/filters.json` | Valid series ids, character names, producer names, and the year range |
-| `GET /api/v1/search?q=<text>` | Songs, producers, and series matching a name |
-| `GET /api/v1/rank?...` | Most performed songs; every site filter is supported |
-| `GET /api/v1/debuts?year=<yyyy>` | Songs first performed in a year |
-| `GET /api/v1/songs/{id}.json` | One song: counts, breakdowns, every 演出, coverage, PVs |
-| `GET /api/v1/performances/{id}.json` | One 演出: one ordered setlist per 場次 |
-| `GET /api/v1/producers/{id}.json` | One producer: credited songs and every 演出 |
-| `GET /api/v1/series/{id}.json` | One series and its 演出 |
-| `GET /api/v1/songs.json` | All song summaries (large; prefer search/rank) |
-| `GET /api/v1/performances.json` | All 演出 as a flat index; use it to find an id |
-| `GET /api/v1/producers.json` | Producer ranking |
-| `GET /api/v1/series.json` | Series index |
-| `GET /api/v1/cities.json` | City ranking |
-| `GET /api/v1/reports/quality.json` | Data-quality report (missing PVs, album fallbacks, doubts) |
-| `GET /api/v1/reports/setlist-differences.json` | Setlist difference report by series year |
+Each endpoint has its own reference file. Read only the ones a question needs: when the skill is installed locally they sit next to this file under `endpoints/`; when this document was fetched as text, get the same file at `https://miku-concert-stats.rjiazhen.top/skill/endpoints/<name>.md`. Every reference lists the request, its parameters and defaults, the response fields, how to phrase the answer, and the mistakes to avoid.
+
+| Request | Reference | What it returns |
+| --- | --- | --- |
+| `GET /api/v1/search?q=<text>` | `endpoints/search.md` | Songs, producers, and series matching a name; also `filters.json` for ids and valid filters |
+| `GET /api/v1/songs/{id}.json` | `endpoints/songs.md` | One song: counts, breakdowns, every 演出, coverage, variants, PVs |
+| `GET /api/v1/songs.json` | `endpoints/songs.md` | All song summaries (large; prefer search/rank) |
+| `GET /api/v1/rank?...` | `endpoints/rank.md` | Most performed songs; every site filter is supported |
+| `GET /api/v1/debuts?year=<yyyy>` | `endpoints/debuts.md` | Songs first performed in a year or series year |
+| `GET /api/v1/performances.json` | `endpoints/performances.md` | All 演出 as a flat index; use it to find an id |
+| `GET /api/v1/performances/{id}.json` | `endpoints/performances.md` | One 演出: one ordered setlist per 場次, plus attribution |
+| `GET /api/v1/producers.json` | `endpoints/producers.md` | Producer ranking |
+| `GET /api/v1/producers/{id}.json` | `endpoints/producers.md` | One producer: credited songs and every 演出 |
+| `GET /api/v1/series.json` | `endpoints/series.md` | Series index |
+| `GET /api/v1/series/{id}.json` | `endpoints/series.md` | One series and its 演出 |
+| `GET /api/v1/cities.json` | `endpoints/cities.md` | City ranking |
+| `GET /api/v1/timeline?...` | `endpoints/timeline.md` | Year-by-year 场次 / 演出, series stacking, character appearances, new vs returning songs, series spans, city coverage |
+| `GET /api/v1/reports/quality.json` | `endpoints/reports.md` | Data-quality report (missing PVs, album fallbacks, doubts) |
+| `GET /api/v1/reports/setlist-differences.json` | `endpoints/reports.md` | Setlist difference report by series year |
 
 Resolve names and ids with `filters.json` or `search` first. Never guess a series id, character name, or producer name. Ids are this catalogue's own: they follow VocaDB where a matching entry exists, but a local entry can carry a reserved id instead, so never assume an id is valid on VocaDB. Ids of `900000000` and above are local placeholders for one-off lives that have no VocaDB series (ミクFES, 夏祭初音鑑, GALAXY LIVE, …), and songs / 演出 can likewise use a local id when VocaDB has no entry — never build one yourself.
-
-## 1. `GET /api/v1/search?q=<text>`
-
-`q` is 1–80 characters. Song titles match the original, Japanese, English, and Chinese names; producers and series match their names as a case-insensitive substring. Optional `type=songs|producers|series` (default `all`) and `limit` (default 10, maximum 25).
-
-```json
-{
-  "query": "melt",
-  "type": "all",
-  "counts": { "songs": 6, "producers": 0, "series": 0 },
-  "songs": [
-    {
-      "id": 1322,
-      "name": "メルト",
-      "nameZh": "融化",
-      "producer": "ryo",
-      "characters": ["初音ミク"],
-      "showCount": 90,
-      "eventCount": 61,
-      "firstYear": 2010,
-      "approximate": false,
-      "url": "https://miku-concert-stats.rjiazhen.top/songs/1322"
-    }
-  ],
-  "producers": [],
-  "series": []
-}
-```
-
-Songs are ordered exact title first, then prefix, then substring; popularity breaks ties. If several different songs match and none is an exact title match, name the candidates and ask which one the user means.
-
-Search matches `nameZh` and the Chinese aliases recorded for it, but every response carries only the canonical `nameZh` — read that field for the title you show. Traditional-character spellings and translations nobody has recorded are not indexed: when such a query returns no song, retry once with the primary Chinese title or the original/Japanese name before telling the user the catalogue has no record of it.
-
-## 2. `GET /api/v1/songs/{id}.json`
-
-```json
-{
-  "song": { "id": 1322, "name": "メルト", "nameZh": "融化", "producer": "ryo", "producers": ["ryo"], "characters": ["初音ミク"], "category": "vocaloid", "categoryLabel": "VOCALOID 歌曲", "showCount": 90, "eventCount": 61, "firstYear": 2010, "lastYear": 2025, "approximate": false, "url": "..." },
-  "counts": { "show": 90, "event": 61, "performanceCount": 61, "seriesCount": 7, "firstYear": 2010, "lastYear": 2025, "approximate": false, "reasons": [], "withBroadcast": null },
-  "bySeries": [{ "seriesId": 82, "name": "MIKU EXPO", "showCount": 34, "eventCount": 29, "firstSeriesNumber": 2014, "lastSeriesNumber": 2025 }],
-  "byYear": [{ "year": 2025, "showCount": 16, "eventCount": 12 }],
-  "performances": [
-    {
-      "id": 9644,
-      "name": "MIKU WITH YOU 2025",
-      "startDate": "2025-12-20",
-      "showKeys": ["9644:2025-12-20:day"],
-      "showCount": 4,
-      "coverage": { "total": 4, "covered": 4, "labels": ["12/20 日场", "..."] },
-      "approximate": false,
-      "reasons": [],
-      "url": "..."
-    }
-  ],
-  "variants": [],
-  "videos": [
-    {
-      "platform": "niconico",
-      "url": "...",
-      "title": "...",
-      "author": "ryo",
-      "pvType": "Original",
-      "publishDate": "2007-12-07",
-      "disabled": false,
-      "latestSnapshot": null
-    }
-  ],
-  "url": "https://miku-concert-stats.rjiazhen.top/songs/1322"
-}
-```
-
-- `counts.show` counts each 場次; `counts.event` counts each 演出 at most once.
-- `performances[].coverage` answers "did it appear in every 場次 of that 演出?": `covered` of `total`, with the 場次 labels. `null` when the 演出 has no date or no 場次.
-- `videos[].latestSnapshot` is `null` when no dated view count exists. Never estimate, interpolate, or extrapolate a view count; look it up elsewhere if needed and mark it as an outside source.
-- `variants` lists remixes, remasters, voicebank versions, covers, or language versions already folded into this song.
-
-## 3. `GET /api/v1/rank`
-
-Most performed songs, with the same filters as the site's ranking page.
-
-| Parameter | Values | Default |
-| --- | --- | --- |
-| `mode` | `show` (按场次) or `event` (按演出) | `show` |
-| `series` | comma-separated series ids, e.g. `81` or `81,82` | all |
-| `yearFrom`, `yearTo` | four-digit calendar years | open |
-| `character` | comma-separated base character names | all |
-| `producer` | comma-separated producer names | all |
-| `includeBroadcast` | `1` to count livestream / online / VR 演出 | off |
-| `includeMedleyComponents` | `1` to count medley parts | off |
-| `sort` | `count` / `show` / `event` / `firstYear` / `lastYear` / `id` / `name` | `count` |
-| `order` | `asc` / `desc` | `desc` |
-| `limit` | 1–100 | 20 |
-
-- `series` cannot be combined with `yearFrom` / `yearTo`; request one filter at a time.
-- `character` and `producer` only filter which songs appear; they never change a song's count.
-- `includeMedleyComponents` is accepted for parity but changes nothing today: the catalogue records no unsplit medley, and medley rows are already expanded into their parts.
-- `count` is the count under the requested filter. `showCount` / `eventCount` are the same filtered numbers; use `count` for the requested mode.
-
-```json
-{
-  "mode": "show",
-  "series": [81],
-  "character": [],
-  "producer": [],
-  "includeBroadcast": false,
-  "sort": "count",
-  "order": "desc",
-  "count": 235,
-  "songs": [
-    { "id": 89726, "name": "Hand in Hand", "count": 25, "showCount": 25, "eventCount": 9, "characters": ["初音ミク"], "producers": ["kz"], "url": "..." }
-  ]
-}
-```
-
-`count` in the response is the number of matching songs; the `songs` array holds at most `limit`.
-
-## 4. `GET /api/v1/debuts?year=<yyyy>&series=<id>`
-
-Songs whose first recorded appearance was that year. "Debut" here means the first performance recorded in this catalogue, not the song's release date.
-
-- Without `series`: the first appearance anywhere (`firstYear`).
-- With `series=81`: the first appearance inside that series, using its series year (`firstSeriesYear`), which is not always the calendar year.
-- Optional `limit`, default 100, maximum 200. `count` is the total number of matches.
-
-## 5. `GET /api/v1/performances.json` and `GET /api/v1/performances/{id}.json`
-
-`performances.json` is a flat index of every 演出, newest first — the fastest way to turn "2024 Tokyo show" into an id.
-
-```json
-{
-  "performances": [
-    { "id": 7215, "name": "初音ミク「マジカルミライ 2024」in TOKYO", "series": { "id": 81, "name": "初音ミク「マジカルミライ」" }, "seriesNumber": 2024, "startDate": "2024-08-30", "endDate": "2024-09-01", "venue": "...", "showCount": 6, "hasSetlist": true, "broadcast": false, "status": null, "url": "..." }
-  ]
-}
-```
-
-`performances/{id}.json` adds the setlists and the attribution:
-
-```json
-{
-  "id": 6045,
-  "name": "初音ミク「マジカルミライ 2023」in OSAKA",
-  "series": { "id": 81, "name": "初音ミク「マジカルミライ」" },
-  "showCount": 6,
-  "hasSetlist": true,
-  "setlist": { "sourceKind": "wiki", "status": "complete", "resolution": "external", "pendingReview": false, "conflict": false },
-  "albumFallback": null,
-  "shows": [
-    {
-      "showKey": "6045:2023-08-11:day",
-      "date": "2023-08-11",
-      "half": "day",
-      "label": "2023-08-11 日场",
-      "itemCount": 24,
-      "uncertain": false,
-      "reasons": [],
-      "items": [{ "position": 1, "songId": 445823, "name": "カルチャ", "evidence": "wiki", "notes": "初披露" }]
-    }
-  ],
-  "sources": [{ "url": "...", "title": "...", "accessedAt": "2026-11-06", "confidence": "high" }],
-  "links": [],
-  "url": "..."
-}
-```
-
-- Each object in `shows` is exactly one 場次. A three-day run normally has three; a day with a daytime and a night-time show has two.
-- `items` is already in printed order. Medley rows use `medleyId`, `medleyName`, and `songs` instead of `songId`; list the medley as one item unless the user asks for its parts.
-- `albumFallback` is non-null when the setlist is a Blu-ray/CD/DVD tracklist instead of the event's own list. Use its `notice` text and `albumUrl`, and never present it as an upstream event setlist.
-- `setlist.status`, `resolution`, `pendingReview`, `shows[].uncertain`, and `shows[].reasons` carry the attribution quality. State them when they are not clean.
-- Every 演出 with a recorded setlist is counted: the catalogue now derives its per-場次 rows from whichever source recorded the list, including 演出 whose only list is a transcribed wiki table with no upstream VocaDB entry. `hasSetlist` and the counts agree.
-
-## 6. `GET /api/v1/producers.json` and `GET /api/v1/producers/{id}.json`
-
-Producer pages (and these two endpoints) list **only the songs this catalogue has recorded**, i.e. songs credited to that producer that appear in this site's concert setlists, with their merged variants. They are **not** the producer's complete discography: a producer with a long career may show a handful of songs here, and one of their well-known works can be absent because no recorded setlist includes it. Say that plainly instead of implying the producer's other songs do not exist, and use outside sources for the full works list.
-
-`producers.json` ranks producers by credited songs.
-
-```json
-{
-  "producers": [
-    {
-      "id": "a45",
-      "name": "DECO*27",
-      "artistId": 45,
-      "roles": ["producer", "composer", "arranger"],
-      "songCount": 37,
-      "performedSongCount": 37,
-      "appearanceCount": 451,
-      "performanceCount": 155,
-      "showCount": 315,
-      "firstYear": 2010,
-      "lastYear": 2026,
-      "topSongs": [{ "id": 14480, "name": "39" }],
-      "url": "https://miku-concert-stats.rjiazhen.top/producers/DECO*27"
-    }
-  ]
-}
-```
-
-`producers/{id}.json` adds `songs` (each with `roles`, `publishYear`, `showCount`, `performanceCount`) and `performances`. Use the `id` from `producers.json` or `search`; do not build one yourself.
-
-- 曲目数 (`songCount`) counts distinct credited songs **in this catalogue**, variants counted separately; it is not a discography total, and it includes songs with `showCount: 0` that never entered a counted 場次 (kz: 22 songs, 5 at zero).
-- 演出曲目 (`performedSongCount`) counts credited songs that appeared in at least one 場次. A gap between the two means some catalogued credits contributed no counted 場次 — never read it as songs missing from the producer's career.
-- 表演次数 (`appearanceCount`) sums each song's distinct 場次; 场次 (`showCount`) is the union across songs.
-- A song with two credited producers is counted for each, so summing `songCount` across producers exceeds the catalogue total; never present such a sum as a database total.
-- A producer with no appearances is still listed, with `showCount: 0`.
-- Producer names follow the site rule: structured producer-side credits first, free text only for songs without them.
-
-## 7. `GET /api/v1/series.json`, `GET /api/v1/series/{id}.json`, `GET /api/v1/cities.json`
-
-- `series.json` lists series with `performanceCount`, `showCount`, and the year range. The range follows the calendar of recorded 演出, so it can reach into a future, not-yet-performed year (シンフォニー currently ends at 2027); a last year of 2027 is not evidence that 2027 songs were performed.
-- `series/{id}.json` adds its `performances` (same shape as the flat index).
-- `cities.json` ranks cities by 場次; `unknown` holds the 演出 whose label names no checked city, so do not invent one. There is no per-city page; the link is the city ranking page.
-
-## 8. Reports
-
-- `reports/quality.json`: `summary` counts, plus `songsWithoutVideo`, `incompletePerformances`, `albumFallbackPerformances`, `uncertainLines`, `mismatchedShows`, `duplicateCandidates`, `pendingReview`. Use it when the user asks "what data is missing or doubtful?"; do not call a gap an error on its own.
-- `reports/setlist-differences.json`: every same-series-year pair of setlists, with `severity` (`identical` / `order-only` / `count-differs` / `segment-differs` / `probably-different-program`), the LCS ratio, and the songs only one side performed.
 
 ## Counting: 场次 vs 演出
 
@@ -352,7 +136,7 @@ Always say which mode you used. When the user does not specify, use `show`, beca
 Exclusions and flags already applied by the API:
 
 - `showCount: 0` means no counted 場次, not "never performed" — the song may appear only in medley components or in a 演出 whose list the catalogue never recorded. Roughly a sixth of the song rows sit at 0, and `songs.json` is not a discography either: it lists songs the catalogue has a setlist row for.
-- Broadcasts / livestreams / online / VR shows are excluded from song counts unless `includeBroadcast=1`. `broadcast: true` marks them in series, performance, and flat-index payloads.
+- Broadcasts / livestreams / online / VR shows are excluded from song counts unless `includeBroadcast=1`. `broadcast: true` marks them in series, performance, and flat-index payloads. The timeline endpoint is the exception: it includes them by default (see `endpoints/timeline.md`).
 - Medley rows are expanded into their parts rather than counted as one song, and quarantined unsplittable mashups are never counted.
 - Variants are merged only as listed in the song's `variants` array; do not merge songs by title similarity yourself.
 - `approximate: true` means some setlist lines could not be pinned to one 場次. Quote the approximation and its `reasons`; do not present it as exact.
@@ -369,54 +153,18 @@ The catalogue no longer treats VocaDB as the only source of truth. It records a 
 
 ## Workflows
 
-**"How many times was song X performed?"**
+Open the reference for the endpoint a workflow uses; the reference carries the field-level detail.
 
-1. `GET /api/v1/search?q=<X>` and pick the song.
-2. Read `showCount` and `eventCount`. Quote both or state the chosen mode.
-3. For a breakdown, `GET /api/v1/songs/{id}.json` and use `bySeries` / `byYear`.
-4. If `approximate` is true, report it and its reasons.
-5. If the user names a 演出 that played the song but is missing from `performances[]`, check its `shows[].items`; if the item is there, the two payloads disagree and the catalogue has a bug worth reporting — every recorded list counts now.
-
-**"Which shows did song X play, and was it at every 場次?"**
-
-1. `GET /api/v1/songs/{id}.json`.
-2. Read `performances[]`: `id`, `name`, `startDate`, `showCount`, `coverage`.
-3. `coverage` is a `{ total, covered, labels }` object (or `null`); the site only prints a note when `0 < covered < total` — `N 场中 M 场` with the labels. Full coverage shows nothing, and `covered === 0` still reads `N 场中 0 场`.
-4. Link each 演出 as `https://miku-concert-stats.rjiazhen.top/shows/{id}`.
-
-**"Give me the setlist for show / performance X."**
-
-1. Find the id in `performances.json`, `series/{id}.json`, or a song's `performances[]`.
-2. `GET /api/v1/performances/{id}.json`.
-3. List each `shows[]` entry separately; that is the real 場次-level setlist. Keep printed order.
-4. Clarify 演出 vs 場次 when the user says "show": a 演出 can contain several 場次.
-
-**"List a series' performances."**
-
-1. `GET /api/v1/series.json` to find the series id (or `filters.json`).
-2. `GET /api/v1/series/{id}.json`.
-3. Report date, venue, `showCount`, `hasSetlist`, `status`, and the `/shows/{id}` link.
-
-**"What were the top songs in series / year / for a character or producer?"**
-
-- `GET /api/v1/rank?mode=show&series=<id>&limit=...`, using `yearFrom` / `yearTo`, `character`, or `producer` as needed.
-- Never mix `series` with year bounds in one request.
-
-**"How did producer X do in concerts?"**
-
-1. `GET /api/v1/search?q=<name>&type=producers`, or find the row in `producers.json`.
-2. `GET /api/v1/producers/{id}.json`.
-3. Report `songCount`, `performedSongCount`, `appearanceCount`, `showCount`, the year range, and the top songs.
-4. State that these are the producer's songs recorded in this catalogue's setlists, not their complete works; do not present `songCount` as a discography total or a missing favourite song as "not their song".
-
-**"Which cities hosted the most shows?"**
-
-- `GET /api/v1/cities.json`; mention `unknown.concerts` when it is non-zero.
-
-**"Which songs debuted in year / series year?"**
-
-- `GET /api/v1/debuts?year=<year>`, adding `series=<id>` for a series-year debut.
-- Say that "debut" means first appearance in this catalogue's recorded setlists.
+- **"How many times was song X performed?"** → `endpoints/search.md`, then `endpoints/songs.md`. Quote both counts or state the mode.
+- **"Which shows did song X play, and was it at every 場次?"** → `endpoints/songs.md` (`performances[]`, `coverage`); link each 演出 as `/shows/{id}`.
+- **"Give me the setlist for show / performance X."** → `endpoints/performances.md`. Clarify 演出 vs 場次 when the user says "show".
+- **"List a series' performances."** → `endpoints/series.md`. One 演出 per city stop.
+- **"What were the top songs in series / year / for a character or producer?"** → `endpoints/rank.md`. Never mix `series` with year bounds.
+- **"How did producer X do in concerts?"** → `endpoints/producers.md`. Call it the catalogue's record, not a discography.
+- **"Which cities hosted the most shows?"** → `endpoints/cities.md`. Mention the unknown-city bucket.
+- **"Which songs debuted in year / series year?"** → `endpoints/debuts.md`. "Debut" means first appearance in this catalogue.
+- **"How did the number of shows, characters, or new songs change year by year?"** → `endpoints/timeline.md`. Read `byYear` / `songByYear` / `characterByYear` / `cityByYear` instead of adding numbers up.
+- **"What data is missing or doubtful?"** → `endpoints/reports.md`.
 
 ## Reference links
 
@@ -428,7 +176,7 @@ Every song, 演出, 系列, and producer payload carries a site `url`. When an a
 | a 演出 | `https://miku-concert-stats.rjiazhen.top/shows/{id}` |
 | a 系列 | `https://miku-concert-stats.rjiazhen.top/series/{id}` |
 | a producer | the producer's `url` (`/producers/{name}`) |
-| the ranking, cities, or the raw tables | `/`, `/cities`, or `/raw` |
+| the ranking, cities, timeline, or the raw tables | `/`, `/cities`, `/timeline`, or `/raw` |
 
 - Put the list last, under a `参考链接` heading, one link per line, as `<https://...>` or `[label](https://...)` so it is clickable.
 - Use the `url` values from the API; do not build a slug yourself.
@@ -452,5 +200,6 @@ Every song, 演出, 系列, and producer payload carries a site `url`. When an a
 - [ ] Treated a producer page's songs and counts as songs recorded in concert setlists, not a discography, and said so when the answer could imply completeness.
 - [ ] Did not sum setlist lines to "correct" a `showCount`; reported the API number, which now includes every 演出 with a recorded setlist.
 - [ ] Did not invent view counts, producers, vocalists, cities, or missing songs, including when filling gaps from other tools.
+- [ ] Took year-by-year totals from `/api/v1/timeline` instead of adding up per-show numbers, and said whether 配信 / 线上 / VR 演出 were counted.
 - [ ] Included the relevant `url` (`/songs/{id}`, `/shows/{id}`, `/series/{id}`, `/producers/{name}`) under a final `参考链接` list, with any outside source listed separately.
 - [ ] Answered the two demo questions when no question was asked, and added the install command only if the skill was not installed locally.
