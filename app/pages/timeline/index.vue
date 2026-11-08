@@ -78,7 +78,8 @@ const splitChorusSongs = ref(false)
 /** Draw every role's share of the year as a right-axis line on the character chart. */
 const showCharacterShares = ref(false)
 const newSongBaseline = ref<NewSongBaseline>('catalog')
-const seriesFocus = ref<number>(0)
+/** Series ids the first chart focuses on; empty stacks the top series as before. */
+const seriesFocus = ref<number[]>([])
 const focusedChart = ref<string>('')
 
 /** Mirrors the filter state into the URL once the page is interactive. */
@@ -178,12 +179,12 @@ const seriesChartBars = computed<ChartSeries[]>(() => {
   const index = new Map<string, number>()
   for (const row of current.seriesByYear) index.set(`${row.year}:${row.seriesId}`, row.shows)
   const valuesOf = (seriesId: number): number[] => current.years.map((year) => index.get(`${year}:${seriesId}`) ?? 0)
-  if (seriesFocus.value !== 0) return [{
-    key: `series:${seriesFocus.value}`,
-    label: seriesLabel(seriesFocus.value),
-    color: PALETTE[0],
-    values: valuesOf(seriesFocus.value),
-  }]
+  if (seriesFocus.value.length > 0) return seriesFocus.value.map((seriesId, position) => ({
+    key: `series:${seriesId}`,
+    label: seriesLabel(seriesId),
+    color: PALETTE[position % PALETTE.length] ?? OTHER_COLOR,
+    values: valuesOf(seriesId),
+  }))
   const ordered = [...current.seriesSpans].sort(
     (left, right) => right.shows - left.shows || left.seriesId - right.seriesId,
   )
@@ -205,9 +206,6 @@ const seriesChartBars = computed<ChartSeries[]>(() => {
   }
   return bars
 })
-
-/** Series focus options: 全部 plus every catalog series. */
-const seriesFocusItems = computed(() => [{ label: t('timeline.allSeries'), value: 0 }, ...seriesItems.value])
 
 /** Distinct-song counts of each character bucket by year, behind the stacked bars of chart 3. */
 const characterSongYearIndex = computed(() => {
@@ -619,7 +617,7 @@ const reset = (): void => {
   splitChorusSongs.value = false
   showCharacterShares.value = false
   newSongBaseline.value = 'catalog'
-  seriesFocus.value = 0
+  seriesFocus.value = []
   focusedChart.value = ''
   showsYear.value = null
   characterYear.value = null
@@ -870,7 +868,17 @@ useHead({ title: computed(() => t('timeline.title')) })
         >
           <template #actions>
             <FilterField :label="t('timeline.seriesFocus')">
-              <USelect v-model="seriesFocus" :items="seriesFocusItems" size="sm" class="w-48" />
+              <USelectMenu
+                v-model="seriesFocus"
+                :items="seriesItems"
+                value-key="value"
+                multiple
+                search-input
+                :filter-fields="['label']"
+                :placeholder="t('timeline.allSeries')"
+                size="sm"
+                class="w-48"
+              />
             </FilterField>
           </template>
           <TimelineBarChart

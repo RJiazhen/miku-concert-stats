@@ -107,9 +107,8 @@ const performanceRows = computed<PerformanceView[]>(() =>
   }),
 )
 
-/** Selected series for the 演出 table; `all` keeps every row. */
-const ALL_SERIES = 'all'
-const seriesFilter = ref<string>(ALL_SERIES)
+/** Selected series for the 演出 table; empty means 全部, matching the ranking and timeline filters. */
+const selectedSeries = ref<number[]>([])
 
 /** Place filter restored from `?place=`, used when a header-search place hit is opened. */
 const route = useRoute()
@@ -120,12 +119,12 @@ const seriesItems = computed(() => {
   const ordered = [...seriesRows.value].sort(
     (left, right) => right.performances - left.performances || left.primary.localeCompare(right.primary, 'zh'),
   )
-  return [{ label: t('series.allSeries'), value: ALL_SERIES }, ...ordered.map((row) => ({ label: row.primary, value: String(row.seriesId) }))]
+  return ordered.map((row) => ({ label: row.primary, value: row.seriesId }))
 })
 
 const filteredPerformances = computed(() => {
   let rows = performanceRows.value
-  if (seriesFilter.value !== ALL_SERIES) rows = rows.filter((row) => String(row.seriesId) === seriesFilter.value)
+  if (selectedSeries.value.length > 0) rows = rows.filter((row) => selectedSeries.value.includes(row.seriesId))
   if (placeFilter.value !== '') rows = rows.filter((row) => row.venue === placeFilter.value)
   return rows
 })
@@ -267,7 +266,17 @@ useHead({ title: computed(() => t('series.indexTitle')) })
       >
         <template #actions>
           <FilterField :label="t('col.series')">
-            <USelect v-model="seriesFilter" :items="seriesItems" size="sm" class="w-44" />
+            <USelectMenu
+              v-model="selectedSeries"
+              :items="seriesItems"
+              value-key="value"
+              multiple
+              search-input
+              :filter-fields="['label']"
+              :placeholder="t('series.allSeries')"
+              size="sm"
+              class="w-44"
+            />
           </FilterField>
           <UButton
             v-if="placeFilter"

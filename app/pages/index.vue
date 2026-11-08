@@ -51,8 +51,8 @@ const YEAR_ANY = 'all'
 const searchQuery = ref('')
 
 const mode = ref<RankingMode>('show')
+/** Selected series ids; empty means 全部, the same convention as the character and producer filters. */
 const selectedSeries = ref<number[]>([])
-const seriesTouched = ref(false)
 const yearFrom = ref(YEAR_ANY)
 const yearTo = ref(YEAR_ANY)
 const includeBroadcast = ref(false)
@@ -100,7 +100,7 @@ type RankedSong = {
 
 /** Ranking rows enriched with the display text and character list the table needs. */
 const ranked = computed<RankedSong[]>(() => {
-  if (!catalog.value || selectedSeries.value.length === 0) return []
+  if (!catalog.value) return []
   const songs = catalog.value.songs
   const byId = new Map(songs.map((song) => [song.id, song]))
   const performancesById = new Map(catalog.value.performances.map((performance) => [performance.id, performance]))
@@ -244,14 +244,12 @@ const state = computed<FilterState>(() => ({
 const syncUrl = (): void => {
   if (!mounted.value) return
   const current = state.value
-  const everySeries = catalog.value?.series.map((row) => row.id) ?? []
-  const seriesIsDefault = current.series.length === everySeries.length && current.series.every((id) => everySeries.includes(id))
   void navigateTo(
     {
       query: {
         q: current.q === '' ? undefined : current.q,
         mode: current.mode === 'event' ? 'event' : undefined,
-        series: seriesIsDefault ? undefined : current.series.join(','),
+        series: current.series.length === 0 ? undefined : current.series.join(','),
         from: current.from || undefined,
         to: current.to || undefined,
         broadcast: current.broadcast ? '1' : undefined,
@@ -282,7 +280,6 @@ const readUrl = (): void => {
       .filter((value) => Number.isInteger(value))
     if (ids.length > 0) {
       selectedSeries.value = ids
-      seriesTouched.value = true
     }
   }
   /** Restored bounds are swapped when a shared link holds an inverted range. */
@@ -304,13 +301,14 @@ const readUrl = (): void => {
   mounted.value = true
 }
 
-/** Checks every series once, the first time the catalog is available. */
-const selectAllSeries = (): void => {
-  if (seriesTouched.value || !catalog.value) return
-  selectedSeries.value = catalog.value.series.map((row) => row.id)
-  seriesTouched.value = true
+/** Treats a selection of every series as 全部, so the URL and the badge match the empty default. */
+const normalizeSeriesSelection = (): void => {
+  const all = catalog.value?.series.map((row) => row.id) ?? []
+  if (all.length > 0 && selectedSeries.value.length === all.length && selectedSeries.value.every((id) => all.includes(id))) {
+    selectedSeries.value = []
+  }
 }
-watch(catalog, selectAllSeries, { immediate: true })
+watch([selectedSeries, () => catalog.value?.series.length], normalizeSeriesSelection, { deep: true })
 
 /** Restores the URL once at mount, then keeps it in sync. */
 onMounted(() => {
@@ -321,7 +319,7 @@ onMounted(() => {
 const reset = (): void => {
   searchQuery.value = ''
   mode.value = 'show'
-  selectedSeries.value = catalog.value?.series.map((row) => row.id) ?? []
+  selectedSeries.value = []
   yearFrom.value = YEAR_ANY
   yearTo.value = YEAR_ANY
   includeBroadcast.value = false
@@ -341,8 +339,7 @@ const activeFilters = computed(() => {
   if (includeMedleyComponents.value) count++
   if (characterFilter.value.length > 0) count++
   if (producerFilter.value.length > 0) count++
-  const all = catalog.value?.series.map((row) => row.id) ?? []
-  if (selectedSeries.value.length !== all.length) count++
+  if (selectedSeries.value.length > 0) count++
   return count
 })
 
@@ -440,6 +437,19 @@ useHead({ title: computed(() => t('rank.title')) })
         <FilterField :label="t('rank.toYear')">
           <USelect v-model="yearTo" :items="yearToItems" size="sm" class="w-24" />
         </FilterField>
+        <FilterField :label="t('col.series')">
+          <USelectMenu
+            v-model="selectedSeries"
+            :items="seriesItems"
+            value-key="value"
+            multiple
+            search-input
+            :filter-fields="['label']"
+            :placeholder="t('series.allSeries')"
+            size="sm"
+            class="w-44"
+          />
+        </FilterField>
         <FilterField :label="t('rank.characters')">
           <USelectMenu
             v-model="characterFilter"
@@ -494,13 +504,6 @@ useHead({ title: computed(() => t('rank.title')) })
       <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
         <UCheckbox v-model="includeBroadcast" :label="t('rank.broadcast')" size="sm" />
         <UCheckbox v-model="includeMedleyComponents" :label="t('rank.medley')" size="sm" />
-        <UCheckboxGroup
-          v-model="selectedSeries"
-          :items="seriesItems"
-          orientation="horizontal"
-          size="sm"
-          :ui="{ fieldset: 'flex flex-wrap items-center gap-x-4 gap-y-1' }"
-        />
       </div>
     </UCard>
 
