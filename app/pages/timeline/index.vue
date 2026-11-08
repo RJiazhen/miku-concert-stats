@@ -616,6 +616,15 @@ const goToChart = async (key: string): Promise<void> => {
   document.getElementById(`chart-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
+/** Open state of the folded chart navigation shown below the side-rail breakpoint. */
+const chartMenuOpen = ref(false)
+
+/** Scrolls to one chart from the folded menu and closes it. */
+const selectChartFromMenu = (key: string): void => {
+  chartMenuOpen.value = false
+  void goToChart(key)
+}
+
 /** Chart 1's click handler: a bar segment opens its series, empty band space toggles the year list. */
 const selectSeriesSegment = (payload: { year: number; key: string }): void => {
   if (payload.key === '') {
@@ -701,7 +710,25 @@ watch(() => route.query.chart, (value) => {
 </script>
 
 <template>
-  <main class="space-y-6">
+  <div class="xl:flex xl:items-start xl:gap-8">
+    <nav class="hidden xl:sticky xl:top-24 xl:block xl:w-36 xl:shrink-0" aria-label="图表导航">
+      <p class="mb-1.5 px-2.5 text-xs font-medium tracking-[0.12em] text-muted uppercase">图表</p>
+      <ul class="flex flex-col gap-0.5">
+        <li v-for="chart in CHARTS" :key="chart.key">
+          <UButton
+            block
+            :variant="focusedChart === chart.key ? 'soft' : 'ghost'"
+            color="neutral"
+            size="sm"
+            class="justify-start"
+            :label="chart.label"
+            @click="goToChart(chart.key)"
+          />
+        </li>
+      </ul>
+    </nav>
+
+    <main class="min-w-0 flex-1 space-y-6">
     <section class="pt-4 sm:pt-8">
       <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
@@ -828,18 +855,6 @@ watch(() => route.query.chart, (value) => {
       />
       <UButton color="neutral" variant="ghost" size="xs" label="清空" @click="reset" />
     </div>
-
-    <nav class="flex flex-wrap items-center gap-1" aria-label="图表导航">
-      <UButton
-        v-for="chart in CHARTS"
-        :key="chart.key"
-        :variant="focusedChart === chart.key ? 'solid' : 'outline'"
-        color="neutral"
-        size="xs"
-        :label="chart.label"
-        @click="goToChart(chart.key)"
-      />
-    </nav>
 
     <template v-if="pending && !timeline">
       <USkeleton v-for="index in 2" :key="index" class="h-72 w-full" />
@@ -1009,5 +1024,36 @@ watch(() => route.query.chart, (value) => {
         </TimelineChartCard>
       </section>
     </template>
-  </main>
+    </main>
+
+    <!-- Below xl the side rail folds into one floating button at the bottom left. -->
+    <div class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-40 sm:left-6 xl:hidden">
+      <UPopover v-model:open="chartMenuOpen" :content="{ align: 'start', side: 'top' }">
+        <UButton
+          icon="i-lucide-list"
+          color="neutral"
+          variant="solid"
+          size="sm"
+          class="rounded-full shadow-lg shadow-black/25"
+          aria-label="图表导航"
+          aria-haspopup="dialog"
+          :aria-expanded="chartMenuOpen"
+        />
+        <template #content>
+          <div class="flex w-44 flex-col gap-0.5 p-1">
+            <UButton
+              v-for="chart in CHARTS"
+              :key="chart.key"
+              :variant="focusedChart === chart.key ? 'soft' : 'ghost'"
+              color="neutral"
+              size="sm"
+              class="justify-start"
+              :label="chart.label"
+              @click="selectChartFromMenu(chart.key)"
+            />
+          </div>
+        </template>
+      </UPopover>
+    </div>
+  </div>
 </template>
