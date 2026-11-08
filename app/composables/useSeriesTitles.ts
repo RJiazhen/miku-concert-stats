@@ -1,4 +1,5 @@
 import rawZh from '~~/data/series-titles.zh-CN.json'
+import rawHant from '~~/data/series-titles.zh-Hant.json'
 import rawEn from '~~/data/series-titles.en.json'
 import {
   formatSeriesTitle,
@@ -12,7 +13,7 @@ import {
 import { useLocale } from './useLocale.ts'
 
 /** Parsed once: the series list is static build-time data. */
-export const seriesTitles: SeriesTitleFile = parseSeriesTitles({ zh: rawZh, en: rawEn })
+export const seriesTitles: SeriesTitleFile = parseSeriesTitles({ zh: rawZh, 'zh-Hant': rawHant, en: rawEn })
 
 /**
  * Localizes series names to the site's current language.

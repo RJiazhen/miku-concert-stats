@@ -1,4 +1,5 @@
 import rawZh from '~~/data/characters.zh-CN.json'
+import rawHant from '~~/data/characters.zh-Hant.json'
 import rawEn from '~~/data/characters.en.json'
 import {
   characterSortLocale,
@@ -9,7 +10,7 @@ import {
 import { useLocale } from './useLocale.ts'
 
 /** Parsed once: the character list is static build-time data. */
-export const characterNameFile: CharacterNameFile = parseCharacterNames({ zh: rawZh, en: rawEn })
+export const characterNameFile: CharacterNameFile = parseCharacterNames({ zh: rawZh, 'zh-Hant': rawHant, en: rawEn })
 
 /**
  * Localizes character names to the site's current language.

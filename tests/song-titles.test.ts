@@ -15,6 +15,7 @@ describe('Chinese song titles', () => {
     expect(songTitleFor(parseSongTitles({ '10': { title: '融化', source: 'vocadb-alias' } }), 10)?.title).toBe('融化')
     expect(songTitleFor(parseSongTitles({}), 10)).toBeNull()
     expect(formatSongTitle('zh', { jaTitle: 'メルト', translation: '融化' })).toEqual({ primary: '融化', originalNames: ['メルト'], aliases: [] })
+    expect(formatSongTitle('zh-Hant', { jaTitle: 'メルト', translation: '融化' })).toEqual({ primary: '融化', originalNames: ['メルト'], aliases: [] })
     expect(formatSongTitle('ja', { jaTitle: 'メルト' })).toEqual({ primary: 'メルト', originalNames: [], aliases: [] })
     expect(formatSongTitle('zh', { jaTitle: '融化', translation: '融化' })).toEqual({ primary: '融化', originalNames: [], aliases: [] })
     expect(formatSongTitle('zh', { jaTitle: 'Tell Your World' })).toEqual({ primary: 'Tell Your World', originalNames: [], aliases: [] })
@@ -61,6 +62,18 @@ describe('Chinese song titles', () => {
       nameEn: 'Melt',
     })
     expect(zh).toEqual({ primary: '融化', originalNames: ['メルト'], aliases: ['溶化'] })
+    // The Traditional title uses the Traditional aliases, never the Simplified ones.
+    const hant = formatSongTitle('zh-Hant', {
+      jaTitle: 'メルト',
+      translation: '融化',
+      zhTitle: '融化',
+      zhAliases: ['溶化'],
+      hantTitle: '融化',
+      hantAliases: [' 融化 ', '融解'],
+      originalAliases: ['Melt'],
+      nameEn: 'Melt',
+    })
+    expect(hant).toEqual({ primary: '融化', originalNames: ['メルト'], aliases: ['融解'] })
     // Japanese shows the aliases and name_en, never the Chinese spellings.
     const japanese = formatSongTitle('ja', {
       jaTitle: 'メルト',
@@ -93,6 +106,20 @@ describe('Chinese song titles', () => {
     const chineseInJapanese = matchSongTitle('世界末日舞厅', 'ja', { jaTitle: 'ワールドエンド・ダンスホール', ...sources })
     expect(chineseInJapanese.primary).toBe('ワールドエンド・ダンスホール')
     expect(chineseInJapanese.secondary).toBe('世界末日舞厅')
+
+    // The Traditional title and its aliases match in either Chinese variant.
+    const traditional = {
+      jaTitle: 'ワールドエンド・ダンスホール',
+      translation: '世末舞廳',
+      zhTitle: '世末舞厅',
+      zhAliases: ['世界末日舞厅'],
+      hantTitle: '世末舞廳',
+      hantAliases: ['世界末日舞廳'],
+    }
+    const hantHit = matchSongTitle('世界末日舞廳', 'zh-Hant', traditional)
+    expect(hantHit.primary).toBe('世末舞廳')
+    expect(hantHit.matchedAlias).toBe('世界末日舞廳')
+    expect(matchSongTitle('世界末日舞廳', 'zh', traditional).matchedAlias).toBe('世界末日舞廳')
   })
 
   it('only keeps catalog songs with a non-empty title and a source', () => {

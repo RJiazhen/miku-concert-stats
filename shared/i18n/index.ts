@@ -1,9 +1,10 @@
 import { en } from './en.ts'
 import { ja } from './ja.ts'
 import { zh } from './zh.ts'
+import { zhHant } from './zh-Hant.ts'
 import type { Locale } from './locale.ts'
 
-export { LOCALES, isLocale, localeFromLanguage, localeSelfName, localeTag } from './locale.ts'
+export { LOCALES, isChineseLocale, isLocale, localeFromLanguage, localeSelfName, localeTag } from './locale.ts'
 export type { Locale } from './locale.ts'
 
 /** Every key the interface uses, derived from the Chinese source catalog. */
@@ -13,7 +14,7 @@ export type MessageKey = keyof typeof zh
 export type MessageParams = Record<string, string | number>
 
 /** Catalogs by locale. */
-const catalogs: Record<Locale, Record<MessageKey, string>> = { zh, ja, en }
+const catalogs: Record<Locale, Record<MessageKey, string>> = { zh, 'zh-Hant': zhHant, ja, en }
 
 /**
  * One interface string in `locale`, with `{name}` placeholders replaced.

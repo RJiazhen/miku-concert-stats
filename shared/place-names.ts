@@ -1,12 +1,13 @@
-import type { Locale } from './i18n/index.ts'
+import { isChineseLocale, type Locale } from './i18n/index.ts'
 import { parseNameMaps, type NameMapInput, type NameMaps } from './name-map.ts'
 
-/** Place as written by VocaDB to its checked Chinese and English names. */
+/** Place as written by VocaDB to its checked Chinese, Traditional Chinese, and English names. */
 export type PlaceNameFile = NameMaps
 
 /** The names one place spelling shows per language; null when that language has no row. */
 export type PlaceNameNames = {
   zh: string | null
+  'zh-Hant': string | null
   en: string | null
 }
 
@@ -14,7 +15,7 @@ export type PlaceNameNames = {
 export type PlaceNameEntry = {
   /** Place as written by VocaDB, kept for reporting. */
   key: string
-  /** Chinese and English names; Japanese keys gain an English romanization here. */
+  /** Chinese, Traditional Chinese, and English names; Japanese keys gain an English romanization here. */
   names: PlaceNameNames
   /** Matches the place in a performance name. */
   pattern: RegExp
@@ -53,7 +54,7 @@ const connectorPattern = (key: string): RegExp => {
 }
 
 /** Empty index so callers can skip localization without branching. */
-export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, en: {} }, entries: [] })
+export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, 'zh-Hant': {}, en: {} }, entries: [] })
 
 /**
  * Validates the place files and builds the matchers.
@@ -61,11 +62,15 @@ export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, en:
  */
 export const parsePlaceNames = (input: NameMapInput): PlaceNameIndex => {
   const names = parseNameMaps(input, 'Place name')
-  const keys = new Set([...Object.keys(names.zh), ...Object.keys(names.en)])
+  const keys = new Set([...Object.keys(names.zh), ...Object.keys(names['zh-Hant']), ...Object.keys(names.en)])
   const entries = [...keys]
     .map((key) => ({
       key,
-      names: { zh: names.zh[key] ?? null, en: names.en[key] ?? null },
+      names: {
+        zh: names.zh[key] ?? null,
+        'zh-Hant': names['zh-Hant'][key] ?? null,
+        en: names.en[key] ?? null,
+      },
       pattern: placePattern(key),
       connectorPattern: connectorPattern(key),
     }))
@@ -75,18 +80,28 @@ export const parsePlaceNames = (input: NameMapInput): PlaceNameIndex => {
 
 /**
  * Replaces checked place names with their name in `locale`.
- * Chinese also drops an English `in` / `at` directly in front of the place, so the note reads
- * `10th Anniversary 大阪`; English keeps the connector and only normalizes the spelling
- * (`10th Anniversary in Osaka`), and Japanese keeps the VocaDB text untouched.
+ * Chinese, including Traditional Chinese, also drops an English `in` / `at` directly in front of
+ * the place, so the note reads `10th Anniversary 大阪`; English keeps the connector and only
+ * normalizes the spelling (`10th Anniversary in Osaka`), and Japanese keeps the VocaDB text untouched.
  */
 export const localizePlaceNames = (text: string, index: PlaceNameIndex, locale: Locale): string => {
   if (locale === 'ja' || text === '') return text
+  // Each replacement becomes a token so a shorter spelling cannot match inside a longer
+  // translation that already happened (東京都 must stay 東京都, not collapse to 東京).
+  const tokens: string[] = []
+  /** Replaces every match with a token that points at the translated name. */
+  const tokenize = (value: string, pattern: RegExp, name: string): string =>
+    value.replace(pattern, () => {
+      const token = `\uE000${tokens.length}\uE001`
+      tokens.push(name)
+      return token
+    })
   let localized = text
   for (const entry of index.entries) {
     const name = entry.names[locale]
     if (name === null) continue
-    if (locale === 'zh') localized = localized.replace(entry.connectorPattern, name)
-    localized = localized.replace(entry.pattern, name)
+    if (isChineseLocale(locale)) localized = tokenize(localized, entry.connectorPattern, name)
+    localized = tokenize(localized, entry.pattern, name)
   }
-  return localized
+  return localized.replace(/\uE000(\d+)\uE001/g, (_match, index: string) => tokens[Number(index)] ?? '')
 }

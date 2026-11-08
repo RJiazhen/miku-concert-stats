@@ -60,7 +60,7 @@ skill 是「门面 + 每个端点一份子说明」：`SKILL.md` 写适用问题
 | `data/song-variants.json` | 把 remix、remaster、声库、翻唱、语言版本并入同一首歌，排行与统计按合并后的歌计数 |
 | `data/setlist-merges.json` | 同一系列年度不同演出的歌单并排对照（例如 2019 マジカルミライ 东京与大阪） |
 | `data/song-titles.zh-CN.json` | 歌曲中文名（`title` 唯一显示名，`aliases` 只供搜索匹配），页眉开关控制是否显示 |
-| `data/song-titles.zh-Hant.json` | 歌曲繁体中文名，暂不显示 |
+| `data/song-titles.zh-Hant.json` | 歌曲繁体中文名，与简体文件同结构，繁体中文界面显示 |
 | `data/song-notes.json` | 单曲页顶部的补充说明（例如「演唱会演奏的是改编后的短版」） |
 | `data/place-names.zh-CN.json` | 演出名里的地点中文名，跟随页眉同一个开关切换 |
 | `data/show-locations.json` | 按城市登记演出国家，`pnpm locations` 搜索 / 维护，生成的 `0013` 补上 VocaDB 缺失的 `country_code` |

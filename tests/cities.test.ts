@@ -25,6 +25,16 @@ const index = buildCityIndex(
       Washington: 'Washington',
       'Düsseldorf': 'Düsseldorf',
     },
+    'zh-Hant': {
+      Tokyo: '東京',
+      東京: '東京',
+      東京都: '東京都',
+      Osaka: '大阪',
+      Sapporo: '札幌',
+      'Washington D.C.': '華盛頓特區',
+      Washington: '華盛頓',
+      'Düsseldorf': '杜塞道夫',
+    },
   }),
 )
 
@@ -50,6 +60,14 @@ describe('city keys', () => {
 })
 
 describe('city matching', () => {
+  it('shows the city name in the active language', () => {
+    expect(cityLabel(index, '东京', 'zh')).toBe('东京')
+    expect(cityLabel(index, '东京', 'zh-Hant')).toBe('東京')
+    expect(cityLabel(index, '杜塞尔多夫', 'zh-Hant')).toBe('杜塞道夫')
+    expect(cityLabel(index, '东京', 'en')).toBe('Tokyo')
+    expect(cityLabel(index, '东京', 'ja')).toBe('东京')
+  })
+
   it('matches spellings from the suffix, name, and venue in that order', () => {
     expect(matchCity(show({ id: 1 }), index)).toEqual({ city: '东京', original: 'Tokyo' })
     expect(matchCity(show({ id: 2, series_suffix: null, name: '初音ミクシンフォニー 2026 東京' }), index)).toEqual({

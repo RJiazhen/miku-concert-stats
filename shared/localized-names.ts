@@ -4,7 +4,7 @@ import { localizeSeriesInName, localizeSeriesName, type SeriesTitleFile } from '
 import { localizeVenueName, type VenueNameFile } from './venue-names.ts'
 
 /**
- * One name written in the three site languages.
+ * One name written in the three API languages.
  * `ja` is the catalog spelling, so a caller that only has a translation never loses the original.
  */
 export type LocalizedText = {

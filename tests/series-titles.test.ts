@@ -24,6 +24,11 @@ const titles = parseSeriesTitles({
     '初音ミクシンフォニー': 'Hatsune Miku Symphony',
     'MIKU WITH YOU': 'MIKU WITH YOU',
   },
+  'zh-Hant': {
+    '初音ミク「マジカルミライ」': '魔法未來',
+    '初音ミクシンフォニー': '初音未來交響樂',
+    'MIKU WITH YOU': '未來有你',
+  },
 })
 
 describe('series titles', () => {
@@ -38,6 +43,7 @@ describe('series titles', () => {
 
   it('looks up a checked name in each language and misses a series without a row', () => {
     expect(seriesTitleFor(titles, '初音ミクシンフォニー', 'zh')).toBe('初音未来交响乐')
+    expect(seriesTitleFor(titles, '初音ミクシンフォニー', 'zh-Hant')).toBe('初音未來交響樂')
     expect(seriesTitleFor(titles, '初音ミクシンフォニー', 'en')).toBe('Hatsune Miku Symphony')
     expect(seriesTitleFor(titles, '初音ミクシンフォニー', 'ja')).toBeNull()
     expect(seriesTitleFor(titles, 'MIKU EXPO', 'zh')).toBeNull()
@@ -46,6 +52,7 @@ describe('series titles', () => {
 
   it('follows the language and falls back to the catalog name', () => {
     expect(localizeSeriesName(titles, '初音ミクシンフォニー', 'zh')).toBe('初音未来交响乐')
+    expect(localizeSeriesName(titles, '初音ミクシンフォニー', 'zh-Hant')).toBe('初音未來交響樂')
     expect(localizeSeriesName(titles, '初音ミクシンフォニー', 'en')).toBe('Hatsune Miku Symphony')
     expect(localizeSeriesName(titles, '初音ミクシンフォニー', 'ja')).toBe('初音ミクシンフォニー')
     expect(localizeSeriesName(titles, 'MIKU EXPO', 'zh')).toBe('MIKU EXPO')
@@ -74,6 +81,9 @@ describe('series titles', () => {
     expect(localizeSeriesInName('初音ミク「マジカルミライ 2024」in TOKYO', '初音ミク「マジカルミライ」', 2024, titles, 'en')).toBe(
       'Magical Mirai 2024 in TOKYO',
     )
+    expect(localizeSeriesInName('初音ミク「マジカルミライ 2024」in TOKYO', '初音ミク「マジカルミライ」', 2024, titles, 'zh-Hant')).toBe(
+      '魔法未來 2024 in TOKYO',
+    )
     expect(localizeSeriesInName('初音ミク「マジカルミライ」10th Anniversary in OSAKA', '初音ミク「マジカルミライ」', 2020, titles, 'zh')).toBe(
       '魔法未来 10th Anniversary in OSAKA',
     )
@@ -91,10 +101,11 @@ describe('series titles', () => {
     )
   })
 
-  it('names every Japanese catalog series in Chinese and English', () => {
+  it('names every Japanese catalog series in Chinese, Traditional Chinese, and English', () => {
     const zh = JSON.parse(readFileSync(new URL('../data/series-titles.zh-CN.json', import.meta.url), 'utf8')) as unknown
+    const hant = JSON.parse(readFileSync(new URL('../data/series-titles.zh-Hant.json', import.meta.url), 'utf8')) as unknown
     const en = JSON.parse(readFileSync(new URL('../data/series-titles.en.json', import.meta.url), 'utf8')) as unknown
-    const file = parseSeriesTitles({ zh, en })
+    const file = parseSeriesTitles({ zh, 'zh-Hant': hant, en })
     const db = new Database(':memory:')
     try {
       applyCatalogSql(db)
@@ -111,9 +122,14 @@ describe('series titles', () => {
         expect(names.has(key)).toBe(true)
         expect(name.trim().length).toBeGreaterThan(0)
       }
+      for (const [key, name] of Object.entries(file['zh-Hant'])) {
+        expect(names.has(key)).toBe(true)
+        expect(name.trim().length).toBeGreaterThan(0)
+      }
       for (const series of catalog.series) {
         if (!/[\u3040-\u30ff]/.test(series.name)) continue
         expect(file.zh[series.name]).toBeDefined()
+        expect(file['zh-Hant'][series.name]).toBeDefined()
         expect(file.en[series.name]).toBeDefined()
       }
     } finally {

@@ -5,7 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames, usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
-import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
+import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
 import { catalogSchedules } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { useLocale } from '~/composables/useLocale.ts'
@@ -124,9 +124,8 @@ const cityName = computed(() => {
   if (!current) return null
   const match = matchCity(current, cityIndex)
   if (match === null) return null
-  if (locale.value === 'zh') return match.city
   if (locale.value === 'en') return localizePlace(match.original)
-  return match.original
+  return cityLabel(cityIndex, match.city, locale.value)
 })
 
 /** Series name for the first crumb; null when the catalog has no series row. */

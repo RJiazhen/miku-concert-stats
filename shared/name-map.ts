@@ -14,15 +14,17 @@ export type NameView = {
 /** A catalog spelling to display name file for one language. */
 export type NameMap = Record<string, string>
 
-/** Chinese and English files beside each other, so one lookup serves both languages. */
+/** Chinese, Traditional Chinese, and English files beside each other, so one lookup serves them all. */
 export type NameMaps = {
   zh: NameMap
+  'zh-Hant': NameMap
   en: NameMap
 }
 
-/** Raw Chinese and English files, as read from `data/*.zh-CN.json` and `data/*.en.json`. */
+/** Raw translation files, as read from `data/*.zh-CN.json`, `data/*.zh-Hant.json`, and `data/*.en.json`. */
 export type NameMapInput = {
   zh: unknown
+  'zh-Hant'?: unknown
   en?: unknown
 }
 
@@ -52,12 +54,13 @@ export const parseNameMap = (value: unknown, what: string): NameMap => {
 }
 
 /**
- * Validates the Chinese file and the optional English file together.
- * A missing English file leaves English names untranslated.
+ * Validates the Chinese file and the optional Traditional Chinese and English files together.
+ * A missing file leaves that language's names untranslated.
  */
 export const parseNameMaps = (input: NameMapInput, what: string): NameMaps => {
   return {
     zh: parseNameMap(input.zh, what),
+    'zh-Hant': parseNameMap(input['zh-Hant'] ?? {}, what),
     en: parseNameMap(input.en ?? {}, what),
   }
 }
@@ -73,8 +76,8 @@ export const nameIn = (maps: NameMaps, key: string, locale: Locale): string | nu
 
 /**
  * Formats one name for the active language.
- * Japanese shows the catalog name alone; Chinese and English show the translation with the
- * original underneath, unless the two are the same string.
+ * Japanese shows the catalog name alone; the Chinese variants and English show the translation
+ * with the original underneath, unless the two are the same string.
  */
 export const formatLocalizedName = (
   original: string,

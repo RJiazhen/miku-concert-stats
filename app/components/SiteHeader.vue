@@ -8,8 +8,12 @@ const { copyPrompt: writePrompt } = useAiPrompt()
 const colorMode = useColorMode()
 const toast = useToast()
 
-/** Language choices without flags or emoji: each name is written in its own language. */
-const languageItems = LOCALES.map((value) => ({ value, label: localeSelfName(value) }))
+/** Language choices without flags or emoji: the active language first, then the rest in switcher order. */
+const languageItems = computed(() => {
+  const current = locale.value
+  const ordered: Locale[] = [current, ...LOCALES.filter((value) => value !== current)]
+  return ordered.map((value) => ({ value, label: localeSelfName(value) }))
+})
 
 /** Whether the original-title switch can be used; Japanese titles are already the originals. */
 const originalTitleDisabled = computed(() => locale.value === 'ja')
@@ -26,11 +30,19 @@ const toggleOriginalTitle = (next: boolean): void => {
 /** Hover-open state of the desktop language popover. */
 const languageOpen = ref(false)
 
+/**
+ * Set after the visitor picks an option: hover and focus stay ignored until the pointer has left
+ * the trigger and the panel. Otherwise the click that ends the choice hands focus back to the
+ * trigger, whose focus / hover would reopen the very menu that just closed.
+ */
+let hoverSuppressed = false
+
 /** Pending close, so moving the pointer from the button into the menu never closes it. */
 let closeTimer: ReturnType<typeof setTimeout> | undefined
 
 /** Opens the popover and cancels a scheduled close. */
 const openLanguages = (): void => {
+  if (hoverSuppressed) return
   if (closeTimer !== undefined) {
     clearTimeout(closeTimer)
     closeTimer = undefined
@@ -54,6 +66,35 @@ const stopCloseTimer = (): void => {
   closeTimer = undefined
 }
 
+/** Whether a viewport point sits on the language trigger or the open panel. */
+const overLanguageSurface = (x: number, y: number): boolean => {
+  return document.elementFromPoint(x, y)?.closest('[data-language-surface]') != null
+}
+
+/**
+ * Keeps the open panel in step with the pointer, and releases the post-selection lock once the
+ * pointer is away from the trigger.
+ * `mouseleave` alone is not enough: a panel opened by focus while the pointer is already outside
+ * never receives one, so it used to stay open until the pointer happened to cross the trigger.
+ */
+const trackLanguagePointer = (event: PointerEvent): void => {
+  const inside = overLanguageSurface(event.clientX, event.clientY)
+  if (!inside) hoverSuppressed = false
+  if (!languageOpen.value) return
+  if (inside) openLanguages()
+  else closeLanguagesSoon()
+}
+
+/** Starts following the pointer, so the open panel and the post-selection lock both react. */
+const startPointerTracking = (): void => {
+  document.addEventListener('pointermove', trackLanguagePointer)
+}
+
+/** Stops tracking the pointer when the header goes away. */
+const stopPointerTracking = (): void => {
+  document.removeEventListener('pointermove', trackLanguagePointer)
+}
+
 /** Whether the compact navigation panel is open. */
 const menuOpen = ref(false)
 
@@ -62,6 +103,7 @@ const pickLanguage = (next: Locale): void => {
   setLocale(next)
   languageOpen.value = false
   menuOpen.value = false
+  hoverSuppressed = true
 }
 
 /** Copies the AI prompt from the compact menu and reports the outcome as a toast. */
@@ -117,6 +159,7 @@ watch(menuOpen, syncBodyScroll)
 
 onMounted(() => {
   startWideTracking()
+  startPointerTracking()
   window.addEventListener('keydown', closeMenus)
 })
 onUnmounted(() => {
@@ -148,6 +191,7 @@ const links = [
 ] as const
 
 onBeforeUnmount(stopCloseTimer)
+onBeforeUnmount(stopPointerTracking)
 </script>
 
 <template>
@@ -198,6 +242,7 @@ onBeforeUnmount(stopCloseTimer)
           :content="{ align: 'end', sideOffset: 8, collisionPadding: 8 }"
         >
           <UButton
+            data-language-surface
             icon="i-lucide-languages"
             color="neutral"
             variant="ghost"
@@ -212,6 +257,7 @@ onBeforeUnmount(stopCloseTimer)
           />
           <template #content>
             <div
+              data-language-surface
               class="flex w-52 flex-col gap-1 p-1.5"
               @mouseenter="openLanguages"
               @mouseleave="closeLanguagesSoon"

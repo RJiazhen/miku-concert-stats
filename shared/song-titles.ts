@@ -23,14 +23,18 @@ export type SongTitleSources = {
   catalogName?: string | null
   /** Checked title in the active non-Japanese language; null when no file has one. */
   translation?: string | null
-  /** `data/song-titles.zh-CN.json` aliases, shown with the Chinese title. */
+  /** `data/song-titles.zh-CN.json` aliases, shown with the Simplified Chinese title. */
   zhAliases?: readonly string[]
+  /** `data/song-titles.zh-Hant.json` aliases, shown with the Traditional Chinese title. */
+  hantAliases?: readonly string[]
   /** `data/song-aliases.json` aliases, shown with the original title. */
   originalAliases?: readonly string[]
   /** `songs.name_en`, another spelling users may search for. */
   nameEn?: string | null
-  /** Chinese title even when another language shows, so a Chinese search hit can be explained. */
+  /** Simplified Chinese title even when another language shows, so a Chinese search hit can be explained. */
   zhTitle?: string | null
+  /** Traditional Chinese title even when another language shows, so a Traditional search hit can be explained. */
+  hantTitle?: string | null
 }
 
 /** Primary title, the Japanese names printed in gray, and the other names of the active language. */
@@ -152,9 +156,10 @@ const uniqueNames = (values: readonly (string | null | undefined)[], excluded: r
   return names
 }
 
-/** Other names one language shows: Chinese aliases in Chinese, Japanese and English spellings otherwise. */
+/** Other names one language shows: aliases in the active Chinese variant, Japanese and English spellings otherwise. */
 const otherNames = (locale: Locale, sources: SongTitleSources): string[] => {
   if (locale === 'zh') return [...(sources.zhAliases ?? [])]
+  if (locale === 'zh-Hant') return [...(sources.hantAliases ?? [])]
   return [...(sources.originalAliases ?? []), ...(sources.nameEn === null || sources.nameEn === undefined ? [] : [sources.nameEn])]
 }
 
@@ -237,7 +242,16 @@ export const matchSongTitle = (
     return { ...view, matchedAlias: null, secondary: note === '' ? null : note }
   }
   const candidates = uniqueNames(
-    [sources.jaTitle, sources.catalogName, sources.zhTitle, ...(sources.zhAliases ?? []), ...(sources.originalAliases ?? []), sources.nameEn],
+    [
+      sources.jaTitle,
+      sources.catalogName,
+      sources.zhTitle,
+      sources.hantTitle,
+      ...(sources.zhAliases ?? []),
+      ...(sources.hantAliases ?? []),
+      ...(sources.originalAliases ?? []),
+      sources.nameEn,
+    ],
     [view.primary, ...view.originalNames],
   )
   const matched = matchedName(query, candidates)

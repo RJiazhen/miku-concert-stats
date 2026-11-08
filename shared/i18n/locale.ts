@@ -1,26 +1,31 @@
 /**
- * Locale primitives for the three site languages.
+ * Locale primitives for the four site languages.
  * Chinese is the source language: it defines the message keys, and every other catalog must
- * provide all of them.
+ * provide all of them. Traditional Chinese is a translation of the same catalog.
  */
 
 /** Which language the interface and the names on it are shown in. */
-export type Locale = 'zh' | 'ja' | 'en'
+export type Locale = 'zh' | 'zh-Hant' | 'ja' | 'en'
 
 /** Every supported locale, in the order the switcher prints them. */
-export const LOCALES: readonly Locale[] = ['zh', 'ja', 'en']
+export const LOCALES: readonly Locale[] = ['zh', 'zh-Hant', 'ja', 'en']
 
 /** Whether a stored or browser value names a supported locale. */
-export const isLocale = (value: unknown): value is Locale => value === 'zh' || value === 'ja' || value === 'en'
+export const isLocale = (value: unknown): value is Locale =>
+  value === 'zh' || value === 'zh-Hant' || value === 'ja' || value === 'en'
 
 /**
  * Picks the locale a browser asks for: Japanese and English browsers get their own language,
- * everything else starts in Chinese, the site's source language.
+ * Traditional Chinese browsers get Traditional Chinese, everything else starts in Chinese, the
+ * site's source language.
  */
 export const localeFromLanguage = (language: string): Locale => {
   const tag = language.trim().toLowerCase()
   if (tag.startsWith('ja')) return 'ja'
   if (tag.startsWith('en')) return 'en'
+  if (tag.startsWith('zh-hant') || tag.startsWith('zh-tw') || tag.startsWith('zh-hk') || tag.startsWith('zh-mo')) {
+    return 'zh-Hant'
+  }
   return 'zh'
 }
 
@@ -28,6 +33,7 @@ export const localeFromLanguage = (language: string): Locale => {
 export const localeTag = (locale: Locale): string => {
   if (locale === 'ja') return 'ja'
   if (locale === 'en') return 'en'
+  if (locale === 'zh-Hant') return 'zh-Hant'
   return 'zh-Hans'
 }
 
@@ -35,5 +41,9 @@ export const localeTag = (locale: Locale): string => {
 export const localeSelfName = (locale: Locale): string => {
   if (locale === 'ja') return '日本語'
   if (locale === 'en') return 'English'
-  return '中文'
+  if (locale === 'zh-Hant') return '繁體中文'
+  return '简体中文'
 }
+
+/** Whether the locale writes Chinese, so shared Chinese rules (place connectors, aliases) apply. */
+export const isChineseLocale = (locale: Locale): boolean => locale === 'zh' || locale === 'zh-Hant'

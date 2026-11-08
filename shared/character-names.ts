@@ -26,7 +26,9 @@ export const localizeCharacterName = (file: CharacterNameFile, name: string, loc
 /** Collation locale for character names: pinyin order in Chinese, English and Japanese order otherwise. */
 export const characterSortLocale = (locale: Locale): string => {
   if (locale === 'en') return 'en'
-  return locale === 'zh' ? 'zh-CN' : 'ja'
+  if (locale === 'zh') return 'zh-CN'
+  if (locale === 'zh-Hant') return 'zh-Hant'
+  return 'ja'
 }
 
 /** Compares two canonical character names by the name each shows in `locale`. */
