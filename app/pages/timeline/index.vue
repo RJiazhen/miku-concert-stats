@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { characterNames, characterRules } from '~/composables/useCharacters.ts'
+import { useCharacterNames } from '~/composables/useCharacterNames.ts'
 import { placeNames, usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
@@ -51,6 +52,7 @@ const YEAR_ANY = 0
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
+const { localizeCharacter, compareCharacters } = useCharacterNames()
 const { songName } = useSongLookup()
 const variants = useSongVariants()
 const route = useRoute()
@@ -149,8 +151,10 @@ const producerItems = computed(() => {
   return index.rows.map((row) => ({ label: `${row.name}（${row.songCount}）`, value: row.name }))
 })
 
-/** Character options from `data/characters.json`, in config order. */
-const characterItems = computed(() => characterNames.map((name) => ({ label: name, value: name })))
+/** Character options from `data/characters.json`, in config order; `value` stays the canonical name. */
+const characterItems = computed(() => [...characterNames]
+  .sort(compareCharacters)
+  .map((name) => ({ label: localizeCharacter(name), value: name })))
 
 /** Calendar years present in the catalog, newest first. */
 const yearOptions = computed(() => availablePerformanceYears(catalog.value?.performances ?? []))
@@ -241,7 +245,7 @@ const characterChartSeries = computed<ChartSeries[]>(() => {
     : known.slice(0, 6)
   const series: ChartSeries[] = shown.map((row, position) => ({
     key: row.name,
-    label: row.name,
+    label: localizeCharacter(row.name),
     color: PALETTE[position % PALETTE.length] ?? OTHER_COLOR,
     values: valuesOf(row.name),
   }))
@@ -378,7 +382,7 @@ const characterYearRows = computed(() => {
   if (current === null || characterYear.value === null) return []
   return current.characterByYear
     .filter((row) => row.year === characterYear.value)
-    .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name, 'zh'))
+    .sort((left, right) => right.count - left.count || compareCharacters(left.name, right.name))
 })
 
 /** New and returning songs of the picked year. */
@@ -869,7 +873,7 @@ watch(() => route.query.chart, (value) => {
               <p class="mb-2 text-xs text-muted">{{ characterYear }} 年角色出场</p>
               <div class="flex flex-wrap gap-2">
                 <UBadge v-for="row in characterYearRows" :key="row.name" color="neutral" variant="subtle" size="sm">
-                  {{ row.name }} {{ row.count }}
+                  {{ localizeCharacter(row.name) }} {{ row.count }}
                 </UBadge>
               </div>
             </div>
