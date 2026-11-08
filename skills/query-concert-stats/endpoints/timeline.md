@@ -25,7 +25,7 @@ The annual series drawn by <https://miku-concert-stats.rjiazhen.top/timeline>: �
 
 **Its broadcast default differs from the ranking's.** The timeline page counts livestream, online, and VR 演出 by default so its totals agree with `/series`; unlike `rank`, omitting `includeBroadcast` here means they are **included**. Pass `includeBroadcast=0` for the song ranking's default. State which one you used.
 
-- `years` is the continuous axis, gap years included with zero values; `catalogYears` is the catalogue-wide span before the year filter.
+- `years` is the continuous axis: it starts and ends at the first and last year with an included 演出, so empty years at either end are omitted, while gap years in between keep zero values; `catalogYears` is the catalogue-wide span before the year filter.
 - `byYear[].shows` counts 場次 and `byYear[].performances` counts 演出 rows.
 - `seriesByYear` stacks one series per row; its `series` field is the name, not an id. `seriesSpans` gives each series' first and last year.
 - `characterSongByYear` is the distinct-song count per character bucket, the chart's stacked bars; `characterShareByYear` gives each bucket's share of that year's character songs, the optional right-axis lines. Both use `characterSongWeight`, so a duet counts 0.5 per role under `split`. Only characters registered on the site appear; unmatched credits are dropped, not bucketed.

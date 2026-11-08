@@ -141,7 +141,10 @@ export type TimelinePerformance = {
 
 /** Everything `/timeline` draws, computed from one filtered data set. */
 export type Timeline = {
-  /** Continuous axis years, earliest to latest, gaps included with zero values. */
+  /**
+   * Continuous axis years from the first to the last year with an included 演出, so empty years at
+   * either end are dropped; gaps in the middle keep zero values.
+   */
   years: number[]
   /** Catalog-wide year span before the year filter is applied; null when nothing is dated. */
   catalogYears: { from: number; to: number } | null
@@ -425,22 +428,32 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     candidates.push({ performance, year, shows, city, songs })
   }
 
-  const axisFrom = catalogMin === null ? null : yearFrom === null ? catalogMin : Math.max(catalogMin, yearFrom)
-  const axisTo = catalogMax === null ? null : yearTo === null ? catalogMax : Math.min(catalogMax, yearTo)
-  const years = axisFrom === null || axisTo === null || axisFrom > axisTo ? [] : yearSeries(axisFrom, axisTo)
+  // Bounds of the active year filter: the catalog span clipped by the pickers, independent of the data.
+  const rangeFrom = catalogMin === null ? null : yearFrom === null ? catalogMin : Math.max(catalogMin, yearFrom)
+  const rangeTo = catalogMax === null ? null : yearTo === null ? catalogMax : Math.min(catalogMax, yearTo)
 
   const included: Candidate[] = []
+  let dataFrom: number | null = null
+  let dataTo: number | null = null
   for (const candidate of candidates) {
     if (candidate.year === null) {
       excludedUndated += 1
       continue
     }
-    if (years.length === 0 || candidate.year < (axisFrom as number) || candidate.year > (axisTo as number)) {
+    if (
+      rangeFrom === null || rangeTo === null || rangeFrom > rangeTo
+      || candidate.year < rangeFrom || candidate.year > rangeTo
+    ) {
       excludedByYear += 1
       continue
     }
     included.push(candidate)
+    if (dataFrom === null || candidate.year < dataFrom) dataFrom = candidate.year
+    if (dataTo === null || candidate.year > dataTo) dataTo = candidate.year
   }
+
+  // The axis only spans the years the included 演出 reach, so filters never leave empty years at either end.
+  const years = dataFrom === null || dataTo === null ? [] : yearSeries(dataFrom, dataTo)
 
   const byYear = new Map<number, TimelineYear>()
   for (const year of years) byYear.set(year, { year, shows: 0, performances: 0 })

@@ -25,6 +25,11 @@ export type TimelineRightFormat = 'number' | 'percent'
 const props = withDefaults(defineProps<{
   /** Continuous axis years; every series provides one value per year. */
   years: number[]
+  /**
+   * Year slots the drawing width is sized for; defaults to `years.length`. Pass the unfiltered span so
+   * a filtered chart keeps the full width and widens its bands instead of shrinking the drawing.
+   */
+  span?: number
   bars?: TimelineSeries[]
   /** Stack the bars instead of placing them side by side. */
   stacked?: boolean
@@ -40,6 +45,7 @@ const props = withDefaults(defineProps<{
   height?: number
   emptyText?: string
 }>(), {
+  span: 0,
   bars: () => [],
   stacked: false,
   lines: () => [],
@@ -63,8 +69,11 @@ const MARGIN = { top: 16, right: 56, bottom: 32, left: 48 }
 /** Index of the year under the cursor or keyboard focus. */
 const hovered = ref<number | null>(null)
 
-/** Widest drawing width of one band, so dense years stay readable. */
-const width = computed(() => Math.max(MIN_WIDTH, props.years.length * 42 + MARGIN.left + MARGIN.right))
+/** Year slots behind the drawing width, so a narrower filtered axis keeps the same drawing width. */
+const slots = computed(() => Math.max(props.years.length, props.span))
+
+/** Drawing width of the band scale, so dense years stay readable. */
+const width = computed(() => Math.max(MIN_WIDTH, slots.value * 42 + MARGIN.left + MARGIN.right))
 const plotWidth = computed(() => width.value - MARGIN.left - MARGIN.right)
 const plotHeight = computed(() => props.height - MARGIN.top - MARGIN.bottom)
 const band = computed(() => plotWidth.value / Math.max(1, props.years.length))

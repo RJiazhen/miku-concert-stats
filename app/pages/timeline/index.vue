@@ -747,6 +747,12 @@ const unknownCountryTotal = computed(() =>
   (timeline.value?.cityByYear ?? []).reduce((sum, row) => sum + row.unknownCountry, 0),
 )
 
+/** Year slots the charts size their drawing width for: the catalogue-wide span, so filters never narrow it. */
+const chartSpan = computed(() => {
+  const span = timeline.value?.catalogYears
+  return span === null || span === undefined ? 0 : span.to - span.from + 1
+})
+
 /** Restores the chart scroll position when a shared link names a chart. */
 watch(catalog, async (value) => {
   if (value === null || focusedChart.value === '') return
@@ -866,6 +872,7 @@ useHead({ title: '时间线' })
           </template>
           <TimelineBarChart
             :years="timeline.years"
+            :span="chartSpan"
             :bars="seriesChartBars"
             stacked
             unit="场次"
@@ -898,6 +905,7 @@ useHead({ title: '时间线' })
           </template>
           <TimelineBarChart
             :years="timeline.years"
+            :span="chartSpan"
             :bars="characterChartBars"
             :right-lines="characterShareLines"
             :right-format="showCharacterShares ? 'percent' : 'number'"
@@ -942,6 +950,7 @@ useHead({ title: '时间线' })
           </template>
           <TimelineBarChart
             :years="timeline.years"
+            :span="chartSpan"
             :bars="songChartBars"
             :right-lines="songChartLines"
             right-format="percent"
@@ -981,7 +990,12 @@ useHead({ title: '时间线' })
           unit="横轴=年份，条带=该系列首末演出年份"
           note="点击条带进入系列页；条带按演出数从多到少排列。"
         >
-          <TimelineGantt :years="timeline.years" :rows="seriesSpans" @select="selectSeriesSpan" />
+          <TimelineGantt
+            :years="timeline.years"
+            :span="chartSpan"
+            :rows="seriesSpans"
+            @select="selectSeriesSpan"
+          />
         </TimelineChartCard>
       </section>
 
@@ -993,6 +1007,7 @@ useHead({ title: '时间线' })
         >
           <TimelineBarChart
             :years="timeline.years"
+            :span="chartSpan"
             :bars="cityChartBars"
             stacked
             :lines="cityChartLines"

@@ -14,10 +14,16 @@ export type TimelineGanttRow = {
 
 const props = withDefaults(defineProps<{
   years: number[]
+  /**
+   * Year slots the drawing width is sized for; defaults to `years.length`. Pass the unfiltered span so
+   * a filtered chart keeps the full width and stretches its strips instead of shrinking the drawing.
+   */
+  span?: number
   rows?: TimelineGanttRow[]
   height?: number
   emptyText?: string
 }>(), {
+  span: 0,
   rows: () => [],
   height: 0,
   emptyText: '当前筛选下没有数据。',
@@ -35,7 +41,11 @@ const MARGIN = { top: 8, right: 20, bottom: 28, left: 128 }
 /** Index of the row under the cursor or keyboard focus. */
 const hovered = ref<string | null>(null)
 
-const width = computed(() => Math.max(MIN_WIDTH, props.years.length * 42 + MARGIN.left + MARGIN.right))
+/** Year slots behind the drawing width, so a narrower filtered axis keeps the same drawing width. */
+const slots = computed(() => Math.max(props.years.length, props.span))
+
+/** Drawing width of the band scale; one band is 42 units wide before the filter narrows the axis. */
+const width = computed(() => Math.max(MIN_WIDTH, slots.value * 42 + MARGIN.left + MARGIN.right))
 const plotWidth = computed(() => width.value - MARGIN.left - MARGIN.right)
 const band = computed(() => plotWidth.value / Math.max(1, props.years.length))
 const chartHeight = computed(() => (props.height > 0 ? props.height : MARGIN.top + Math.max(1, props.rows.length) * ROW_HEIGHT + MARGIN.bottom))

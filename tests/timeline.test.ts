@@ -186,6 +186,30 @@ describe('timeline yearly totals', () => {
     expect(timeline.byYear.map((row) => row.shows)).toEqual([2, 0, 1])
     expect(timeline.excludedByYear).toBe(1)
   })
+
+  it('drops empty years before the first included 演出 instead of starting at the year filter', () => {
+    const timeline = buildTimeline(yearlyCatalog(), { yearFrom: 2018 })
+
+    expect(timeline.years).toEqual([2020, 2021, 2022, 2023])
+    expect(timeline.excludedByYear).toBe(0)
+  })
+
+  it('trims both ends to the data a series filter leaves behind', () => {
+    const current = yearlyCatalog()
+    current.performances.push(performance({ id: 5, series_id: 82, start_date: '2026-05-05' }))
+
+    const timeline = buildTimeline(current, { seriesIds: [82] })
+
+    expect(timeline.years).toEqual([2026])
+    expect(timeline.excludedByYear).toBe(0)
+  })
+
+  it('returns an empty axis when the year filter leaves no 演出', () => {
+    const timeline = buildTimeline(yearlyCatalog(), { yearFrom: 2030 })
+
+    expect(timeline.years).toEqual([])
+    expect(timeline.excludedByYear).toBe(3)
+  })
 })
 
 describe('timeline character song counts', () => {
