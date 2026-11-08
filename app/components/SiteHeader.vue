@@ -16,6 +16,7 @@ const closeMenu = (): void => {
  */
 const links = [
   { label: '歌曲', to: '/', icon: 'i-lucide-music' },
+  { label: '时间线', to: '/timeline', icon: 'i-lucide-chart-line' },
   { label: '系列', to: '/series', icon: 'i-lucide-layers' },
   { label: '城市', to: '/cities', icon: 'i-lucide-map-pin' },
   { label: 'P主', to: '/producers', icon: 'i-lucide-user-round' },

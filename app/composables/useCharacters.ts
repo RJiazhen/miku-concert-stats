@@ -1,10 +1,13 @@
 import raw from '~~/data/characters.json'
-import { assignCharacters, parseCharacterConfig } from '~~/shared/characters.ts'
+import { assignCharacters, parseCharacterConfig, type CharacterRule } from '~~/shared/characters.ts'
 
 const rules = parseCharacterConfig(raw)
 
 /** Base names in config order, for the ranking filter. */
 export const characterNames: readonly string[] = rules.map((rule) => rule.name)
+
+/** Compiled character rules, shared with the timeline aggregation so both pages assign the same names. */
+export const characterRules: readonly CharacterRule[] = rules
 
 /** Image colour per base character; characters without a configured colour are absent. */
 const colors = new Map(rules.filter((rule) => rule.color !== null).map((rule) => [rule.name, rule.color as string]))

@@ -221,6 +221,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/cities.ts` 把 `performances` 聚合成城市排行。城市由 `place-names.zh-CN.json` 的中文名与 `shared/rotation.ts` 的 `CITY_ALIASES` 共同识别：按 `series_suffix` → `name` → `name_ja` → `venue_name` 依次匹配，长拼写优先，所以 `Washington D.C.` 不会被 `Washington` 抢走。中文名去掉末尾「都 / 市」后作为分组键，`東京都`、`東京`、`TOKYO` 因此同组（`京都` 这类会短于两个字的名字保留后缀）。演出数是不同 `performances` 行数；场次是每行覆盖的演出日数，传入 `showCounts` 时会把日场 / 夜场拆开（`start_date`–`end_date` 闭区间，无日期或倒序的区间计 1 个场次，最长 14 天）。配信、线上与 VR 行默认剔除；识别不出城市的行只汇总到 `unknown`，不编造城市。
 
+`shared/timeline.ts` 的 `buildTimeline(catalog, options)` 给 `/timeline` 一次算出所有年度序列：连续年份轴（空档年保留为 0）、逐年场次 / 演出、按系列的逐年演出数、按角色的逐年出场、新曲 / 复演曲、系列与城市跨度，以及被年份范围或无日期排除的演出数。筛选条件（系列、城市、制作人、角色、年份、配信、合并版本）都在这个函数里落到同一份 `performances` 数据集合上。计数直接复用站内已有的推导，不另写一套：场次来自 `showCountsByPerformance`（派生层优先，其次 `performanceSchedules`），曲目来自 `performance_show_setlist_items` / `derivedItemSongIds`，角色用 `assignCharacters`，制作人用 `producerNamesFor`，城市用 `matchCity`，年份用 `performanceYear`。模式 `show` 按 `show_key` 去重，`event` 每个演出去重一次；合并版本时曲目按 `SongVariantIndex` 折到 canonical id，而角色仍按实际演出的版本署名统计。新曲按「站内最早演出年份」判断，`catalog` 基准忽略其他筛选，`filtered` 基准只看当前筛选范围；`songs.premiere_date` 不参与。未匹配任何角色规则的署名汇总为「未识别」，未识别城市只计数、不编造城市。
+
 `shared/producers.ts` 把制作人聚合成排行榜与详情页。名单沿用 `shared/producer-options.ts` 的 `producerNamesFor`：结构化 `song_producers` 优先，整首歌没有任何结构化署名时才退回 `artist_string` 的 `feat.` 之前部分（`Unknown producer(s)` 之类占位不算）。因此 `samfree`、`40mP` 这类只有自由文本署名的制作人也有页面，但不会编造 VocaDB `artist_id`。曲目数是不同歌曲 id 数，变体版本分别计数、不合并版本组；演出曲目与表演次数读场次层 `performance_show_setlist_items`，没有展开行的旧目录回退到源歌单加 `showsForNotes`，串烧按 `medley_songs` 展开成组成曲；演出数是不同 `performances` 行数，场次是这些曲目出现过的 `show_key` 去重；配信、线上与 VR 演出默认剔除；场次层里有歌单的演出都计入，包括 `song_list_id` 为空、歌单只来自百科逐曲表的演出，与排行口径一致。没有出场记录的制作人仍然列出，演出数与场次为 0。`localProducerMatches` 供页眉搜索，按名字做大小写不敏感子串匹配，最多 5 位。
 
 `shared/overview.ts` 给 `/series` 总览页供数：`buildSeriesOverview` 按 `series_id` 汇总每系列的演出数、场次、年份跨度与首末演出日期，按首次演出日期升序；`buildPerformanceOverview` 把全部演出摊平成一行一条，日期倒序、无日期的排在最后，并带场馆、场次与「有没有歌单」。两者都接受可选的 `showCounts`（`performanceSchedules` 的场次数），没传时按日历天计场次。
@@ -243,6 +245,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人，`q` 记录从结果页带过来的歌曲搜索）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
+| `/timeline` | `app/pages/timeline/index.vue` | 时间线图表。在浏览器里用 `shared/timeline.ts` 聚合，展示场次数 / 演出数、按系列的演出数、角色出场、新曲 / 复演曲，另附系列活跃甘特图与巡演城市迁移。筛选（系列 `series_id`、城市、制作人 `producer`、角色、年份 `from` / `to`、配信、合并版本、新曲基准）与图表选择 `chart` 都写在 URL query 里；图表是内联 SVG，支持悬停明细、键盘焦点与点击跳转 `/shows`、`/series`、`/songs` |
 | `/search` | `app/pages/search.vue` | 搜索结果页。`?q=` 保存查询词，顶部输入框即时匹配并 `replace` 同步 URL，清空显示空状态；按 系列 → 演出 → 地点 → 制作人 → 歌曲 分区列出全部命中，分区标题给出真实总数，每类有「查看全部」入口（歌曲带 `?q=` 跳到排行），每区先显示 20 条并可用「显示更多」展开；目录加载中显示骨架，失败显示错误，加载完成前不显示「没有结果」 |
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、11 张数据表（每张 100 行分页，表定义与分页在 `app/composables/useRawTables.ts`）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复，数据在 `app/composables/useRawQuality.ts`） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
@@ -272,7 +275,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同演出的歌曲数量对不上时不合并，按多份歌单分别显示。
 
-`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌（`public/logo.png` 徽标）、五个公开入口（歌曲 / 系列 / 城市 / 制作人 / 原始数据）、中文名称开关（`USwitch`，只在客户端生效，同时控制中文歌名、中文地点、中文系列名与中文角色名）、`UColorModeButton`。站点图标同样指向 `/logo.png`（`nuxt.config.ts` 的 `app.head.link`）。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
+`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌（`public/logo.png` 徽标）、六个公开入口（歌曲 / 时间线 / 系列 / 城市 / 制作人 / 原始数据）、中文名称开关（`USwitch`，只在客户端生效，同时控制中文歌名、中文地点、中文系列名与中文角色名）、`UColorModeButton`。站点图标同样指向 `/logo.png`（`nuxt.config.ts` 的 `app.head.link`）。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
 
 `app/composables/useSongLanguage.ts` 保存歌名语言，`localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`），并暴露 `showChinese` 布尔绑定给开关。服务端和首屏先显示原文，挂载后再读选择，避免注水不一致。
 
