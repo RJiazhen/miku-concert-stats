@@ -65,8 +65,6 @@ export type SearchSection = {
   rows: SearchRow[]
   /** Whether `rows` shows only the first part of `total`. */
   truncated: boolean
-  /** Index page (or song ranking) that lists this type without a cap. */
-  moreTo: string
 }
 
 /** Per-type row caps; omitted types use the header panel defaults. */
@@ -206,13 +204,6 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       song: { id: song.id, original: song.name_ja || song.name, nameEn: song.name_en },
     }))
 
-  /** Index page, or the filtered ranking for songs, that lists one type without a cap. */
-  const moreTarget = (key: SearchSectionKey): string => {
-    if (key === 'producers') return '/producers'
-    if (key === 'songs') return `/?q=${encodeURIComponent(query.value.trim())}`
-    return '/series'
-  }
-
   /** Every non-empty result type, in the shared display order. */
   const sections = computed<SearchSection[]>(() => {
     const all = hits.value
@@ -241,7 +232,6 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
         total,
         rows: rows[key],
         truncated: rows[key].length < total,
-        moreTo: moreTarget(key),
       }]
     })
   })

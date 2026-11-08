@@ -48,7 +48,7 @@ onMounted(startLoad)
 /** Sentinel for an open end of the year range; Reka UI forbids an empty `SelectItem` value. */
 const YEAR_ANY = 'all'
 
-/** Song search restored from `?q=`, set by the search-results page's “查看全部” link. */
+/** Song search restored from `?q=`, so a shared ranking link stays filtered. */
 const searchQuery = ref('')
 
 const mode = ref<RankingMode>('show')

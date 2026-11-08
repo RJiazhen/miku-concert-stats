@@ -153,7 +153,6 @@ useHead({
         :section="section"
         :rows="rowsOf(section)"
         variant="page"
-        show-more
         :query="needle"
         @show-more="revealMore(section.key)"
       />

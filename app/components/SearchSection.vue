@@ -9,14 +9,11 @@ const props = withDefaults(defineProps<{
   variant?: 'panel' | 'page'
   /** Rows to print now; defaults to every row the lookup returned. */
   rows?: SearchRow[]
-  /** Whether to print the type's “查看全部” link. */
-  showMore?: boolean
   /** Query the rows matched, forwarded so a song row can show the alias that hit. */
   query?: string
 }>(), {
   variant: 'panel',
   rows: undefined,
-  showMore: false,
   query: '',
 })
 
@@ -51,9 +48,8 @@ const headingId = computed(() => `search-section-${props.section.key}`)
         <SearchHitRow :row="row" :query="props.query" @select="emit('select')" />
       </li>
     </ul>
-    <div v-if="visibleRows.length < section.rows.length || showMore" class="flex flex-wrap items-center gap-x-3 gap-y-1 px-2 pt-1">
+    <div v-if="visibleRows.length < section.rows.length" class="flex flex-wrap items-center gap-x-3 gap-y-1 px-2 pt-1">
       <UButton
-        v-if="visibleRows.length < section.rows.length"
         color="neutral"
         variant="link"
         size="xs"
@@ -61,11 +57,6 @@ const headingId = computed(() => `search-section-${props.section.key}`)
       >
         显示更多
       </UButton>
-      <NuxtLink
-        v-if="showMore"
-        :to="section.moreTo"
-        class="text-xs text-primary no-underline hover:underline"
-      >查看全部 {{ section.total }} {{ section.unit }}</NuxtLink>
     </div>
   </section>
 </template>
