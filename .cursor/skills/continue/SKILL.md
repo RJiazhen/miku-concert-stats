@@ -20,6 +20,16 @@ disable-model-invocation: true
 - 合并权限决定走向：`gh api "repos/RJiazhen/miku-concert-stats" --jq .permissions.push` 为 `true`（或自己就是仓库 owner）才走 squash 合并上线；否则只推送分支并开 PR，不碰 `main`。
 - 相关规则：`.cursor/rules/git-worktree.mdc`、`.cursor/rules/testing.mdc`、`.cursor/rules/ui-style-review.mdc`；涉及 `data/` 时还要遵守 `.cursor/rules/data-sources.mdc`。
 
+## 并发保护
+
+同一台机器上可能同时有好几个会话开着这个仓库，各自占一个任务 worktree。一个任务只认自己新建的那个 worktree 和分支：
+
+- **不复用、不接管**别人的 worktree 或分支：不因为「目录里已经有任务 worktree」就把它当成本任务，也不在里面改文件、切分支、rebase、合并、删除。
+- 当前检出（`$ROOT`）是别人的任务 worktree 时，不要在那里开工：说明情况，改在 `$MAIN` 上按 Start 新建自己的 worktree。
+- 动手写文件前先看 `git -C "$WORKTREE" status` 和 `git -C "$WORKTREE" branch --show-current`：出现 `rebase in progress`、`MERGE_HEAD`、或分支不是本任务的 → 立刻停下汇报，不要 `--abort` / `--continue` / `reset` / `checkout`。
+- Ship 清理前先把要删的分支和你刚合并的内容核对一遍（`git -C "$MAIN" rev-parse "$BRANCH"`）：对不上说明别的会话动过它，停下汇报，不要 `-D`。
+- 只动本任务自己的分支、worktree 和端口。
+
 ## 阶段判定
 
 先采集状态：
@@ -36,20 +46,20 @@ git worktree list --porcelain
 
 **确定这次操作的是哪个任务 worktree**：
 
-1. `$ROOT` 不是 `$MAIN`（当前就在某个任务 worktree 里）→ 就是它。
-2. `$ROOT` 是 `$MAIN`，且 `git worktree list` 里除 `main` 外只有一个任务 worktree → 用它。
-3. 有多个任务 worktree → 用 `AskQuestion` 让用户选，不要猜。
-4. 一个任务 worktree 都没有：
+1. 本任务本轮新建的 worktree，或本对话上一轮汇报过的那个 worktree → 就是它。
+2. `$ROOT` 是别人的任务 worktree（不在本对话的汇报里）→ 不要用它，在 `$MAIN` 上另建。
+3. 一个本任务的 worktree 都没有：
    - 用户本轮只是确认（`1` / 确认 / 可以 / 通过 / 上线）→ 没有可上线的任务，说明并停止。
    - 否则按 **Start** 新建。
+4. 有多份可能属于本任务的 worktree、又分不清时 → 用 `AskQuestion` 让用户选，不要猜。
 
 **用户确认的信号**：消息只有 `1`，或明确说「确认 / 可以 / 通过 / 没问题 / 检查完了 / 上线 / 合并 / 部署」。带新需求的消息一律算 **Develop**，不要自作主张 merge。
 
 | 条件 | Phase |
 | ---- | ----- |
-| 没有任务 worktree，用户给出需求 | **Start** |
-| 有任务 worktree，用户还没确认（或带新需求） | **Develop** |
-| 有任务 worktree，用户本轮明确确认 | **Ship** |
+| 没有本任务的 worktree，用户给出需求 | **Start**（永远新建，不借用已有的） |
+| 有本任务的 worktree，用户还没确认（或带新需求） | **Develop** |
+| 有本任务的 worktree，用户本轮明确确认 | **Ship** |
 
 ## Phase：Start（新建任务）
 
@@ -69,6 +79,7 @@ git -C "$MAIN" worktree add \
 
 - 分支名用 kebab-case（历史分支都是 `feat-…` / `fix-…`，不用斜杠）。
 - 从 `origin/main` 拉出，不复用已合并过的旧分支。
+- **即使目录里已经有别的任务 worktree，也照建新的**：不借用、不接管别人的 worktree 与分支，也不复用已经存在但被别的任务占着的分支名（撞名就换一个更具体的名字）。
 - 不要在 `$MAIN` 里 `git checkout -b`，也不要为了新任务切走别人的检出。
 
 然后把目录登记进 workspace 文件（`.../miku-concert-stats.worktrees/miku-concert-stats.code-workspace`）：向 `folders` 追加 `{ "name": "<branch>", "path": "<branch>" }`，保留已有项。
@@ -130,13 +141,13 @@ nohup env NUXT_IGNORE_LOCK=1 vp dev --port "$PORT" > tmp/dev-server.log 2>&1 &
 
 ## Phase：Develop（继续开发）
 
-1. 按用户本轮的新要求改代码；仍然只在任务 worktree 里改动。
+1. 按用户本轮的新要求改代码；只在**本任务的** worktree 里改动，不碰别的任务 worktree 与分支。
 2. 需要时跑 `pnpm test`（口径见 testing rule）。
 3. 改完按 Start 第 4 步提交到任务分支（有 `permissions.push` 就 push，否则只本地提交）。
 4. 开发服务器没在跑就用 `docs/architecture.md` 里这个分支的端口重新拉起（Start 第 5 步）。
 5. 汇报同样的信息并停止，等用户验收。本轮不合并、不开 PR。
 
-一个 worktree 只做一个任务：如果本轮需求与已有改动无关，说明情况并新建 worktree，不要混做。
+一个 worktree 只做一个任务：本轮需求与已有改动无关时，说明情况并按 Start 新建 worktree，不要在同一分支上混做；也不要接着别人的 worktree 继续改。
 
 ## Phase：Ship（用户已确认，合并上线）
 
@@ -145,13 +156,14 @@ nohup env NUXT_IGNORE_LOCK=1 vp dev --port "$PORT" > tmp/dev-server.log 2>&1 &
 ### 1. 合并前检查
 
 ```bash
-WORKTREE="<任务 worktree>"
+WORKTREE="<本任务的 worktree>"
 BRANCH=$(git -C "$WORKTREE" branch --show-current)
 PORT=$(rg -o "$BRANCH 用 ([0-9]+)" -r '$1' "$WORKTREE/docs/architecture.md" 2>/dev/null | head -n1)
 git -C "$WORKTREE" status --short
 git -C "$WORKTREE" log --oneline origin/main..HEAD
 ```
 
+- `$WORKTREE` 必须就是本任务的 worktree（本对话上一轮汇报过的那个）；指向别人的 worktree 时停下，用 `AskQuestion` 确认，不要合并别人的分支。
 - 还有未提交改动 → 先按 Start 第 4 步提交到任务分支，再继续。
 - 工作区干净、`origin/main..HEAD` 也为空 → 没有可上线的内容，说明并停止。
 - 改动涉及 `shared/`、`server/`、`app/`、`scripts/`、`data/`、`tests/` 的逻辑或数据 → 跑 `pnpm test`。
@@ -226,8 +238,9 @@ git -C "$MAIN" worktree list
 - `$PORT` 查不到（这个任务没起开发服务器）时跳过第一行。
 - 清空 workspace 文件 `folders` 里 `name` 与 `path` 都等于 `$BRANCH` 的那一项（该文件不在仓库里，直接编辑）。
 - `$WORKTREE` 不干净或 `worktree remove` 报 “contains modified or untracked files” 时停止，把文件列给用户，不要 `--force`，也不要先删再问。
+- 删分支前先核对 `git -C "$MAIN" rev-parse "$BRANCH"` 与刚刚合并的那次 commit 一致；不一致说明别的会话又往这条分支写了东西，停下汇报，不要 `-D`。
 - 部署失败时一律不清理，留在原 worktree 继续修。
-- 只清理本次任务自己的分支与 worktree，不顺手动别人的。
+- 只清理本次任务自己的分支与 worktree，不顺手动别人的（包括同名的旧分支、别人的端口记录）。
 
 ### 5. 汇报
 
