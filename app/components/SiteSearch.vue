@@ -1,25 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
-import { usePlaceNames } from '~/composables/usePlaceNames.ts'
-import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
-import { useSongAliases } from '~/composables/useSongAliases.ts'
-import { useSongLanguage } from '~/composables/useSongLanguage.ts'
-import {
-  localPerformanceMatches,
-  localPlaceMatches,
-  localProducerMatches,
-  localSeriesMatches,
-  localSongMatches,
-} from '~~/shared/lookup.ts'
-import type { PerformanceRow, SeriesRow, SongRow } from '~~/shared/types.ts'
-import { producerPath } from '~~/shared/producers.ts'
+import { searchPagePath, useSearchHits } from '~/composables/useSearchHits.ts'
 
-const { catalog, load } = useCatalog()
-const { localizePlace } = usePlaceNames()
-const { localizePerformanceSeries, localizeSeries } = useSeriesTitles()
-const { aliasTitles } = useSongAliases()
-const { chineseSpellings } = useSongLanguage()
+const { catalog, error, pending, load } = useCatalog()
 
 /** Placeholder shared by the desktop input and the mobile panel. */
 const placeholder = '搜索歌曲、系列、演出、地点或制作人'
@@ -35,44 +19,11 @@ const query = ref('')
 const open = ref(false)
 const mobileOpen = ref(false)
 
-/** Registered alternate titles (`data/song-aliases.json`) plus the Chinese title and its aliases, matched alongside the catalog names. */
-const songSpellings = (row: SongRow): string[] => [...aliasTitles(row.id), ...chineseSpellings(row.id)]
+/** Sectioned hits shared with `/search`; the panel keeps its per-type caps. */
+const { sections } = useSearchHits(query)
 
-/** Local song matches in the loaded catalog. */
-const localHits = computed(() =>
-  catalog.value ? localSongMatches(catalog.value, query.value, songSpellings) : [],
-)
-
-/** Producer-name matches, listed before the songs in the same panel. */
-const producerHits = computed(() => (catalog.value ? localProducerMatches(catalog.value, query.value) : []))
-
-/** Series names by id, so a 演出 hit can translate the series label inside its name. */
-const seriesNames = computed(() => new Map((catalog.value?.series ?? []).map((row) => [row.id, row.name])))
-
-/** Series names also match their Chinese title when one is recorded. */
-const seriesSpellings = (row: SeriesRow): string[] => [localizeSeries(row.name)]
-
-/** 演出 names also match their localized series label and place spelling. */
-const performanceSpellings = (row: PerformanceRow): string[] => {
-  const seriesName = seriesNames.value.get(row.series_id) ?? ''
-  return [localizePlace(localizePerformanceSeries(row.name, seriesName, row.series_number))]
-}
-
-/** Venue names also match the localized place spelling. */
-const placeSpellings = (venue: string): string[] => [localizePlace(venue)]
-
-/** Series matches, shown before 演出 and places. */
-const seriesHits = computed(() =>
-  catalog.value ? localSeriesMatches(catalog.value, query.value, seriesSpellings) : [],
-)
-
-/** 演出-name matches in the loaded catalog. */
-const performanceHits = computed(() =>
-  catalog.value ? localPerformanceMatches(catalog.value, query.value, performanceSpellings) : [],
-)
-
-/** Place (venue) matches in the loaded catalog. */
-const placeHits = computed(() => (catalog.value ? localPlaceMatches(catalog.value, query.value, placeSpellings) : []))
+/** Whether the catalog is still downloading; an empty panel must not claim “没有找到”. */
+const loading = computed(() => pending.value || (catalog.value === null && error.value === null))
 
 /** Whether the desktop result panel should be open. */
 const panelOpen = computed(() => open.value && query.value.trim() !== '')
@@ -88,55 +39,12 @@ const reset = (): void => {
   mobileOpen.value = false
 }
 
-/** Opens one song's detail page. */
-const openSong = async (songId: number): Promise<void> => {
-  reset()
-  await navigateTo(`/songs/${songId}`)
-}
-
-/** Opens one producer's detail page. */
-const openProducer = async (name: string): Promise<void> => {
-  reset()
-  await navigateTo(producerPath(name))
-}
-
-/** Opens one series page. */
-const openSeries = async (seriesId: number): Promise<void> => {
-  reset()
-  await navigateTo(`/series/${seriesId}`)
-}
-
-/** Opens one 演出 page. */
-const openPerformance = async (performanceId: number): Promise<void> => {
-  reset()
-  await navigateTo(`/shows/${performanceId}`)
-}
-
-/** Opens the 演出 table filtered to one place. */
-const openPlace = async (place: string): Promise<void> => {
-  reset()
-  await navigateTo({ path: '/series', query: { place } })
-}
-
-/** Enter opens the first hit, preferring a song, then a 演出, a series, and finally a place. */
+/** Enter opens the full results page instead of guessing one result to open. */
 const submit = (): void => {
-  const song = localHits.value[0]
-  if (song) {
-    void openSong(song.id)
-    return
-  }
-  const performance = performanceHits.value[0]
-  if (performance) {
-    void openPerformance(performance.performanceId)
-    return
-  }
-  const series = seriesHits.value[0]
-  if (series) {
-    void openSeries(series.seriesId)
-    return
-  }
-  const place = placeHits.value[0]
-  if (place) void openPlace(place.name)
+  if (query.value.trim() === '') return
+  const target = searchPagePath(query.value)
+  reset()
+  void navigateTo(target)
 }
 
 /** Closes the desktop panel when the click lands outside the search box. */
@@ -181,16 +89,10 @@ onUnmounted(stopListening)
     >
       <SiteSearchResults
         :query="query"
-        :local="localHits"
-        :producers="producerHits"
-        :series="seriesHits"
-        :performances="performanceHits"
-        :places="placeHits"
-        @select="openSong"
-        @select-producer="openProducer"
-        @select-series="openSeries"
-        @select-performance="openPerformance"
-        @select-place="openPlace"
+        :sections="sections"
+        :loading="loading"
+        :error="error"
+        @select="reset"
       />
     </div>
 
@@ -217,22 +119,17 @@ onUnmounted(stopListening)
             autofocus
             aria-label="站内搜索"
             @keydown.enter.prevent="submit"
+            @keydown.esc="reset"
           />
           <UButton icon="i-lucide-x" color="neutral" variant="ghost" aria-label="关闭搜索" @click="reset" />
         </div>
         <div v-if="query.trim() !== ''" class="rounded-xl bg-default ring ring-default">
           <SiteSearchResults
             :query="query"
-            :local="localHits"
-            :producers="producerHits"
-            :series="seriesHits"
-            :performances="performanceHits"
-            :places="placeHits"
-            @select="openSong"
-            @select-producer="openProducer"
-            @select-series="openSeries"
-            @select-performance="openPerformance"
-            @select-place="openPlace"
+            :sections="sections"
+            :loading="loading"
+            :error="error"
+            @select="reset"
           />
         </div>
       </div>

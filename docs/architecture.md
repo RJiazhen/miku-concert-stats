@@ -242,7 +242,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
-| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
+| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人，`q` 记录从结果页带过来的歌曲搜索）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
+| `/search` | `app/pages/search.vue` | 搜索结果页。`?q=` 保存查询词，顶部输入框即时匹配并 `replace` 同步 URL，清空显示空状态；按 系列 → 演出 → 地点 → 制作人 → 歌曲 分区列出全部命中，分区标题给出真实总数，每类有「查看全部」入口（歌曲带 `?q=` 跳到排行），每区先显示 20 条并可用「显示更多」展开；目录加载中显示骨架，失败显示错误，加载完成前不显示「没有结果」 |
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、11 张数据表（每张 100 行分页，表定义与分页在 `app/composables/useRawTables.ts`）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复，数据在 `app/composables/useRawQuality.ts`） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
 | `/producers` | `app/pages/producers/index.vue` | 制作人排行榜。`UTable` 排序，默认按曲目数降序，可按名字搜索；每行给出曲目数、演出曲目、表演次数、演出数、场次、最早/最晚年份、主要角色与最多 3 首代表作（链到 `/songs/{id}`）；制作人名链到 `/producers/{name}`；页头汇总制作人数与去重后的曲目数 |
@@ -255,7 +256,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `edition_premieres` 表与 `series_number` 列保留（来自 VocaDB，用于系列年度首演与歌单差异对照），但**不再**是导航层级：页面只按 系列 → 演出 → 场次 展示，`series_number` 只在需要时作为演出旁的年份标签出现。
 
-`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `localSongMatches`、`localProducerMatches`、`localSeriesMatches`、`localPerformanceMatches` 与 `localPlaceMatches` 在已下载的目录里匹配，不向站外发请求；结果浮层依次列「系列 N 个」（名字、演出数，链到 `/series/{id}`）、「演出 N 个」（名字、日期与场馆，链到 `/shows/{id}`）、「地点 N 个」（场馆名、演出数，链到 `/series?place={场馆}`）、「制作人 N 位」（名字、所属角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`，也可以带着关键词跳到排行）。中文名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongLanguage` 提供的中文名及其 `aliases`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 依次打开第一首歌、第一个演出、第一个系列，最后才打开第一个地点。
+`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `shared/lookup.ts` 的五个 `local*Matches` 在已下载的目录里匹配，不向站外发请求；`app/composables/useSearchHits.ts` 把查询、译名与分区顺序集中到一处，`SiteSearch` 与 `/search` 都只消费它的 `sections`，因此两边的匹配、排序与分区顺序不会分叉。结果浮层依次列 系列 → 演出 → 地点 → 制作人 → 歌曲（`SEARCH_SECTIONS`），分区标题写真实命中总数，超过该类型上限时补「已显示前 M 条」；条目沿用同一套 `SearchRow`（系列名 + 演出数、演出名 + 日期·场馆、地点 + 演出数、制作人 + 角色徽章 + 歌曲数、歌曲 + 制作人）。系列 / 演出 / 地点 / 制作人默认各 5 条、歌曲 50 条，浮层底部固定一个「查看全部结果」入口，歌曲被截断时写成「查看全部 N 首」，都指向 `/search?q=`。中文名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongLanguage` 提供的中文名及其 `aliases`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 不再猜一个条目打开，而是 `navigateTo('/search?q=...')` 并关闭浮层；点击浮层里的某一条仍然直接进对应详情页。
 
 外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`）。skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题（用户另行指定来源时例外）、在每条回答末尾附站的 `参考链接`（歌曲 / 演出 / 系列 / 制作人页），并在首次空提问的演示之后、且 skill 未被本地安装时，追加一次安装命令。API 覆盖不到的部分（未收录的演出、`null` 字段、发行信息、站外数据等）允许改用手上的其他工具或站外来源补齐，但站内数字仍以 API 为准，且必须标明哪部分来自站外。
 

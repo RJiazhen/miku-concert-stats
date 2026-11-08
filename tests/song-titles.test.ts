@@ -5,7 +5,7 @@ import { applyCatalogSql } from '../scripts/build-catalog.ts'
 import { loadCatalog } from '../shared/catalog.ts'
 import { localSongMatches } from '../shared/lookup.ts'
 import { formatSongTitle, matchSongTitle, parseSongTitles, songTitleAliases, songTitleFor, songTitleSpellings } from '../shared/song-titles.ts'
-import type { SongRow, SqlRow } from '../shared/types.ts'
+import type { Catalog, SongRow, SqlRow } from '../shared/types.ts'
 
 describe('Chinese song titles', () => {
   it('rejects a blank title, a missing source, and a non-numeric id', () => {
@@ -112,15 +112,92 @@ describe('Chinese song titles', () => {
       /** Test-side stand-in for the composable: the Chinese spellings the header search passes in. */
       const spellings = (song: SongRow): string[] => songTitleSpellings(titles, song.id)
       /** Song ids the header search would list for one query. */
-      const idsOf = (query: string): number[] => localSongMatches(catalog, query, spellings).map((song) => song.id)
+      const idsOf = (query: string): number[] => localSongMatches(catalog, query, spellings).items.map((song) => song.id)
       // Song 20 displays as 世末舞厅 and records 世界末日舞厅 as an alias.
       expect(idsOf('世末舞厅')).toContain(20)
       expect(idsOf('世界末日舞厅')).toContain(20)
       expect(idsOf('融化')).toContain(1322)
       // Without the Chinese spellings the same query matches nothing, which was the bug.
-      expect(localSongMatches(catalog, '世末舞厅').map((song) => song.id)).not.toContain(20)
+      expect(localSongMatches(catalog, '世末舞厅').items.map((song) => song.id)).not.toContain(20)
     } finally {
       db.close()
     }
+  })
+
+  it('ranks song hits by relevance and 演出 count, then caps without hiding the total', () => {
+    /** Song row with only the fields the lookup reads. */
+    const song = (id: number, name: string): SongRow => ({
+      id,
+      name,
+      name_ja: null,
+      name_en: null,
+      artist_string: null,
+      song_type: 'Original',
+      category: 'vocaloid',
+      publish_date: null,
+      length_seconds: null,
+      source_url: '',
+      retrieved_at: '',
+    })
+    const catalog: Catalog = {
+      sources: [],
+      series: [{ id: 1, name: 'S', name_ja: null, description: null, source_url: '', retrieved_at: '' }],
+      performances: [1, 2].map((id) => ({
+        id,
+        series_id: 1,
+        name: `Show ${id}`,
+        name_ja: null,
+        venue_name: null,
+        country_code: 'JP',
+        start_date: `2020-01-0${id}`,
+        end_date: null,
+        showtime_local: null,
+        timezone: null,
+        time_precision: 'day',
+        time_evidence: null,
+        role: 'show',
+        series_number: 2020,
+        series_suffix: null,
+        song_list_id: null,
+        vocadb_status: null,
+        source_url: '',
+        retrieved_at: '',
+      })),
+      performanceLinks: [],
+      premieres: [],
+      songLists: [],
+      songs: [
+        song(1, 'melt'),
+        song(2, 'melt glow'),
+        song(3, 'melt wave'),
+        ...Array.from({ length: 57 }, (_, index) => song(100 + index, `song about melt ${index}`)),
+      ],
+      setlistItems: [],
+      setlistItemSongs: [],
+      medleyQuarantine: [],
+      videos: [],
+      performanceSetlists: [],
+      performanceSetlistSources: [],
+      performanceShowSetlists: [],
+      // Song 2 appears in both 演出, song 3 only in the first, so the same score is ordered by 演出数.
+      performanceShowSetlistItems: [
+        { performance_id: 1, show_key: '1:2020-01-01', position: 1, source_position: null, song_id: 2, medley_id: null, evidence: 'wiki', notes: null },
+        { performance_id: 2, show_key: '2:2020-01-02', position: 1, source_position: null, song_id: 2, medley_id: null, evidence: 'wiki', notes: null },
+        { performance_id: 1, show_key: '1:2020-01-01', position: 2, source_position: null, song_id: 3, medley_id: null, evidence: 'wiki', notes: null },
+      ],
+      medleys: [],
+      medleySongs: [],
+      performanceStatus: [],
+    }
+
+    const result = localSongMatches(catalog, 'melt')
+    expect(result.total).toBe(60)
+    expect(result.limit).toBe(50)
+    expect(result.items).toHaveLength(50)
+    // Exact title first, then the two prefixes ordered by 演出数, then substrings.
+    expect(result.items.slice(0, 3).map((row) => row.id)).toEqual([1, 2, 3])
+    expect(result.items.slice(3).every((row) => row.name.startsWith('song about melt'))).toBe(true)
+    // A smaller cap changes only the returned slice; the real total stays 60.
+    expect(localSongMatches(catalog, 'melt', () => [], 5)).toMatchObject({ total: 60, limit: 5 })
   })
 })

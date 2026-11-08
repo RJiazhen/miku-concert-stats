@@ -15,7 +15,9 @@ import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { availableProducers, producerNamesForSongs } from '~~/shared/producer-options.ts'
 import { producerPath } from '~~/shared/producers.ts'
+import { LOOKUP_ALL, localSongMatches } from '~~/shared/lookup.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
+import type { SongRow } from '~~/shared/types.ts'
 import {
   availablePerformanceYears,
   canEndRangeAt,
@@ -29,9 +31,9 @@ const variants = useSongVariants()
 const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
-const { language, translationFor } = useSongLanguage()
+const { language, translationFor, chineseSpellings } = useSongLanguage()
 const { localizeCharacter, compareCharacters, compareCharacterLists } = useCharacterNames()
-const { jaTitle } = useSongAliases()
+const { jaTitle, aliasTitles } = useSongAliases()
 const sortableHeader = useSortableHeader()
 
 /** Width the 歌曲 cell may occupy before it truncates; keeps every column visible at 1280px. */
@@ -45,6 +47,9 @@ onMounted(startLoad)
 
 /** Sentinel for an open end of the year range; Reka UI forbids an empty `SelectItem` value. */
 const YEAR_ANY = 'all'
+
+/** Song search restored from `?q=`, set by the search-results page's “查看全部” link. */
+const searchQuery = ref('')
 
 const mode = ref<RankingMode>('show')
 const selectedSeries = ref<number[]>([])
@@ -154,14 +159,26 @@ const ranked = computed<RankedSong[]>(() => {
   })
 })
 
-/** Ranking rows after the character and producer filters; empty selections mean 全部. */
+/** Song spellings matched by the `?q=` filter, reusing the header search's alias and Chinese titles. */
+const songSpellings = (song: SongRow): string[] => [...aliasTitles(song.id), ...chineseSpellings(song.id)]
+
+/** Song ids matching `?q=`, or null when the ranking is not search-filtered. */
+const searchedSongIds = computed<ReadonlySet<number> | null>(() => {
+  const needle = searchQuery.value.trim()
+  if (needle === '' || catalog.value === null) return null
+  return new Set(localSongMatches(catalog.value, needle, songSpellings, LOOKUP_ALL).items.map((song) => song.id))
+})
+
+/** Ranking rows after the search, character, and producer filters; empty selections mean 全部. */
 const filtered = computed(() =>
   ranked.value.filter((row) => {
     const characterOk =
       characterFilter.value.length === 0 || characterFilter.value.some((name) => row.characterList.includes(name))
     const producerOk =
       producerFilter.value.length === 0 || producerFilter.value.some((name) => row.producerList.includes(name))
-    return characterOk && producerOk
+    const matched = searchedSongIds.value
+    const searchOk = matched === null || [row.songId, ...row.variantSongIds].some((id) => matched.has(id))
+    return characterOk && producerOk && searchOk
   }),
 )
 
@@ -193,6 +210,8 @@ const cell = (value: string | number | null): string => (value === null || value
 
 /** Query keys mirrored into the URL. */
 type FilterState = {
+  /** `?q=` search term from the results page; empty means no search filter. */
+  q: string
   mode: RankingMode
   series: number[]
   from: string
@@ -209,6 +228,7 @@ type FilterState = {
 
 /** Current filter state in URL form. */
 const state = computed<FilterState>(() => ({
+  q: searchQuery.value.trim(),
   mode: mode.value,
   series: selectedSeries.value,
   from: yearOrNull(yearFrom.value) === null ? '' : yearFrom.value,
@@ -230,6 +250,7 @@ const syncUrl = (): void => {
   void navigateTo(
     {
       query: {
+        q: current.q === '' ? undefined : current.q,
         mode: current.mode === 'event' ? 'event' : undefined,
         series: seriesIsDefault ? undefined : current.series.join(','),
         from: current.from || undefined,
@@ -252,6 +273,7 @@ const readUrl = (): void => {
   const route = useRoute()
   const url = route.query
   const readString = (value: unknown): string => (typeof value === 'string' ? value : '')
+  searchQuery.value = readString(url.q)
   if (readString(url.mode) === 'event') mode.value = 'event'
   const series = readString(url.series)
   if (series !== '') {
@@ -298,6 +320,7 @@ onMounted(() => {
 
 /** Clears every filter back to the default view. */
 const reset = (): void => {
+  searchQuery.value = ''
   mode.value = 'show'
   selectedSeries.value = catalog.value?.series.map((row) => row.id) ?? []
   yearFrom.value = YEAR_ANY
@@ -312,6 +335,7 @@ const reset = (): void => {
 /** Active filter count, shown next to the reset button. */
 const activeFilters = computed(() => {
   let count = 0
+  if (searchQuery.value.trim() !== '') count++
   if (mode.value === 'event') count++
   if (yearOrNull(yearFrom.value) !== null || yearOrNull(yearTo.value) !== null) count++
   if (includeBroadcast.value) count++
@@ -441,6 +465,19 @@ const yearToItems = computed(() =>
             class="w-40"
           />
         </FilterField>
+        <UButton
+          v-if="searchQuery.trim() !== ''"
+          color="primary"
+          variant="subtle"
+          size="sm"
+          icon="i-lucide-search"
+          class="max-w-52 justify-start"
+          aria-label="清除搜索筛选"
+          @click="searchQuery = ''"
+        >
+          <span class="truncate">搜索：{{ searchQuery.trim() }}</span>
+          <UIcon name="i-lucide-x" class="size-3.5 shrink-0" />
+        </UButton>
         <UButton
           color="neutral"
           variant="outline"

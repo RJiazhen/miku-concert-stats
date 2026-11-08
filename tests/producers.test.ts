@@ -377,11 +377,13 @@ describe('producer lookup', () => {
     const index = buildProducerIndex(rows)
     expect(index.rows).toHaveLength(6)
 
-    expect(localProducerMatches(rows, 'p')).toHaveLength(5)
-    expect(localProducerMatches(rows, 'P6').map((hit) => hit.name)).toEqual(['P6'])
-    expect(localProducerMatches(rows, '  p6  ').map((hit) => hit.songCount)).toEqual([1])
-    expect(localProducerMatches(rows, 'nothing')).toEqual([])
-    expect(localProducerMatches(rows, '   ')).toEqual([])
+    const capped = localProducerMatches(rows, 'p')
+    expect(capped.items).toHaveLength(5)
+    expect(capped.total).toBe(6)
+    expect(localProducerMatches(rows, 'P6').items.map((hit) => hit.name)).toEqual(['P6'])
+    expect(localProducerMatches(rows, '  p6  ').items.map((hit) => hit.songCount)).toEqual([1])
+    expect(localProducerMatches(rows, 'nothing')).toEqual({ items: [], total: 0, limit: 5 })
+    expect(localProducerMatches(rows, '   ')).toEqual({ items: [], total: 0, limit: 5 })
   })
 
   it('keeps the ranking order and reports the roles of a hit', () => {
@@ -391,7 +393,7 @@ describe('producer lookup', () => {
       producerSong(2, 'Two', { producers: [{ artistId: 1, name: 'kz', roles: 'producer' }] }),
       producerSong(3, 'Three', { artist_string: 'KZ feat. 初音ミク' }),
     ]
-    expect(localProducerMatches(rows, 'KZ')[0]).toEqual({
+    expect(localProducerMatches(rows, 'KZ').items[0]).toEqual({
       name: 'kz',
       roles: ['producer', 'composer'],
       songCount: 2,

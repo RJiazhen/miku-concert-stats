@@ -1,3 +1,4 @@
+import { rankSongAppearances } from './stats.ts'
 import type { Catalog, PerformanceRow, SeriesRow, SongRow } from './types.ts'
 
 /**
@@ -24,6 +25,35 @@ const nameScore = (spellings: readonly (string | null | undefined)[], needle: st
   }
   return best
 }
+
+/**
+ * One search result set: the rows to print, the real hit count, and the cap that produced `items`.
+ * `total` always counts every hit, so a caller can print “共 N 条，显示前 M 条” without guessing.
+ */
+export type LookupResult<T> = {
+  items: T[]
+  total: number
+  limit: number
+}
+
+/** Default caps of the header search panel, one per result type. */
+export const LOOKUP_LIMITS = {
+  series: 5,
+  performances: 5,
+  places: 5,
+  producers: 5,
+  songs: 50,
+} as const
+
+/** Passing this as `limit` keeps every hit, for index-style result pages. */
+export const LOOKUP_ALL = Number.POSITIVE_INFINITY
+
+/** Wraps the ranked rows into the shared result shape and applies `limit`. */
+const rankedResult = <T,>(ranked: T[], limit: number): LookupResult<T> => ({
+  items: ranked.slice(0, limit),
+  total: ranked.length,
+  limit,
+})
 
 /** One series hit of the header search. */
 export type SeriesLookupHit = {
@@ -62,20 +92,21 @@ export type LookupSpellings<T> = (row: T) => readonly string[]
 /**
  * Finds series already in the catalog.
  * Matching is a case-insensitive substring over the stored names plus the caller's translations.
- * Exact names come first, then prefixes, then popularity; returns at most five hits.
+ * Exact names come first, then prefixes, then popularity; the default cap is five hits.
  */
 export const localSeriesMatches = (
   catalog: Catalog,
   query: string,
   spellings: LookupSpellings<SeriesRow> = () => [],
-): SeriesLookupHit[] => {
+  limit: number = LOOKUP_LIMITS.series,
+): LookupResult<SeriesLookupHit> => {
   const needle = fold(query)
-  if (needle === '') return []
+  if (needle === '') return rankedResult([], limit)
   const counts = new Map<number, number>()
   for (const performance of catalog.performances) {
     counts.set(performance.series_id, (counts.get(performance.series_id) ?? 0) + 1)
   }
-  return catalog.series
+  const ranked = catalog.series
     .flatMap((row) => {
       const score = nameScore([row.name, row.name_ja, ...spellings(row)], needle)
       if (score === null) return []
@@ -86,28 +117,29 @@ export const localSeriesMatches = (
       const rightCount = counts.get(right.row.id) ?? 0
       return left.score - right.score || rightCount - leftCount || left.row.id - right.row.id
     })
-    .slice(0, 5)
     .map(({ row }) => ({
       seriesId: row.id,
       name: row.name,
       performanceCount: counts.get(row.id) ?? 0,
     }))
+  return rankedResult(ranked, limit)
 }
 
 /**
  * Finds 演出 already in the catalog by its own name.
  * Venue spellings match through `localPlaceMatches`, so each result set stays about one kind of
- * thing. Exact names come first, then prefixes, then the newest date; returns at most five hits.
+ * thing. Exact names come first, then prefixes, then the newest date; the default cap is five hits.
  */
 export const localPerformanceMatches = (
   catalog: Catalog,
   query: string,
   spellings: LookupSpellings<PerformanceRow> = () => [],
-): PerformanceLookupHit[] => {
+  limit: number = LOOKUP_LIMITS.performances,
+): LookupResult<PerformanceLookupHit> => {
   const needle = fold(query)
-  if (needle === '') return []
+  if (needle === '') return rankedResult([], limit)
   const seriesById = new Map(catalog.series.map((row) => [row.id, row]))
-  return catalog.performances
+  const ranked = catalog.performances
     .flatMap((row) => {
       const score = nameScore([row.name, row.name_ja, ...spellings(row)], needle)
       if (score === null) return []
@@ -117,7 +149,6 @@ export const localPerformanceMatches = (
       const dateOrder = (right.row.start_date ?? '').localeCompare(left.row.start_date ?? '')
       return left.score - right.score || dateOrder || right.row.id - left.row.id
     })
-    .slice(0, 5)
     .map(({ row }) => {
       const series = seriesById.get(row.series_id)
       return {
@@ -130,20 +161,22 @@ export const localPerformanceMatches = (
         startDate: row.start_date,
       }
     })
+  return rankedResult(ranked, limit)
 }
 
 /**
  * Finds venue names already in the catalog, grouped by spelling.
  * The count is the number of 演出 rows held there, so a three-day run still reads as one 演出.
- * Exact names come first, then the most-used venue; returns at most five hits.
+ * Exact names come first, then the most-used venue; the default cap is five hits.
  */
 export const localPlaceMatches = (
   catalog: Catalog,
   query: string,
   spellings: LookupSpellings<string> = () => [],
-): PlaceLookupHit[] => {
+  limit: number = LOOKUP_LIMITS.places,
+): LookupResult<PlaceLookupHit> => {
   const needle = fold(query)
-  if (needle === '') return []
+  if (needle === '') return rankedResult([], limit)
   const hits = new Map<string, { score: number; performanceCount: number }>()
   for (const performance of catalog.performances) {
     const venue = performance.venue_name
@@ -155,7 +188,7 @@ export const localPlaceMatches = (
     hit.performanceCount += 1
     hits.set(venue, hit)
   }
-  return [...hits.entries()]
+  const ranked = [...hits.entries()]
     .sort((left, right) => {
       return (
         left[1].score - right[1].score ||
@@ -163,31 +196,55 @@ export const localPlaceMatches = (
         left[0].localeCompare(right[0], 'ja')
       )
     })
-    .slice(0, 5)
     .map(([name, hit]) => ({ name, performanceCount: hit.performanceCount }))
+  return rankedResult(ranked, limit)
+}
+
+/** Distinct 演出 each song appeared in, cached per catalog and reused as the popularity tie-break. */
+const appearanceCounts = new WeakMap<Catalog, ReadonlyMap<number, number>>()
+
+/** Builds or reuses the 演出 count of every song, so one keystroke does not re-rank the catalog. */
+const songAppearanceCounts = (catalog: Catalog): ReadonlyMap<number, number> => {
+  const cached = appearanceCounts.get(catalog)
+  if (cached !== undefined) return cached
+  const counts = new Map<number, number>()
+  for (const row of rankSongAppearances(catalog, { mode: 'event', includeBroadcast: true })) {
+    counts.set(row.songId, row.performanceCount)
+  }
+  appearanceCounts.set(catalog, counts)
+  return counts
 }
 
 /**
  * Finds songs already in the catalog.
  * Matching is a case-insensitive substring over the stored names, the caller's extra spellings
- * (registered Japanese/English alternate titles, Chinese titles and their aliases), and the artist credit.
+ * (registered Japanese/English alternate titles, Chinese titles and their aliases), and the artist
+ * credit. Songs are scored exactly like series and 演出 (exact > prefix > substring), then by
+ * distinct 演出 count, and only afterwards capped, so the cap never hides the best matches.
  */
 export const localSongMatches = (
   catalog: Catalog,
   query: string,
   spellings: LookupSpellings<SongRow> = () => [],
-): SongRow[] => {
-  const needle = query.trim().toLocaleLowerCase()
-  if (!needle) return []
-  return catalog.songs
-    .filter((song) => {
-      const haystack = [song.name, song.name_ja, song.name_en, song.artist_string, ...spellings(song)]
-        .filter((part) => part)
-        .join('\n')
-        .toLocaleLowerCase()
-      return haystack.includes(needle)
+  limit: number = LOOKUP_LIMITS.songs,
+): LookupResult<SongRow> => {
+  const needle = fold(query)
+  if (needle === '') return rankedResult([], limit)
+  const counts = songAppearanceCounts(catalog)
+  const ranked = catalog.songs
+    .flatMap((song) => {
+      const score = nameScore([song.name, song.name_ja, song.name_en, song.artist_string, ...spellings(song)], needle)
+      if (score === null) return []
+      return [{ song, score }]
     })
-    .slice(0, 20)
+    .sort((left, right) => {
+      const scoreOrder = left.score - right.score
+      if (scoreOrder !== 0) return scoreOrder
+      const countOrder = (counts.get(right.song.id) ?? 0) - (counts.get(left.song.id) ?? 0)
+      return countOrder !== 0 ? countOrder : left.song.id - right.song.id
+    })
+    .map(({ song }) => song)
+  return rankedResult(ranked, limit)
 }
 
 /**

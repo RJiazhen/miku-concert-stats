@@ -1,4 +1,5 @@
 import { performanceSchedules, showsForNotes } from './event-schedule.ts'
+import type { LookupResult } from './lookup.ts'
 import { derivedItemSongIds } from './performance-setlists.ts'
 import { producerNamesFor } from './producer-options.ts'
 import { reviewRotations } from './rotation.ts'
@@ -430,17 +431,21 @@ const cachedProducerIndex = (catalog: Catalog): ProducerIndex => {
 /**
  * Finds producers already in the catalog.
  * Matching is a case-insensitive substring over the producer names, in the ranking's default
- * order (most songs first). Returns at most five hits and an empty list for a blank query.
+ * order (most songs first). The default cap is five hits; `total` keeps the real hit count.
  */
-export const localProducerMatches = (catalog: Catalog, query: string): ProducerLookupHit[] => {
+export const localProducerMatches = (
+  catalog: Catalog,
+  query: string,
+  limit = 5,
+): LookupResult<ProducerLookupHit> => {
   const needle = query.trim().toLocaleLowerCase()
-  if (needle === '') return []
+  const empty = (): LookupResult<ProducerLookupHit> => ({ items: [], total: 0, limit })
+  if (needle === '') return empty()
   const index = cachedProducerIndex(catalog)
   const hits: ProducerLookupHit[] = []
   for (const row of index.rows) {
     if (!row.name.toLocaleLowerCase().includes(needle)) continue
     hits.push({ name: row.name, roles: rolesPresent(row.roles), songCount: row.songCount })
-    if (hits.length === 5) break
   }
-  return hits
+  return { items: hits.slice(0, limit), total: hits.length, limit }
 }
