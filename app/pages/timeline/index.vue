@@ -10,7 +10,6 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { buildProducerIndex } from '~~/shared/producers.ts'
 import { emptySongVariantIndex } from '~~/shared/song-variants.ts'
-import type { RankingMode } from '~~/shared/stats.ts'
 import { buildTimeline, type NewSongBaseline, type TimelineCount } from '~~/shared/timeline.ts'
 import { availablePerformanceYears, normalizeYearRange } from '~~/shared/year-range.ts'
 
@@ -37,7 +36,7 @@ const OTHER_COLOR = 'var(--color-slate-400)'
 /** Years a chart can jump to, in page order. */
 const CHARTS = [
   { key: 'shows', label: '场次 / 系列' },
-  { key: 'characters', label: '角色出场' },
+  { key: 'characters', label: '角色曲目' },
   { key: 'new-songs', label: '新曲 / 复演' },
   { key: 'series-spans', label: '系列活跃' },
   { key: 'cities', label: '城市迁移' },
@@ -63,7 +62,6 @@ const startLoad = (): void => {
 }
 onMounted(startLoad)
 
-const mode = ref<RankingMode>('show')
 const selectedSeries = ref<number[]>([])
 const selectedCities = ref<string[]>([])
 const selectedProducers = ref<string[]>([])
@@ -72,6 +70,10 @@ const yearFrom = ref<number>(YEAR_ANY)
 const yearTo = ref<number>(YEAR_ANY)
 const includeBroadcast = ref(true)
 const mergeVariants = ref(false)
+/** Share a chorus song's count across its characters instead of adding 1 to each. */
+const splitChorusSongs = ref(false)
+/** Draw every role's share of the year as a right-axis line on the character chart. */
+const showCharacterShares = ref(false)
 const newSongBaseline = ref<NewSongBaseline>('catalog')
 const seriesFocus = ref<number>(0)
 const focusedChart = ref<string>('')
@@ -95,7 +97,6 @@ const yearRange = computed(() => normalizeYearRange({
 const timeline = computed(() => {
   if (!catalog.value) return null
   return buildTimeline(catalog.value, {
-    mode: mode.value,
     includeBroadcast: includeBroadcast.value,
     seriesIds: selectedSeries.value,
     cityNames: selectedCities.value,
@@ -105,6 +106,7 @@ const timeline = computed(() => {
     yearTo: yearRange.value.to,
     variants: mergeVariants.value ? variants : emptySongVariantIndex(),
     characterRules,
+    characterSongWeight: splitChorusSongs.value ? 'split' : 'per-song',
     cityIndex,
     newSongBaseline: newSongBaseline.value,
   })
@@ -205,17 +207,6 @@ const seriesChartBars = computed<ChartSeries[]>(() => {
 /** Series focus options: 全部 plus every catalog series. */
 const seriesFocusItems = computed(() => [{ label: '全部系列', value: 0 }, ...seriesItems.value])
 
-/** Character counts by year, split by bucket name. */
-const characterYearIndex = computed(() => {
-  const index = new Map<string, Map<number, number>>()
-  for (const row of timeline.value?.characterByYear ?? []) {
-    const byYear = index.get(row.name) ?? new Map<number, number>()
-    byYear.set(row.year, row.count)
-    index.set(row.name, byYear)
-  }
-  return index
-})
-
 /** Distinct-song counts of each character bucket by year, behind the stacked bars of chart 3. */
 const characterSongYearIndex = computed(() => {
   const index = new Map<string, Map<number, number>>()
@@ -227,15 +218,17 @@ const characterSongYearIndex = computed(() => {
   return index
 })
 
-/** One bucket of chart 3: its colour plus the per-year 出场 and 曲目 numbers it is drawn from. */
+/** One bucket of chart 3: its colour plus the per-year 曲目 numbers it is drawn from. */
 type CharacterBucket = {
   key: string
   label: string
   color: string
-  /** 出场数, the lines on the right axis. */
-  appearances: number[]
-  /** 曲目数 of the year, the stacked bars. */
+  /** 曲目数 of the year, the stacked bars; fractional when chorus songs are split. */
   songs: number[]
+  /** Members folded into a merged bucket, printed when the legend entry is hovered. */
+  legendDetail?: string
+  /** Members behind each year of a merged bucket, printed when its bar segment is hovered. */
+  segmentDetails?: string[]
 }
 
 /**
@@ -244,13 +237,14 @@ type CharacterBucket = {
  * use on the song ranking, so a name keeps one colour across the site instead of following its rank.
  * The picked rows keep their frequency ranking, then the legend prints them in `data/characters.json`
  * order (初音ミク → 鏡音リン → 鏡音レン → 巡音ルカ …) so the stack reads like the character filter.
+ * 其他 merges its roles into one colour only: the names and their counts stay available on hover.
  */
 const characterChartBuckets = computed<CharacterBucket[]>(() => {
   const current = timeline.value
   if (current === null) return []
-  /** Per-year values of one bucket from one of the two indices. */
-  const valuesOf = (index: Map<string, Map<number, number>>, name: string): number[] =>
-    current.years.map((year) => index.get(name)?.get(year) ?? 0)
+  /** Per-year values of one bucket from the distinct-song index. */
+  const valuesOf = (name: string): number[] =>
+    current.years.map((year) => characterSongYearIndex.value.get(name)?.get(year) ?? 0)
   const known = current.characterTotals
   const shown = (selectedCharacters.value.length > 0
     ? known.filter((row) => selectedCharacters.value.includes(row.name))
@@ -260,8 +254,7 @@ const characterChartBuckets = computed<CharacterBucket[]>(() => {
     key: row.name,
     label: localizeCharacter(row.name),
     color: characterColor(row.name) ?? OTHER_COLOR,
-    appearances: valuesOf(characterYearIndex.value, row.name),
-    songs: valuesOf(characterSongYearIndex.value, row.name),
+    songs: valuesOf(row.name),
   }))
   if (selectedCharacters.value.length === 0) {
     const shownNames = new Set(shown.map((row) => row.name))
@@ -271,8 +264,14 @@ const characterChartBuckets = computed<CharacterBucket[]>(() => {
         key: '__other',
         label: `其他（${rest.length} 位）`,
         color: OTHER_COLOR,
-        appearances: current.years.map((year) => rest.reduce((sum, row) => sum + (characterYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
         songs: current.years.map((year) => rest.reduce((sum, row) => sum + (characterSongYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
+        legendDetail: `其他（${rest.length} 位）：${[...rest].sort(compareByCharacterRank).map((row) => localizeCharacter(row.name)).join('、')}`,
+        segmentDetails: current.years.map((year) => rest
+          .map((row) => ({ name: row.name, count: characterSongYearIndex.value.get(row.name)?.get(year) ?? 0 }))
+          .filter((entry) => entry.count > 0)
+          .sort((left, right) => right.count - left.count || compareCharacters(left.name, right.name))
+          .map((entry) => `${localizeCharacter(entry.name)} ${formatSongCount(entry.count)}`)
+          .join('、')),
       })
     }
   }
@@ -286,18 +285,34 @@ const characterChartBars = computed<ChartSeries[]>(() =>
     label: bucket.label,
     color: bucket.color,
     values: bucket.songs,
+    legendDetail: bucket.legendDetail,
+    details: bucket.segmentDetails,
   })),
 )
 
-/** Chart 3 right-axis lines: 出场数 per bucket, one line per role in the same colours as the bars. */
-const characterChartSeries = computed<ChartSeries[]>(() =>
-  characterChartBuckets.value.map((bucket) => ({
-    key: bucket.key,
-    label: bucket.label,
-    color: bucket.color,
-    values: bucket.appearances,
-  })),
-)
+/**
+ * Chart 3 right-axis lines: every role's share of that year's character songs, drawn only while the
+ * 占比开关 is on. Both sides of each ratio use the same song-count rule, so the lines follow the
+ * 合唱 switch. 其他 is a colour-only merge and has no line, matching its "single bar" role.
+ */
+const characterShareLines = computed<ChartSeries[]>(() => {
+  const current = timeline.value
+  if (current === null || !showCharacterShares.value) return []
+  const index = new Map<string, Map<number, number>>()
+  for (const row of current.characterShareByYear) {
+    const byYear = index.get(row.name) ?? new Map<number, number>()
+    byYear.set(row.year, row.share)
+    index.set(row.name, byYear)
+  }
+  return characterChartBuckets.value
+    .filter((bucket) => bucket.key !== '__other')
+    .map((bucket) => ({
+      key: bucket.key,
+      label: `${bucket.label}占比`,
+      color: bucket.color,
+      values: current.years.map((year) => index.get(bucket.key)?.get(year) ?? 0),
+    }))
+})
 
 /** Chart 4 bars: new and returning songs per year. */
 const songChartBars = computed<ChartSeries[]>(() => {
@@ -397,14 +412,18 @@ const showsYearPerformances = computed(() => {
     })
 })
 
-/** Character buckets of the picked year. */
+/** Character song counts of the picked year, most songs first. */
 const characterYearRows = computed(() => {
   const current = timeline.value
   if (current === null || characterYear.value === null) return []
-  return current.characterByYear
+  return current.characterSongByYear
     .filter((row) => row.year === characterYear.value)
     .sort((left, right) => right.count - left.count || compareCharacters(left.name, right.name))
 })
+
+/** Song count text: whole numbers stay whole, split chorus counts keep at most two decimals. */
+const formatSongCount = (value: number): string =>
+  Number.isInteger(value) ? String(value) : String(Math.round(value * 100) / 100)
 
 /** New and returning songs of the picked year. */
 const songsYearRow = computed(() => {
@@ -422,7 +441,6 @@ const cityYearRow = computed(() => {
 
 /** Query keys mirrored into the URL. */
 type FilterState = {
-  mode: string
   series: string
   city: string
   producer: string
@@ -431,13 +449,14 @@ type FilterState = {
   to: string
   broadcast: string
   merge: string
+  chorus: string
+  share: string
   baseline: string
   chart: string
 }
 
 /** Current filter state in URL form; empty strings are dropped before navigating. */
 const state = computed<FilterState>(() => ({
-  mode: mode.value === 'event' ? 'event' : '',
   series: selectedSeries.value.join(','),
   city: selectedCities.value.join(','),
   producer: selectedProducers.value.join(','),
@@ -446,6 +465,8 @@ const state = computed<FilterState>(() => ({
   to: yearTo.value === YEAR_ANY ? '' : String(yearTo.value),
   broadcast: includeBroadcast.value ? '' : '0',
   merge: mergeVariants.value ? '1' : '',
+  chorus: splitChorusSongs.value ? '1' : '',
+  share: showCharacterShares.value ? '1' : '',
   baseline: newSongBaseline.value === 'filtered' ? 'filtered' : '',
   chart: focusedChart.value,
 }))
@@ -457,7 +478,6 @@ const syncUrl = (): void => {
   void navigateTo(
     {
       query: {
-        mode: current.mode === '' ? undefined : current.mode,
         series_id: current.series === '' ? undefined : current.series,
         city: current.city === '' ? undefined : current.city,
         producer: current.producer === '' ? undefined : current.producer,
@@ -466,6 +486,8 @@ const syncUrl = (): void => {
         to: current.to === '' ? undefined : current.to,
         broadcast: current.broadcast === '' ? undefined : current.broadcast,
         merge: current.merge === '' ? undefined : current.merge,
+        chorus: current.chorus === '' ? undefined : current.chorus,
+        share: current.share === '' ? undefined : current.share,
         baseline: current.baseline === '' ? undefined : current.baseline,
         chart: current.chart === '' ? undefined : current.chart,
       },
@@ -482,7 +504,6 @@ const readList = (value: string): string[] => value.split(',').map((entry) => en
 const readUrl = (): void => {
   const query = route.query
   const read = (value: unknown): string => (typeof value === 'string' ? value : '')
-  if (read(query.mode) === 'event') mode.value = 'event'
   const series = readList(read(query.series_id))
     .map((value) => Number(value))
     .filter((value) => Number.isInteger(value) && value > 0)
@@ -495,6 +516,8 @@ const readUrl = (): void => {
   yearTo.value = restored.to === null ? YEAR_ANY : restored.to
   includeBroadcast.value = read(query.broadcast) !== '0'
   mergeVariants.value = read(query.merge) === '1'
+  splitChorusSongs.value = read(query.chorus) === '1'
+  showCharacterShares.value = read(query.share) === '1'
   newSongBaseline.value = read(query.baseline) === 'filtered' ? 'filtered' : 'catalog'
   const chart = read(query.chart)
   focusedChart.value = CHARTS.some((entry) => entry.key === chart) ? chart : ''
@@ -519,9 +542,10 @@ type Chip = { key: string; label: string }
 /** Every non-default condition, in display order. */
 const chips = computed<Chip[]>(() => {
   const list: Chip[] = []
-  if (mode.value === 'event') list.push({ key: 'mode', label: '按演出' })
   if (!includeBroadcast.value) list.push({ key: 'broadcast', label: '不含配信' })
   if (mergeVariants.value) list.push({ key: 'merge', label: '合并版本' })
+  if (splitChorusSongs.value) list.push({ key: 'chorus', label: '合唱按人数均分' })
+  if (showCharacterShares.value) list.push({ key: 'share', label: '角色占比折线' })
   if (newSongBaseline.value === 'filtered') list.push({ key: 'baseline', label: '新曲基准：当前筛选' })
   for (const id of selectedSeries.value) list.push({ key: `series:${id}`, label: seriesLabel(id) })
   for (const name of selectedCities.value) list.push({ key: `city:${name}`, label: `城市：${name}` })
@@ -538,16 +562,20 @@ const activeCount = computed(() => chips.value.length)
 
 /** Removes one condition from its chip. */
 const removeChip = (key: string): void => {
-  if (key === 'mode') {
-    mode.value = 'show'
-    return
-  }
   if (key === 'broadcast') {
     includeBroadcast.value = true
     return
   }
   if (key === 'merge') {
     mergeVariants.value = false
+    return
+  }
+  if (key === 'chorus') {
+    splitChorusSongs.value = false
+    return
+  }
+  if (key === 'share') {
+    showCharacterShares.value = false
     return
   }
   if (key === 'baseline') {
@@ -569,7 +597,6 @@ const removeChip = (key: string): void => {
 
 /** Clears every filter and chart focus back to the default view. */
 const reset = (): void => {
-  mode.value = 'show'
   selectedSeries.value = []
   selectedCities.value = []
   selectedProducers.value = []
@@ -578,6 +605,8 @@ const reset = (): void => {
   yearTo.value = YEAR_ANY
   includeBroadcast.value = true
   mergeVariants.value = false
+  splitChorusSongs.value = false
+  showCharacterShares.value = false
   newSongBaseline.value = 'catalog'
   seriesFocus.value = 0
   focusedChart.value = ''
@@ -634,10 +663,19 @@ const selectCityYear = (payload: { year: number }): void => {
   cityYear.value = cityYear.value === payload.year ? null : payload.year
 }
 
-/** Unit line printed on the character chart. */
-const characterUnit = computed(() =>
-  `柱=曲目数（按角色堆叠），线=出场数 · ${mode.value === 'show' ? '按场次去重' : '按演出去重'}`,
-)
+/** Unit line printed on the character chart, naming the active song-count rule and optional lines. */
+const characterUnit = computed(() => {
+  const rule = splitChorusSongs.value ? '合唱按人数均分' : '每首计 1'
+  const bars = `柱=该年不同曲目数（按角色堆叠） · ${rule}`
+  return showCharacterShares.value ? `${bars} · 线=各角色曲目占比` : bars
+})
+
+/** Note printed on the character chart; the share lines are only explained while they are drawn. */
+const characterNote = computed(() => {
+  const base = '角色取自每场实际曲目的演出角色，只统计 data/characters.json 里登记的虚拟歌手。柱高是该年该角色演唱的不同曲目数，同一首歌在同一年只计一次；默认每首计 1，打开「合唱按人数均分」后，多人合唱的一首按 1 / 合唱人数 计给每个角色（双人 0.5、三人 1/3）。'
+  if (!showCharacterShares.value) return base
+  return `${base}右轴虚线是每个角色该年曲目数占全部角色曲目数的比例（「其他」不画线）；分子分母用同一套曲目计数规则，所以会跟着上面的开关一起变。`
+})
 
 /** Note under the new-song chart, which explains the active baseline. */
 const newSongNote = computed(() => (newSongBaseline.value === 'catalog'
@@ -731,10 +769,6 @@ useHead({ title: '时间线' })
 
     <UCard v-else>
       <div class="flex flex-wrap items-end gap-3">
-        <UFieldGroup size="sm">
-          <UButton :variant="mode === 'show' ? 'solid' : 'outline'" label="按场次" @click="mode = 'show'" />
-          <UButton :variant="mode === 'event' ? 'solid' : 'outline'" label="按演出" @click="mode = 'event'" />
-        </UFieldGroup>
         <FilterField label="起始年">
           <USelect v-model="yearFrom" :items="yearItems" size="sm" class="w-24" />
         </FilterField>
@@ -867,26 +901,31 @@ useHead({ title: '时间线' })
 
       <section id="chart-characters" class="scroll-mt-24">
         <TimelineChartCard
-          title="角色出场数与曲目数年度变化"
+          title="角色曲目数年度变化"
           :unit="characterUnit"
-          note="角色取自每场实际曲目的演出角色，只统计 data/characters.json 里登记的虚拟歌手：同一场演出里同一角色多首歌只计一次，跨日场 / 夜场按场次分别计。其他署名（真人歌手、合唱、制作人）不计入。"
+          :note="characterNote"
         >
+          <template #actions>
+            <USwitch v-model="splitChorusSongs" label="合唱按人数均分" size="sm" />
+            <USwitch v-model="showCharacterShares" label="显示角色占比" size="sm" />
+          </template>
           <TimelineBarChart
             :years="timeline.years"
             :bars="characterChartBars"
-            :right-lines="characterChartSeries"
+            :right-lines="characterShareLines"
+            :right-format="showCharacterShares ? 'percent' : 'number'"
+            :right-unit="showCharacterShares ? '占比' : ''"
             stacked
             unit="曲目"
-            right-unit="出场"
             height="320"
             @select="selectCharacterYear"
           />
           <template #footer>
             <div v-if="characterYear !== null" class="mt-3 border-t border-default/60 pt-3">
-              <p class="mb-2 text-xs text-muted">{{ characterYear }} 年角色出场</p>
+              <p class="mb-2 text-xs text-muted">{{ characterYear }} 年角色曲目</p>
               <div class="flex flex-wrap gap-2">
                 <UBadge v-for="row in characterYearRows" :key="row.name" color="neutral" variant="subtle" size="sm">
-                  {{ localizeCharacter(row.name) }} {{ row.count }}
+                  {{ localizeCharacter(row.name) }} {{ formatSongCount(row.count) }}
                 </UBadge>
               </div>
             </div>

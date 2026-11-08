@@ -5,16 +5,17 @@ import { derivedItemSongIds, showCountsByPerformance } from './performance-setli
 import { producerNamesFor } from './producer-options.ts'
 import { reviewRotations, type RotationReview } from './rotation.ts'
 import { emptySongVariantIndex, type SongVariantIndex } from './song-variants.ts'
-import { isBroadcastAppearance, performanceYear, type RankingMode } from './stats.ts'
+import { isBroadcastAppearance, performanceYear } from './stats.ts'
 import type { Catalog, PerformanceRow, SongRow } from './types.ts'
 
 /** Where the earliest appearance of a song is read from. */
 export type NewSongBaseline = 'catalog' | 'filtered'
 
+/** How a song shared by several characters is counted for each of them. */
+export type CharacterSongWeight = 'per-song' | 'split'
+
 /** Filters and counting switches shared by every chart on `/timeline`. */
 export type TimelineOptions = {
-  /** Appearance unit: one 场次 (day or half) or one 演出. Defaults to `show`. */
-  mode?: RankingMode
   /** Count livestream, online, and VR performances. Defaults to false, like the song ranking. */
   includeBroadcast?: boolean
   /** Series ids to keep; an empty or omitted list keeps every series. */
@@ -32,6 +33,11 @@ export type TimelineOptions = {
   variants?: SongVariantIndex
   /** Character rules used to resolve every song's 演出角色; omit to count no characters. */
   characterRules?: readonly CharacterRule[]
+  /**
+   * Weight of one song on the character chart: `per-song` adds 1 for every song,
+   * `split` divides it by the number of characters credited on that song. Defaults to `per-song`.
+   */
+  characterSongWeight?: CharacterSongWeight
   /** City matcher built from the checked place list; omit to skip city filters and city charts. */
   cityIndex?: CityIndex
   /** First-appearance baseline for the new-song chart. Defaults to the whole catalog. */
@@ -53,18 +59,19 @@ export type TimelineSeriesYear = {
   performances: number
 }
 
-/** One character's appearance count in one year. */
-export type TimelineCharacterYear = {
-  year: number
-  name: string
-  count: number
-}
-
 /** One character's distinct-song count in one year, drawn as the stacked bars of the character chart. */
 export type TimelineCharacterSongYear = {
   year: number
   name: string
   count: number
+}
+
+/** One character's share of the character chart's songs in one year, drawn as an optional right-axis line. */
+export type TimelineCharacterShareYear = {
+  year: number
+  name: string
+  /** This bucket's count divided by every bucket's count; between 0 and 1. */
+  share: number
 }
 
 /** Aggregated appearance count of one bucket, used for legends and pickers. */
@@ -140,10 +147,14 @@ export type Timeline = {
   catalogYears: { from: number; to: number } | null
   byYear: TimelineYear[]
   seriesByYear: TimelineSeriesYear[]
-  characterByYear: TimelineCharacterYear[]
-  /** Distinct songs per character bucket and year, for the stacked bars of the character chart. */
+  /**
+   * Distinct songs per character bucket and year, for the stacked bars of the character chart.
+   * `count` is fractional under `characterSongWeight: 'split'`.
+   */
   characterSongByYear: TimelineCharacterSongYear[]
-  /** Dataset totals of every character bucket, most frequent first. */
+  /** Each bucket's share of those songs per year, under the same `characterSongWeight`. */
+  characterShareByYear: TimelineCharacterShareYear[]
+  /** Dataset total distinct songs of every character bucket, most frequent first. */
   characterTotals: TimelineCount[]
   songByYear: TimelineSongYear[]
   seriesSpans: TimelineSeriesSpan[]
@@ -290,12 +301,6 @@ const countryBucket = (performance: PerformanceRow): 'domestic' | 'overseas' | '
   return code === 'JP' ? 'domestic' : 'overseas'
 }
 
-/** Unit keys a 演出 contributes under the active counting mode. */
-const unitsOf = (songs: PerformanceSongs, performanceId: number, mode: RankingMode): SongUnit[] => {
-  if (mode === 'event') return songs.allSongIds.length === 0 ? [] : [{ key: `event:${performanceId}`, songIds: songs.allSongIds }]
-  return songs.byShow
-}
-
 /** One candidate 演出 after the non-year filters, kept even when it has no date. */
 type Candidate = {
   performance: PerformanceRow
@@ -343,12 +348,13 @@ const sortCounts = (counts: Map<string, number>): TimelineCount[] =>
  * actually performed, not from its merged canonical version, because a cover credits its own
  * vocalists.
  *
- * The character and song charts count distinct appearances: one character or song counts once
- * per 场次 in `show` mode and once per 演出 in `event` mode.
+ * The character chart counts distinct songs per year, once per song however many 場次 played it.
+ * `characterSongWeight: 'split'` shares one song's count across its credited characters, so a
+ * duet gives each 0.5 and a trio gives each 1 / 3.
  */
 export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): Timeline => {
-  const mode: RankingMode = options.mode === 'event' ? 'event' : 'show'
   const variants = options.variants ?? emptySongVariantIndex()
+  const characterSongWeight: CharacterSongWeight = options.characterSongWeight === 'split' ? 'split' : 'per-song'
   const includeBroadcast = options.includeBroadcast === true
   const baseline: NewSongBaseline = options.newSongBaseline === 'filtered' ? 'filtered' : 'catalog'
   const data = timelineData(catalog)
@@ -439,10 +445,11 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
   const byYear = new Map<number, TimelineYear>()
   for (const year of years) byYear.set(year, { year, shows: 0, performances: 0 })
   const seriesYear = new Map<string, TimelineSeriesYear>()
-  const characterYear = new Map<number, Map<string, number>>()
-  /** Distinct song ids per bucket and year, behind the stacked bars of the character chart. */
-  const characterSongYear = new Map<number, Map<string, Set<number>>>()
-  const characterTotals = new Map<string, number>()
+  /**
+   * Distinct songs per bucket and year, behind the stacked bars of the character chart.
+   * The inner map holds one weight per canonical song, so a chorus song can count as a fraction.
+   */
+  const characterSongYear = new Map<number, Map<string, Map<number, number>>>()
   const playedSongsByYear = new Map<number, Set<number>>()
   const seriesSpans = new Map<number, TimelineSeriesSpan>()
   const citySpans = new Map<string, TimelineCitySpan>()
@@ -496,31 +503,20 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     for (const songId of candidate.songs.allSongIds) songs.add(variants.canonicalSongId(songId))
     playedSongsByYear.set(year, songs)
 
-    const units = unitsOf(candidate.songs, candidate.performance.id, mode)
-    const yearCharacters = characterYear.get(year) ?? new Map<string, number>()
-    for (const unit of units) {
-      const names = new Set<string>()
-      for (const songId of unit.songIds) {
-        for (const name of charactersOf(songId)) names.add(name)
-      }
-      for (const name of names) {
-        yearCharacters.set(name, (yearCharacters.get(name) ?? 0) + 1)
-        characterTotals.set(name, (characterTotals.get(name) ?? 0) + 1)
-      }
-    }
-    characterYear.set(year, yearCharacters)
-
     // The bars count distinct songs, so a song played at several 場次 of the same year is added once.
-    const yearSongs = characterSongYear.get(year) ?? new Map<string, Set<number>>()
-    /** Records one song under one bucket for this year. */
-    const addSong = (name: string, canonical: number): void => {
-      const bucket = yearSongs.get(name) ?? new Set<number>()
-      bucket.add(canonical)
+    const yearSongs = characterSongYear.get(year) ?? new Map<string, Map<number, number>>()
+    /** Records one song under one bucket for this year, keeping the largest weight of a repeat. */
+    const addSong = (name: string, canonical: number, weight: number): void => {
+      const bucket = yearSongs.get(name) ?? new Map<number, number>()
+      bucket.set(canonical, Math.max(bucket.get(canonical) ?? 0, weight))
       yearSongs.set(name, bucket)
     }
     for (const songId of candidate.songs.allSongIds) {
       const canonical = variants.canonicalSongId(songId)
-      for (const name of charactersOf(songId)) addSong(name, canonical)
+      const names = charactersOf(songId)
+      // A chorus song shares its one count across its characters, so a duet gives each 0.5.
+      const weight = characterSongWeight === 'split' ? 1 / Math.max(1, names.length) : 1
+      for (const name of names) addSong(name, canonical, weight)
     }
     characterSongYear.set(year, yearSongs)
 
@@ -587,16 +583,25 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     }
   })
 
-  const characterByYear: TimelineCharacterYear[] = []
-  for (const year of years) {
-    for (const [name, count] of characterYear.get(year) ?? []) characterByYear.push({ year, name, count })
-  }
-
   const characterSongByYear: TimelineCharacterSongYear[] = []
+  /** Each bucket's share of the year's songs, for the optional share lines of the character chart. */
+  const characterShareByYear: TimelineCharacterShareYear[] = []
+  /** Dataset total distinct songs per bucket, used to pick the busiest buckets of the chart. */
+  const characterTotals = new Map<string, number>()
   for (const year of years) {
+    const counts = new Map<string, number>()
+    let total = 0
     for (const [name, songs] of characterSongYear.get(year) ?? []) {
-      characterSongByYear.push({ year, name, count: songs.size })
+      let count = 0
+      for (const weight of songs.values()) count += weight
+      characterSongByYear.push({ year, name, count })
+      characterTotals.set(name, (characterTotals.get(name) ?? 0) + songs.size)
+      counts.set(name, count)
+      total += count
     }
+    // A year without any character song leaves the shares undefined rather than drawing 0%.
+    if (total <= 0) continue
+    for (const [name, count] of counts) characterShareByYear.push({ year, name, share: count / total })
   }
 
   const cityByYear = years.map((year): TimelineCityYear => {
@@ -623,8 +628,8 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     seriesByYear: [...seriesYear.values()].sort(
       (left, right) => left.year - right.year || left.seriesId - right.seriesId,
     ),
-    characterByYear,
     characterSongByYear,
+    characterShareByYear,
     characterTotals: sortCounts(characterTotals),
     songByYear,
     seriesSpans: [...seriesSpans.values()].sort(

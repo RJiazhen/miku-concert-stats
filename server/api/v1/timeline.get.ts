@@ -1,7 +1,6 @@
 import { createError, defineEventHandler, getQuery, type H3Event } from 'h3'
 import { emptySongVariantIndex } from '../../../shared/song-variants.ts'
-import { buildTimeline, type NewSongBaseline, type TimelineOptions } from '../../../shared/timeline.ts'
-import type { RankingMode } from '../../../shared/stats.ts'
+import { buildTimeline, type CharacterSongWeight, type NewSongBaseline, type TimelineOptions } from '../../../shared/timeline.ts'
 import { API_BASE_URL, nameList } from '../../utils/api-songs.ts'
 import { loadTimelineApi } from '../../utils/api-timeline.ts'
 
@@ -10,13 +9,6 @@ const MAX_SERIES = 20
 
 /** City, character, or producer names one request may filter by. */
 const MAX_NAMES = 20
-
-/** Reads and validates `mode`; the timeline page defaults to 按场次. */
-const rankingMode = (raw: unknown): RankingMode => {
-  if (raw === undefined) return 'show'
-  if (raw === 'show' || raw === 'event') return raw
-  throw createError({ statusCode: 400, statusMessage: 'Invalid mode', message: 'mode 只能是 show 或 event' })
-}
 
 /** Reads a flag that defaults to on: only `0` / `false` turn it off. */
 const flagDefaultOn = (raw: unknown): boolean => raw !== '0' && raw !== 'false'
@@ -58,6 +50,17 @@ const newSongBaseline = (raw: unknown): NewSongBaseline => {
   })
 }
 
+/** Reads how a chorus song is counted on the character chart. */
+const characterSongWeight = (raw: unknown): CharacterSongWeight => {
+  if (raw === undefined) return 'per-song'
+  if (raw === 'per-song' || raw === 'split') return raw
+  throw createError({
+    statusCode: 400,
+    statusMessage: 'Invalid characterSongWeight',
+    message: 'characterSongWeight 只能是 per-song 或 split',
+  })
+}
+
 /**
  * `GET /api/v1/timeline` — the annual series drawn by `/timeline`, aggregated with the
  * page's own `buildTimeline` so both give the same numbers.
@@ -68,7 +71,6 @@ const newSongBaseline = (raw: unknown): NewSongBaseline => {
  */
 const timeline = async (event: H3Event) => {
   const params = getQuery(event)
-  const mode = rankingMode(params.mode)
   const series = seriesFilter(params.series)
   const yearFrom = yearBound(params.yearFrom, 'yearFrom')
   const yearTo = yearBound(params.yearTo, 'yearTo')
@@ -80,6 +82,7 @@ const timeline = async (event: H3Event) => {
   const includeSongIds = flagOff(params.includeSongIds)
   const includePerformances = flagDefaultOn(params.includePerformances)
   const baseline = newSongBaseline(params.newSongBaseline)
+  const songWeight = characterSongWeight(params.characterSongWeight)
   if (yearFrom !== null && yearTo !== null && yearFrom > yearTo) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid year range', message: 'yearFrom 不能大于 yearTo' })
   }
@@ -105,7 +108,6 @@ const timeline = async (event: H3Event) => {
   }
 
   const options: TimelineOptions = {
-    mode,
     includeBroadcast,
     seriesIds: series ?? [],
     cityNames,
@@ -115,6 +117,7 @@ const timeline = async (event: H3Event) => {
     yearTo,
     variants: mergeVariants ? data.variants : emptySongVariantIndex(),
     characterRules: data.characters,
+    characterSongWeight: songWeight,
     cityIndex: data.cityIndex,
     newSongBaseline: baseline,
   }
@@ -127,7 +130,6 @@ const timeline = async (event: H3Event) => {
     generatedAt: data.asset.generatedAt,
     catalogVersion: data.asset.catalogVersion,
     options: {
-      mode,
       includeBroadcast,
       series,
       city: cityNames,
@@ -136,14 +138,15 @@ const timeline = async (event: H3Event) => {
       yearFrom,
       yearTo,
       mergeVariants,
+      characterSongWeight: songWeight,
       newSongBaseline: baseline,
     },
     years: current.years,
     catalogYears: current.catalogYears,
     byYear: current.byYear,
     seriesByYear: current.seriesByYear.map((row) => ({ ...row, series: nameOf(row.seriesId) })),
-    characterByYear: current.characterByYear,
     characterSongByYear: current.characterSongByYear,
+    characterShareByYear: current.characterShareByYear,
     characterTotals: current.characterTotals,
     songByYear: current.songByYear.map((row) =>
       includeSongIds

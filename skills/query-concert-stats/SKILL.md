@@ -163,7 +163,7 @@ Open the reference for the endpoint a workflow uses; the reference carries the f
 - **"How did producer X do in concerts?"** → `endpoints/producers.md`. Call it the catalogue's record, not a discography.
 - **"Which cities hosted the most shows?"** → `endpoints/cities.md`. Mention the unknown-city bucket.
 - **"Which songs debuted in year / series year?"** → `endpoints/debuts.md`. "Debut" means first appearance in this catalogue.
-- **"How did the number of shows, characters, or new songs change year by year?"** → `endpoints/timeline.md`. Read `byYear` / `songByYear` / `characterByYear` / `cityByYear` instead of adding numbers up.
+- **"How did the number of shows, characters, or new songs change year by year?"** → `endpoints/timeline.md`. Read `byYear` / `songByYear` / `characterSongByYear` / `characterShareByYear` / `cityByYear` instead of adding numbers up.
 - **"What data is missing or doubtful?"** → `endpoints/reports.md`.
 
 ## Reference links

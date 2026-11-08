@@ -7,6 +7,16 @@ export type TimelineSeries = {
   label: string
   color: string
   values: number[]
+  /**
+   * Names folded into a merged bucket, e.g. the members of 其他. Printed when the legend entry is
+   * hovered or focused, so one colour can stand for several roles without hiding them.
+   */
+  legendDetail?: string
+  /**
+   * Per-year members of a merged bar segment, aligned with `values`. A stacked segment keeps one
+   * colour, but hovering it still names every role it stands for.
+   */
+  details?: readonly string[]
 }
 
 /** How the right-hand axis prints its ticks. */
@@ -59,41 +69,72 @@ const plotWidth = computed(() => width.value - MARGIN.left - MARGIN.right)
 const plotHeight = computed(() => props.height - MARGIN.top - MARGIN.bottom)
 const band = computed(() => plotWidth.value / Math.max(1, props.years.length))
 
-/** Rounds a maximum up to the next 1 / 2 / 5 of its magnitude, so axis ticks are whole numbers. */
-const niceMax = (value: number): number => {
-  if (!Number.isFinite(value) || value <= 0) return 1
-  const magnitude = 10 ** Math.floor(Math.log10(value))
-  const normalized = value / magnitude
-  const step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10
-  return step * magnitude
+/** One axis: its top value and the tick values drawn along it. */
+type Axis = {
+  max: number
+  ticks: number[]
 }
 
-/** Highest bar total, on the left axis. */
-const barMax = computed(() => {
+/**
+ * Fits a maximum into a readable axis instead of the coarse 1 / 2 / 5 ceiling.
+ * The step comes from `value / divisions` rounded to 1 / 2 / 2.5 / 5 / 10 of its magnitude,
+ * then repeats until it covers the data, so 247 tops out at 250 rather than 500
+ * and the bars keep most of the plot height in every counting mode.
+ */
+const buildAxis = (value: number, divisions = 5): Axis => {
+  if (!Number.isFinite(value) || value <= 0) return { max: 1, ticks: [0, 0.5, 1] }
+  const rough = value / divisions
+  const magnitude = 10 ** Math.floor(Math.log10(rough))
+  const normalized = rough / magnitude
+  const step = (normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10) * magnitude
+  const max = step * Math.ceil(value / step - 1e-9)
+  const ticks: number[] = []
+  for (let tick = 0; tick <= max + step / 2; tick += step) ticks.push(Number(tick.toFixed(6)))
+  return { max, ticks }
+}
+
+/** Highest bar total, before the axis rounds it. */
+const barPeak = computed(() => {
   const totals = props.years.map((_, index) => {
     if (!props.stacked) return Math.max(0, ...props.bars.map((series) => series.values[index] ?? 0))
     return props.bars.reduce((sum, series) => sum + (series.values[index] ?? 0), 0)
   })
-  return niceMax(Math.max(0, ...totals))
+  return Math.max(0, ...totals)
 })
 
-/** Highest left-axis line value; falls back to the bar axis when no left line exists. */
-const leftMax = computed(() => {
+/** Left axis of the bars alone, so a bar keeps its own scale when lines share the axis. */
+const barAxis = computed(() => buildAxis(barPeak.value))
+
+/** Highest bar value, used to place the bar segments. */
+const barMax = computed(() => barAxis.value.max)
+
+/** Left axis shared by the bars and the left-axis lines. */
+const leftAxis = computed(() => {
   const values = props.lines.flatMap((series) => series.values)
-  return values.length === 0 ? barMax.value : niceMax(Math.max(barMax.value, ...values))
+  return values.length === 0 ? barAxis.value : buildAxis(Math.max(barPeak.value, ...values))
 })
 
-/** Highest right-axis line value. */
-const rightMax = computed(() => {
+/** Highest left-axis value, for the grid lines and the left-axis lines. */
+const leftMax = computed(() => leftAxis.value.max)
+
+/** Right axis of the right-axis lines. */
+const rightAxis = computed(() => {
   const values = props.rightLines.flatMap((series) => series.values)
-  return niceMax(values.length === 0 ? 1 : Math.max(...values))
+  return buildAxis(values.length === 0 ? 1 : Math.max(...values))
 })
+
+/** Highest right-axis value. */
+const rightMax = computed(() => rightAxis.value.max)
 
 /** Tick values on the left axis. */
-const leftTicks = computed(() => [0, 0.25, 0.5, 0.75, 1].map((fraction) => fraction * leftMax.value))
+const leftTicks = computed(() => leftAxis.value.ticks)
 
 /** Tick values on the right axis. */
-const rightTicks = computed(() => [0, 0.25, 0.5, 0.75, 1].map((fraction) => fraction * rightMax.value))
+const rightTicks = computed(() => rightAxis.value.ticks)
+
+/** Printed tick label: whole numbers stay whole, fractional steps keep at most two decimals. */
+const formatTick = (value: number): string =>
+  Number.isInteger(value) ? String(value) : String(Math.round(value * 100) / 100)
 
 /** Center x of one year band. */
 const xOf = (index: number): number => MARGIN.left + band.value * (index + 0.5)
@@ -107,6 +148,10 @@ const formatRight = (value: number): string => {
   return String(Math.round(value * 100) / 100)
 }
 
+/** Printed value of a bar: whole numbers stay whole, split chorus weights keep two decimals. */
+const formatBar = (value: number): string =>
+  Number.isInteger(value) ? String(value) : String(Math.round(value * 100) / 100)
+
 /** One drawn bar segment, already positioned in SVG coordinates. */
 type BarRect = {
   key: string
@@ -119,6 +164,14 @@ type BarRect = {
   width: number
   height: number
   value: number
+  /** Members of a merged segment of this year, or null when the segment is one role. */
+  detail: string | null
+}
+
+/** Members folded into one merged segment of a year, or null when the segment stands for one role. */
+const detailOf = (series: TimelineSeries, index: number): string | null => {
+  const detail = series.details?.[index]
+  return detail === undefined || detail.trim() === '' ? null : detail
 }
 
 /** Bar segments of every series and year, stacked from the baseline up. */
@@ -146,6 +199,7 @@ const barRects = computed<BarRect[]>(() => {
           width: band.value * 0.6,
           height,
           value,
+          detail: detailOf(series, index),
         })
         return
       }
@@ -161,6 +215,7 @@ const barRects = computed<BarRect[]>(() => {
         width: groupedWidth * 0.88,
         height,
         value,
+        detail: detailOf(series, index),
       })
     })
   })
@@ -222,6 +277,8 @@ type LegendEntry = {
   color: string
   bar: boolean
   line: boolean
+  /** Names behind a merged bucket, printed on hover; null when the entry is a single role. */
+  detail: string | null
 }
 
 /** Legend rows merged by series key, so one role drawn as bars and a line is listed only once. */
@@ -230,12 +287,14 @@ const legend = computed<LegendEntry[]>(() => {
   /** Adds one series to the legend, merging it with an entry of the same key. */
   const add = (series: TimelineSeries, kind: 'bar' | 'line'): void => {
     const known = entries.get(series.key)
+    const detail = series.legendDetail === undefined || series.legendDetail.trim() === '' ? null : series.legendDetail
     if (known === undefined) {
-      entries.set(series.key, { key: series.key, label: series.label, color: series.color, bar: kind === 'bar', line: kind === 'line' })
+      entries.set(series.key, { key: series.key, label: series.label, color: series.color, bar: kind === 'bar', line: kind === 'line', detail })
       return
     }
     if (kind === 'bar') known.bar = true
     else known.line = true
+    if (known.detail === null) known.detail = detail
   }
   for (const series of props.bars) add(series, 'bar')
   for (const series of props.lines) add(series, 'line')
@@ -243,11 +302,37 @@ const legend = computed<LegendEntry[]>(() => {
   return [...entries.values()]
 })
 
+/** Legend entry under the cursor or keyboard focus. */
+const hoveredLegendKey = ref<string | null>(null)
+
+/** Detail text of the hovered legend entry; empty when it is a single role or nothing is hovered. */
+const hoveredLegendDetail = computed(() => {
+  if (hoveredLegendKey.value === null) return ''
+  return legend.value.find((entry) => entry.key === hoveredLegendKey.value)?.detail ?? ''
+})
+
+/** Shows the members of a merged legend entry. */
+const focusLegend = (key: string): void => {
+  hoveredLegendKey.value = key
+}
+
+/** Clears the legend detail when the cursor leaves an entry. */
+const blurLegend = (): void => {
+  hoveredLegendKey.value = null
+}
+
 /** Year currently under the cursor, or null. */
 const hoveredYear = computed(() => (hovered.value === null ? null : props.years[hovered.value] ?? null))
 
 /** One series value at the hovered year, for the detail strip. */
-type HoverValue = { key: string; label: string; color: string; value: string }
+type HoverValue = {
+  key: string
+  label: string
+  color: string
+  value: string
+  /** Members behind a merged bar segment of this year, or null when the segment is one role. */
+  detail: string | null
+}
 
 /**
  * Every value shown in the detail strip at the hovered year.
@@ -256,14 +341,15 @@ type HoverValue = { key: string; label: string; color: string; value: string }
 const hoverValues = computed<HoverValue[]>(() => {
   const index = hovered.value
   if (index === null) return []
-  const rows = new Map<string, { label: string; color: string; bar: string | null; line: string | null }>()
+  const rows = new Map<string, { label: string; color: string; bar: string | null; line: string | null; detail: string | null }>()
   /** Records one number under one series key, either as the bar or as the line value. */
   const add = (series: TimelineSeries, part: 'bar' | 'line', text: string): void => {
-    const row = rows.get(series.key) ?? { label: series.label, color: series.color, bar: null, line: null }
+    const row = rows.get(series.key) ?? { label: series.label, color: series.color, bar: null, line: null, detail: null }
     row[part] = text
+    if (part === 'bar') row.detail = detailOf(series, index)
     rows.set(series.key, row)
   }
-  for (const series of props.bars) add(series, 'bar', String(series.values[index] ?? 0))
+  for (const series of props.bars) add(series, 'bar', formatBar(series.values[index] ?? 0))
   for (const series of props.lines) add(series, 'line', String(series.values[index] ?? 0))
   for (const series of props.rightLines) add(series, 'line', formatRight(series.values[index] ?? 0))
   /** Joins the bar and line numbers of one row, skipping an axis without a unit label. */
@@ -278,8 +364,25 @@ const hoverValues = computed<HoverValue[]>(() => {
     label: row.label,
     color: row.color,
     value: row.bar === null || row.line === null ? row.bar ?? row.line ?? '0' : valueOf(row),
+    detail: row.detail,
   }))
 })
+
+/** Titles of the merged segments at the hovered year, printed under the detail strip. */
+const hoverDetails = computed<{ key: string; label: string; detail: string }[]>(() => {
+  const index = hovered.value
+  if (index === null) return []
+  return props.bars.flatMap((series) => {
+    const detail = detailOf(series, index)
+    return detail === null ? [] : [{ key: series.key, label: series.label, detail }]
+  })
+})
+
+/** Title of one bar segment, naming the roles a merged segment stands for. */
+const barTitle = (rect: BarRect): string => {
+  const base = `${props.years[rect.index] ?? ''} 年 · ${rect.label}：${formatBar(rect.value)}`
+  return rect.detail === null ? base : `${base}（${rect.detail}）`
+}
 
 /** Whether to print every year on the x axis. */
 const labelEvery = computed(() => (props.years.length > 26 ? 2 : 1))
@@ -293,7 +396,18 @@ const selectYear = (year: number, key: string): void => {
 <template>
   <div>
     <div v-if="legend.length > 0" class="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-      <span v-for="item in legend" :key="item.key" class="inline-flex items-center gap-1.5">
+      <span
+        v-for="item in legend"
+        :key="item.key"
+        class="inline-flex items-center gap-1.5"
+        :class="item.detail === null ? '' : 'cursor-help'"
+        :title="item.detail ?? undefined"
+        :tabindex="item.detail === null ? undefined : 0"
+        @mouseenter="focusLegend(item.key)"
+        @mouseleave="blurLegend"
+        @focus="focusLegend(item.key)"
+        @blur="blurLegend"
+      >
         <span class="inline-flex items-center gap-0.5">
           <span v-if="item.bar" class="inline-block size-2.5 rounded-sm" :style="{ backgroundColor: item.color }" />
           <span v-if="item.line" class="inline-block h-0.5 w-3 rounded-full" :style="{ backgroundColor: item.color }" />
@@ -301,6 +415,10 @@ const selectYear = (year: number, key: string): void => {
         {{ item.label }}
       </span>
     </div>
+
+    <p v-if="hoveredLegendDetail !== ''" class="-mt-0.5 mb-1 text-xs leading-relaxed text-highlighted">
+      {{ hoveredLegendDetail }}
+    </p>
 
     <div class="mb-2 flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
       <template v-if="hoveredYear !== null">
@@ -311,6 +429,12 @@ const selectYear = (year: number, key: string): void => {
         </span>
       </template>
       <span v-else>悬停查看某年明细 · 点击柱或点打开该年列表</span>
+    </div>
+
+    <div v-if="hoveredYear !== null && hoverDetails.length > 0" class="-mt-1.5 mb-2 space-y-0.5 text-xs leading-relaxed text-muted">
+      <p v-for="item in hoverDetails" :key="`detail:${item.key}`">
+        <span class="text-highlighted">{{ item.label }}</span>：{{ item.detail }}
+      </p>
     </div>
 
     <p v-if="years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText }}</p>
@@ -341,7 +465,7 @@ const selectYear = (year: number, key: string): void => {
             font-size="10"
             fill="var(--ui-text-muted)"
           >
-            {{ Math.round(tick) }}
+            {{ formatTick(tick) }}
           </text>
         </g>
 
@@ -378,14 +502,14 @@ const selectYear = (year: number, key: string): void => {
           class="cursor-pointer outline-none"
           role="button"
           tabindex="0"
-          :aria-label="`${years[rect.index]} 年 ${rect.label} ${rect.value}`"
+          :aria-label="`${years[rect.index]} 年 ${rect.label} ${formatBar(rect.value)}${rect.detail === null ? '' : `，${rect.detail}`}`"
           @click="selectYear(years[rect.index] ?? 0, rect.seriesKey)"
           @keydown.enter.prevent="selectYear(years[rect.index] ?? 0, rect.seriesKey)"
           @focus="hovered = rect.index"
           @mouseenter="hovered = rect.index"
         >
           <rect :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" :fill="rect.color" rx="1.5" />
-          <title>{{ years[rect.index] }} 年 · {{ rect.label }}：{{ rect.value }}</title>
+          <title>{{ barTitle(rect) }}</title>
         </g>
 
         <g v-for="series in leftDrawOrder" :key="`line:${series.key}`">

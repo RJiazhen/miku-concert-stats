@@ -123,17 +123,12 @@ const showItem = (performanceId: number, key: string, position: number, songId: 
 const characterRules = (): CharacterRule[] => parseCharacterConfig({
   '初音ミク': { aliases: ['初音ミク'] },
   '鏡音リン': { aliases: ['鏡音リン'] },
+  '巡音ルカ': { aliases: ['巡音ルカ'] },
 }) as CharacterRule[]
 
-/** Character count of one bucket and year. */
-const characterCount = (catalog: Catalog, year: number, name: string, options: TimelineOptions = {}): number => {
-  const timeline = buildTimeline(catalog, { characterRules: characterRules(), ...options })
-  return timeline.characterByYear.find((row) => row.year === year && row.name === name)?.count ?? 0
-}
-
 /** Distinct-song count of one bucket and year, behind the stacked bars of the character chart. */
-const characterSongCount = (catalog: Catalog, year: number, name: string): number => {
-  const timeline = buildTimeline(catalog, { characterRules: characterRules() })
+const characterSongCount = (catalog: Catalog, year: number, name: string, options: TimelineOptions = {}): number => {
+  const timeline = buildTimeline(catalog, { characterRules: characterRules(), ...options })
   return timeline.characterSongByYear.find((row) => row.year === year && row.name === name)?.count ?? 0
 }
 
@@ -193,29 +188,66 @@ describe('timeline yearly totals', () => {
   })
 })
 
-describe('timeline character counts', () => {
-  it('counts one character once per 场次 even when the same show plays several of its songs', () => {
-    expect(characterCount(yearlyCatalog(), 2020, '初音ミク')).toBe(3)
-    expect(characterCount(yearlyCatalog(), 2020, '鏡音リン')).toBe(1)
-  })
-
-  it('counts once per 演出 under the event unit', () => {
-    expect(characterCount(yearlyCatalog(), 2020, '初音ミク', { mode: 'event' })).toBe(1)
-  })
-
-  it('counts only configured characters and drops vocalist credits that match no rule', () => {
-    const timeline = buildTimeline(yearlyCatalog(), { characterRules: characterRules() })
-
-    expect(timeline.characterByYear.filter((row) => row.year === 2023)).toEqual([])
-    expect(timeline.characterTotals.map((row) => row.name).sort()).toEqual(['初音ミク', '鏡音リン'])
-  })
-
+describe('timeline character song counts', () => {
   it('counts each distinct song once per year for the stacked bars, however often it was played', () => {
     // 初音ミク sang Song 100 at three 場次 of 2020 and 鏡音リン sang Song 101 at one of them.
     expect(characterSongCount(yearlyCatalog(), 2020, '初音ミク')).toBe(1)
     expect(characterSongCount(yearlyCatalog(), 2020, '鏡音リン')).toBe(1)
     expect(characterSongCount(yearlyCatalog(), 2022, '初音ミク')).toBe(0)
     expect(characterSongCount(yearlyCatalog(), 2023, '謎の声')).toBe(0)
+  })
+
+  it('counts only configured characters and drops vocalist credits that match no rule', () => {
+    const timeline = buildTimeline(yearlyCatalog(), { characterRules: characterRules() })
+
+    expect(timeline.characterSongByYear.filter((row) => row.year === 2023)).toEqual([])
+    expect(timeline.characterTotals.map((row) => row.name).sort()).toEqual(['初音ミク', '鏡音リン'])
+  })
+
+  it('splits a chorus song across its characters only when asked', () => {
+    const current = yearlyCatalog()
+    current.songs.push(song(103, 'Duet', ['初音ミク', '鏡音リン']))
+    current.songs.push(song(104, 'Trio', ['初音ミク', '鏡音リン', '巡音ルカ']))
+    current.performanceShowSetlistItems.push(
+      showItem(3, '3:2023-03-03', 2, 103),
+      showItem(3, '3:2023-03-03', 3, 104),
+    )
+
+    // Each song adds 1 per character by default, so the duet and trio do not dilute the count.
+    expect(characterSongCount(current, 2023, '初音ミク')).toBe(2)
+    expect(characterSongCount(current, 2023, '巡音ルカ')).toBe(1)
+
+    // Split mode shares each song's one count across the characters credited on it.
+    expect(characterSongCount(current, 2023, '初音ミク', { characterSongWeight: 'split' })).toBeCloseTo(1 / 2 + 1 / 3)
+    expect(characterSongCount(current, 2023, '鏡音リン', { characterSongWeight: 'split' })).toBeCloseTo(1 / 2 + 1 / 3)
+    expect(characterSongCount(current, 2023, '巡音ルカ', { characterSongWeight: 'split' })).toBeCloseTo(1 / 3)
+  })
+
+  it('reports each role\u2019s share of the year under the same song-count rule', () => {
+    const current = yearlyCatalog()
+    current.songs.push(song(103, 'Duet', ['初音ミク', '鏡音リン']))
+    current.songs.push(song(104, 'Rin solo', ['鏡音リン']))
+    current.performanceShowSetlistItems.push(
+      showItem(3, '3:2023-03-03', 2, 103),
+      showItem(3, '3:2023-03-03', 3, 104),
+    )
+
+    /** Share of one bucket in 2023, read from the share series of the character chart. */
+    const share = (name: string, options: TimelineOptions): number => {
+      const rows = buildTimeline(current, { characterRules: characterRules(), ...options })
+        .characterShareByYear.filter((row) => row.year === 2023)
+      // Shares of one year always add up to 1, so a missing bucket is a real 0%.
+      return rows.find((row) => row.name === name)?.share ?? 0
+    }
+
+    // Per-song: the duet counts for both roles, so 初音ミク holds 1 of 3 credits.
+    expect(share('初音ミク', {})).toBeCloseTo(1 / 3)
+    expect(share('鏡音リン', {})).toBeCloseTo(2 / 3)
+    // Split: 初音ミク holds 0.5 of 2 weighted credits.
+    expect(share('初音ミク', { characterSongWeight: 'split' })).toBeCloseTo(0.25)
+    expect(share('鏡音リン', { characterSongWeight: 'split' })).toBeCloseTo(0.75)
+    // 2022 has no character songs, so the year contributes no share rows at all.
+    expect(buildTimeline(current, { characterRules: characterRules() }).characterShareByYear.filter((row) => row.year === 2022)).toEqual([])
   })
 })
 

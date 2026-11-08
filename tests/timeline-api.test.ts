@@ -54,7 +54,7 @@ describe('timeline API asset', () => {
     const cityIndex = buildCityIndex(parsePlaceNames(places))
     const samples: TimelineOptions[] = [
       {},
-      { mode: 'event', includeBroadcast: true },
+      { characterSongWeight: 'split', includeBroadcast: true },
       { seriesIds: [81], characterRules: rules, cityIndex },
       { characters: ['初音ミク'], yearFrom: 2015, yearTo: 2025, characterRules: rules, cityIndex, includeBroadcast: true },
       { producers: ['kz'], variants: parseSongVariants(variants), characterRules: rules, cityIndex, newSongBaseline: 'filtered' },

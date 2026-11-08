@@ -1,17 +1,16 @@
 ---
 name: query-concert-stats-timeline
-description: Read the year-by-year series behind the timeline page with GET /api/v1/timeline — 場次 and 演出 totals, series stacking, character appearances, new vs returning songs, series spans, and city coverage — with the same filters as the page. Use for "how did the number of shows change", "were recent years mostly new songs", "which characters appear more over time", or any trend / chart question.
+description: Read the year-by-year series behind the timeline page with GET /api/v1/timeline — 場次 and 演出 totals, series stacking, character song counts and their yearly shares, new vs returning songs, series spans, and city coverage — with the same filters as the page. Use for "how did the number of shows change", "were recent years mostly new songs", "which characters sing more over time", or any trend / chart question.
 ---
 
 # Timeline
 
 Base URL: `https://miku-concert-stats.rjiazhen.top`
 
-The annual series drawn by <https://miku-concert-stats.rjiazhen.top/timeline>: 場次 and 演出 totals per year, per-series stacking, character appearances, new vs returning songs, series activity spans, and city coverage. The endpoint runs the page's own aggregation, so one request with the page's filters returns the page's numbers.
+The annual series drawn by <https://miku-concert-stats.rjiazhen.top/timeline>: 場次 and 演出 totals per year, per-series stacking, character song counts and shares, new vs returning songs, series activity spans, and city coverage. The endpoint runs the page's own aggregation, so one request with the page's filters returns the page's numbers.
 
 | Parameter | Values | Default |
 | --- | --- | --- |
-| `mode` | `show` (按场次) or `event` (按演出) | `show` |
 | `series` | comma-separated series ids, e.g. `81` or `81,82` | all |
 | `yearFrom`, `yearTo` | four-digit calendar years; they clip the axis and drop 演出 outside it | open |
 | `character` | comma-separated base character names | all |
@@ -19,6 +18,7 @@ The annual series drawn by <https://miku-concert-stats.rjiazhen.top/timeline>: �
 | `city` | comma-separated Chinese city names, as in `cities.json` | all |
 | `includeBroadcast` | `0` or `false` to count live 演出 only | **on** |
 | `mergeVariants` | `1` to fold remixes, remasters, and covers into one song | off |
+| `characterSongWeight` | `per-song` (each song adds 1 to every credited role) or `split` (a chorus song gives each role 1 / number of roles) | `per-song` |
 | `newSongBaseline` | `catalog` or `filtered` | `catalog` |
 | `includeSongIds` | `1` to add the song ids behind every year plus a `songs` name list | off |
 | `includePerformances` | `0` to drop the per-演出 list | on |
@@ -28,7 +28,7 @@ The annual series drawn by <https://miku-concert-stats.rjiazhen.top/timeline>: �
 - `years` is the continuous axis, gap years included with zero values; `catalogYears` is the catalogue-wide span before the year filter.
 - `byYear[].shows` counts 場次 and `byYear[].performances` counts 演出 rows.
 - `seriesByYear` stacks one series per row; its `series` field is the name, not an id. `seriesSpans` gives each series' first and last year.
-- `characterByYear` counts character appearances and `characterSongByYear` the distinct songs behind them, both under the counting mode. Only characters registered on the site appear; unmatched credits are dropped, not bucketed.
+- `characterSongByYear` is the distinct-song count per character bucket, the chart's stacked bars; `characterShareByYear` gives each bucket's share of that year's character songs, the optional right-axis lines. Both use `characterSongWeight`, so a duet counts 0.5 per role under `split`. Only characters registered on the site appear; unmatched credits are dropped, not bucketed.
 - `songByYear` gives `newSongs`, `returning`, `distinctSongs`, and `newRatio`. "New" means first appearance in this catalogue, never a release date. Ask for `includeSongIds=1` only when you need to name the songs.
 - `cityByYear` splits 演出 into Japan (`domestic`), abroad (`overseas`), and `unknownCountry`, with `newCities` and `overseasRatio`; `citySpans` is per city.
 - `characterTotals` ranks the character buckets over the whole filtered dataset; it is what the chart legend orders by.
@@ -40,7 +40,7 @@ Shape, abridged — numbers change with every data update, so always quote the l
 
 ```json
 {
-  "options": { "mode": "show", "includeBroadcast": true, "series": [81], "city": [], "character": [], "producer": [], "yearFrom": 2020, "yearTo": 2025, "mergeVariants": false, "newSongBaseline": "catalog" },
+  "options": { "includeBroadcast": true, "series": [81], "city": [], "character": [], "producer": [], "yearFrom": 2020, "yearTo": 2025, "mergeVariants": false, "characterSongWeight": "per-song", "newSongBaseline": "catalog" },
   "years": [2020, 2021, 2022, 2023, 2024, 2025],
   "byYear": [{ "year": 2024, "shows": 61, "performances": 23 }],
   "seriesByYear": [{ "year": 2024, "seriesId": 81, "series": "初音ミク「マジカルミライ」", "shows": 12, "performances": 2 }],
@@ -69,7 +69,8 @@ Shape, abridged — numbers change with every data update, so always quote the l
 
 **"Which characters and cities appear more or less often over time?"**
 
-- Read `characterByYear` (appearances), `characterSongByYear` (distinct songs), and `cityByYear` (Japan / abroad / unknown country, `newCities`, `overseasRatio`).
+- Read `characterSongByYear` (distinct songs per role), `characterShareByYear` (each role's share of that year), and `cityByYear` (Japan / abroad / unknown country, `newCities`, `overseasRatio`).
+- Say which `characterSongWeight` you used: `per-song` lets a duet count for every role, `split` divides it.
 - Only characters registered on the site are counted; producers, real singers, and choruses never become a character bucket.
 - Cities the place list does not recognise are only counted in `excluded`, so do not name a city for them.
 
