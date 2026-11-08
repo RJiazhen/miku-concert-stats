@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { characterNames, characterRules } from '~/composables/useCharacters.ts'
 import { useCharacterNames } from '~/composables/useCharacterNames.ts'
@@ -439,7 +439,7 @@ const cityYearRow = computed(() => {
   return current.cityByYear.find((row) => row.year === cityYear.value) ?? null
 })
 
-/** Query keys mirrored into the URL. */
+/** Query keys and hash mirrored into the URL. */
 type FilterState = {
   series: string
   city: string
@@ -452,6 +452,7 @@ type FilterState = {
   chorus: string
   share: string
   baseline: string
+  /** Chart key, written to the hash so the URL scrolls to that chart. */
   chart: string
 }
 
@@ -471,7 +472,7 @@ const state = computed<FilterState>(() => ({
   chart: focusedChart.value,
 }))
 
-/** Replaces the query string without adding history entries. */
+/** Replaces the filters and the chart hash without adding history entries. */
 const syncUrl = (): void => {
   if (!mounted.value) return
   const current = state.value
@@ -489,13 +490,19 @@ const syncUrl = (): void => {
         chorus: current.chorus === '' ? undefined : current.chorus,
         share: current.share === '' ? undefined : current.share,
         baseline: current.baseline === '' ? undefined : current.baseline,
-        chart: current.chart === '' ? undefined : current.chart,
       },
+      hash: current.chart === '' ? undefined : `#${current.chart}`,
     },
     { replace: true },
   )
 }
 watch(state, syncUrl, { deep: true })
+
+/** Chart key of a URL hash such as `#new-songs`; empty when the hash names no chart. */
+const chartFromHash = (hash: string): string => {
+  const key = hash.replace(/^#/, '')
+  return CHARTS.some((entry) => entry.key === key) ? key : ''
+}
 
 /** Splits a comma-separated URL filter into its values, ignoring blanks. */
 const readList = (value: string): string[] => value.split(',').map((entry) => entry.trim()).filter((entry) => entry !== '')
@@ -519,8 +526,7 @@ const readUrl = (): void => {
   splitChorusSongs.value = read(query.chorus) === '1'
   showCharacterShares.value = read(query.share) === '1'
   newSongBaseline.value = read(query.baseline) === 'filtered' ? 'filtered' : 'catalog'
-  const chart = read(query.chart)
-  focusedChart.value = CHARTS.some((entry) => entry.key === chart) ? chart : ''
+  focusedChart.value = chartFromHash(route.hash)
   mounted.value = true
 }
 
@@ -616,7 +622,46 @@ const reset = (): void => {
   cityYear.value = null
 }
 
-/** Scrolls to one chart and records the focus in the URL. */
+/** Inline filter card; observed so the floating menu can take over once it scrolls away. */
+const filterCard = ref<HTMLElement | null>(null)
+
+/** True once the inline filter card has scrolled above the viewport. */
+const filterCardAway = ref(false)
+
+/** Open state of the floating filter menu shown while the inline card is off screen. */
+const filterMenuOpen = ref(false)
+
+let filterCardObserver: IntersectionObserver | null = null
+
+/** Mirrors the inline card's visibility into `filterCardAway`; a card still below the viewport keeps the menu hidden. */
+const syncFilterCardAway = (entries: IntersectionObserverEntry[]): void => {
+  const entry = entries[0]
+  if (entry === undefined) return
+  filterCardAway.value = !entry.isIntersecting && entry.boundingClientRect.top < 0
+}
+
+/** Starts watching the inline filter card. */
+const startFilterCardTracking = (): void => {
+  if (filterCard.value === null) return
+  filterCardObserver = new IntersectionObserver(syncFilterCardAway, { threshold: 0 })
+  filterCardObserver.observe(filterCard.value)
+}
+
+/** Releases the inline filter card observer. */
+const stopFilterCardTracking = (): void => {
+  filterCardObserver?.disconnect()
+  filterCardObserver = null
+}
+
+onMounted(startFilterCardTracking)
+onUnmounted(stopFilterCardTracking)
+
+/** Closes the floating menu when the inline card is back on screen. */
+watch(filterCardAway, (away) => {
+  if (!away) filterMenuOpen.value = false
+})
+
+/** Scrolls to one chart and records the focus in the URL hash. */
 const goToChart = async (key: string): Promise<void> => {
   focusedChart.value = key
   await nextTick()
@@ -709,10 +754,9 @@ watch(catalog, async (value) => {
   document.getElementById(`chart-${focusedChart.value}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 })
 
-/** Keeps the selected chart in sync with back / forward navigation. */
-watch(() => route.query.chart, (value) => {
-  const chart = typeof value === 'string' ? value : ''
-  focusedChart.value = CHARTS.some((entry) => entry.key === chart) ? chart : ''
+/** Keeps the selected chart in sync with the hash, including back / forward navigation. */
+watch(() => route.hash, (value) => {
+  focusedChart.value = chartFromHash(value)
 })
 
 useHead({ title: '时间线' })
@@ -767,84 +811,27 @@ useHead({ title: '时间线' })
       :description="error"
     />
 
-    <UCard v-else>
-      <div class="flex flex-wrap items-end gap-3">
-        <FilterField label="起始年">
-          <USelect v-model="yearFrom" :items="yearItems" size="sm" class="w-24" />
-        </FilterField>
-        <FilterField label="结束年">
-          <USelect v-model="yearTo" :items="yearItems" size="sm" class="w-24" />
-        </FilterField>
-        <FilterField label="系列">
-          <USelectMenu
-            v-model="selectedSeries"
-            :items="seriesItems"
-            value-key="value"
-            multiple
-            search-input
-            :filter-fields="['label']"
-            placeholder="全部系列"
-            size="sm"
-            class="w-44"
-          />
-        </FilterField>
-        <FilterField label="城市">
-          <USelectMenu
-            v-model="selectedCities"
-            :items="cityItems"
-            value-key="value"
-            multiple
-            search-input
-            :filter-fields="['label']"
-            placeholder="全部城市"
-            size="sm"
-            class="w-36"
-          />
-        </FilterField>
-        <FilterField label="制作人">
-          <USelectMenu
-            v-model="selectedProducers"
-            :items="producerItems"
-            value-key="value"
-            multiple
-            search-input
-            :filter-fields="['label']"
-            placeholder="全部制作人"
-            size="sm"
-            class="w-40"
-          />
-        </FilterField>
-        <FilterField label="角色">
-          <USelectMenu
-            v-model="selectedCharacters"
-            :items="characterItems"
-            value-key="value"
-            multiple
-            search-input
-            :filter-fields="['label']"
-            placeholder="全部角色"
-            size="sm"
-            class="w-36"
-          />
-        </FilterField>
-        <UButton
-          color="neutral"
-          variant="outline"
-          size="sm"
-          icon="i-lucide-rotate-ccw"
-          :label="activeCount > 0 ? `重置 ${activeCount}` : '重置'"
-          :disabled="activeCount === 0"
-          class="ml-auto"
-          @click="reset"
+    <div v-else ref="filterCard">
+      <UCard>
+        <TimelineFilters
+          v-model:year-from="yearFrom"
+          v-model:year-to="yearTo"
+          v-model:selected-series="selectedSeries"
+          v-model:selected-cities="selectedCities"
+          v-model:selected-producers="selectedProducers"
+          v-model:selected-characters="selectedCharacters"
+          v-model:include-broadcast="includeBroadcast"
+          v-model:merge-variants="mergeVariants"
+          :year-items="yearItems"
+          :series-items="seriesItems"
+          :city-items="cityItems"
+          :producer-items="producerItems"
+          :character-items="characterItems"
+          :active-count="activeCount"
+          @reset="reset"
         />
-      </div>
-
-      <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-        <UCheckbox v-model="includeBroadcast" label="计入配信 / 线上 / VR" size="sm" />
-        <UCheckbox v-model="mergeVariants" label="合并版本" size="sm" />
-        <span class="text-xs text-muted">默认连线上直播和 VR 演出一起统计，所以总数与「系列总览」一致；取消勾选后只算现场演唱会，与「城市」「曲目排行」的口径一致。</span>
-      </div>
-    </UCard>
+      </UCard>
+    </div>
 
     <div v-if="chips.length > 0" class="flex flex-wrap items-center gap-2">
       <span class="text-xs text-muted">已选条件</span>
@@ -1051,6 +1038,58 @@ useHead({ title: '时间线' })
               class="justify-start"
               :label="chart.label"
               @click="selectChartFromMenu(chart.key)"
+            />
+          </div>
+        </template>
+      </UPopover>
+    </div>
+
+    <!-- The inline filter card scrolls away with the page; this menu keeps the same controls reachable. -->
+    <div
+      v-if="filterCardAway && !error"
+      class="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 sm:right-6"
+    >
+      <UPopover v-model:open="filterMenuOpen" :content="{ align: 'end', side: 'top' }">
+        <div class="relative">
+          <UButton
+            icon="i-lucide-sliders-horizontal"
+            color="primary"
+            variant="solid"
+            size="sm"
+            class="rounded-full shadow-lg shadow-black/25"
+            aria-label="筛选"
+            aria-haspopup="dialog"
+            :aria-expanded="filterMenuOpen"
+          />
+          <UBadge
+            v-if="activeCount > 0"
+            color="primary"
+            variant="solid"
+            size="xs"
+            class="pointer-events-none absolute -top-1 -right-1"
+          >
+            {{ activeCount }}
+          </UBadge>
+        </div>
+        <template #content>
+          <div class="w-[min(22rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto p-3">
+            <TimelineFilters
+              v-model:year-from="yearFrom"
+              v-model:year-to="yearTo"
+              v-model:selected-series="selectedSeries"
+              v-model:selected-cities="selectedCities"
+              v-model:selected-producers="selectedProducers"
+              v-model:selected-characters="selectedCharacters"
+              v-model:include-broadcast="includeBroadcast"
+              v-model:merge-variants="mergeVariants"
+              :year-items="yearItems"
+              :series-items="seriesItems"
+              :city-items="cityItems"
+              :producer-items="producerItems"
+              :character-items="characterItems"
+              :active-count="activeCount"
+              :show-note="false"
+              @reset="reset"
             />
           </div>
         </template>
