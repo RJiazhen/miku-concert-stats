@@ -767,7 +767,7 @@ watch(() => route.query.chart, (value) => {
       <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
         <UCheckbox v-model="includeBroadcast" label="计入配信 / 线上 / VR" size="sm" />
         <UCheckbox v-model="mergeVariants" label="合并版本" size="sm" />
-        <span class="text-xs text-muted">默认计入配信，与 /series 合计一致；关闭后与 /cities、曲目排行的默认口径一致。</span>
+        <span class="text-xs text-muted">默认连线上直播和 VR 演出一起统计，所以总数与「系列总览」一致；取消勾选后只算现场演唱会，与「城市」「曲目排行」的口径一致。</span>
       </div>
     </UCard>
 
