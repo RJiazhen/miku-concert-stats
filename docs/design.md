@@ -173,12 +173,12 @@ flowchart LR
 }
 ```
 
-`title` 非空，是站内唯一显示的中文名。`aliases` 可省略，列出其他通行中文译名：站内不显示，只让搜索能命中（例如搜「世界末日舞厅」仍能找到 `title` 为「世末舞厅」的歌）；同一个别名不要重复，也不要与 `title` 相同。繁体写法不进 `aliases`，写到暂不参与显示的 `data/song-titles.zh-Hant.json`（同样的 `title` / `aliases` / `source` 结构）。
+`title` 非空，是站内唯一显示的中文名。`aliases` 可省略，列出其他通行中文译名：显示在中文主名下方「其他名称」一行，搜索也能命中（例如搜「世界末日舞厅」仍能找到 `title` 为「世末舞厅」的歌）；同一个别名不要重复，也不要与 `title` 相同。繁体写法不进 `aliases`，写到暂不参与显示的 `data/song-titles.zh-Hant.json`（同样的 `title` / `aliases` / `source` 结构）。
 `source` 记录出处，优先级也是这个顺序：`官方中译`（官方频道 / 官方专辑的中文曲名）> `vocawiki` / `萌娘百科` / `vocadb-alias`（民间通行译名）> `人工核定`（自己翻译）；`简繁转换` 只给汉字同名的器乐曲。曲名是英文词的假名写法时（`クリスタルスノウ` → `Crystal Snow`、`サンドリヨン` → `Cendrillon`、`ネクストネスト` → `Next Nest`），中文位直接用英文，并把英文写进 `songs.name_en`（VocaDB 没给时补在 `data/increments/0012-song-english-names.sql`），不要把英文混进中文名或 `comment`；官方罗马字名同理（`ロキ` → `ROKI`）。`comment` 可省略，只写 `title` 与 `aliases` 放不下的说明。中文名与 `songs.name` 完全相同时不登记：显示结果一样，只会虚增映射条数；例外是原曲名虽相同、但有需要参与检索的别名（`番凩` 的「落叶秋风」「对霜风」）。`shared/song-titles.ts` 校验并按 id 取出。测试要求每个 id 都在已提交目录里。
 
-日文显示名不用 SQL 覆盖：上游 `songs.name` 不可用时（404329 的 default name 是 emoji `🔪、🔪、🔪`，其 `names` 列表与百科写 `ナイフ、ナイフ、ナイフ`），在 `data/song-aliases.json` 给这首歌登记 `title`，`shared/song-aliases.ts` 校验并让它在显示上优先于 `name_ja` / `name`。一首歌只有一个 `title`：同一首歌的其它日文或英文写法写进 `aliases`，只参与检索、不参与显示；`songs.name_en`（`0012`）与中文名（`song-titles.zh-CN.json`）已经能被搜到，不必在 `aliases` 里重复。catalog 的 `name` / `name_ja` 保持上游原值，`pnpm collect` 重写 `0001` 不会影响这个文件。
+日文显示名不用 SQL 覆盖：上游 `songs.name` 不可用时（404329 的 default name 是 emoji `🔪、🔪、🔪`，其 `names` 列表与百科写 `ナイフ、ナイフ、ナイフ`），在 `data/song-aliases.json` 给这首歌登记 `title`，`shared/song-aliases.ts` 校验并让它在显示上优先于 `name_ja` / `name`。一首歌只有一个 `title`：同一首歌的其它日文或英文写法写进 `aliases`，显示在原文主名下方「其他名称」一行；`songs.name_en`（`0012`）也会显示在这里，中文名（`song-titles.zh-CN.json`）在中文模式下显示。不必在 `aliases` 里重复 `songs.name_en` 或中文名，解析层会去重。catalog 的 `name` / `name_ja` 保持上游原值，`pnpm collect` 重写 `0001` 不会影响这个文件。
 
-顶栏用「中文歌名」开关（`USwitch`）控制是否显示中文，记在 `localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`）。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，译文作主标题，原文用灰色小字换行显示在译文下方；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。
+顶栏用「中文歌名」开关（`USwitch`）控制是否显示中文，记在 `localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`）。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，译文作主标题，原文用灰色小字换行显示在译文下方；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。单曲页在标题下方用 `SongTitleAliases` 列出当前语言的其他名称（4 个以上折叠成 `+N`）；搜索结果行用 `SongSearchResultTitle`，命中别名时第二行显示并高亮该别名。
 
 ## 演出角色
 

@@ -3,6 +3,7 @@ import {
   japaneseAliasTitle,
   japaneseTitleOf,
   parseSongAliases,
+  songAliasOthers,
   songAliasTitles,
 } from '~~/shared/song-aliases.ts'
 import type { SongRow } from '~~/shared/types.ts'
@@ -30,5 +31,10 @@ export const useSongAliases = () => {
     return songAliasTitles(aliases, songId)
   }
 
-  return { jaTitle, japaneseTitle, aliasTitles }
+  /** Other registered Japanese or English spellings, shown under the original title. */
+  const aliasOthers = (songId: number): string[] => {
+    return songAliasOthers(aliases, songId)
+  }
+
+  return { jaTitle, japaneseTitle, aliasTitles, aliasOthers }
 }

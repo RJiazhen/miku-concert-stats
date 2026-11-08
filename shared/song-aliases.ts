@@ -2,17 +2,17 @@ import type { SongRow } from './types.ts'
 
 /**
  * One checked display title for a song whose upstream `songs.name` is unusable, plus other
- * spellings that should still be searchable.
+ * Japanese or English spellings shown under that title.
  *
- * A song has exactly one title on the site, so the file holds one `title`; every other Japanese or
- * English spelling of the same song goes in `aliases` and only feeds search. Chinese titles live in
- * `data/song-titles.zh-CN.json`, and the canonical English name stays in `songs.name_en`
- * (`data/increments/0012-song-english-names.sql`).
+ * A song has exactly one primary title on the site, so the file holds one `title`; every other
+ * Japanese or English spelling of the same song goes in `aliases` and appears as an "other name"
+ * when the original title is active. Chinese titles live in `data/song-titles.zh-CN.json`, and the
+ * canonical English name stays in `songs.name_en` (`data/increments/0012-song-english-names.sql`).
  */
 export type SongAliasEntry = {
   /** Japanese title the site shows in place of `songs.name_ja` / `songs.name`. */
   title: string
-  /** Other accepted spellings. Search may match them; the site never displays them. */
+  /** Other accepted Japanese or English spellings, shown with the original title. */
   aliases?: string[]
   source: string
   comment?: string
@@ -96,6 +96,11 @@ export const songAliasTitles = (file: SongAliasFile, songId: number): string[] =
   const entry = songAliasFor(file, songId)
   if (entry === null) return []
   return [entry.title, ...(entry.aliases ?? [])]
+}
+
+/** Other registered Japanese or English spellings of one song, shown under its original title. */
+export const songAliasOthers = (file: SongAliasFile, songId: number): string[] => {
+  return songAliasFor(file, songId)?.aliases ?? []
 }
 
 /** Display title the file declares for a song, or null when the song has no entry. */

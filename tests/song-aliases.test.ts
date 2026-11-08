@@ -7,6 +7,7 @@ import {
   japaneseAliasTitle,
   japaneseTitleOf,
   parseSongAliases,
+  songAliasOthers,
   songAliasTitles,
 } from '../shared/song-aliases.ts'
 import type { SqlRow } from '../shared/types.ts'
@@ -43,6 +44,8 @@ describe('Song aliases', () => {
       'Knife, Knife, Knife',
       'ナイフナイフナイフ',
     ])
+    expect(songAliasOthers(file, 404329)).toEqual(['Knife, Knife, Knife', 'ナイフナイフナイフ'])
+    expect(songAliasOthers(file, 10)).toEqual([])
     expect(songAliasTitles(file, 10)).toEqual(['メルト'])
     expect(songAliasTitles(file, 11)).toEqual([])
   })

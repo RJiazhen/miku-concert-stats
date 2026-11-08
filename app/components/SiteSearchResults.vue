@@ -129,7 +129,7 @@ const placeLabel = (name: string): string => localizePlace(name)
           class="w-full justify-start gap-2 rounded-lg px-2 py-1.5 text-left"
           @click="emit('select', song.id)"
         >
-          <SongTitle :song-id="song.id" :original="song.name_ja || song.name" />
+          <SongSearchResultTitle :song-id="song.id" :original="song.name_ja || song.name" :name-en="song.name_en" :query="query" />
           <span class="truncate text-xs text-muted">{{ displayArtistString(song.artist_string) ?? '未记录' }}</span>
         </UButton>
         <ULink :to="`/?q=${encodeURIComponent(query.trim())}`" class="block px-2 py-1.5 text-xs text-primary">

@@ -32,8 +32,8 @@ const { noteFor } = useSongNotes()
 const { songById, songHref, vocadbSongUrl } = useSongLookup()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
-const { language, translationFor } = useSongLanguage()
-const { jaTitle } = useSongAliases()
+const { language, translationFor, chineseTitle, chineseAliases } = useSongLanguage()
+const { jaTitle, aliasOthers } = useSongAliases()
 const sortableHeader = useSortableHeader()
 
 /** Starts the browser catalog load after hydration. */
@@ -46,13 +46,28 @@ const songId = computed(() => Number(route.params.id))
 const canonicalId = computed(() => variants.canonicalSongId(songId.value))
 const song = computed(() => songById(canonicalId.value))
 
-/** Title in the current language, matching the `<h1>` above it. */
-const breadcrumbSongLabel = computed(() => {
+/** Title in the current language plus the other names of that language. */
+const titleView = computed(() => {
   const current = song.value
-  if (!current) return ''
-  const view = formatSongTitle(jaTitle(current.id, current.name), translationFor(canonicalId.value), language.value)
+  if (!current) return null
+  const songId = canonicalId.value
+  return formatSongTitle(jaTitle(songId, current.name), translationFor(songId), language.value, {
+    zhTitle: chineseTitle(songId),
+    zhAliases: chineseAliases(songId),
+    originalAliases: aliasOthers(songId),
+    nameEn: current.name_en,
+  })
+})
+
+/** Title in the current language, matching the `<h1>`; the breadcrumb never shows aliases. */
+const breadcrumbSongLabel = computed(() => {
+  const view = titleView.value
+  if (!view) return ''
   return view.originalNote ? `${view.primary} (${view.originalNote})` : view.primary
 })
+
+/** Other names under the `<h1>`; empty hides the line, so a song without aliases adds no blank row. */
+const titleAliases = computed(() => titleView.value?.aliases ?? [])
 
 /** One part of the 备注 cell, in display order. */
 type NotePart = {
@@ -338,6 +353,7 @@ const showsCharacterLine = computed(() => (!outsideVocaDB.value || isVocaloidSon
         <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">
           <SongTitle :song-id="canonicalId" :original="song.name" />
         </h1>
+        <SongTitleAliases v-if="titleAliases.length > 0" :aliases="titleAliases" />
         <div class="flex flex-wrap items-center gap-2 text-xs">
           <UBadge v-if="categoryLabel" color="neutral" variant="subtle">{{ categoryLabel }}</UBadge>
           <template v-else>

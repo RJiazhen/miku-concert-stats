@@ -12,6 +12,10 @@ export type ApiSongSummary = {
   nameJa: string | null
   nameEn: string | null
   nameZh: string | null
+  /** Other Chinese spellings, shown under the Chinese title and matched by search. */
+  nameZhAliases: string[]
+  /** Other registered Japanese or English spellings, shown under the original title. */
+  aliases: string[]
   producer: string | null
   approximate: boolean
   url: string
@@ -102,6 +106,8 @@ export const songSummary = (song: ApiSongRow): ApiSongSummary => {
     nameJa: song.nameJa,
     nameEn: song.nameEn,
     nameZh: song.nameZh,
+    nameZhAliases: song.nameZhAliases ?? [],
+    aliases: song.aliases ?? [],
     producer: song.producer,
     approximate: song.approximate,
     url: `${API_BASE_URL}/songs/${song.id}`,

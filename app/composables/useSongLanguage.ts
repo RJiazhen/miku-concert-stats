@@ -1,7 +1,7 @@
 import { computed, onMounted } from 'vue'
 import { useState } from 'nuxt/app'
 import raw from '~~/data/song-titles.zh-CN.json'
-import { parseSongTitles, songTitleFor, songTitleSpellings, type SongLanguage } from '~~/shared/song-titles.ts'
+import { parseSongTitles, songTitleAliases, songTitleFor, songTitleSpellings, type SongLanguage } from '~~/shared/song-titles.ts'
 
 const STORAGE_KEY = 'miku-concert-stats-song-lang'
 
@@ -40,11 +40,19 @@ export const useSongLanguage = () => {
     set: (next: boolean) => setLanguage(next ? 'zh' : 'original'),
   })
 
-  /** Chinese title for a song, or null when this language is original or the file has no row. */
-  const translationFor = (songId: number): string | null => {
-    if (language.value !== 'zh') return null
+  /** Chinese title for a song regardless of the display language; null when the file has no row. */
+  const chineseTitle = (songId: number): string | null => {
     return songTitleFor(titles, songId)?.title ?? null
   }
+
+  /** Chinese title for a song when Chinese is active, else null. */
+  const translationFor = (songId: number): string | null => {
+    if (language.value !== 'zh') return null
+    return chineseTitle(songId)
+  }
+
+  /** Other Chinese spellings of a song, shown under the primary title when Chinese is active. */
+  const chineseAliases = (songId: number): string[] => songTitleAliases(titles, songId)
 
   /**
    * Chinese title and its recorded aliases for a song, for search.
@@ -53,5 +61,5 @@ export const useSongLanguage = () => {
    */
   const chineseSpellings = (songId: number): string[] => songTitleSpellings(titles, songId)
 
-  return { language, setLanguage, showChinese, translationFor, chineseSpellings }
+  return { language, setLanguage, showChinese, translationFor, chineseTitle, chineseAliases, chineseSpellings }
 }
