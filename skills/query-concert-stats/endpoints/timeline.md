@@ -27,13 +27,15 @@ The annual series drawn by <https://miku-concert-stats.rjiazhen.top/timeline>: �
 
 - `years` is the continuous axis: it starts and ends at the first and last year with an included 演出, so empty years at either end are omitted, while gap years in between keep zero values; `catalogYears` is the catalogue-wide span before the year filter.
 - `byYear[].shows` counts 場次 and `byYear[].performances` counts 演出 rows.
-- `seriesByYear` stacks one series per row; its `series` field is the name, not an id. `seriesSpans` gives each series' first and last year.
+- `seriesByYear` stacks one series per row; its `series` field is the catalog name, not an id, and `seriesId` sits beside it. Name the row in the user's language from `filters.json` → `series[]` (`nameZh` / `nameEn`) or `series.json`. `seriesSpans` gives each series' first and last year.
+- Character and city names here are the catalogue's canonical / Chinese spellings (`characterTotals`, `characterSongByYear`, `cityByYear`, `citySpans`). Translate them for display through `filters.json` → `characters[]` and `cities.json` → `cityEn`; the `character=` / `city=` parameters still take the canonical / Chinese values.
 - `characterSongByYear` is the distinct-song count per character bucket, the chart's stacked bars; `characterShareByYear` gives each bucket's share of that year's character songs, the optional right-axis lines. Both use `characterSongWeight`, so a duet counts 0.5 per role under `split`. Only characters registered on the site appear; unmatched credits are dropped, not bucketed.
 - `songByYear` gives `newSongs`, `returning`, `distinctSongs`, and `newRatio`. "New" means first appearance in this catalogue, never a release date. Ask for `includeSongIds=1` only when you need to name the songs.
 - `cityByYear` splits 演出 into Japan (`domestic`), abroad (`overseas`), and `unknownCountry`, with `newCities` and `overseasRatio`; `citySpans` is per city.
 - `characterTotals` ranks the character buckets over the whole filtered dataset; it is what the chart legend orders by.
 - `excluded` reports 演出 dropped for having no usable date (`undated`), for falling outside the year bounds (`byYear`), and how many 演出 / 場次 have no recognised city. Mention them instead of presenting the totals as complete.
-- `performances` lists every included 演出 (oldest first) with `year`, `series`, `startDate`, `shows`, and its page `url` — use it to name the 演出 behind a year's total.
+- `performances` lists every included 演出 (oldest first) with `year`, `series`, `startDate`, `shows`, and its page `url` — use it to name the 演出 behind a year's total. Each row carries `name` / `nameJa` / `nameEn` / `nameZh` plus `seriesNameEn` / `seriesNameZh`, so it can be quoted in the user's language without another request; `seriesByYear` and `seriesSpans` carry the same two series fields.
+- The optional `songs` list (`includeSongIds=1`) carries `name` / `nameJa` / `nameEn` / `nameZh` per song.
 - Every parameter is optional. An unknown `series` id or `character` name returns `400`, so resolve them with `series.json` / `filters.json` first.
 
 Shape, abridged — numbers change with every data update, so always quote the live response:

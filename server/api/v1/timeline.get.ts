@@ -122,8 +122,13 @@ const timeline = async (event: H3Event) => {
     newSongBaseline: baseline,
   }
   const current = buildTimeline(data.catalog, options)
-  const seriesName = new Map(data.asset.series.map((row) => [row.id, row.name]))
-  const nameOf = (id: number): string => seriesName.get(id) ?? String(id)
+  const seriesById = new Map(data.asset.series.map((row) => [row.id, row]))
+  const nameOf = (id: number): string => seriesById.get(id)?.name ?? String(id)
+  /** English and Chinese series name of one id, for rows that only carry the catalog spelling. */
+  const seriesNamesOf = (id: number): { seriesNameEn: string; seriesNameZh: string } => {
+    const row = seriesById.get(id)
+    return { seriesNameEn: row?.nameEn ?? nameOf(id), seriesNameZh: row?.nameZh ?? nameOf(id) }
+  }
   const performanceById = new Map(data.asset.performances.map((row) => [row.id, row]))
 
   const payload: Record<string, unknown> = {
@@ -144,7 +149,11 @@ const timeline = async (event: H3Event) => {
     years: current.years,
     catalogYears: current.catalogYears,
     byYear: current.byYear,
-    seriesByYear: current.seriesByYear.map((row) => ({ ...row, series: nameOf(row.seriesId) })),
+    seriesByYear: current.seriesByYear.map((row) => ({
+      ...row,
+      series: nameOf(row.seriesId),
+      ...seriesNamesOf(row.seriesId),
+    })),
     characterSongByYear: current.characterSongByYear,
     characterShareByYear: current.characterShareByYear,
     characterTotals: current.characterTotals,
@@ -159,16 +168,27 @@ const timeline = async (event: H3Event) => {
             newRatio: row.newRatio,
           },
     ),
-    seriesSpans: current.seriesSpans.map((row) => ({ ...row, series: nameOf(row.seriesId) })),
+    seriesSpans: current.seriesSpans.map((row) => ({
+      ...row,
+      series: nameOf(row.seriesId),
+      ...seriesNamesOf(row.seriesId),
+    })),
     cityByYear: current.cityByYear,
     citySpans: current.citySpans,
     performances: includePerformances
-      ? current.performances.map((row) => ({
-          ...row,
-          name: performanceById.get(row.id)?.name ?? String(row.id),
-          series: nameOf(row.seriesId),
-          url: `${API_BASE_URL}/shows/${row.id}`,
-        }))
+      ? current.performances.map((row) => {
+          const performance = performanceById.get(row.id)
+          return {
+            ...row,
+            name: performance?.name ?? String(row.id),
+            nameJa: performance?.nameJa ?? null,
+            nameEn: performance?.nameEn ?? performance?.name ?? String(row.id),
+            nameZh: performance?.nameZh ?? performance?.name ?? String(row.id),
+            series: nameOf(row.seriesId),
+            ...seriesNamesOf(row.seriesId),
+            url: `${API_BASE_URL}/shows/${row.id}`,
+          }
+        })
       : [],
     excluded: {
       undated: current.excludedUndated,

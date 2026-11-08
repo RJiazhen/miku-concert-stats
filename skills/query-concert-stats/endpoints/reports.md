@@ -21,7 +21,7 @@ Every same-series-year pair of setlists, with `severity` (`identical` / `order-o
 ## How to answer with it
 
 1. Pick the matching report and quote its counts.
-2. Name the 演出 / song with the `name` fields in the payload and link their `url`; never print an id.
+2. Name the 演出 / song with the `name` fields in the payload — `nameEn` / `nameZh` when the user is not reading Japanese — and link their `url`; never print an id.
 3. Do not turn "no snapshot" or "no setlist" into "does not exist", and do not treat `pendingReview` as "the number is wrong" — it means the attribution is still open.
 
 ## Common mistakes

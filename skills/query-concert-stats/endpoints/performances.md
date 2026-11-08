@@ -12,7 +12,7 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 ```json
 {
   "performances": [
-    { "id": 7215, "name": "初音ミク「マジカルミライ 2024」in TOKYO", "series": { "id": 81, "name": "初音ミク「マジカルミライ」" }, "seriesNumber": 2024, "startDate": "2024-08-30", "endDate": "2024-09-01", "venue": "...", "showCount": 6, "hasSetlist": true, "broadcast": false, "status": null, "url": "..." }
+    { "id": 7215, "name": "初音ミク「マジカルミライ 2024」in TOKYO", "nameJa": "初音ミク「マジカルミライ 2024」in TOKYO", "nameEn": "Magical Mirai 2024 in Tokyo", "nameZh": "魔法未来 2024 东京", "series": { "id": 81, "name": "初音ミク「マジカルミライ」", "nameEn": "Magical Mirai", "nameZh": "魔法未来" }, "seriesNumber": 2024, "startDate": "2024-08-30", "endDate": "2024-09-01", "venue": "幕張メッセ", "venueEn": "Makuhari Messe", "showCount": 6, "hasSetlist": true, "broadcast": false, "status": null, "url": "..." }
   ]
 }
 ```
@@ -23,7 +23,12 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 {
   "id": 6045,
   "name": "初音ミク「マジカルミライ 2023」in OSAKA",
-  "series": { "id": 81, "name": "初音ミク「マジカルミライ」" },
+  "nameJa": "初音ミク「マジカルミライ 2023」in OSAKA",
+  "nameEn": "Magical Mirai 2023 in Osaka",
+  "nameZh": "魔法未来 2023 大阪",
+  "series": { "id": 81, "name": "初音ミク「マジカルミライ」", "nameEn": "Magical Mirai", "nameZh": "魔法未来" },
+  "venue": "インテックス大阪",
+  "venueEn": "Intex Osaka",
   "showCount": 6,
   "hasSetlist": true,
   "setlist": { "sourceKind": "wiki", "status": "complete", "resolution": "external", "pendingReview": false, "conflict": false },
@@ -37,7 +42,7 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
       "itemCount": 24,
       "uncertain": false,
       "reasons": [],
-      "items": [{ "position": 1, "songId": 445823, "name": "カルチャ", "evidence": "wiki", "notes": "初披露" }]
+      "items": [{ "position": 1, "songId": 445823, "name": "カルチャ", "nameJa": "カルチャ", "nameEn": "culture", "nameZh": "文化", "evidence": "wiki", "notes": "初披露" }]
     }
   ],
   "sources": [{ "url": "...", "title": "...", "accessedAt": "2026-11-06", "confidence": "high" }],
@@ -46,8 +51,10 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 }
 ```
 
+- Names are already localized. The 演出 carries `name` / `nameJa` / `nameEn` / `nameZh` (the translated ones also replace the series label and checked place names), `series` carries `name` / `nameEn` / `nameZh`, `venue` carries `venueEn`, and every setlist item and medley part carries all four song titles. Read the field for the user's language instead of translating the catalog Japanese.
+- `shows[].label` is Chinese (`2023-08-11 日场`). Answering in another language, write the date plus `half` (`day` → matinee, `night` → evening) yourself instead of quoting the label.
 - Each object in `shows` is exactly one 場次. A three-day run normally has three; a day with a daytime and a night-time show has two.
-- `items` is already in printed order. Medley rows use `medleyId`, `medleyName`, and `songs` instead of `songId`; list the medley as one item unless the user asks for its parts.
+- `items` is already in printed order. Medley rows use `medleyId`, `medleyName`, and `songs` instead of `songId`; list the medley as one item unless the user asks for its parts. `medleyName` is catalog text, while each entry in `songs` still carries its own localized titles.
 - `albumFallback` is non-null when the setlist is a Blu-ray/CD/DVD tracklist instead of the event's own list. Use its `notice` text and `albumUrl`, and never present it as an upstream event setlist.
 - `setlist.status`, `resolution`, `pendingReview`, `shows[].uncertain`, and `shows[].reasons` carry the attribution quality. State them when they are not clean.
 - `broadcast: true` marks a livestream / online / VR 演出; `status` is only set for a hand-checked outcome such as `cancelled` or `upcoming`.

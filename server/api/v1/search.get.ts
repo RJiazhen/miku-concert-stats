@@ -61,6 +61,19 @@ const nameScore = (name: string, query: string): number | null => {
   return null
 }
 
+/** Best score across a row's name and its checked translations, so a Chinese or English series name matches. */
+const translatedNameScore = (names: readonly (string | null | undefined)[], query: string): number | null => {
+  let best: number | null = null
+  for (const name of names) {
+    if (name === null || name === undefined) continue
+    const score = nameScore(name, query)
+    if (score === null) continue
+    if (score === 0) return 0
+    if (best === null || score < best) best = score
+  }
+  return best
+}
+
 /** Producer hit with its page on this site. */
 const producerHit = (row: ApiProducerOption): ApiProducerOption & { url: string } => ({
   ...row,
@@ -119,7 +132,7 @@ const search = async (event: H3Event) => {
   const seriesMatches: { row: ApiSeriesOption; score: number }[] = []
   if (type === 'all' || type === 'series') {
     for (const row of rank.series) {
-      const score = row.id === Number(rawQuery) ? 0 : nameScore(row.name, query)
+      const score = row.id === Number(rawQuery) ? 0 : translatedNameScore([row.name, row.nameEn, row.nameZh], query)
       if (score !== null) seriesMatches.push({ row, score })
     }
     seriesMatches.sort((left, right) => {

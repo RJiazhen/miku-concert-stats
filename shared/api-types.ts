@@ -63,13 +63,22 @@ export type ApiProducerOption = {
 export type ApiSeriesOption = {
   id: number
   name: string
+  /** English series name; the catalog name when the series has no English row. */
+  nameEn?: string
+  /** Chinese series name; the catalog name when the series has no Chinese row. */
+  nameZh?: string
   performanceCount: number
   showCount: number
 }
 
 /** One character offered by the ranking filter. */
 export type ApiCharacterOption = {
+  /** Canonical (Japanese) name, which is also the `character=` filter value. */
   name: string
+  /** Chinese display name; the canonical name when no translation exists. */
+  nameZh?: string
+  /** English display name; the canonical name when no translation exists. */
+  nameEn?: string
   /** Number of ranked songs that credit this character. */
   count: number
 }

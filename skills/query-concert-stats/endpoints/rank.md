@@ -27,6 +27,7 @@ Most performed songs, with the same filters as the site's ranking page.
 - `includeMedleyComponents` is accepted for parity but changes nothing today: the catalogue records no unsplit medley, and medley rows are already expanded into their parts.
 - `count` is the count under the requested filter. `showCount` / `eventCount` are the same filtered numbers; use `count` for the requested mode.
 - Rows with a count of 0 never enter the ranking.
+- Every row carries `name` / `nameJa` / `nameEn` / `nameZh`, so the top songs can be printed in the user's language without translating them. `characters` stays canonical: map the names through `filters.json` → `characters[]` (`nameZh` / `nameEn`) before writing them. The `character=` filter also takes the canonical `name`.
 
 ```json
 {
@@ -39,7 +40,7 @@ Most performed songs, with the same filters as the site's ranking page.
   "order": "desc",
   "count": 235,
   "songs": [
-    { "id": 89726, "name": "Hand in Hand", "count": 25, "showCount": 25, "eventCount": 9, "characters": ["初音ミク"], "producers": ["kz"], "url": "..." }
+    { "id": 89726, "name": "Hand in Hand", "nameJa": "Hand in Hand", "nameEn": "Hand in Hand", "nameZh": "Hand in Hand", "count": 25, "showCount": 25, "eventCount": 9, "characters": ["初音ミク"], "producers": ["kz"], "url": "..." }
   ]
 }
 ```

@@ -21,7 +21,7 @@ export type TimelineApiData = {
   characters: CharacterRule[]
   variants: SongVariantIndex
   cityIndex: CityIndex
-  songNames: Map<number, { name: string; nameJa: string | null; nameZh: string | null }>
+  songNames: Map<number, { name: string; nameJa: string | null; nameEn: string | null; nameZh: string | null }>
 }
 
 /** Error returned whenever the bundled timeline asset is missing or malformed. */

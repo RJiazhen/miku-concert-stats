@@ -217,7 +217,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/performance-name.ts` 的 `shortPerformanceName` 去掉演出名里已由「系列」列显示的系列名与年份，留下城市、系列后缀或周年说明；匹配时兼容 `初音ミク「マジカルミライ」` + 2013 与 `初音ミク「マジカルミライ 2013」` 两种写法。
 
-`shared/place-names.ts` 校验 `data/place-names.zh-CN.json` 与 `data/place-names.en.json`，并按站点语言把演出名里的地点换成对应语言的写法。拉丁字母的键按整词、不区分大小写匹配，长键优先（`東京都` 先于 `東京`）；中文模式会把地点前的 `in` / `at` 一起删掉，英文模式保留连接词并归一拼写，日语模式原样返回。
+`shared/place-names.ts` 校验 `data/place-names.zh-CN.json` 与 `data/place-names.en.json`，并按站点语言把演出名里的地点换成对应语言的写法。拉丁字母的键按整词、不区分大小写匹配，长键优先（`東京都` 先于 `東京`）；日文键还会一起吃掉结尾的「市 / 都 / 府 / 県」，否则 `大阪市` 会译成 `Osaka市`。中文模式会把地点前的 `in` / `at` 一起删掉，英文模式保留连接词并归一拼写，日语模式原样返回。
 
 `shared/cities.ts` 把 `performances` 聚合成城市排行。城市由 `place-names.zh-CN.json` 的中文名与 `shared/rotation.ts` 的 `CITY_ALIASES` 共同识别：按 `series_suffix` → `name` → `name_ja` → `venue_name` 依次匹配，长拼写优先，所以 `Washington D.C.` 不会被 `Washington` 抢走。中文名去掉末尾「都 / 市」后作为分组键，`東京都`、`東京`、`TOKYO` 因此同组（`京都` 这类会短于两个字的名字保留后缀）。演出数是不同 `performances` 行数；场次是每行覆盖的演出日数，传入 `showCounts` 时会把日场 / 夜场拆开（`start_date`–`end_date` 闭区间，无日期或倒序的区间计 1 个场次，最长 14 天）。配信、线上与 VR 行默认剔除；识别不出城市的行只汇总到 `unknown`，不编造城市。
 
@@ -325,17 +325,19 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 `scripts/build-api.ts` 在 `build:catalog` 末尾运行（`prebuild` 与 `scripts/dev.ts` 因此自动带上），把目录展开成供外部 AI 调用的只读 JSON；构建期直接从 `public/data/catalog.sqlite` 计算，运行时不读写 SQLite。出场统计在 `scripts/api/appearances.ts`，单曲 / 演出的公开投影在 `scripts/api/payloads.ts`，`build-api.ts` 只负责组装与写文件。产物分两处：
 
 - `public/api/v1/**`：静态 JSON，由 Cloudflare 静态资源直接返回。
-  - `index.json`（自述：计数、口径、筛选参数、全部端点）、`filters.json`（可选系列 / 角色 / 制作人 / 年份范围）
+  - `index.json`（自述：计数、口径、筛选参数、全部端点、三语名字字段）、`filters.json`（可选系列 / 角色 / 制作人 / 年份范围，系列带中英译名，角色带 `nameZh` / `nameEn`）
   - `songs.json`、`songs/{id}.json`、`series.json`、`series/{id}.json`、`performances.json`、`performances/{id}.json`
   - `producers.json`、`producers/{id}.json`、`cities.json`
   - `reports/quality.json`、`reports/setlist-differences.json`
   约 1,100 个文件、8.6 MB。
 - `server/assets/api/rank.json`：构建期生成的紧凑计数（每首歌的场次 / 演出数、系列与日历年的分解、首次出现的系列年度、角色与制作人名单，以及计入配信后的另一套数字），由 `nuxt.config.ts` 的 `nitro.serverAssets` 以 `assets:api` 挂载，只给搜索 / 排行 / 首演三个动态路由用。
-- `server/assets/api/timeline.json`：构建期生成的逐年序列输入（每个演出只保留时间线读取的字段与逐场次曲目、曲目署名、系列名，以及 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` / `place-names.en.json` 原文），只给时间线动态路由用。约 300 KB，gzip 后约 50 KB。
+- `server/assets/api/timeline.json`：构建期生成的逐年序列输入（每个演出只保留时间线读取的字段与逐场次曲目、曲目署名、系列名、演出与系列的中英译名，以及 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` / `place-names.en.json` 原文），只给时间线动态路由用。约 300 KB，gzip 后约 50 KB。
+
+**译名随响应一起返回。** API 不要求调用方自己翻译：歌曲给出 `name` / `nameJa` / `nameEn` / `nameZh`，演出给出同样的四个字段（`nameEn` / `nameZh` 已把系列标签与核对过的地名换掉），系列给出 `name` / `nameEn` / `nameZh`，场馆给出 `venue` / `venueEn`，城市给出 `city`（中文）/ `cityEn`，角色在 `filters.json` 的 `characters[]` 里给出 `nameZh` / `nameEn`，而排行与时间线的行仍保留规范名（`character=` 筛选值也随之不变）。这些译名与页面同源：`series-titles.*`、`place-names.*`、`venue-names.en.json`、`characters.*`、`song-titles.zh-CN.json`，由 `shared/localized-names.ts` 组合——先换演出名里的系列标签，再换地名，顺序与 `/shows`、`/series` 页一致。字段为 `null`（或仍是日文）表示目录没有核对过的译名，不拿另一种语言顶替；`index.json` 的 `names` 自述列出每个端点的字段。<https://miku-concert-stats.rjiazhen.top/skill.md> 因此要求按用户语言直接读这些字段，只有缺失时才自行翻译。
 
 动态路由（`server/api/v1/`）读取 `assets:api` 并在内存里过滤，返回小页面而不是整库：
 
-- `GET /api/v1/search?q=&type=all|songs|producers|series`：歌曲按原名 / 日文名 / 英文名 / 中文名 / `data/song-aliases.json` 的别名匹配，制作人与系列按名字匹配；默认 10 条、上限 25 条。
+- `GET /api/v1/search?q=&type=all|songs|producers|series`：歌曲按原名 / 日文名 / 英文名 / 中文名 / `data/song-aliases.json` 的别名匹配，制作人按名字匹配，系列同时匹配 `name` 与 `nameEn` / `nameZh`；默认 10 条、上限 25 条。
 - `GET /api/v1/rank?mode=&series=&yearFrom=&yearTo=&character=&producer=&includeBroadcast=&includeMedleyComponents=&sort=&order=`：与排行页同一批筛选；`series` 与年份范围互斥；默认 20 条、上限 100 条。`character` / `producer` 只筛行不改计数，`includeMedleyComponents` 因派生层已展开串烧而不改变结果。
 - `GET /api/v1/debuts?year=&series=`：该年首次出现在目录里的歌曲；带 `series` 时用该系列的系列年度（`seriesNumber`）判断。
 - `GET /api/v1/timeline?mode=&series=&yearFrom=&yearTo=&character=&producer=&city=&includeBroadcast=&mergeVariants=&newSongBaseline=&includeSongIds=&includePerformances=`：`/timeline` 的逐年序列（场次 / 演出、按系列的堆叠、角色出场与角色曲目、新曲 / 复演、系列跨度、城市迁移）。Worker 从 `timeline.json` 还原一份等价目录，再调用页面用的同一个 `buildTimeline`，所以同一组筛选给出的数字与页面一致。**配信默认计入**（时间线页默认口径，与 `/series` 总数对齐）；`includeBroadcast=0` 才与排行默认口径一致。
@@ -348,7 +350,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 `public/api` 与 `server/assets/api` 都是构建产物，已加入 `.gitignore`；改完数据重新部署后 API 才会更新。
 
-`app/components/AiPromptButton.vue` 是页眉右侧的图标按钮（`i-tabler:ai`，即 A + I 描边字形，不带文字标签，`aria-label` 与 tooltip 说明用途）。按钮与字形都锁定 28px（`ui.base: 'size-7 justify-center p-0'`、`ui.leadingIcon: 'size-7'`），因此与 `size="sm"` 的其他页眉控件同高，图标放大也不会撑高页眉（始终 59px）；`justify-center` 必须在 `base` 里写，因为 Nuxt UI 的按钮主题只做垂直居中。点击后用 `navigator.clipboard.writeText` 写入三行固定提示词——第一行只指向 `/skill.md` 并要求「按其中说明回答」，后两行是要目录数据才能回答的问题；请求侧规则（只打 `/api/v1`、非 ASCII 先 percent-encoding、报错按 skill 排错而不改用搜索引擎、站外来源要标注）全部写在 `SKILL.md` 的 `Start here` 一节，避免用户在复制的提示词里读到接口细节。成功后按钮 6 秒内换成绿色对勾（`i-lucide-check`），并在按钮下方 24px（`mt-6`）处用绝对定位的浮层提示「粘贴到 AI 对话框中试试吧~」，背景用不透明的 `bg-elevated` 而不是半透明色块；失败时同一位置提示改为「复制失败，请手动让 AI 读取 /skill.md」。提示语不用 toast，避免页面底部弹出通知，也不占用页眉宽度；提示词本身不在页面上展示。`tabler:ai` 来自 `@iconify-json/tabler`（devDependency），`icon.clientBundle.scan` 只把用到的这一个图标打进客户端包。
+`app/components/AiPromptButton.vue` 是页眉右侧的图标按钮（`i-tabler:ai`，即 A + I 描边字形，不带文字标签，`aria-label` 与 tooltip 说明用途）。按钮与字形都锁定 28px（`ui.base: 'size-7 justify-center p-0'`、`ui.leadingIcon: 'size-7'`），因此与 `size="sm"` 的其他页眉控件同高，图标放大也不会撑高页眉（始终 59px）；`justify-center` 必须在 `base` 里写，因为 Nuxt UI 的按钮主题只做垂直居中。点击后用 `navigator.clipboard.writeText` 写入三行固定提示词——第一行只指向 `/skill.md` 并要求「按其说明用当前语言回答」，后两行是要目录数据才能回答的问题，且用该语言写歌名与演出名（中文「融化」「魔法未来 2024 东京场」、英文「Melt」「Magical Mirai 2024 in Tokyo」、日文「メルト」「マジカルミライ 2024 東京公演」），顺带演示 API 自带的三语名字；请求侧规则（只打 `/api/v1`、非 ASCII 先 percent-encoding、报错按 skill 排错而不改用搜索引擎、站外来源要标注）全部写在 `SKILL.md` 的 `Start here` 一节，避免用户在复制的提示词里读到接口细节。成功后按钮 6 秒内换成绿色对勾（`i-lucide-check`），并在按钮下方 24px（`mt-6`）处用绝对定位的浮层提示「粘贴到 AI 对话框中试试吧~」，背景用不透明的 `bg-elevated` 而不是半透明色块；失败时同一位置提示改为「复制失败，请手动让 AI 读取 /skill.md」。提示语不用 toast，避免页面底部弹出通知，也不占用页眉宽度；提示词本身不在页面上展示。`tabler:ai` 来自 `@iconify-json/tabler`（devDependency），`icon.clientBundle.scan` 只把用到的这一个图标打进客户端包。
 
 `server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
 
@@ -635,7 +637,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

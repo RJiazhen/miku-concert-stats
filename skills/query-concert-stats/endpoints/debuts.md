@@ -12,6 +12,7 @@ Songs whose first recorded appearance was that year. "Debut" here means the firs
 - Without `series`: the first appearance anywhere (`firstYear`).
 - With `series=81`: the first appearance inside that series, using its series year (`firstSeriesYear`), which is not always the calendar year.
 - Optional `limit`, default 100, maximum 200. `count` is the total number of matches.
+- Each song row carries `name` / `nameJa` / `nameEn` / `nameZh`; list it in the user's language from those fields.
 
 ## How to answer with it
 

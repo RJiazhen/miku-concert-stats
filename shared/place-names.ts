@@ -32,12 +32,18 @@ export type PlaceNameIndex = {
 /** Latin spellings need a word boundary so `Tokyo` does not match inside another word. */
 const LATIN = /^[\x20-\x7E]+$/
 
+/**
+ * Administrative suffix a Japanese place may carry inside a performance title.
+ * `大阪市` is the same city as `大阪`, and leaving the suffix behind gave titles like `Osaka市`.
+ */
+const ADMIN_SUFFIX = '[市都府県]?'
+
 /** Escapes a literal string for use inside a regular expression. */
 const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-/** Builds the matcher for one place spelling. */
+/** Builds the matcher for one place spelling; a Japanese spelling also swallows a trailing 市/都/府/県. */
 const placePattern = (key: string): RegExp => {
-  if (!LATIN.test(key)) return new RegExp(escapeRegex(key), 'g')
+  if (!LATIN.test(key)) return new RegExp(`${escapeRegex(key)}${ADMIN_SUFFIX}`, 'g')
   return new RegExp(`(?<![A-Za-z])${escapeRegex(key)}(?![A-Za-z])`, 'gi')
 }
 

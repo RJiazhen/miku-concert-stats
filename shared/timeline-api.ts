@@ -32,6 +32,9 @@ export type TimelineAssetPerformance = {
   seriesId: number
   name: string
   nameJa: string | null
+  /** English and Chinese name for the API's per-演出 list; the catalog name when untranslated. */
+  nameEn: string
+  nameZh: string
   seriesSuffix: string | null
   venue: string | null
   countryCode: string | null
@@ -45,6 +48,7 @@ export type TimelineAssetSong = {
   id: number
   name: string
   nameJa: string | null
+  nameEn: string | null
   nameZh: string | null
   artistString: string | null
   vocalists: string[]
@@ -55,8 +59,8 @@ export type TimelineAssetSong = {
 export type TimelineAsset = {
   generatedAt: string
   catalogVersion: string
-  /** Series id and stored name, so the API can label a row without another request. */
-  series: { id: number; name: string }[]
+  /** Series id and its name in the three site languages, so the API can label a row without another request. */
+  series: { id: number; name: string; nameEn: string; nameZh: string }[]
   songs: TimelineAssetSong[]
   performances: TimelineAssetPerformance[]
   /** Raw `data/characters.json`, parsed at runtime so both paths share one rule set. */
@@ -80,6 +84,10 @@ export type TimelineAssetInput = {
   variants: unknown
   /** Raw `data/place-names.zh-CN.json` and `data/place-names.en.json`. */
   places: NameMapInput
+  /** Localized 演出 name; omitted by tests, which then keep the catalog spelling for both languages. */
+  performanceNamesOf?: (performance: PerformanceRow) => { nameEn: string; nameZh: string }
+  /** Localized series name; omitted by tests, which then keep the catalog spelling for both languages. */
+  seriesNamesOf?: (name: string) => { nameEn: string; nameZh: string }
 }
 
 /**
@@ -123,11 +131,17 @@ export const buildTimelineAsset = (input: TimelineAssetInput): TimelineAsset => 
   return {
     generatedAt: input.generatedAt,
     catalogVersion: input.catalogVersion,
-    series: catalog.series.map((series) => ({ id: series.id, name: series.name })),
+    series: catalog.series.map((series) => ({
+      id: series.id,
+      name: series.name,
+      nameEn: input.seriesNamesOf?.(series.name).nameEn ?? series.name,
+      nameZh: input.seriesNamesOf?.(series.name).nameZh ?? series.name,
+    })),
     songs: catalog.songs.map((song): TimelineAssetSong => ({
       id: song.id,
       name: song.name,
       nameJa: song.name_ja,
+      nameEn: song.name_en,
       nameZh: input.nameZhOf(song.id),
       artistString: song.artist_string,
       vocalists: song.vocalists ?? [],
@@ -138,6 +152,8 @@ export const buildTimelineAsset = (input: TimelineAssetInput): TimelineAsset => 
       seriesId: performance.series_id,
       name: performance.name,
       nameJa: performance.name_ja,
+      nameEn: input.performanceNamesOf?.(performance).nameEn ?? performance.name,
+      nameZh: input.performanceNamesOf?.(performance).nameZh ?? performance.name,
       seriesSuffix: performance.series_suffix,
       venue: performance.venue_name,
       countryCode: performance.country_code,
@@ -179,7 +195,7 @@ const songRow = (row: TimelineAssetSong): SongRow => ({
   id: row.id,
   name: row.name,
   name_ja: row.nameJa,
-  name_en: null,
+  name_en: row.nameEn,
   artist_string: row.artistString,
   song_type: 'Original',
   category: 'vocaloid',
@@ -270,5 +286,10 @@ export const timelineCityIndexFromAsset = (asset: TimelineAsset): CityIndex =>
 /** Display names of every song in the asset, keyed by id. */
 export const timelineSongNamesFromAsset = (
   asset: TimelineAsset,
-): Map<number, { name: string; nameJa: string | null; nameZh: string | null }> =>
-  new Map(asset.songs.map((song) => [song.id, { name: song.name, nameJa: song.nameJa, nameZh: song.nameZh }]))
+): Map<number, { name: string; nameJa: string | null; nameEn: string | null; nameZh: string | null }> =>
+  new Map(
+    asset.songs.map((song) => [
+      song.id,
+      { name: song.name, nameJa: song.nameJa, nameEn: song.nameEn, nameZh: song.nameZh },
+    ]),
+  )

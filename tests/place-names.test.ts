@@ -8,6 +8,7 @@ const index = parsePlaceNames({
     東京: '东京',
     東京都: '东京都',
     横浜市: '横滨市',
+    大阪: '大阪',
     Vancouver: '温哥华',
     'New Taipei City': '新北',
     Taipei: '台北',
@@ -17,6 +18,7 @@ const index = parsePlaceNames({
     東京: 'Tokyo',
     東京都: 'Tokyo',
     横浜市: 'Yokohama',
+    大阪: 'Osaka',
     Vancouver: 'Vancouver',
     'New Taipei City': 'New Taipei City',
     Taipei: 'Taipei',
@@ -60,6 +62,11 @@ describe('place localization', () => {
     expect(localizePlaceNames('初音ミクシンフォニー 2016 東京都', index, 'en')).toBe('初音ミクシンフォニー 2016 Tokyo')
     expect(localizePlaceNames('MIKU EXPO 2024 in TOKYO', index, 'en')).toBe('MIKU EXPO 2024 in Tokyo')
     expect(localizePlaceNames('横浜市', index, 'en')).toBe('Yokohama')
+  })
+
+  it('drops the administrative suffix after a Japanese place', () => {
+    expect(localizePlaceNames('初音ミクシンフォニー 2019 大阪市', index, 'en')).toBe('初音ミクシンフォニー 2019 Osaka')
+    expect(localizePlaceNames('初音ミクシンフォニー 2019 大阪市', index, 'zh')).toBe('初音ミクシンフォニー 2019 大阪')
   })
 
   it('leaves the original language untouched', () => {

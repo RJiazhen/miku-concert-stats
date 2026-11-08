@@ -4,10 +4,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import Database from 'better-sqlite3'
 import { loadCatalog } from '../shared/catalog.ts'
+import { characterNameFor, parseCharacterNames } from '../shared/character-names.ts'
 import { parseCharacterConfig } from '../shared/characters.ts'
 import { buildCityIndex, rankCities } from '../shared/cities.ts'
 import { parseSetlistMerges } from '../shared/edition-setlists.ts'
 import { performanceSchedules } from '../shared/event-schedule.ts'
+import { allPerformanceNames, allSeriesNames, type LocalizedText, venueNameEn } from '../shared/localized-names.ts'
 import { parsePlaceNames } from '../shared/place-names.ts'
 import {
   catalogSchedules,
@@ -23,6 +25,8 @@ import { showCoverage } from '../shared/show-coverage.ts'
 import { parseSongTitles } from '../shared/song-titles.ts'
 import { japaneseAliasTitle, parseSongAliases, songAliasTitles } from '../shared/song-aliases.ts'
 import { parseSongVariants } from '../shared/song-variants.ts'
+import { parseSeriesTitles } from '../shared/series-titles.ts'
+import { parseVenueNames } from '../shared/venue-names.ts'
 import { performanceYear, rankSongAppearances } from '../shared/stats.ts'
 import { buildTimelineAsset } from '../shared/timeline-api.ts'
 import type { ApiRankFile, ApiSongRow } from '../shared/api-types.ts'
@@ -44,8 +48,10 @@ import {
   BASE_URL,
   albumFallbackOf,
   normalizeTitle,
+  localizedNameFields,
   performanceSummary,
   setlistItemPayload,
+  songNameFields,
   songSummary,
   videosOf,
 } from './api/payloads.ts'
@@ -113,6 +119,15 @@ export const buildApiFiles = (root = repoRoot()): void => {
     zh: readJsonFile(root, path.join('data', 'place-names.zh-CN.json')),
     en: readJsonFile(root, path.join('data', 'place-names.en.json')),
   })
+  const seriesTitles = parseSeriesTitles({
+    zh: readJsonFile(root, path.join('data', 'series-titles.zh-CN.json')),
+    en: readJsonFile(root, path.join('data', 'series-titles.en.json')),
+  })
+  const venueNames = parseVenueNames(readJsonFile(root, path.join('data', 'venue-names.en.json')))
+  const characterNames = parseCharacterNames({
+    zh: readJsonFile(root, path.join('data', 'characters.zh-CN.json')),
+    en: readJsonFile(root, path.join('data', 'characters.en.json')),
+  })
   const merges = parseSetlistMerges(readJsonFile(root, path.join('data', 'setlist-merges.json')))
   const review = reviewRotations(catalog)
   const showCounts = showCountsByPerformance(catalog, review)
@@ -123,6 +138,32 @@ export const buildApiFiles = (root = repoRoot()): void => {
   const statusById = new Map(catalog.performanceStatus.map((row) => [row.performance_id, row.status]))
   const showRows = new Map(catalog.performanceShowSetlists.map((row) => [row.show_key, row]))
   const medleyNames = new Map(catalog.medleys.map((row) => [row.id, row.name]))
+
+  /** One 演出 name in all three site languages, series label and place names included. */
+  const performanceNamesOf = (performance: PerformanceRow): LocalizedText =>
+    allPerformanceNames({
+      name: performance.name,
+      seriesName: seriesById.get(performance.series_id)?.name ?? String(performance.series_id),
+      seriesNumber: performance.series_number,
+      seriesTitles,
+      places,
+    })
+
+  /** One series name in all three site languages. */
+  const seriesNamesOf = (name: string): LocalizedText => allSeriesNames(name, seriesTitles)
+
+  /** English and Chinese name of one 演出, for payload rows that only need those two. */
+  const localizedPerformanceOf = (performance: PerformanceRow): { nameEn: string; nameZh: string } => {
+    const names = performanceNamesOf(performance)
+    return { nameEn: names.en, nameZh: names.zh }
+  }
+
+  /** Song titles in the three site languages, falling back to the id only when the row is missing. */
+  const songNamesOf = (songId: number): { name: string; nameJa: string | null; nameEn: string | null; nameZh: string | null } => {
+    const song = songsById.get(songId)
+    if (song === undefined) return { name: String(songId), nameJa: null, nameEn: null, nameZh: null }
+    return songNameFields(song, titlesZh, songAliases)
+  }
 
   const baseAppearances = buildAppearances(catalog, variants)
   const broadcastAppearances = buildAppearances(catalog, variants, { includeBroadcast: true })
@@ -181,6 +222,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       rules,
       titlesZh,
       nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja,
+      performanceNamesOf,
     }),
   )
   songRows.sort((left, right) => right.showCount - left.showCount || left.id - right.id)
@@ -191,10 +233,13 @@ export const buildApiFiles = (root = repoRoot()): void => {
       .map((performance) => performanceYear(performance.start_date))
       .filter((year): year is number => year !== null)
       .sort((left, right) => left - right)
+    const names = seriesNamesOf(series.name)
     return {
       id: series.id,
       name: series.name,
       nameJa: series.name_ja,
+      nameEn: names.en,
+      nameZh: names.zh,
       sourceUrl: series.source_url,
       performanceCount: rows.length,
       showCount: rows.reduce((total, performance) => total + (showCounts.get(performance.id) ?? 0), 0),
@@ -205,15 +250,19 @@ export const buildApiFiles = (root = repoRoot()): void => {
   })
   seriesRows.sort((left, right) => left.id - right.id)
 
-  const performanceRows = catalog.performances.map((performance) =>
-    performanceSummary({
+  const performanceRows = catalog.performances.map((performance) => {
+    const seriesName = seriesById.get(performance.series_id)?.name ?? String(performance.series_id)
+    return performanceSummary({
       performance,
-      seriesName: seriesById.get(performance.series_id)?.name ?? String(performance.series_id),
+      seriesName,
       showCount: showCounts.get(performance.id) ?? 0,
       hasSetlist: setlistIds.has(performance.id),
       status: statusById.get(performance.id) ?? null,
-    }),
-  )
+      names: performanceNamesOf(performance),
+      seriesNames: seriesNamesOf(seriesName),
+      venueEn: venueNameEn(venueNames, performance.venue_name),
+    })
+  })
   performanceRows.sort((left, right) => (right.startDate ?? '').localeCompare(left.startDate ?? '') || right.id - left.id)
 
   const producerIndex = buildProducerIndex(catalog)
@@ -230,7 +279,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       showCount: row.showCount,
       firstYear: row.firstYear,
       lastYear: row.lastYear,
-      topSongs: row.topSongIds.map((id) => ({ id, name: songsById.get(id)?.name ?? String(id) })),
+      topSongs: row.topSongIds.map((id) => ({ id, ...songNamesOf(id) })),
       url: `${BASE_URL}/producers/${encodeURIComponent(row.name)}`,
     }))
     .sort((left, right) => right.songCount - left.songCount || left.name.localeCompare(right.name, 'ja'))
@@ -239,6 +288,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
   const cityRanking = rankCities(catalog.performances, cityIndex, { showCounts })
   const cityRows = cityRanking.rows.map((row) => ({
     city: row.city,
+    /** English name of the same city; null when no checked Latin spelling exists. */
+    cityEn: cityIndex.englishNames.get(row.city) ?? null,
     originalNames: row.originalNames,
     concerts: row.concerts,
     shows: row.shows,
@@ -252,6 +303,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
         {
           id: performance.id,
           name: performance.name,
+          ...localizedPerformanceOf(performance),
+          nameJa: performance.name_ja,
           startDate: performance.start_date,
           seriesId: performance.series_id,
           url: `${BASE_URL}/shows/${performance.id}`,
@@ -292,7 +345,13 @@ export const buildApiFiles = (root = repoRoot()): void => {
   })
 
   const characterOptions = rules
-    .map((rule) => ({ name: rule.name, count: rankSongs.filter((row) => row.characters.includes(rule.name)).length }))
+    .map((rule) => ({
+      name: rule.name,
+      /** Chinese and English display names, so a reader can map a canonical name without guessing. */
+      nameZh: characterNameFor(characterNames, rule.name, 'zh') ?? rule.name,
+      nameEn: characterNameFor(characterNames, rule.name, 'en') ?? rule.name,
+      count: rankSongs.filter((row) => row.characters.includes(rule.name)).length,
+    }))
     .filter((option) => option.count > 0)
     .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name, 'ja'))
 
@@ -327,6 +386,18 @@ export const buildApiFiles = (root = repoRoot()): void => {
       broadcast: 'includeBroadcast=1',
       medley: 'includeMedleyComponents=1',
     },
+    // Every name the API returns carries the three site languages; a missing translation is null.
+    names: {
+      song: ['name', 'nameJa', 'nameEn', 'nameZh'],
+      performance: ['name', 'nameJa', 'nameEn', 'nameZh'],
+      series: ['name', 'nameEn', 'nameZh'],
+      venue: ['venue', 'venueEn'],
+      city: ['city', 'cityEn'],
+      character: 'filters.json characters[]: name (canonical), nameZh, nameEn',
+      fallback:
+        'missing translation: use the reader language, else nameEn when the Japanese title is katakana-only, ' +
+        'else the Japanese title (nameJa, then name); series, venue, city, and character names keep the catalog spelling',
+    },
     endpoints: {
       filters: '/api/v1/filters.json',
       search: '/api/v1/search?q={title}',
@@ -351,6 +422,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
     series: seriesRows.map((row) => ({
       id: row.id,
       name: row.name,
+      nameEn: row.nameEn,
+      nameZh: row.nameZh,
       performanceCount: row.performanceCount,
       showCount: row.showCount,
     })),
@@ -391,12 +464,16 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const schedule = derived ?? fallbackSchedules.get(performance.id) ?? []
     const items = derivedItemsByShow(catalog, performance.id)
     const setlist = catalog.performanceSetlists.find((row) => row.performance_id === performance.id)
+    const seriesName = seriesById.get(performance.series_id)?.name ?? String(performance.series_id)
     const summary = performanceSummary({
       performance,
-      seriesName: seriesById.get(performance.series_id)?.name ?? String(performance.series_id),
+      seriesName,
       showCount: showCounts.get(performance.id) ?? 0,
       hasSetlist: setlistIds.has(performance.id),
       status: statusById.get(performance.id) ?? null,
+      names: performanceNamesOf(performance),
+      seriesNames: seriesNamesOf(seriesName),
+      venueEn: venueNameEn(venueNames, performance.venue_name),
     })
     writeJson(root, path.join(API_DIRECTORY, 'performances', `${performance.id}.json`), {
       ...summary,
@@ -423,7 +500,9 @@ export const buildApiFiles = (root = repoRoot()): void => {
           itemCount: row?.item_count ?? 0,
           uncertain: row?.uncertain === 1,
           reasons: row === undefined ? [] : parseReasons(row.reasons),
-          items: (items.get(show.key) ?? []).map((item) => setlistItemPayload(catalog, item, songsById, medleyNames, songAliases)),
+          items: (items.get(show.key) ?? []).map((item) =>
+            setlistItemPayload(catalog, item, songsById, medleyNames, titlesZh, songAliases),
+          ),
         }
       }),
       sources: catalog.performanceSetlistSources
@@ -452,7 +531,17 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const alt = broadcastSummaries.get(song.id)
     const altDiffers = alt !== undefined && !sameCounts(summary, alt)
     writeJson(root, path.join(API_DIRECTORY, 'songs', `${song.id}.json`), {
-      song: songSummary({ song, summary, first: firstPerformanceOf(byPerformance), variants, groupSongs, rules, titlesZh, nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja }),
+      song: songSummary({
+        song,
+        summary,
+        first: firstPerformanceOf(byPerformance),
+        variants,
+        groupSongs,
+        rules,
+        titlesZh,
+        nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja,
+        performanceNamesOf,
+      }),
       counts: {
         show: summary.show,
         event: summary.event,
@@ -468,6 +557,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
         .map(([seriesId, bucket]) => ({
           seriesId,
           name: seriesById.get(seriesId)?.name ?? String(seriesId),
+          ...localizedNameFields(seriesNamesOf(seriesById.get(seriesId)?.name ?? String(seriesId))),
           url: `${BASE_URL}/series/${seriesId}`,
           showCount: bucket.showKeys.size,
           eventCount: bucket.eventIds.size,
@@ -487,6 +577,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
             {
               id: performance.id,
               name: performance.name,
+              nameJa: performance.name_ja,
+              ...localizedPerformanceOf(performance),
               startDate: performance.start_date,
               seriesId: performance.series_id,
               seriesNumber: performance.series_number,
@@ -501,11 +593,10 @@ export const buildApiFiles = (root = repoRoot()): void => {
         })
         .sort((left, right) => (right.startDate ?? '').localeCompare(left.startDate ?? '') || right.id - left.id),
       variants: variants.variantSongIdsOf(song.id).map((variantId) => {
-        const variant = songsById.get(variantId)
         const entry = variants.entries.get(variantId)
         return {
           id: variantId,
-          name: variant?.name ?? String(variantId),
+          ...songNamesOf(variantId),
           kind: entry?.kind ?? null,
           note: entry?.note ?? null,
         }
@@ -524,7 +615,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
         ...producer,
         songs: row.songs.map((song) => ({
           id: song.songId,
-          name: song.name,
+          ...songNamesOf(song.songId),
           roles: song.roles,
           publishYear: song.publishYear,
           showCount: song.showCount,
@@ -534,13 +625,18 @@ export const buildApiFiles = (root = repoRoot()): void => {
         performances: row.performanceIds.flatMap((id) => {
           const performance = performances.get(id)
           if (performance === undefined) return []
+          const seriesName = seriesById.get(performance.series_id)?.name ?? String(performance.series_id)
           return [
             {
               id: performance.id,
               name: performance.name,
+              nameJa: performance.name_ja,
+              ...localizedPerformanceOf(performance),
               startDate: performance.start_date,
               seriesId: performance.series_id,
-              seriesName: seriesById.get(performance.series_id)?.name ?? String(performance.series_id),
+              seriesName,
+              seriesNameEn: seriesNamesOf(seriesName).en,
+              seriesNameZh: seriesNamesOf(seriesName).zh,
               showCount: showCounts.get(performance.id) ?? 0,
               url: `${BASE_URL}/shows/${performance.id}`,
             },
@@ -554,12 +650,13 @@ export const buildApiFiles = (root = repoRoot()): void => {
   const videosBySong = new Set(catalog.videos.map((row) => row.song_id))
   const songsWithoutVideo = catalog.songs
     .filter((song) => fromVocaDB(song) && !videosBySong.has(song.id))
-    .map((song) => ({ id: song.id, name: song.name, url: `${BASE_URL}/songs/${song.id}` }))
+    .map((song) => ({ id: song.id, ...songNamesOf(song.id), url: `${BASE_URL}/songs/${song.id}` }))
   const incompletePerformances = catalog.performances
     .filter((performance) => !setlistIds.has(performance.id) || performance.start_date === null)
     .map((performance) => ({
       id: performance.id,
       name: performance.name,
+      ...localizedPerformanceOf(performance),
       seriesId: performance.series_id,
       url: `${BASE_URL}/shows/${performance.id}`,
       reason: performance.start_date === null ? 'no date' : 'no setlist',
@@ -571,6 +668,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       {
         id: performance.id,
         name: performance.name,
+        ...localizedPerformanceOf(performance),
         seriesId: performance.series_id,
         url: `${BASE_URL}/shows/${performance.id}`,
         ...fallback,
@@ -625,10 +723,14 @@ export const buildApiFiles = (root = repoRoot()): void => {
         reasons: line.reasons,
       })),
     },
-    mismatchedShows: review.shows.map((row) => ({
-      ...row,
-      name: performances.get(row.performanceId)?.name ?? String(row.performanceId),
-    })),
+    mismatchedShows: review.shows.map((row) => {
+      const performance = performances.get(row.performanceId)
+      return {
+        ...row,
+        name: performance?.name ?? String(row.performanceId),
+        ...(performance === undefined ? {} : localizedPerformanceOf(performance)),
+      }
+    }),
     duplicateCandidates,
     medleyQuarantine: catalog.medleyQuarantine.map((row) => ({
       songListId: row.song_list_id,
@@ -638,12 +740,16 @@ export const buildApiFiles = (root = repoRoot()): void => {
     })),
     pendingReview: catalog.performanceSetlists
       .filter((row) => row.pending_review === 1)
-      .map((row) => ({
-        performanceId: row.performance_id,
-        name: performances.get(row.performance_id)?.name ?? String(row.performance_id),
-        status: row.status,
-        resolution: row.resolution,
-      })),
+      .map((row) => {
+        const performance = performances.get(row.performance_id)
+        return {
+          performanceId: row.performance_id,
+          name: performance?.name ?? String(row.performance_id),
+          ...(performance === undefined ? {} : localizedPerformanceOf(performance)),
+          status: row.status,
+          resolution: row.resolution,
+        }
+      }),
     note: '缺失数据不会补造：songsWithoutVideo 只列 VocaDB 曲目，播放量快照为空时不估算。',
   })
 
@@ -652,8 +758,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const differences = pairDifferences(catalog, pair)
     return {
       ...pair,
-      onlyLeft: differences.onlyLeft.map((id) => ({ id, name: songsById.get(id)?.name ?? String(id) })),
-      onlyRight: differences.onlyRight.map((id) => ({ id, name: songsById.get(id)?.name ?? String(id) })),
+      onlyLeft: differences.onlyLeft.map((id) => ({ id, ...songNamesOf(id) })),
+      onlyRight: differences.onlyRight.map((id) => ({ id, ...songNamesOf(id) })),
     }
   }
   writeJson(root, path.join(API_DIRECTORY, 'reports', 'setlist-differences.json'), {
@@ -680,6 +786,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
     series: seriesRows.map((row) => ({
       id: row.id,
       name: row.name,
+      nameEn: row.nameEn,
+      nameZh: row.nameZh,
       performanceCount: row.performanceCount,
       showCount: row.showCount,
     })),
@@ -697,6 +805,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
     generatedAt,
     catalogVersion: version,
     nameZhOf: (songId) => titlesZh[String(songId)]?.title ?? null,
+    performanceNamesOf: localizedPerformanceOf,
+    seriesNamesOf: (name) => localizedNameFields(seriesNamesOf(name)),
     characters: readJsonFile(root, path.join('data', 'characters.json')),
     variants: readJsonFile(root, path.join('data', 'song-variants.json')),
     places: {

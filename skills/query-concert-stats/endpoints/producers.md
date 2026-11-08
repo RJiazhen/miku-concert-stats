@@ -26,7 +26,7 @@ Producer pages (and these two endpoints) list **only the songs this catalogue ha
       "showCount": 315,
       "firstYear": 2010,
       "lastYear": 2026,
-      "topSongs": [{ "id": 14480, "name": "39" }],
+      "topSongs": [{ "id": 14480, "name": "39", "nameJa": "39", "nameEn": "39", "nameZh": "39" }],
       "url": "https://miku-concert-stats.rjiazhen.top/producers/DECO*27"
     }
   ]
@@ -42,6 +42,7 @@ Producer pages (and these two endpoints) list **only the songs this catalogue ha
 - A song with two credited producers is counted for each, so summing `songCount` across producers exceeds the catalogue total; never present such a sum as a database total.
 - A producer with no appearances is still listed, with `showCount: 0`.
 - Producer names follow the site rule: structured producer-side credits first, free text only for songs without them. Keep the official spelling (`DECO*27`, `kz`, `ryo`, `Mitchie M`) and do not translate a name.
+- Songs and 演出 in both payloads are already localized: `topSongs[]`, `songs[]`, and `performances[]` carry the song name fields and the 演出 name fields, and `performances[].seriesNameEn` / `seriesNameZh` give the series in the user's language. Use those instead of translating the catalog Japanese.
 
 ## How to answer with it
 

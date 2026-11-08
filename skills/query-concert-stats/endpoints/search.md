@@ -11,9 +11,13 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 
 Valid series ids, character names, producer names, and the catalogue year range. Read it before building a filtered request, and never guess a series id, character name, or producer name.
 
+- `series[]` rows carry `name` / `nameEn` / `nameZh`, so the Chinese or English series name maps back to its id.
+- `characters[]` rows carry the canonical `name` (the `character=` filter value) with `nameZh` and `nameEn` beside it. Rank and timeline rows keep the canonical name, so map them through this list before printing a character in the user's language.
+- The filter values themselves stay canonical: `series=` takes the id, `character=` and `producer=` take `name`, never `nameZh` / `nameEn`.
+
 ## `GET /api/v1/search?q=<text>`
 
-`q` is 1–80 characters. Song titles match the original, Japanese, English, and Chinese names; producers and series match their names as a case-insensitive substring. Optional `type=songs|producers|series` (default `all`) and `limit` (default 10, maximum 25).
+`q` is 1–80 characters. Song titles match the original, Japanese, English, and Chinese names; producers match their name as a case-insensitive substring; series match `name` as well as `nameEn` / `nameZh`, so a question that says 魔法未来 or Magical Mirai finds the same series row. Optional `type=songs|producers|series` (default `all`) and `limit` (default 10, maximum 25).
 
 Encode `q` before sending it. Raw Japanese or Chinese in the query string gets **400 with an empty body** from the CDN, before this endpoint runs — that is an encoding failure, not "no match". Use `?q=%E3%83%A1%E3%83%AB%E3%83%88`, `curl -G --data-urlencode 'q=メルト' https://miku-concert-stats.rjiazhen.top/api/v1/search`, or an ASCII title (`?q=Melt`; the encoded Chinese title works the same way). The row that comes back tells you which title matched through `name` / `nameEn` / `nameZh`.
 
@@ -26,6 +30,8 @@ Encode `q` before sending it. Raw Japanese or Chinese in the query string gets *
     {
       "id": 1322,
       "name": "メルト",
+      "nameJa": "メルト",
+      "nameEn": "Melt",
       "nameZh": "融化",
       "producer": "ryo",
       "characters": ["初音ミク"],
@@ -43,7 +49,7 @@ Encode `q` before sending it. Raw Japanese or Chinese in the query string gets *
 
 Songs are ordered exact title first, then prefix, then substring; popularity breaks ties. If several different songs match and none is an exact title match, name the candidates and ask which one the user means.
 
-Search matches `nameZh` and the Chinese aliases recorded for it, but every response carries only the canonical `nameZh` — read that field for the title you show. Traditional-character spellings and translations nobody has recorded are not indexed: when such a query returns no song, retry once with the primary Chinese title or the original/Japanese name before telling the user the catalogue has no record of it.
+Search matches `nameZh` and the Chinese aliases recorded for it, but every response carries only the canonical `nameZh` — read that field for the title you show. When it is `null`, use the front-door fallback: `nameEn` if the Japanese title is katakana-only, else `nameJa` / `name` (秘密警察 stays kanji, ステラ → Stella, `Tell Your World` stays as-is). Traditional-character spellings and translations nobody has recorded are not indexed: when such a query returns no song, retry once with the primary Chinese title or the original/Japanese name before telling the user the catalogue has no record of it.
 
 ## Ids are this catalogue's own
 
