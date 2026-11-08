@@ -213,7 +213,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - 备注已经给出 `共 N 场`（`city-only when city has several shows: N`）的行不再显示覆盖数，由该警告独占数字，避免同一格出现两个不同总数。`/shows` 与 `SetlistTable` 是按演出的视图，不显示覆盖数。
 
 
-`shared/name-map.ts` 是三个译名文件共用的底座：`parseNameMap` 校验「原名 → 中文名」对象（键不能为空、值不能为空、大小写不能重复），`formatLocalizedName` 处理中文模式下的主名与原文注记。`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把演出名里的系列标签换成中文名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`）或语言为 `original` 时原样返回。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配。
+`shared/name-map.ts` 是四个译名文件共用的底座：`parseNameMap` 校验「原名 → 中文名」对象（键不能为空、值不能为空、大小写不能重复），`formatLocalizedName` 处理中文模式下的主名与原文注记。`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把演出名里的系列标签换成中文名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`）或语言为 `original` 时原样返回。`shared/character-names.ts` 校验 `data/characters.zh-CN.json`，按当前语言给出角色显示名（缺条目时回退规范名），并用对应的 `zh-CN` / `ja` collation 给角色名排序。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配。
 
 `shared/performance-name.ts` 的 `shortPerformanceName` 去掉演出名里已由「系列」列显示的系列名与年份，留下城市、系列后缀或周年说明；匹配时兼容 `初音ミク「マジカルミライ」` + 2013 与 `初音ミク「マジカルミライ 2013」` 两种写法。
 
@@ -234,7 +234,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 列表页共用一套表格外壳与角色标签，页面只决定列、行与单元格内容（issue #26）：
 
 - `app/components/TableSection.vue`：标题 / 计数 / 说明 + `UTable` 的统一外壳。默认 `fill` 用 `useRankingTableHeight` 撑满视口并粘性表头，`fill=false` 用于卡片内表格；统一 `th/td` 内边距、`ranking-scroll`、`USkeleton` 加载态与 `UEmpty` 空状态，并把页面传进来的命名单元格插槽转发给 `UTable`。
-- `app/components/CharacterChip.vue` / `CharacterChips.vue`：角色（演出歌手）标签。边框与淡底色取自 `characters.json` 的应援色，超过 `limit` 的角色收进 `+N` 气泡；`wrap=false` 供固定宽度的排行榜列使用。制作人署名这类非角色标签用 `UBadge`。
+- `app/components/CharacterChip.vue` / `CharacterChips.vue`：角色（演出歌手）标签。边框与淡底色取自 `characters.json` 的应援色，超过 `limit` 的角色收进 `+N` 气泡；`wrap=false` 供固定宽度的排行榜列使用。`CharacterChips` 按当前语言给每个标签传中文显示名（`CharacterChip` 的 `label`），`key` 与应援色仍用规范名，所以切换语言不会重复渲染、`+N` 与颜色不受影响；未配中文名的角色显示日文名。制作人署名这类非角色标签用 `UBadge`。
 - `app/components/SortableHeader.vue` + `app/composables/useSortableHeader.ts`：所有可排序表头共用的 ghost 按钮与升降序图标。
 - `app/components/FilterField.vue`：`UFormField` 包装的筛选标签，替换手写 `<label>`。
 
@@ -271,13 +271,15 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `partitionSongLists` 只按 `data/setlist-merges.json` 分组；`displaySides` 在此之上把被轮换检查标出「歌单长度不一致」的歌单单独拆出来，界面上提示「不与同组合并」。同一系列不同演出的歌曲数量对不上时不合并，按多份歌单分别显示。
 
-`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌（`public/logo.png` 徽标）、五个公开入口（歌曲 / 系列 / 城市 / 制作人 / 原始数据）、中文名称开关（`USwitch`，只在客户端生效，同时控制中文歌名、中文地点与中文系列名）、`UColorModeButton`。站点图标同样指向 `/logo.png`（`nuxt.config.ts` 的 `app.head.link`）。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
+`app/components/SiteHeader.vue` 是吸顶毛玻璃导航：品牌（`public/logo.png` 徽标）、五个公开入口（歌曲 / 系列 / 城市 / 制作人 / 原始数据）、中文名称开关（`USwitch`，只在客户端生效，同时控制中文歌名、中文地点、中文系列名与中文角色名）、`UColorModeButton`。站点图标同样指向 `/logo.png`（`nuxt.config.ts` 的 `app.head.link`）。`app/components/HeroBackdrop.vue` 画固定的青绿/洋红径向光晕与细网格，不进入正文层。
 
 `app/composables/useSongLanguage.ts` 保存歌名语言，`localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`），并暴露 `showChinese` 布尔绑定给开关。服务端和首屏先显示原文，挂载后再读选择，避免注水不一致。
 
 `app/composables/usePlaceNames.ts` 读写同一个语言状态，并暴露 `localizePlace`，把演出名里的地点换成当前语言的地名。`/songs`、`/shows`、`/series` 与 `SetlistTable` 的演出名都经过它；`/raw` 保留 VocaDB 原文。
 
 `app/composables/useSeriesTitles.ts` 复用同一语言状态，暴露 `localizeSeries`（系列名换成当前语言）、`seriesTitle`（主名加原文注释）与 `localizePerformanceSeries`（只换演出名里的系列标签，系列年度年份保留）。排行的系列筛选、`/series` 标题与面包屑、`/shows` 标题、`/songs` 的「系列」列与 `/report` 的组合标题都经过它；`/raw` 与已退役的 `/catalog`、`/windows` 保留 VocaDB 原文。路由与查询串仍只用数字 `series_id`，本地化只作用于显示文本。
+
+`app/composables/useCharacterNames.ts` 复用同一语言状态，暴露 `localizeCharacter`（角色名换成当前语言）、`compareCharacters`（按当前语言的 `zh-CN` / `ja` collation 比较两个角色）与 `compareCharacterLists`（比较一行里 `、` 连接后的角色串）。`CharacterChips` 用它渲染标签，所以 `/`、`/songs/{id}`、`SetlistTable`、`ShowSetlistTable` 与 `/raw` 的歌手列一次切换全部跟随；排行页的角色筛选下拉也用它生成 label 与排序，但选项 `value` 与 `?character=` 仍是 `data/characters.json` 的规范名，切换语言或打开旧链接都不会丢筛选。
 
 `app/composables/useSongLookup.ts` 提供 `songById` / `songName`；`useSongVariants.ts` 与 `useSetlistMerges.ts` 在模块加载时解析各自的 JSON 清单。
 
@@ -451,7 +453,11 @@ flowchart TD
 
 ### `data/characters.json`
 
-对象。键是展示用的角色名。值含 `patterns`（锚定名称开头的正则）、可选 `aliases`（整段或前缀别名）与可选 `color`（应援色 `#rrggbb`，非法值会让解析抛错）。排行页的角色筛选项不按这个顺序列出，而是取当前排行中实际出现的角色，按出现次数从多到少排列，并带上次数。歌手列的标签用 `color` 作边框、同色 12% 透明度作底色；`shared/character-chips.ts` 的 `splitCharacterChips` 只让前 3 个角色直接显示，其余收进末尾的 `+N` 按钮，悬停时用同样的彩色标签在气泡里列出剩余角色。
+对象。键是展示用的角色名，同时是内部规范名（canonical id）：筛选项的 `value`、`?character=`、`splitCharacterChips` 的 `key` 与应援色查找都用它，翻译只作用于显示文本。值含 `patterns`（锚定名称开头的正则）、可选 `aliases`（整段或前缀别名）与可选 `color`（应援色 `#rrggbb`，非法值会让解析抛错）。排行页的角色筛选项不按这个顺序列出，而是取当前排行中实际出现的角色，按出现次数从多到少排列，并带上次数；次数相同时按当前显示语言的 collation 排序（中文 `zh-CN`、原文 `ja`）。歌手列的标签用 `color` 作边框、同色 12% 透明度作底色；`shared/character-chips.ts` 的 `splitCharacterChips` 只让前 3 个角色直接显示，其余收进末尾的 `+N` 按钮，悬停时用同样的彩色标签在气泡里列出剩余角色。
+
+### `data/characters.zh-CN.json`
+
+对象。键是 `data/characters.json` 的规范角色名，值是人工核对过的简体中文显示名。只收录有既定中文写法的角色（如 `初音ミク` → `初音未来`、`鏡音リン` → `镜音铃`），拉丁名与没有通行译名的角色（如 `MEIKO`、`寒音ジミ`）不写，显示时回退日文规范名，不会出现空标签。`patterns` / `aliases` 的匹配与 `color` 不读这个文件；`tests/character-names.test.ts` 校验每个键都在 `characters.json` 里、值非空，并覆盖语言回退与两种 collation 的排序。
 
 ## 运行、构建、测试、部署
 
@@ -566,7 +572,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-show-coverage-note` 用 `3149`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

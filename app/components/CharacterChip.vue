@@ -3,11 +3,13 @@ import { computed } from 'vue'
 import { characterColor } from '~/composables/useCharacters.ts'
 
 const props = withDefaults(defineProps<{
-  /** Base character name, as stored in the catalog credits. */
+  /** Base character name, as stored in the catalog credits; also selects the image colour. */
   name: string
+  /** Text shown in the chip; defaults to the canonical name. */
+  label?: string
   /** `xs` for table cells, `sm` for page headers. */
   size?: 'xs' | 'sm'
-}>(), { size: 'xs' })
+}>(), { size: 'xs', label: undefined })
 
 /**
  * Inline style of the chip: the character's image colour as the border, with a faint tint of
@@ -30,6 +32,6 @@ const style = computed<Record<string, string>>(() => {
     :class="size === 'sm' ? 'text-xs px-1.5' : 'text-[11px]'"
     :style="style"
   >
-    {{ name }}
+    {{ label ?? name }}
   </span>
 </template>

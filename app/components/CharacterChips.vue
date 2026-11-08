@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { splitCharacterChips } from '~~/shared/character-chips.ts'
+import { useCharacterNames } from '~/composables/useCharacterNames.ts'
 
 const props = withDefaults(defineProps<{
   /** Base character names, in display order. */
@@ -15,7 +16,9 @@ const props = withDefaults(defineProps<{
   empty?: string
 }>(), { limit: 3, size: 'xs', wrap: true, empty: '—' })
 
-/** Chips shown inline plus the names revealed by the counter button. */
+const { localizeCharacter } = useCharacterNames()
+
+/** Chips shown inline plus the canonical names revealed by the counter button. */
 const split = computed(() => splitCharacterChips(props.names, props.limit))
 </script>
 
@@ -26,7 +29,13 @@ const split = computed(() => splitCharacterChips(props.names, props.limit))
     class="flex items-center gap-1"
     :class="wrap ? 'flex-wrap' : 'flex-nowrap overflow-hidden'"
   >
-    <CharacterChip v-for="name in split.visible" :key="name" :name="name" :size="size" />
+    <CharacterChip
+      v-for="name in split.visible"
+      :key="name"
+      :name="name"
+      :label="localizeCharacter(name)"
+      :size="size"
+    />
     <UTooltip
       v-if="split.hidden.length > 0"
       :content="{ side: 'top' }"
@@ -40,7 +49,13 @@ const split = computed(() => splitCharacterChips(props.names, props.limit))
       />
       <template #content>
         <div class="flex max-w-60 flex-wrap items-center gap-1">
-          <CharacterChip v-for="name in split.hidden" :key="name" :name="name" :size="size" />
+          <CharacterChip
+            v-for="name in split.hidden"
+            :key="name"
+            :name="name"
+            :label="localizeCharacter(name)"
+            :size="size"
+          />
         </div>
       </template>
     </UTooltip>

@@ -9,6 +9,7 @@ import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useSongAliases } from '~/composables/useSongAliases.ts'
 import { useSongLanguage } from '~/composables/useSongLanguage.ts'
+import { useCharacterNames } from '~/composables/useCharacterNames.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { formatSongTitle } from '~~/shared/song-titles.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
@@ -29,6 +30,7 @@ const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { language, translationFor } = useSongLanguage()
+const { localizeCharacter, compareCharacters, compareCharacterLists } = useCharacterNames()
 const { jaTitle } = useSongAliases()
 const sortableHeader = useSortableHeader()
 
@@ -169,7 +171,14 @@ const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader('名次'), enableSorting: true, meta: { class: { th: 'w-14' } } },
   { accessorKey: 'name', header: sortableHeader('歌曲'), enableSorting: true, meta: { class: { td: 'max-w-[220px]' } } },
   { accessorKey: 'artists', header: '制作人', enableSorting: true, meta: { class: { td: 'max-w-32' } } },
-  { id: 'characters', accessorFn: (row) => row.characterList.join('、'), header: sortableHeader('歌手'), enableSorting: true, meta: { class: { th: 'w-[236px]', td: 'w-[236px]' } } },
+  {
+    id: 'characters',
+    accessorFn: (row) => row.characterList.map(localizeCharacter).join('、'),
+    header: sortableHeader('歌手'),
+    enableSorting: true,
+    sortingFn: (left, right) => compareCharacterLists(left.original.characterList, right.original.characterList),
+    meta: { class: { th: 'w-[236px]', td: 'w-[236px]' } },
+  },
   { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? '场次数' : '演出数'), enableSorting: true },
   // 按演出统计时 count 已经是演出数，不再重复一列。
   ...(mode.value === 'show'
@@ -314,9 +323,15 @@ const activeFilters = computed(() => {
   return count
 })
 
-/** Options for 角色, built from characters that occur in the current ranking so every choice returns rows. */
+/**
+ * Options for 角色, built from characters that occur in the current ranking so every choice returns rows.
+ * Labels follow the site language and sort by it; `value` stays canonical so `?character=` keeps working.
+ */
 const characterItems = computed(() =>
-  availableCharacters(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
+  availableCharacters(ranked.value, compareCharacters).map(({ name, count }) => ({
+    label: `${localizeCharacter(name)}（${count}）`,
+    value: name,
+  })),
 )
 
 /** Drops selected characters that no longer occur, so the selection never filters the ranking to nothing. */
