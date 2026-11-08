@@ -11,16 +11,15 @@ import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { buildProducerIndex } from '~~/shared/producers.ts'
 import { emptySongVariantIndex } from '~~/shared/song-variants.ts'
 import type { RankingMode } from '~~/shared/stats.ts'
-import { buildTimeline, UNKNOWN_CHARACTER, type NewSongBaseline, type TimelineCount } from '~~/shared/timeline.ts'
+import { buildTimeline, type NewSongBaseline, type TimelineCount } from '~~/shared/timeline.ts'
 import { availablePerformanceYears, normalizeYearRange } from '~~/shared/year-range.ts'
 
-/** One chart series passed to the SVG components; `dashed` is ignored by the bar chart. */
+/** One chart series passed to the SVG components. */
 type ChartSeries = {
   key: string
   label: string
   color: string
   values: number[]
-  dashed?: boolean
 }
 
 /** Palette taken from the `@theme` tokens in `app/assets/css/main.css` plus Tailwind's default scales. */
@@ -34,7 +33,6 @@ const PALETTE = [
   'var(--color-rose-500)',
 ] as const
 const OTHER_COLOR = 'var(--color-slate-400)'
-const UNKNOWN_COLOR = 'var(--color-slate-500)'
 
 /** Years a chart can jump to, in page order. */
 const CHARTS = [
@@ -77,8 +75,6 @@ const mergeVariants = ref(false)
 const newSongBaseline = ref<NewSongBaseline>('catalog')
 const seriesFocus = ref<number>(0)
 const focusedChart = ref<string>('')
-/** Whether chart 3 also draws the 未识别 bucket, which is usually much larger than any single character. */
-const showUnknownCharacters = ref(false)
 
 /** Mirrors the filter state into the URL once the page is interactive. */
 const mounted = ref(false)
@@ -240,11 +236,12 @@ type CharacterBucket = {
   appearances: number[]
   /** 曲目数 of the year, the stacked bars. */
   songs: number[]
-  dashed: boolean
 }
 
 /**
- * Buckets shown by chart 3: the selected names, or the six most frequent plus 其他 and 未识别.
+ * Buckets shown by chart 3: the selected names, or the six most frequent plus 其他.
+ * Each bucket takes the character's own `data/characters.json` colour, the same one the 演出角色 chips
+ * use on the song ranking, so a name keeps one colour across the site instead of following its rank.
  * The picked rows keep their frequency ranking, then the legend prints them in `data/characters.json`
  * order (初音ミク → 鏡音リン → 鏡音レン → 巡音ルカ …) so the stack reads like the character filter.
  */
@@ -254,18 +251,17 @@ const characterChartBuckets = computed<CharacterBucket[]>(() => {
   /** Per-year values of one bucket from one of the two indices. */
   const valuesOf = (index: Map<string, Map<number, number>>, name: string): number[] =>
     current.years.map((year) => index.get(name)?.get(year) ?? 0)
-  const known = current.characterTotals.filter((row) => row.name !== UNKNOWN_CHARACTER)
+  const known = current.characterTotals
   const shown = (selectedCharacters.value.length > 0
     ? known.filter((row) => selectedCharacters.value.includes(row.name))
     : known.slice(0, 6)
   ).sort(compareByCharacterRank)
-  const buckets: CharacterBucket[] = shown.map((row, position) => ({
+  const buckets: CharacterBucket[] = shown.map((row) => ({
     key: row.name,
     label: localizeCharacter(row.name),
-    color: PALETTE[position % PALETTE.length] ?? OTHER_COLOR,
+    color: characterColor(row.name) ?? OTHER_COLOR,
     appearances: valuesOf(characterYearIndex.value, row.name),
     songs: valuesOf(characterSongYearIndex.value, row.name),
-    dashed: false,
   }))
   if (selectedCharacters.value.length === 0) {
     const shownNames = new Set(shown.map((row) => row.name))
@@ -277,19 +273,8 @@ const characterChartBuckets = computed<CharacterBucket[]>(() => {
         color: OTHER_COLOR,
         appearances: current.years.map((year) => rest.reduce((sum, row) => sum + (characterYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
         songs: current.years.map((year) => rest.reduce((sum, row) => sum + (characterSongYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
-        dashed: false,
       })
     }
-  }
-  if (showUnknownCharacters.value && current.characterTotals.some((row) => row.name === UNKNOWN_CHARACTER)) {
-    buckets.push({
-      key: UNKNOWN_CHARACTER,
-      label: UNKNOWN_CHARACTER,
-      color: UNKNOWN_COLOR,
-      appearances: valuesOf(characterYearIndex.value, UNKNOWN_CHARACTER),
-      songs: valuesOf(characterSongYearIndex.value, UNKNOWN_CHARACTER),
-      dashed: true,
-    })
   }
   return buckets
 })
@@ -311,13 +296,7 @@ const characterChartSeries = computed<ChartSeries[]>(() =>
     label: bucket.label,
     color: bucket.color,
     values: bucket.appearances,
-    dashed: bucket.dashed,
   })),
-)
-
-/** Appearance count of the 未识别 bucket, shown next to its toggle and in the note. */
-const unknownCharacterCount = computed(() =>
-  timeline.value?.characterTotals.find((row) => row.name === UNKNOWN_CHARACTER)?.count ?? 0,
 )
 
 /** Chart 4 bars: new and returning songs per year. */
@@ -602,7 +581,6 @@ const reset = (): void => {
   newSongBaseline.value = 'catalog'
   seriesFocus.value = 0
   focusedChart.value = ''
-  showUnknownCharacters.value = false
   showsYear.value = null
   characterYear.value = null
   songsYear.value = null
@@ -680,15 +658,6 @@ const exclusionNote = computed(() => {
 
 /** Number of identified cities in the catalog. */
 const cityCount = computed(() => cityItems.value.length)
-
-/** Character tokens that matched no rule, joined for the note under chart 3; the list is capped so the page stays readable. */
-const unknownCharacterNote = computed(() => {
-  const rows = timeline.value?.unknownCharacterTokens ?? []
-  if (rows.length === 0) return ''
-  const shown = rows.slice(0, 8).map((row) => `${row.name}（${row.count}）`)
-  const rest = rows.length - shown.length
-  return rest > 0 ? `${shown.join('、')} 等 ${rows.length} 个署名` : shown.join('、')
-})
 
 /** 演出 whose `country_code` is missing, so the domestic / overseas split cannot count them. */
 const unknownCountryTotal = computed(() =>
@@ -898,16 +867,8 @@ watch(() => route.query.chart, (value) => {
         <TimelineChartCard
           title="角色出场数与曲目数年度变化"
           :unit="characterUnit"
-          note="柱是该年演出过的、带该角色的不同曲目数，按角色堆叠，每段用该角色的颜色；折线是出场数：同一场演出里同一角色多首歌只计一次，跨日场 / 夜场按场次分别计。未识别角色单独计入「未识别」。"
+          note="角色取自每场实际曲目的演出角色，只统计 data/characters.json 里登记的虚拟歌手：同一场演出里同一角色多首歌只计一次，跨日场 / 夜场按场次分别计。其他署名（真人歌手、合唱、制作人）不计入。"
         >
-          <template #actions>
-            <UCheckbox
-              v-if="unknownCharacterCount > 0"
-              v-model="showUnknownCharacters"
-              :label="`显示未识别（${unknownCharacterCount}）`"
-              size="sm"
-            />
-          </template>
           <TimelineBarChart
             :years="timeline.years"
             :bars="characterChartBars"
@@ -927,7 +888,6 @@ watch(() => route.query.chart, (value) => {
                 </UBadge>
               </div>
             </div>
-            <p v-if="unknownCharacterNote" class="mt-2 text-xs text-muted">未识别署名：{{ unknownCharacterNote }}</p>
           </template>
         </TimelineChartCard>
       </section>

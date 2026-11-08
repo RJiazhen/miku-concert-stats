@@ -8,13 +8,6 @@ import { emptySongVariantIndex, type SongVariantIndex } from './song-variants.ts
 import { isBroadcastAppearance, performanceYear, type RankingMode } from './stats.ts'
 import type { Catalog, PerformanceRow, SongRow } from './types.ts'
 
-/**
- * Bucket name the character chart uses for vocalist tokens no configured rule matched.
- * It is not a `data/characters.json` entry; the page prints it in a muted colour and lists
- * the raw tokens next to the chart.
- */
-export const UNKNOWN_CHARACTER = '未识别'
-
 /** Where the earliest appearance of a song is read from. */
 export type NewSongBaseline = 'catalog' | 'filtered'
 
@@ -37,7 +30,7 @@ export type TimelineOptions = {
   yearTo?: number | null
   /** Variant mapping used to fold remixes, voicebank versions, and covers into one song. */
   variants?: SongVariantIndex
-  /** Character rules used to resolve every song's 演出角色; omit to put every token in 未识别. */
+  /** Character rules used to resolve every song's 演出角色; omit to count no characters. */
   characterRules?: readonly CharacterRule[]
   /** City matcher built from the checked place list; omit to skip city filters and city charts. */
   cityIndex?: CityIndex
@@ -152,8 +145,6 @@ export type Timeline = {
   characterSongByYear: TimelineCharacterSongYear[]
   /** Dataset totals of every character bucket, most frequent first. */
   characterTotals: TimelineCount[]
-  /** Raw vocalist tokens that matched no character rule, most frequent first. */
-  unknownCharacterTokens: TimelineCount[]
   songByYear: TimelineSongYear[]
   seriesSpans: TimelineSeriesSpan[]
   citySpans: TimelineCitySpan[]
@@ -362,21 +353,21 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
   const cityIndex = options.cityIndex
   const songsById = songRowsById(catalog)
 
-  /** Characters and unmatched tokens of one song, cached for this build. */
-  const characterCache = new Map<number, { characters: string[]; unmatched: string[] }>()
+  /** Character names of one song, cached for this build. */
+  const characterCache = new Map<number, string[]>()
   /** Producer names of one song, cached for this build. */
   const producerCache = new Map<number, string[]>()
 
-  /** Character assignment of one performed song; empty when the catalog has no row for it. */
-  const charactersOf = (songId: number): { characters: string[]; unmatched: string[] } => {
+  /** Character names assigned to one performed song; empty when no rule matches or the catalog has no row. */
+  const charactersOf = (songId: number): string[] => {
     const cached = characterCache.get(songId)
     if (cached !== undefined) return cached
     const song = songsById.get(songId)
-    const assigned = song === undefined
-      ? { characters: [], unmatched: [] }
-      : assignCharacters(characterRules, { vocalists: song.vocalists ?? null, artistString: song.artist_string })
-    characterCache.set(songId, assigned)
-    return assigned
+    const names = song === undefined
+      ? []
+      : assignCharacters(characterRules, { vocalists: song.vocalists ?? null, artistString: song.artist_string }).characters
+    characterCache.set(songId, names)
+    return names
   }
 
   /** Producer names of one performed song, resolved by the ranking's credit rule. */
@@ -412,7 +403,7 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
       if (!hit) continue
     }
     if (selectedCharacters !== null) {
-      const hit = songs.allSongIds.some((songId) => charactersOf(songId).characters.some((name) => selectedCharacters.has(name)))
+      const hit = songs.allSongIds.some((songId) => charactersOf(songId).some((name) => selectedCharacters.has(name)))
       if (!hit) continue
     }
     const year = yearOf(performance)
@@ -444,7 +435,6 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
   /** Distinct song ids per bucket and year, behind the stacked bars of the character chart. */
   const characterSongYear = new Map<number, Map<string, Set<number>>>()
   const characterTotals = new Map<string, number>()
-  const unknownTokenTotals = new Map<string, number>()
   const playedSongsByYear = new Map<number, Set<number>>()
   const seriesSpans = new Map<number, TimelineSeriesSpan>()
   const citySpans = new Map<string, TimelineCitySpan>()
@@ -502,20 +492,12 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     const yearCharacters = characterYear.get(year) ?? new Map<string, number>()
     for (const unit of units) {
       const names = new Set<string>()
-      const unmatched = new Set<string>()
       for (const songId of unit.songIds) {
-        const assigned = charactersOf(songId)
-        for (const name of assigned.characters) names.add(name)
-        for (const token of assigned.unmatched) unmatched.add(token)
+        for (const name of charactersOf(songId)) names.add(name)
       }
       for (const name of names) {
         yearCharacters.set(name, (yearCharacters.get(name) ?? 0) + 1)
         characterTotals.set(name, (characterTotals.get(name) ?? 0) + 1)
-      }
-      if (unmatched.size > 0) {
-        yearCharacters.set(UNKNOWN_CHARACTER, (yearCharacters.get(UNKNOWN_CHARACTER) ?? 0) + unmatched.size)
-        characterTotals.set(UNKNOWN_CHARACTER, (characterTotals.get(UNKNOWN_CHARACTER) ?? 0) + unmatched.size)
-        for (const token of unmatched) unknownTokenTotals.set(token, (unknownTokenTotals.get(token) ?? 0) + 1)
       }
     }
     characterYear.set(year, yearCharacters)
@@ -530,9 +512,7 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     }
     for (const songId of candidate.songs.allSongIds) {
       const canonical = variants.canonicalSongId(songId)
-      const assigned = charactersOf(songId)
-      for (const name of assigned.characters) addSong(name, canonical)
-      if (assigned.unmatched.length > 0) addSong(UNKNOWN_CHARACTER, canonical)
+      for (const name of charactersOf(songId)) addSong(name, canonical)
     }
     characterSongYear.set(year, yearSongs)
 
@@ -638,7 +618,6 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     characterByYear,
     characterSongByYear,
     characterTotals: sortCounts(characterTotals),
-    unknownCharacterTokens: sortCounts(unknownTokenTotals),
     songByYear,
     seriesSpans: [...seriesSpans.values()].sort(
       (left, right) => left.firstYear - right.firstYear || left.seriesId - right.seriesId,

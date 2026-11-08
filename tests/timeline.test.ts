@@ -7,7 +7,7 @@ import { showCountsByPerformance } from '../shared/performance-setlists.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import { parseSongVariants } from '../shared/song-variants.ts'
 import { performanceYear } from '../shared/stats.ts'
-import { buildTimeline, UNKNOWN_CHARACTER, type TimelineOptions } from '../shared/timeline.ts'
+import { buildTimeline, type TimelineOptions } from '../shared/timeline.ts'
 import type {
   Catalog,
   PerformanceRow,
@@ -203,11 +203,11 @@ describe('timeline character counts', () => {
     expect(characterCount(yearlyCatalog(), 2020, '初音ミク', { mode: 'event' })).toBe(1)
   })
 
-  it('puts unmatched vocalist tokens in the 未识别 bucket and lists them', () => {
+  it('counts only configured characters and drops vocalist credits that match no rule', () => {
     const timeline = buildTimeline(yearlyCatalog(), { characterRules: characterRules() })
 
-    expect(timeline.characterByYear.find((row) => row.year === 2023 && row.name === UNKNOWN_CHARACTER)?.count).toBe(1)
-    expect(timeline.unknownCharacterTokens).toEqual([{ name: '謎の声', count: 1 }])
+    expect(timeline.characterByYear.filter((row) => row.year === 2023)).toEqual([])
+    expect(timeline.characterTotals.map((row) => row.name).sort()).toEqual(['初音ミク', '鏡音リン'])
   })
 
   it('counts each distinct song once per year for the stacked bars, however often it was played', () => {
@@ -215,7 +215,7 @@ describe('timeline character counts', () => {
     expect(characterSongCount(yearlyCatalog(), 2020, '初音ミク')).toBe(1)
     expect(characterSongCount(yearlyCatalog(), 2020, '鏡音リン')).toBe(1)
     expect(characterSongCount(yearlyCatalog(), 2022, '初音ミク')).toBe(0)
-    expect(characterSongCount(yearlyCatalog(), 2023, UNKNOWN_CHARACTER)).toBe(1)
+    expect(characterSongCount(yearlyCatalog(), 2023, '謎の声')).toBe(0)
   })
 })
 
