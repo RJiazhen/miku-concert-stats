@@ -67,6 +67,13 @@ export type TimelineCharacterYear = {
   count: number
 }
 
+/** One character's distinct-song count in one year, drawn as the stacked bars of the character chart. */
+export type TimelineCharacterSongYear = {
+  year: number
+  name: string
+  count: number
+}
+
 /** Aggregated appearance count of one bucket, used for legends and pickers. */
 export type TimelineCount = {
   name: string
@@ -141,6 +148,8 @@ export type Timeline = {
   byYear: TimelineYear[]
   seriesByYear: TimelineSeriesYear[]
   characterByYear: TimelineCharacterYear[]
+  /** Distinct songs per character bucket and year, for the stacked bars of the character chart. */
+  characterSongByYear: TimelineCharacterSongYear[]
   /** Dataset totals of every character bucket, most frequent first. */
   characterTotals: TimelineCount[]
   /** Raw vocalist tokens that matched no character rule, most frequent first. */
@@ -432,6 +441,8 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
   for (const year of years) byYear.set(year, { year, shows: 0, performances: 0 })
   const seriesYear = new Map<string, TimelineSeriesYear>()
   const characterYear = new Map<number, Map<string, number>>()
+  /** Distinct song ids per bucket and year, behind the stacked bars of the character chart. */
+  const characterSongYear = new Map<number, Map<string, Set<number>>>()
   const characterTotals = new Map<string, number>()
   const unknownTokenTotals = new Map<string, number>()
   const playedSongsByYear = new Map<number, Set<number>>()
@@ -509,6 +520,22 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     }
     characterYear.set(year, yearCharacters)
 
+    // The bars count distinct songs, so a song played at several 場次 of the same year is added once.
+    const yearSongs = characterSongYear.get(year) ?? new Map<string, Set<number>>()
+    /** Records one song under one bucket for this year. */
+    const addSong = (name: string, canonical: number): void => {
+      const bucket = yearSongs.get(name) ?? new Set<number>()
+      bucket.add(canonical)
+      yearSongs.set(name, bucket)
+    }
+    for (const songId of candidate.songs.allSongIds) {
+      const canonical = variants.canonicalSongId(songId)
+      const assigned = charactersOf(songId)
+      for (const name of assigned.characters) addSong(name, canonical)
+      if (assigned.unmatched.length > 0) addSong(UNKNOWN_CHARACTER, canonical)
+    }
+    characterSongYear.set(year, yearSongs)
+
     if (cityIndex !== undefined) {
       const bucket = cityYear.get(year) ?? { cities: new Set<string>(), newCities: 0, domestic: 0, overseas: 0, unknownCountry: 0 }
       const country = countryBucket(candidate.performance)
@@ -577,6 +604,13 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     for (const [name, count] of characterYear.get(year) ?? []) characterByYear.push({ year, name, count })
   }
 
+  const characterSongByYear: TimelineCharacterSongYear[] = []
+  for (const year of years) {
+    for (const [name, songs] of characterSongYear.get(year) ?? []) {
+      characterSongByYear.push({ year, name, count: songs.size })
+    }
+  }
+
   const cityByYear = years.map((year): TimelineCityYear => {
     const bucket = cityYear.get(year)
     if (bucket === undefined) {
@@ -602,6 +636,7 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
       (left, right) => left.year - right.year || left.seriesId - right.seriesId,
     ),
     characterByYear,
+    characterSongByYear,
     characterTotals: sortCounts(characterTotals),
     unknownCharacterTokens: sortCounts(unknownTokenTotals),
     songByYear,

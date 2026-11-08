@@ -131,6 +131,12 @@ const characterCount = (catalog: Catalog, year: number, name: string, options: T
   return timeline.characterByYear.find((row) => row.year === year && row.name === name)?.count ?? 0
 }
 
+/** Distinct-song count of one bucket and year, behind the stacked bars of the character chart. */
+const characterSongCount = (catalog: Catalog, year: number, name: string): number => {
+  const timeline = buildTimeline(catalog, { characterRules: characterRules() })
+  return timeline.characterSongByYear.find((row) => row.year === year && row.name === name)?.count ?? 0
+}
+
 /** Fixture with a split day, an ordinary split year, a gap year, and an undated 演出. */
 const yearlyCatalog = (): Catalog => {
   const current = emptyCatalog()
@@ -202,6 +208,14 @@ describe('timeline character counts', () => {
 
     expect(timeline.characterByYear.find((row) => row.year === 2023 && row.name === UNKNOWN_CHARACTER)?.count).toBe(1)
     expect(timeline.unknownCharacterTokens).toEqual([{ name: '謎の声', count: 1 }])
+  })
+
+  it('counts each distinct song once per year for the stacked bars, however often it was played', () => {
+    // 初音ミク sang Song 100 at three 場次 of 2020 and 鏡音リン sang Song 101 at one of them.
+    expect(characterSongCount(yearlyCatalog(), 2020, '初音ミク')).toBe(1)
+    expect(characterSongCount(yearlyCatalog(), 2020, '鏡音リン')).toBe(1)
+    expect(characterSongCount(yearlyCatalog(), 2022, '初音ミク')).toBe(0)
+    expect(characterSongCount(yearlyCatalog(), 2023, UNKNOWN_CHARACTER)).toBe(1)
   })
 })
 

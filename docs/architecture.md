@@ -245,7 +245,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人，`q` 记录从结果页带过来的歌曲搜索）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
-| `/timeline` | `app/pages/timeline/index.vue` | 时间线图表。在浏览器里用 `shared/timeline.ts` 聚合，展示场次数 / 演出数、按系列的演出数、角色出场、新曲 / 复演曲，另附系列活跃甘特图与巡演城市迁移。筛选（系列 `series_id`、城市、制作人 `producer`、角色、年份 `from` / `to`、配信、合并版本、新曲基准）与图表选择 `chart` 都写在 URL query 里；图表是内联 SVG，支持悬停明细、键盘焦点与点击跳转 `/shows`、`/series`、`/songs` |
+| `/timeline` | `app/pages/timeline/index.vue` | 时间线图表。在浏览器里用 `shared/timeline.ts` 聚合，展示场次数 / 演出数、按系列的演出数、角色出场与角色曲目（柱=该年带该角色的不同曲目数，折线=出场数）、新曲 / 复演曲，另附系列活跃甘特图与巡演城市迁移。筛选（系列 `series_id`、城市、制作人 `producer`、角色、年份 `from` / `to`、配信、合并版本、新曲基准）与图表选择 `chart` 都写在 URL query 里；图表是内联 SVG，支持悬停明细、键盘焦点与点击跳转 `/shows`、`/series`、`/songs` |
 | `/search` | `app/pages/search.vue` | 搜索结果页。`?q=` 保存查询词，顶部输入框即时匹配并 `replace` 同步 URL，清空显示空状态；按 系列 → 演出 → 地点 → 制作人 → 歌曲 分区列出全部命中，分区标题给出真实总数，每类有「查看全部」入口（歌曲带 `?q=` 跳到排行），每区先显示 20 条并可用「显示更多」展开；目录加载中显示骨架，失败显示错误，加载完成前不显示「没有结果」 |
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、11 张数据表（每张 100 行分页，表定义与分页在 `app/composables/useRawTables.ts`）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复，数据在 `app/composables/useRawQuality.ts`） |
 | `/cities` | `app/pages/cities/index.vue` | 城市排行。`UTable` 排序；列出演出数与场次（演出日，含日场 / 夜场）、最早/最晚年份，城市名附 VocaDB 原始拼写；无法归属城市的线上演出单独提示 |
@@ -576,7 +576,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`，`feat-timeline-chart-nav` 用 `3151`，`fix-series-chart-shows` / `fix-character-chart-known-only` 用 `3153`，`fix-character-chart-line-order` 用 `3155`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

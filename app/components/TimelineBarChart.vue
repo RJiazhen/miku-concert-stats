@@ -179,9 +179,9 @@ type LinePoint = {
   value: number
 }
 
-/** Points of the left-axis lines. */
+/** Points of the left-axis lines, back to front so earlier legend entries end up on top. */
 const leftPoints = computed<LinePoint[]>(() =>
-  props.lines.flatMap((series) =>
+  [...props.lines].reverse().flatMap((series) =>
     props.years.flatMap((year, index) => {
       const value = series.values[index]
       if (value === undefined) return []
@@ -190,9 +190,9 @@ const leftPoints = computed<LinePoint[]>(() =>
   ),
 )
 
-/** Points of the right-axis lines. */
+/** Points of the right-axis lines, back to front so earlier legend entries end up on top. */
 const rightPoints = computed<LinePoint[]>(() =>
-  props.rightLines.flatMap((series) =>
+  [...props.rightLines].reverse().flatMap((series) =>
     props.years.flatMap((year, index) => {
       const value = series.values[index]
       if (value === undefined) return []
@@ -200,6 +200,12 @@ const rightPoints = computed<LinePoint[]>(() =>
     }),
   ),
 )
+
+/** Left-axis lines drawn back to front, so the first legend entry is painted last and stays on top. */
+const leftDrawOrder = computed(() => [...props.lines].reverse())
+
+/** Right-axis lines drawn back to front, matching `rightPoints`. */
+const rightDrawOrder = computed(() => [...props.rightLines].reverse())
 
 /** SVG `points` attribute of one series' left line. */
 const leftPolyline = (series: TimelineSeries): string =>
@@ -209,12 +215,33 @@ const leftPolyline = (series: TimelineSeries): string =>
 const rightPolyline = (series: TimelineSeries): string =>
   props.years.map((_, index) => `${xOf(index)},${yOf(series.values[index] ?? 0, rightMax.value)}`).join(' ')
 
-/** Legend entries of every series on the chart. */
-const legend = computed(() => [
-  ...props.bars.map((series) => ({ key: `bar:${series.key}`, label: series.label, color: series.color })),
-  ...props.lines.map((series) => ({ key: `line:${series.key}`, label: series.label, color: series.color })),
-  ...props.rightLines.map((series) => ({ key: `right:${series.key}`, label: series.label, color: series.color })),
-])
+/** One legend row; a key drawn as both bars and a line shows two markers in one entry. */
+type LegendEntry = {
+  key: string
+  label: string
+  color: string
+  bar: boolean
+  line: boolean
+}
+
+/** Legend rows merged by series key, so one role drawn as bars and a line is listed only once. */
+const legend = computed<LegendEntry[]>(() => {
+  const entries = new Map<string, LegendEntry>()
+  /** Adds one series to the legend, merging it with an entry of the same key. */
+  const add = (series: TimelineSeries, kind: 'bar' | 'line'): void => {
+    const known = entries.get(series.key)
+    if (known === undefined) {
+      entries.set(series.key, { key: series.key, label: series.label, color: series.color, bar: kind === 'bar', line: kind === 'line' })
+      return
+    }
+    if (kind === 'bar') known.bar = true
+    else known.line = true
+  }
+  for (const series of props.bars) add(series, 'bar')
+  for (const series of props.lines) add(series, 'line')
+  for (const series of props.rightLines) add(series, 'line')
+  return [...entries.values()]
+})
 
 /** Year currently under the cursor, or null. */
 const hoveredYear = computed(() => (hovered.value === null ? null : props.years[hovered.value] ?? null))
@@ -222,15 +249,36 @@ const hoveredYear = computed(() => (hovered.value === null ? null : props.years[
 /** One series value at the hovered year, for the detail strip. */
 type HoverValue = { key: string; label: string; color: string; value: string }
 
-/** Every value shown in the detail strip at the hovered year. */
+/**
+ * Every value shown in the detail strip at the hovered year.
+ * A key drawn as bars and a line prints one row with both numbers, each tagged with its axis unit.
+ */
 const hoverValues = computed<HoverValue[]>(() => {
   const index = hovered.value
   if (index === null) return []
-  return [
-    ...props.bars.map((series) => ({ key: `bar:${series.key}`, label: series.label, color: series.color, value: String(series.values[index] ?? 0) })),
-    ...props.lines.map((series) => ({ key: `line:${series.key}`, label: series.label, color: series.color, value: String(series.values[index] ?? 0) })),
-    ...props.rightLines.map((series) => ({ key: `right:${series.key}`, label: series.label, color: series.color, value: formatRight(series.values[index] ?? 0) })),
-  ]
+  const rows = new Map<string, { label: string; color: string; bar: string | null; line: string | null }>()
+  /** Records one number under one series key, either as the bar or as the line value. */
+  const add = (series: TimelineSeries, part: 'bar' | 'line', text: string): void => {
+    const row = rows.get(series.key) ?? { label: series.label, color: series.color, bar: null, line: null }
+    row[part] = text
+    rows.set(series.key, row)
+  }
+  for (const series of props.bars) add(series, 'bar', String(series.values[index] ?? 0))
+  for (const series of props.lines) add(series, 'line', String(series.values[index] ?? 0))
+  for (const series of props.rightLines) add(series, 'line', formatRight(series.values[index] ?? 0))
+  /** Joins the bar and line numbers of one row, skipping an axis without a unit label. */
+  const valueOf = (row: { bar: string | null; line: string | null }): string => {
+    const parts: string[] = []
+    if (row.bar !== null) parts.push(props.unit === '' ? row.bar : `${row.bar} ${props.unit}`)
+    if (row.line !== null) parts.push(props.rightUnit === '' ? row.line : `${row.line} ${props.rightUnit}`)
+    return parts.join(' · ')
+  }
+  return [...rows].map(([key, row]) => ({
+    key,
+    label: row.label,
+    color: row.color,
+    value: row.bar === null || row.line === null ? row.bar ?? row.line ?? '0' : valueOf(row),
+  }))
 })
 
 /** Whether to print every year on the x axis. */
@@ -246,7 +294,10 @@ const selectYear = (year: number, key: string): void => {
   <div>
     <div v-if="legend.length > 0" class="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
       <span v-for="item in legend" :key="item.key" class="inline-flex items-center gap-1.5">
-        <span class="inline-block size-2.5 rounded-sm" :style="{ backgroundColor: item.color }" />
+        <span class="inline-flex items-center gap-0.5">
+          <span v-if="item.bar" class="inline-block size-2.5 rounded-sm" :style="{ backgroundColor: item.color }" />
+          <span v-if="item.line" class="inline-block h-0.5 w-3 rounded-full" :style="{ backgroundColor: item.color }" />
+        </span>
         {{ item.label }}
       </span>
     </div>
@@ -335,10 +386,10 @@ const selectYear = (year: number, key: string): void => {
           <title>{{ years[rect.index] }} 年 · {{ rect.label }}：{{ rect.value }}</title>
         </g>
 
-        <g v-for="series in lines" :key="`line:${series.key}`">
+        <g v-for="series in leftDrawOrder" :key="`line:${series.key}`">
           <polyline :points="leftPolyline(series)" fill="none" :stroke="series.color" stroke-width="2" stroke-linejoin="round" />
         </g>
-        <g v-for="series in rightLines" :key="`right-line:${series.key}`">
+        <g v-for="series in rightDrawOrder" :key="`right-line:${series.key}`">
           <polyline
             :points="rightPolyline(series)"
             fill="none"

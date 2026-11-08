@@ -11,7 +11,7 @@ import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { buildProducerIndex } from '~~/shared/producers.ts'
 import { emptySongVariantIndex } from '~~/shared/song-variants.ts'
 import type { RankingMode } from '~~/shared/stats.ts'
-import { buildTimeline, UNKNOWN_CHARACTER, type NewSongBaseline } from '~~/shared/timeline.ts'
+import { buildTimeline, UNKNOWN_CHARACTER, type NewSongBaseline, type TimelineCount } from '~~/shared/timeline.ts'
 import { availablePerformanceYears, normalizeYearRange } from '~~/shared/year-range.ts'
 
 /** One chart series passed to the SVG components; `dashed` is ignored by the bar chart. */
@@ -156,6 +156,13 @@ const characterItems = computed(() => [...characterNames]
   .sort(compareCharacters)
   .map((name) => ({ label: localizeCharacter(name), value: name })))
 
+/** Position of a character in `data/characters.json`; unknown names sort last. */
+const characterRank = new Map(characterNames.map((name, index) => [name, index]))
+
+/** Compares two character buckets by their `data/characters.json` position. */
+const compareByCharacterRank = (left: TimelineCount, right: TimelineCount): number =>
+  (characterRank.get(left.name) ?? Number.MAX_SAFE_INTEGER) - (characterRank.get(right.name) ?? Number.MAX_SAFE_INTEGER)
+
 /** Calendar years present in the catalog, newest first. */
 const yearOptions = computed(() => availablePerformanceYears(catalog.value?.performances ?? []))
 
@@ -233,45 +240,100 @@ const characterYearIndex = computed(() => {
   return index
 })
 
-/** Character series shown by chart 3: the selected names, or the six most frequent plus 其他 and 未识别. */
-const characterChartSeries = computed<ChartSeries[]>(() => {
+/** Distinct-song counts of each character bucket by year, behind the stacked bars of chart 3. */
+const characterSongYearIndex = computed(() => {
+  const index = new Map<string, Map<number, number>>()
+  for (const row of timeline.value?.characterSongByYear ?? []) {
+    const byYear = index.get(row.name) ?? new Map<number, number>()
+    byYear.set(row.year, row.count)
+    index.set(row.name, byYear)
+  }
+  return index
+})
+
+/** One bucket of chart 3: its colour plus the per-year 出场 and 曲目 numbers it is drawn from. */
+type CharacterBucket = {
+  key: string
+  label: string
+  color: string
+  /** 出场数, the lines on the right axis. */
+  appearances: number[]
+  /** 曲目数 of the year, the stacked bars. */
+  songs: number[]
+  dashed: boolean
+}
+
+/**
+ * Buckets shown by chart 3: the selected names, or the six most frequent plus 其他 and 未识别.
+ * The picked rows keep their frequency ranking, then the legend prints them in `data/characters.json`
+ * order (初音ミク → 鏡音リン → 鏡音レン → 巡音ルカ …) so the stack reads like the character filter.
+ */
+const characterChartBuckets = computed<CharacterBucket[]>(() => {
   const current = timeline.value
   if (current === null) return []
-  const valuesOf = (name: string): number[] =>
-    current.years.map((year) => characterYearIndex.value.get(name)?.get(year) ?? 0)
+  /** Per-year values of one bucket from one of the two indices. */
+  const valuesOf = (index: Map<string, Map<number, number>>, name: string): number[] =>
+    current.years.map((year) => index.get(name)?.get(year) ?? 0)
   const known = current.characterTotals.filter((row) => row.name !== UNKNOWN_CHARACTER)
-  const shown = selectedCharacters.value.length > 0
+  const shown = (selectedCharacters.value.length > 0
     ? known.filter((row) => selectedCharacters.value.includes(row.name))
     : known.slice(0, 6)
-  const series: ChartSeries[] = shown.map((row, position) => ({
+  ).sort(compareByCharacterRank)
+  const buckets: CharacterBucket[] = shown.map((row, position) => ({
     key: row.name,
     label: localizeCharacter(row.name),
     color: PALETTE[position % PALETTE.length] ?? OTHER_COLOR,
-    values: valuesOf(row.name),
+    appearances: valuesOf(characterYearIndex.value, row.name),
+    songs: valuesOf(characterSongYearIndex.value, row.name),
+    dashed: false,
   }))
   if (selectedCharacters.value.length === 0) {
     const shownNames = new Set(shown.map((row) => row.name))
     const rest = known.filter((row) => !shownNames.has(row.name))
     if (rest.length > 0) {
-      series.push({
+      buckets.push({
         key: '__other',
         label: `其他（${rest.length} 位）`,
         color: OTHER_COLOR,
-        values: current.years.map((year) => rest.reduce((sum, row) => sum + (characterYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
+        appearances: current.years.map((year) => rest.reduce((sum, row) => sum + (characterYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
+        songs: current.years.map((year) => rest.reduce((sum, row) => sum + (characterSongYearIndex.value.get(row.name)?.get(year) ?? 0), 0)),
+        dashed: false,
       })
     }
   }
   if (showUnknownCharacters.value && current.characterTotals.some((row) => row.name === UNKNOWN_CHARACTER)) {
-    series.push({
+    buckets.push({
       key: UNKNOWN_CHARACTER,
       label: UNKNOWN_CHARACTER,
       color: UNKNOWN_COLOR,
-      values: valuesOf(UNKNOWN_CHARACTER),
+      appearances: valuesOf(characterYearIndex.value, UNKNOWN_CHARACTER),
+      songs: valuesOf(characterSongYearIndex.value, UNKNOWN_CHARACTER),
       dashed: true,
     })
   }
-  return series
+  return buckets
 })
+
+/** Chart 3 bars: distinct songs per bucket, stacked so every year's column is one colour per role. */
+const characterChartBars = computed<ChartSeries[]>(() =>
+  characterChartBuckets.value.map((bucket) => ({
+    key: bucket.key,
+    label: bucket.label,
+    color: bucket.color,
+    values: bucket.songs,
+  })),
+)
+
+/** Chart 3 right-axis lines: 出场数 per bucket, one line per role in the same colours as the bars. */
+const characterChartSeries = computed<ChartSeries[]>(() =>
+  characterChartBuckets.value.map((bucket) => ({
+    key: bucket.key,
+    label: bucket.label,
+    color: bucket.color,
+    values: bucket.appearances,
+    dashed: bucket.dashed,
+  })),
+)
 
 /** Appearance count of the 未识别 bucket, shown next to its toggle and in the note. */
 const unknownCharacterCount = computed(() =>
@@ -607,7 +669,9 @@ const selectCityYear = (payload: { year: number }): void => {
 }
 
 /** Unit line printed on the character chart. */
-const characterUnit = computed(() => (mode.value === 'show' ? '按场次去重计数' : '按演出去重计数'))
+const characterUnit = computed(() =>
+  `柱=曲目数（按角色堆叠），线=出场数 · ${mode.value === 'show' ? '按场次去重' : '按演出去重'}`,
+)
 
 /** Note under the new-song chart, which explains the active baseline. */
 const newSongNote = computed(() => (newSongBaseline.value === 'catalog'
@@ -855,9 +919,9 @@ watch(() => route.query.chart, (value) => {
 
       <section id="chart-characters" class="scroll-mt-24">
         <TimelineChartCard
-          title="角色出场数年度变化"
+          title="角色出场数与曲目数年度变化"
           :unit="characterUnit"
-          note="角色取自每场实际曲目的演出角色：同一场演出里同一角色多首歌只计一次，跨日场 / 夜场按场次分别计。未识别角色单独计入「未识别」。"
+          note="柱是该年演出过的、带该角色的不同曲目数，按角色堆叠，每段用该角色的颜色；折线是出场数：同一场演出里同一角色多首歌只计一次，跨日场 / 夜场按场次分别计。未识别角色单独计入「未识别」。"
         >
           <template #actions>
             <UCheckbox
@@ -867,7 +931,16 @@ watch(() => route.query.chart, (value) => {
               size="sm"
             />
           </template>
-          <TimelineLineChart :years="timeline.years" :series="characterChartSeries" unit="出场" @select="selectCharacterYear" />
+          <TimelineBarChart
+            :years="timeline.years"
+            :bars="characterChartBars"
+            :right-lines="characterChartSeries"
+            stacked
+            unit="曲目"
+            right-unit="出场"
+            height="320"
+            @select="selectCharacterYear"
+          />
           <template #footer>
             <div v-if="characterYear !== null" class="mt-3 border-t border-default/60 pt-3">
               <p class="mb-2 text-xs text-muted">{{ characterYear }} 年角色出场</p>
