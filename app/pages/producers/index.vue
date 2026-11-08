@@ -100,6 +100,8 @@ const columns: TableColumn<RankedProducer>[] = [
 
 /** Blank marker for a missing value. */
 const cell = (value: number | null): string => (value === null ? '—' : String(value))
+
+useHead({ title: '制作人排行' })
 </script>
 
 <template>

@@ -408,6 +408,8 @@ const yearToItems = computed(() =>
     return { ...item, disabled: year !== null && !canEndRangeAt(year, yearRange.value) }
   }),
 )
+
+useHead({ title: '曲目排行' })
 </script>
 
 <template>

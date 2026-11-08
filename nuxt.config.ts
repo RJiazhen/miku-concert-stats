@@ -96,6 +96,8 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'zh-Hans' },
       title: '初音未来演唱会曲目统计',
+      // Page titles read "页面名 · 站点名".
+      titleTemplate: '%s · 初音未来演唱会曲目统计',
       link: [{ rel: 'icon', type: 'image/png', href: '/logo.png' }],
       meta: [
         {

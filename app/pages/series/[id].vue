@@ -78,6 +78,8 @@ const yearRange = computed(() => {
   const last = Math.max(...years)
   return first === last ? String(first) : `${first}–${last}`
 })
+
+useHead({ title: computed(() => seriesView.value.primary) })
 </script>
 
 <template>

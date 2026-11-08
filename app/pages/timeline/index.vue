@@ -676,6 +676,8 @@ watch(() => route.query.chart, (value) => {
   const chart = typeof value === 'string' ? value : ''
   focusedChart.value = CHARTS.some((entry) => entry.key === chart) ? chart : ''
 })
+
+useHead({ title: '时间线' })
 </script>
 
 <template>

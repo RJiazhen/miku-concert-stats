@@ -86,6 +86,8 @@ const copyMarkdown = async (): Promise<void> => {
     toast.add({ title: '复制失败，请手动选择文本', color: 'error', icon: 'i-lucide-circle-alert' })
   }
 }
+
+useHead({ title: '歌单差异核验' })
 </script>
 
 <template>

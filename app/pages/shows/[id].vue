@@ -169,6 +169,8 @@ const showLabelsInHeader = computed<string[]>(() => {
     return []
   })
 })
+
+useHead({ title: computed(() => performanceLabel.value || '演出') })
 </script>
 
 <template>
@@ -241,8 +243,7 @@ const showLabelsInHeader = computed<string[]>(() => {
         color="warning"
         variant="subtle"
         icon="i-lucide-info"
-        title="这个演出在 VocaDB 没有歌单"
-        description="没有歌单时无法列出曲目。"
+        title="暂无歌单"
       />
       <!-- A cancelled or not-yet-played 演出 has nothing to list; its status alert already says so. -->
       <template v-else-if="hasDerived || !statusNote">

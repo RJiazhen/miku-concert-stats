@@ -257,6 +257,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | `/series` | `app/pages/series/index.vue` | 系列与演出总览。上半是系列表（演出数、场次、年份跨度、首次与最近演出），下半是全部演出的表（日期、演出、系列、场馆、场次），可按系列或 `?place=` 场馆筛选与排序；两张表都链到 `/series/{id}` 与 `/shows/{id}` |
 | `/series/{id}` | `app/pages/series/[id].vue` | 系列主页：该系列的全部演出（每个城市站一行，列出日期、场馆与场次数并链到 `/shows/{id}`），带年份跨度、演出数与场次合计，页头链回 `/series` 总览。站内只有 系列 → 演出 → 场次 三级，不再有年度索引页 |
 
+每个公开页面在 `<script setup>` 末尾用 `useHead` 设置浏览器标签页的 `title`（静态列表页写固定名，详情页用 computed 跟随目录里的歌曲 / 演出 / 系列名）；`nuxt.config.ts` 的 `app.head.titleTemplate` 统一补成「页面名 · 初音未来演唱会曲目统计」。后台沿用 `app/layouts/admin.vue` 自己的 `titleTemplate`（`页面名 · 后台`），不套站点后缀。目录在浏览器加载前，详情页先显示「歌曲」「演出」等占位名，加载完成后自动换成真实名称。
+
 `edition_premieres` 表与 `series_number` 列保留（来自 VocaDB，用于系列年度首演与歌单差异对照），但**不再**是导航层级：页面只按 系列 → 演出 → 场次 展示，`series_number` 只在需要时作为演出旁的年份标签出现。
 
 `app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `shared/lookup.ts` 的五个 `local*Matches` 在已下载的目录里匹配，不向站外发请求；`app/composables/useSearchHits.ts` 把查询、译名与分区顺序集中到一处，`SiteSearch` 与 `/search` 都只消费它的 `sections`，因此两边的匹配、排序与分区顺序不会分叉。结果浮层依次列 系列 → 演出 → 地点 → 制作人 → 歌曲（`SEARCH_SECTIONS`），分区标题写真实命中总数，超过该类型上限时补「已显示前 M 条」；条目沿用同一套 `SearchRow`（系列名 + 演出数、演出名 + 日期·场馆、地点 + 演出数、制作人 + 角色徽章 + 歌曲数、歌曲 + 制作人）。系列 / 演出 / 地点 / 制作人默认各 5 条、歌曲 50 条，浮层底部固定一个「查看全部结果」入口，歌曲被截断时写成「查看全部 N 首」，都指向 `/search?q=`。中文名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongLanguage` 提供的中文名及其 `aliases`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 不再猜一个条目打开，而是 `navigateTo('/search?q=...')` 并关闭浮层；点击浮层里的某一条仍然直接进对应详情页。
@@ -619,7 +621,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`，`feat-timeline-chart-nav` 用 `3151`，`fix-series-chart-shows` / `fix-character-chart-known-only` 用 `3153`，`fix-character-chart-line-order` 用 `3155`，`feat-timeline-api` 用 `3159`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+端口按工作树分配，避免互相抢占：主工作树 `main` 用 `3117`，`feat/album-tracklist-fallback` 用 `3123`，`feat/feedback-widget` 用 `3131`，`feat/series-overview` 用 `3139`，`fix-search-results` 用 `3141`，`feat-timeline-charts` 用 `3143`，`feat-character-localization` 用 `3145`，`feat-song-title-aliases` 用 `3147`，`fix-show-coverage-note` 用 `3149`，`feat-timeline-chart-nav` 用 `3151`，`fix-series-chart-shows` / `fix-character-chart-known-only` 用 `3153`，`fix-character-chart-line-order` 用 `3155`，`feat-timeline-api` 用 `3159`，`feat-browser-tab-titles` 用 `3161`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告）；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

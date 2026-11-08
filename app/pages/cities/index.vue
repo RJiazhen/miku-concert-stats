@@ -81,6 +81,8 @@ const columns: TableColumn<RankedCity>[] = [
 
 /** Blank marker for a missing value. */
 const cell = (value: number | null): string => (value === null ? '—' : String(value))
+
+useHead({ title: '城市排行' })
 </script>
 
 <template>

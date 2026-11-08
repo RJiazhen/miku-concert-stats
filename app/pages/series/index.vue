@@ -182,6 +182,8 @@ const performanceColumns: TableColumn<PerformanceView>[] = [
 
 /** Blank marker for a missing value. */
 const cell = (value: string | null): string => (value === null || value === '' ? '—' : value)
+
+useHead({ title: '系列与演出总览' })
 </script>
 
 <template>

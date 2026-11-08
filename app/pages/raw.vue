@@ -208,6 +208,8 @@ const editionSongCount = computed(() => {
     .map((row) => row.song_list_id as number)
   return countedSongIds(catalog.value, [...new Set(listIds)], variants).length
 })
+
+useHead({ title: '原始数据' })
 </script>
 
 <template>

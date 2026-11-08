@@ -165,6 +165,8 @@ const appearanceColumns: TableColumn<AppearanceView>[] = [
 
 /** Blank marker for a missing value. */
 const cell = (value: string | number | null): string => (value === null || value === '' ? '—' : String(value))
+
+useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? '制作人') })
 </script>
 
 <template>

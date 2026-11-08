@@ -328,6 +328,8 @@ const headerFacts = computed(() => {
 
 /** Whether the header prints the 演出角色 chip line; a non-VOCALOID piece has none by definition. */
 const showsCharacterLine = computed(() => (!outsideVocaDB.value || isVocaloidSong(song.value)) && characters.value.length > 0)
+
+useHead({ title: computed(() => titleView.value?.primary ?? '歌曲') })
 </script>
 
 <template>
