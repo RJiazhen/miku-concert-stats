@@ -8,7 +8,6 @@ export const zhHant = {
   'common.appSuffix': '曲目統計',
   'common.tagline': 'Hatsune Miku Concert Statistics',
   'common.catalogError': '目錄載入失敗',
-  'common.loadingCatalog': '正在瀏覽器中載入目錄…',
   'common.notFoundId': '這個 id 不在已提交的目錄裡。',
   'common.reset': '重設',
   'common.resetCount': '重設 {n}',

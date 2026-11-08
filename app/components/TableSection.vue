@@ -58,7 +58,8 @@ const hasHeader = computed(() => props.title !== '' || props.count !== null)
     <div v-if="hasHeader || $slots.actions" class="flex flex-wrap items-baseline justify-between gap-2">
       <h2 v-if="hasHeader" class="text-lg font-semibold text-highlighted">
         {{ title }}
-        <span v-if="count !== null" class="ml-1 text-sm font-normal text-muted">{{ count }}</span>
+        <!-- The row count only means something once the catalog is read, so it waits for the table. -->
+        <span v-if="count !== null && !loading" class="ml-1 text-sm font-normal text-muted">{{ count }}</span>
       </h2>
       <div v-if="$slots.actions" class="flex flex-wrap items-center gap-2">
         <slot name="actions" />

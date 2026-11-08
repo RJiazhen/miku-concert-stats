@@ -15,18 +15,41 @@ export const isLocale = (value: unknown): value is Locale =>
   value === 'zh' || value === 'zh-Hant' || value === 'ja' || value === 'en'
 
 /**
- * Picks the locale a browser asks for: Japanese and English browsers get their own language,
- * Traditional Chinese browsers get Traditional Chinese, everything else starts in Chinese, the
- * site's source language.
+ * Supported locale for one BCP 47 language tag, or null when the site does not translate into it.
+ * Japanese and English match by their primary tag; Traditional Chinese also matches the regions
+ * browsers use for it, and every other Chinese tag is Simplified Chinese.
  */
-export const localeFromLanguage = (language: string): Locale => {
+export const localeFromTag = (language: string): Locale | null => {
   const tag = language.trim().toLowerCase()
   if (tag.startsWith('ja')) return 'ja'
   if (tag.startsWith('en')) return 'en'
   if (tag.startsWith('zh-hant') || tag.startsWith('zh-tw') || tag.startsWith('zh-hk') || tag.startsWith('zh-mo')) {
     return 'zh-Hant'
   }
-  return 'zh'
+  if (tag.startsWith('zh')) return 'zh'
+  return null
+}
+
+/**
+ * Picks the locale a browser asks for: Japanese and English browsers get their own language,
+ * Traditional Chinese browsers get Traditional Chinese, everything else starts in Chinese, the
+ * site's source language.
+ */
+export const localeFromLanguage = (language: string): Locale => localeFromTag(language) ?? 'zh'
+
+/**
+ * First supported locale in an `Accept-Language` header, or null when none of its tags is supported.
+ * Browsers list tags in preference order, and the site does not need the quality weights: the first
+ * tag it supports is the one to render. This runs on the server so the first HTML already carries
+ * the visitor's language, instead of switching after hydration.
+ */
+export const localeFromLanguages = (header: string): Locale | null => {
+  for (const part of header.split(',')) {
+    const tag = part.split(';')[0]?.trim() ?? ''
+    const locale = localeFromTag(tag)
+    if (locale !== null) return locale
+  }
+  return null
 }
 
 /** BCP 47 tag written to `<html lang>` and used for collation. */

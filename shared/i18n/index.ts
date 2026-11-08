@@ -4,7 +4,16 @@ import { zh } from './zh.ts'
 import { zhHant } from './zh-Hant.ts'
 import type { Locale } from './locale.ts'
 
-export { LOCALES, isChineseLocale, isLocale, localeFromLanguage, localeSelfName, localeTag } from './locale.ts'
+export {
+  LOCALES,
+  isChineseLocale,
+  isLocale,
+  localeFromLanguage,
+  localeFromLanguages,
+  localeFromTag,
+  localeSelfName,
+  localeTag,
+} from './locale.ts'
 export type { Locale } from './locale.ts'
 
 /** Every key the interface uses, derived from the Chinese source catalog. */

@@ -7,7 +7,6 @@ export const en: Record<keyof typeof zh, string> = {
   'common.appSuffix': 'Song statistics',
   'common.tagline': 'Hatsune Miku Concert Statistics',
   'common.catalogError': 'Could not load the catalog',
-  'common.loadingCatalog': 'Loading the catalog in your browser…',
   'common.notFoundId': 'This id is not in the committed catalog.',
   'common.reset': 'Reset',
   'common.resetCount': 'Reset {n}',

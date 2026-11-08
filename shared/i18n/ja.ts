@@ -7,7 +7,6 @@ export const ja: Record<keyof typeof zh, string> = {
   'common.appSuffix': '楽曲統計',
   'common.tagline': 'Hatsune Miku Concert Statistics',
   'common.catalogError': 'カタログの読み込みに失敗しました',
-  'common.loadingCatalog': 'ブラウザでカタログを読み込み中…',
   'common.notFoundId': 'この id は登録済みのカタログにありません。',
   'common.reset': 'リセット',
   'common.resetCount': 'リセット {n}',

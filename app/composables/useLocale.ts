@@ -1,10 +1,10 @@
-import { computed, onMounted } from 'vue'
-import { useState } from 'nuxt/app'
+import { computed } from 'vue'
+import { useCookie, useRequestHeaders, useState } from 'nuxt/app'
 import { en as uiEn, ja as uiJa, zh_cn as uiZhCn, zh_tw as uiZhTw } from '@nuxt/ui/locale'
 import type { Locale as UiLocale } from '@nuxt/ui'
 import {
   isLocale,
-  localeFromLanguage,
+  localeFromLanguages,
   localeSelfName,
   localeTag,
   translate,
@@ -13,14 +13,46 @@ import {
   type MessageParams,
 } from '~~/shared/i18n/index.ts'
 
-const STORAGE_KEY = 'miku-concert-stats-locale'
-const ORIGINAL_TITLE_KEY = 'miku-concert-stats-show-original-title'
+/** Cookie holding the visitor's language choice; sent with each request so SSR can render it. */
+const LOCALE_COOKIE = 'miku-concert-stats-locale'
 
-/** Server render and the first client render both start in the source language. */
+/** Cookie holding the "show original Japanese title" switch. */
+const ORIGINAL_TITLE_COOKIE = 'miku-concert-stats-show-original-title'
+
+/** Both preferences are remembered for a year. */
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365
+
+/** Readable on every page, and not sent with cross-site requests. */
+const cookieOptions = {
+  maxAge: COOKIE_MAX_AGE,
+  sameSite: 'lax' as const,
+  path: '/',
+}
+
+/** The source language when neither a stored choice nor the browser names a supported one. */
 const sourceLocale = (): Locale => 'zh'
 
 /** Original titles are shown until the reader hides them. */
 const originalTitleDefault = (): boolean => true
+
+/**
+ * Locale to render before the visitor has picked one: the stored cookie when it names a supported
+ * language, otherwise the first supported language in `Accept-Language`, otherwise Chinese.
+ */
+const initialLocale = (stored: string | null, languages: string): Locale => {
+  if (isLocale(stored)) return stored
+  return localeFromLanguages(languages) ?? sourceLocale()
+}
+
+/**
+ * Languages the browser asked for, in preference order.
+ * On the server this is the request's `Accept-Language` header, so the first HTML already matches
+ * the visitor; in a client-only render it is `navigator.language`.
+ */
+const requestLanguages = (): string => {
+  if (import.meta.server) return useRequestHeaders(['accept-language'])['accept-language'] ?? ''
+  return navigator.language
+}
 
 /**
  * Nuxt UI's own locale for each site language, so built-in strings (table "no data", select
@@ -33,33 +65,30 @@ export const uiLocaleOf = (locale: Locale): UiLocale<unknown> => {
   return uiZhCn
 }
 
-
-
 /**
  * Shares the interface language across pages.
- * After mount a stored choice wins; otherwise the browser language picks Japanese, English, or Chinese.
+ * The server renders the stored choice or the browser's `Accept-Language` language, and the same
+ * value hydrates on the client, so the page never switches language after it appears.
  */
 export const useLocale = () => {
-  const locale = useState<Locale>('site-locale', sourceLocale)
-  const originals = useState<boolean>('site-show-original-title', originalTitleDefault)
-
-  /** Applies localStorage, or `navigator.language` when the visitor has not chosen. */
-  const readLocale = (): void => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    const storedOriginals = localStorage.getItem(ORIGINAL_TITLE_KEY)
-    if (storedOriginals !== null) originals.value = storedOriginals !== '0'
-    if (isLocale(stored)) {
-      locale.value = stored
-      return
-    }
-    locale.value = localeFromLanguage(navigator.language)
-  }
-  onMounted(readLocale)
+  const storedLocale = useCookie<string | null>(LOCALE_COOKIE, {
+    default: () => null,
+    ...cookieOptions,
+  })
+  const storedOriginals = useCookie<string | null>(ORIGINAL_TITLE_COOKIE, {
+    default: () => null,
+    ...cookieOptions,
+  })
+  const locale = useState<Locale>('site-locale', () => initialLocale(storedLocale.value, requestLanguages()))
+  const originals = useState<boolean>('site-show-original-title', () => {
+    if (storedOriginals.value === null) return originalTitleDefault()
+    return storedOriginals.value !== '0'
+  })
 
   /** Stores the visitor's choice and re-renders every localized string. */
   const setLocale = (next: Locale): void => {
     locale.value = next
-    localStorage.setItem(STORAGE_KEY, next)
+    storedLocale.value = next
   }
 
   /** Whether a non-Japanese title prints the Japanese original under it; no-op control in Japanese. */
@@ -67,7 +96,7 @@ export const useLocale = () => {
     get: () => originals.value,
     set: (next: boolean) => {
       originals.value = next
-      localStorage.setItem(ORIGINAL_TITLE_KEY, next ? '1' : '0')
+      storedOriginals.value = next ? '1' : '0'
     },
   })
 

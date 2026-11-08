@@ -231,11 +231,14 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 页面在挂载后调用 `app/composables/useCatalog.ts` 的 `load`。服务端渲染不打开 wasm。客户端只下载一次 `/data/catalog.sqlite.gz?v=<hash>`，在浏览器里解压成 sqlite 字节，用 `/sql-wasm.wasm` 初始化 sql.js，再 `loadCatalog`。结果放在 Nuxt `useState` 里，各页共用。
 
+首屏不等目录下载完：`catalog-pending` 的默认值是 `true`，所以服务端 HTML 和注水的那一帧就带着加载骨架，而不是空表格——列表页的 `TableSection` 在 `pending` 时用 `USkeleton`（`h-72`）占住表格位置并暂时不打印行数（此时 `filtered.length` 还是 0，印出来会像「0 首」），详情页（`/songs/{id}`、`/shows/{id}`、`/series/{id}`、`/producers/{name}`）用 `app/components/PageSkeleton.vue`（标题条 `h-7 w-2/5`、副标题条 `h-4 w-3/5`、表格块 `h-64`）占住正文，因为它们的页头也依赖目录。`load` 完成后 `catalog-pending` 变 `false`，同一帧换成真表格；「已经开过加载」另用 `catalog-started` 记录，避免几个页面同时挂载时重复下载，也避免 `pending` 为 `true` 时误判成「已加载」。
+
 ### 共享 UI 组件
 
 列表页共用一套表格外壳与角色标签，页面只决定列、行与单元格内容（issue #26）：
 
-- `app/components/TableSection.vue`：标题 / 计数 / 说明 + `UTable` 的统一外壳。默认 `fill` 用 `useRankingTableHeight` 撑满视口并粘性表头，`fill=false` 用于卡片内表格；统一 `th/td` 内边距、`ranking-scroll`、`USkeleton` 加载态与 `UEmpty` 空状态，并把页面传进来的命名单元格插槽转发给 `UTable`。
+- `app/components/TableSection.vue`：标题 / 计数 / 说明 + `UTable` 的统一外壳。默认 `fill` 用 `useRankingTableHeight` 撑满视口并粘性表头，`fill=false` 用于卡片内表格；统一 `th/td` 内边距、`ranking-scroll`、`USkeleton` 加载态与 `UEmpty` 空状态，并把页面传进来的命名单元格插槽转发给 `UTable`。`loading` 时不打印 `count`，避免骨架旁边先闪一个用空数据算出的计数。
+- `app/components/PageSkeleton.vue`：详情页的正文骨架，目录读出来之前占住页头与表格的位置，参数与用途见上一节。
 - `app/components/CharacterChip.vue` / `CharacterChips.vue`：角色（演出歌手）标签。边框与淡底色取自 `characters.json` 的应援色，超过 `limit` 的角色收进 `+N` 气泡；`wrap=false` 供固定宽度的排行榜列使用。`CharacterChips` 按当前语言给每个标签传中文显示名（`CharacterChip` 的 `label`），`key` 与应援色仍用规范名，所以切换语言不会重复渲染、`+N` 与颜色不受影响；未配中文名的角色显示日文名。制作人署名这类非角色标签用 `UBadge`。
 - `app/components/SortableHeader.vue` + `app/composables/useSortableHeader.ts`：所有可排序表头共用的 ghost 按钮与升降序图标。
 - `app/components/FilterField.vue`：`UFormField` 包装的筛选标签，替换手写 `<label>`。
@@ -293,7 +296,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 界面语言同时喂给 Nuxt UI 自身的 i18n：`app/app.vue` 把 `UApp :locale` 绑到 `uiLocaleOf(locale)`，所以表格空态、下拉无匹配、弹窗关闭、分页与 toast 等内置文案跟着切换；`ULocaleSelect` 因需要显示国旗 emoji，没有采用，改用本站自己的图标按钮加语言列表。
 
-共享的 i18n 目录是 `shared/i18n/`：`zh.ts` 定义全部键（`MessageKey`），`zh-Hant.ts`、`ja.ts` 与 `en.ts` 用 `Record<MessageKey, string>` 保证不缺条目，`index.ts` 的 `translate` 负责 `{name}` 占位替换，`locale.ts` 定义 `Locale`（`zh` / `zh-Hant` / `ja` / `en`）、浏览器语言映射与 `<html lang>` 标签（繁体中文用 `zh-Hant`，`zh-TW` / `zh-HK` / `zh-MO` 浏览器落到这一档）。数据侧的名字不走 `i18n/`，而是每种名字一份文件、经 `shared/name-map.ts` 的 `NameMaps` 合并：角色 `characters.zh-CN.json` / `characters.zh-Hant.json` / `characters.en.json`、系列 `series-titles.*`、地点 `place-names.*`，以及只有英文的 `venue-names.en.json`；歌名的英文来自 `songs.name_en`。`app/composables/useLocale.ts` 保存语言状态（`localStorage` 键 `miku-concert-stats-locale`）与「显示日文原名」开关（`miku-concert-stats-show-original-title`，默认开），暴露 `t` 给所有页面与组件；服务端和首屏先渲染中文，挂载后按已存选择或 `navigator.language` 切换，避免注水不一致。`useLocaleDocument` 在默认布局里同步 `<html lang>` 与标题模板。
+共享的 i18n 目录是 `shared/i18n/`：`zh.ts` 定义全部键（`MessageKey`），`zh-Hant.ts`、`ja.ts` 与 `en.ts` 用 `Record<MessageKey, string>` 保证不缺条目，`index.ts` 的 `translate` 负责 `{name}` 占位替换，`locale.ts` 定义 `Locale`（`zh` / `zh-Hant` / `ja` / `en`）、浏览器语言映射与 `<html lang>` 标签（繁体中文用 `zh-Hant`，`zh-TW` / `zh-HK` / `zh-MO` 浏览器落到这一档）。`localeFromTag` 把单个语言标签映射到受支持的语言或 `null`，`localeFromLanguages` 解析 `Accept-Language` 并返回第一个受支持的标签（不看 q 权重，按浏览器给出的顺序取）。数据侧的名字不走 `i18n/`，而是每种名字一份文件、经 `shared/name-map.ts` 的 `NameMaps` 合并：角色 `characters.zh-CN.json` / `characters.zh-Hant.json` / `characters.en.json`、系列 `series-titles.*`、地点 `place-names.*`，以及只有英文的 `venue-names.en.json`；歌名的英文来自 `songs.name_en`。`app/composables/useLocale.ts` 把语言状态存进 cookie（`miku-concert-stats-locale`，一年有效），「显示日文原名」开关同样用 cookie（`miku-concert-stats-show-original-title`，默认开），并暴露 `t` 给所有页面与组件。首次访问没有 cookie 时，服务端按 `Accept-Language` 里第一个受支持的语言渲染，两者都没有才用中文；同一份 `useState` 随 SSR 下发并在客户端注水复用，所以首屏 HTML、注水和挂载后都是同一语言，不会在页面出现后再切一次，语言只由用户点选写入 cookie。`useLocaleDocument` 在默认布局里同步 `<html lang>` 与标题模板。
 
 `app/composables/useSongTitle.ts` 负责歌名显示：日语只显示日文名，若登记别名覆盖了目录原名（例如 404329 的 `ナイフ、ナイフ、ナイフ` 覆盖 `🔪、🔪、🔪`），目录原名用灰色小字附在下面；简体中文取 `song-titles.zh-CN.json`，繁体中文取 `song-titles.zh-Hant.json`，英语取 `songs.name_en`，并把日文原名放进同一行灰色小字，这一行受「显示日文原名」开关控制，关掉后只留译名（搜索命中日文写法时仍在结果第二行说明命中项）。`shared/song-titles.ts` 的 `formatSongTitle` / `matchSongTitle` 只接收 `Locale`、名字来源与 `showOriginalTitle`，不再有独立的「原文 / 中文」布尔状态。
 
@@ -637,7 +640,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

@@ -8,7 +8,6 @@ export const zh = {
   'common.appSuffix': '曲目统计',
   'common.tagline': 'Hatsune Miku Concert Statistics',
   'common.catalogError': '目录加载失败',
-  'common.loadingCatalog': '正在浏览器中加载目录…',
   'common.notFoundId': '这个 id 不在已提交的目录里。',
   'common.reset': '重置',
   'common.resetCount': '重置 {n}',

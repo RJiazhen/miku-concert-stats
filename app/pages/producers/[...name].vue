@@ -173,7 +173,7 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
 
 <template>
   <main class="space-y-6">
-    <p v-if="pending" class="text-sm text-muted">{{ t('common.loadingCatalog') }}</p>
+    <PageSkeleton v-if="pending" />
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UEmpty
       v-else-if="catalog && !producer"

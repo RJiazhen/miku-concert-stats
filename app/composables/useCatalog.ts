@@ -26,8 +26,14 @@ const emptyCatalog = (): Catalog | null => null
 /** Empty error slot shared across pages. */
 const emptyError = (): string | null => null
 
-/** Pending flag shared across pages. */
-const notPending = (): boolean => false
+/**
+ * The catalog is still to be read on the server and before hydration, so the first render shows a
+ * loading skeleton instead of an empty table. `load()` clears it once the browser has the data.
+ */
+const catalogPending = (): boolean => true
+
+/** Whether a load was already started, so pages that mount together do not download twice. */
+const notStarted = (): boolean => false
 
 /**
  * Reads one sql.js result set into row objects.
@@ -110,7 +116,8 @@ export const loadCatalogFromNetwork = async (
 export const useCatalog = () => {
   const catalog = useState<Catalog | null>('catalog', emptyCatalog)
   const error = useState<string | null>('catalog-error', emptyError)
-  const pending = useState<boolean>('catalog-pending', notPending)
+  const pending = useState<boolean>('catalog-pending', catalogPending)
+  const started = useState<boolean>('catalog-started', notStarted)
   const version = useRuntimeConfig().public.catalogVersion
   const { t } = useLocale()
 
@@ -126,7 +133,8 @@ export const useCatalog = () => {
 
   /** Loads the sqlite catalog once. Later calls reuse the same state. */
   const load = async (): Promise<void> => {
-    if (catalog.value || pending.value) return
+    if (started.value || catalog.value) return
+    started.value = true
     pending.value = true
     error.value = null
     try {
