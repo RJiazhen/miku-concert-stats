@@ -534,18 +534,19 @@ Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `np
 
 有一个明确的修改任务（用户提出或 subagent 完成）并且 `lint` / `test` / `typecheck` / `build` 通过后，直接提交并 push 到当前工作分支，不需要先问用户。提交信息用简短的祈使句英文，与现有历史一致；不要加任何 co-author trailer（含 Cursor）。
 
-`main` 是开发与生产共用的分支：本地在短分支上开发，完成后合回 `main` 并 push；Workers Builds 的生产分支配的就是 `main`，所以只有 push 到 `main` 之后线上才会更新。`feat/initial-build` 已废弃，不再作为开发分支使用。
+`main` 是生产分支：本地在短分支上开发，完成后用 `/merge-and-deploy` 把分支 squash 成一个提交合回 `main` 并 push；Workers Builds 的生产分支配的就是 `main`，所以只有 push 到 `main` 之后线上才会更新。`feat/initial-build` 已废弃，不再作为开发分支使用。
 
-### 并发任务用 worktree
+### 每个开发任务用独立 worktree
 
-多任务并行时，不要在同一条工作树里让多个 agent 同时改同一批文件。担心互相干扰就按全局 checkout 规则新开 worktree：
+每个开发任务（改代码、数据、样式、测试等）都先按全局 checkout 规则新开 worktree，`main` 检出只用于合并与推送，不在里面直接开发：
 
 ```bash
+git -C "$HOME/projects/full-stack/miku-concert-stats.worktrees/main" fetch origin main
 git -C "$HOME/projects/full-stack/miku-concert-stats.worktrees/main" worktree add \
-  "$HOME/projects/full-stack/miku-concert-stats.worktrees/<branch-name>" -b <branch-name>
+  "$HOME/projects/full-stack/miku-concert-stats.worktrees/<branch-name>" -b <branch-name> origin/main
 ```
 
-目录名等于分支名，并把该文件夹加进旁边的 `miku-concert-stats.code-workspace`。只有明确会同时改动同一文件（例如都改 `app/pages/index.vue`）时才需要拆 worktree；无关的改动可以在同一工作树里先后完成。
+目录名等于分支名，并把该文件夹加进旁边的 `miku-concert-stats.code-workspace`。收尾时用 `/merge-and-deploy` 把整条分支 squash 成一个提交合入 `main` 再 push，不在 `main` 上留下逐条开发提交；合并后 worktree 保留，除非用户要求删除。纯文档 / 规则 / skill 的文字修订不算开发任务，可以直接在 `main` 提交并 push。
 
 ### 提交范围
 
