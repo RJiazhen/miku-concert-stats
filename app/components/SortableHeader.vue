@@ -12,6 +12,8 @@ const props = defineProps<{
   label: string
   /** TanStack column that owns the sort state. */
   column: SortableColumn
+  /** Full name of an abbreviated label, shown on hover and keyboard focus. */
+  tooltip?: string
 }>()
 
 /** Arrow shown after the label: up-down when inactive, direction when sorted. */
@@ -29,13 +31,15 @@ const toggle = (): void => {
 </script>
 
 <template>
-  <UButton
-    color="neutral"
-    variant="ghost"
-    size="xs"
-    :label="label"
-    :trailing-icon="icon"
-    class="-mx-2"
-    @click="toggle"
-  />
+  <!-- Plain button: a header keeps the table's own background. `UTooltip` disables itself when text is empty. -->
+  <UTooltip :text="tooltip" :delay-duration="150">
+    <button
+      type="button"
+      class="inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-start font-medium text-default hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+      @click="toggle"
+    >
+      {{ label }}
+      <UIcon :name="icon" class="size-3 shrink-0" />
+    </button>
+  </UTooltip>
 </template>

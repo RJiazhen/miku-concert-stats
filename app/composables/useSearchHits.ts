@@ -2,6 +2,7 @@ import { computed, type Ref } from 'vue'
 import { useCatalog } from './useCatalog.ts'
 import { usePlaceNames } from './usePlaceNames.ts'
 import { useSeriesTitles } from './useSeriesTitles.ts'
+import { useVenueNames } from './useVenueNames.ts'
 import { useSongTitle } from './useSongTitle.ts'
 import { useLocale } from './useLocale.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
@@ -98,6 +99,7 @@ export const searchPagePath = (query: string): string => {
 export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => {
   const { catalog } = useCatalog()
   const { localizePlace } = usePlaceNames()
+  const { localizeVenue } = useVenueNames()
   const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
   const { spellings } = useSongTitle()
   const { locale, t } = useLocale()
@@ -122,8 +124,8 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
     return [localizePlace(localizePerformanceSeries(row.name, seriesName, row.series_number))]
   }
 
-  /** Venue names also match the localized place spelling. */
-  const placeSpellings = (venue: string): string[] => [localizePlace(venue)]
+  /** Venue names also match the localized venue and place spelling. */
+  const placeSpellings = (venue: string): string[] => [localizePlace(localizeVenue(venue) ?? venue)]
 
   /** Every registered, translated, and English spelling of a song. */
   const songSpellings = (song: SongRow): string[] => spellings(song.id)
@@ -161,7 +163,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
   /** 演出 hits as rows: localized name plus date · venue. */
   const performanceRows = (result: LookupResult<PerformanceLookupHit>): SearchRow[] =>
     result.items.map((hit) => {
-      const venue = hit.venue === null ? '' : localizePlace(hit.venue)
+      const venue = hit.venue === null ? '' : localizePlace(localizeVenue(hit.venue) ?? hit.venue)
       const meta = [hit.startDate, venue].filter((part) => part !== null && part !== '').join(' · ')
       return {
         key: `performance:${hit.performanceId}`,
@@ -178,7 +180,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       key: `place:${hit.name}`,
       to: `/series?place=${encodeURIComponent(hit.name)}`,
       icon: 'i-lucide-map-pin',
-      title: localizePlace(hit.name),
+      title: localizeVenue(hit.name) ?? hit.name,
       trailing: t('common.performances', { n: hit.performanceCount }),
     }))
 

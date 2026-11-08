@@ -1,26 +1,25 @@
 import type { Locale } from './i18n/index.ts'
-import { parseNameMap, type NameMap } from './name-map.ts'
+import { nameIn, parseNameMaps, type NameMapInput, type NameMaps } from './name-map.ts'
 
-/** Canonical (Japanese) character name to its checked Chinese name. */
-export type CharacterNameFile = NameMap
+/** Canonical (Japanese) character name to its checked Chinese and English names. */
+export type CharacterNameFile = NameMaps
 
 /**
- * Validates the character translation file.
+ * Validates the character translation files.
  * Throws on a non-object, a blank key or name, and two keys that differ only in case.
  */
-export const parseCharacterNames = (value: unknown): CharacterNameFile => parseNameMap(value, 'Character name')
+export const parseCharacterNames = (input: NameMapInput): CharacterNameFile => parseNameMaps(input, 'Character name')
 
-/** Chinese name for a canonical character name, or null when the file has no row. */
-export const characterNameFor = (file: CharacterNameFile, name: string): string | null => file[name] ?? null
+/** Display name for a canonical character name, or null when the language has no row. */
+export const characterNameFor = (file: CharacterNameFile, name: string, locale: Locale): string | null =>
+  nameIn(file, name, locale)
 
 /**
  * Display name of a character in the active language.
- * The checked file only holds Chinese names, so Japanese and English keep the canonical
- * Japanese name; a character without a translation never renders an empty label.
+ * Japanese keeps the canonical name; a character without a translation never renders an empty label.
  */
 export const localizeCharacterName = (file: CharacterNameFile, name: string, locale: Locale): string => {
-  if (locale !== 'zh') return name
-  const translation = characterNameFor(file, name)
+  const translation = characterNameFor(file, name, locale)
   return translation === null || translation.trim() === '' ? name : translation
 }
 

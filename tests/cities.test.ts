@@ -1,18 +1,30 @@
 import { describe, expect, it } from 'vitest'
-import { buildCityIndex, cityKey, matchCity, rankCities, showCount, type CityShow } from '../shared/cities.ts'
+import { buildCityIndex, cityKey, cityLabel, matchCity, rankCities, showCount, type CityShow } from '../shared/cities.ts'
 import { parsePlaceNames } from '../shared/place-names.ts'
 
 /** Checked places used by every case. */
 const index = buildCityIndex(
   parsePlaceNames({
-    Tokyo: '东京',
-    東京: '东京',
-    東京都: '东京都',
-    Osaka: '大阪',
-    Sapporo: '札幌',
-    'Washington D.C.': '华盛顿特区',
-    Washington: '华盛顿',
-    'Düsseldorf': '杜塞尔多夫',
+    zh: {
+      Tokyo: '东京',
+      東京: '东京',
+      東京都: '东京都',
+      Osaka: '大阪',
+      Sapporo: '札幌',
+      'Washington D.C.': '华盛顿特区',
+      Washington: '华盛顿',
+      'Düsseldorf': '杜塞尔多夫',
+    },
+    en: {
+      Tokyo: 'Tokyo',
+      東京: 'Tokyo',
+      東京都: 'Tokyo',
+      Osaka: 'Osaka',
+      Sapporo: 'Sapporo',
+      'Washington D.C.': 'Washington, D.C.',
+      Washington: 'Washington',
+      'Düsseldorf': 'Düsseldorf',
+    },
   }),
 )
 
@@ -134,5 +146,12 @@ describe('city ranking', () => {
     expect(excluded.unknown).toEqual({ concerts: 0, shows: 0, performanceIds: [] })
     const included = rankCities(performances, index, { includeBroadcast: true })
     expect(included.unknown).toEqual({ concerts: 1, shows: 1, performanceIds: [2] })
+  })
+
+  it('shows the English city name while grouping by the Chinese key', () => {
+    expect(cityLabel(index, '东京', 'zh')).toBe('东京')
+    expect(cityLabel(index, '东京', 'en')).toBe('Tokyo')
+    expect(cityLabel(index, '华盛顿特区', 'en')).toBe('Washington, D.C.')
+    expect(cityLabel(index, '未知城市', 'en')).toBe('未知城市')
   })
 })

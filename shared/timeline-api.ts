@@ -2,6 +2,7 @@ import { parseCharacterConfig, type CharacterRule } from './characters.ts'
 import { buildCityIndex, type CityIndex } from './cities.ts'
 import { performanceSchedules } from './event-schedule.ts'
 import { catalogSchedules } from './performance-setlists.ts'
+import type { NameMapInput } from './name-map.ts'
 import { parsePlaceNames } from './place-names.ts'
 import { reviewRotations } from './rotation.ts'
 import { parseSongVariants, type SongVariantIndex } from './song-variants.ts'
@@ -62,8 +63,8 @@ export type TimelineAsset = {
   characters: unknown
   /** Raw `data/song-variants.json`. */
   variants: unknown
-  /** Raw `data/place-names.zh-CN.json`. */
-  places: unknown
+  /** Raw `data/place-names.zh-CN.json` and `data/place-names.en.json`. */
+  places: NameMapInput
 }
 
 /** Inputs the build needs besides the catalog itself. */
@@ -77,8 +78,8 @@ export type TimelineAssetInput = {
   characters: unknown
   /** Raw `data/song-variants.json`. */
   variants: unknown
-  /** Raw `data/place-names.zh-CN.json`. */
-  places: unknown
+  /** Raw `data/place-names.zh-CN.json` and `data/place-names.en.json`. */
+  places: NameMapInput
 }
 
 /**

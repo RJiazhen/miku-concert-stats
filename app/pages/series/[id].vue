@@ -5,6 +5,7 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+import { useVenueNames } from '~/composables/useVenueNames.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
@@ -13,6 +14,7 @@ import type { PerformanceRow } from '~~/shared/types.ts'
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
+const { localizeVenue } = useVenueNames()
 const { localizePerformanceSeries, seriesTitle } = useSeriesTitles()
 const { t } = useLocale()
 
@@ -63,7 +65,7 @@ const entries = computed(() =>
     performance,
     label: performanceLabel(performance),
     dates: performanceHeaderFacts(performance).dates,
-    venue: performance.venue_name,
+    venue: localizeVenue(performance.venue_name),
     showCount: showCounts.value.get(performance.id) ?? 0,
     hasSetlist: setlistIds.value.has(performance.id),
   })),

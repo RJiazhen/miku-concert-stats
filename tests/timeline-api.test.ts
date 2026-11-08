@@ -33,7 +33,10 @@ const fixture = () => {
     catalog,
     characters: readData('characters.json'),
     variants: readData('song-variants.json'),
-    places: readData('place-names.zh-CN.json'),
+    places: {
+      zh: readData('place-names.zh-CN.json'),
+      en: readData('place-names.en.json'),
+    },
   }
 }
 

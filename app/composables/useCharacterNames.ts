@@ -1,4 +1,5 @@
-import raw from '~~/data/characters.zh-CN.json'
+import rawZh from '~~/data/characters.zh-CN.json'
+import rawEn from '~~/data/characters.en.json'
 import {
   characterSortLocale,
   localizeCharacterName,
@@ -8,7 +9,7 @@ import {
 import { useLocale } from './useLocale.ts'
 
 /** Parsed once: the character list is static build-time data. */
-export const characterNameFile: CharacterNameFile = parseCharacterNames(raw)
+export const characterNameFile: CharacterNameFile = parseCharacterNames({ zh: rawZh, en: rawEn })
 
 /**
  * Localizes character names to the site's current language.
@@ -17,7 +18,7 @@ export const characterNameFile: CharacterNameFile = parseCharacterNames(raw)
 export const useCharacterNames = () => {
   const { locale } = useLocale()
 
-  /** Chinese name when the site language is Chinese, otherwise the canonical Japanese name. */
+  /** Chinese or English name when that language is active, otherwise the canonical Japanese name. */
   const localizeCharacter = (name: string): string => localizeCharacterName(characterNameFile, name, locale.value)
 
   /** Compares two canonical names by the label each shows in the active language. */

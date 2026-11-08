@@ -28,7 +28,7 @@ VocaDB 没有的演出 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `
 
 **人工更正走另一个文件。** `data/increments/0011-manual-corrections.sql` 集中所有对上游行的 `UPDATE` / `DELETE`：13120 的显示名改成 `MIKU WITH YOU 2026 in Shanghai`（上游当时只有上海一站，加了成都站后两者无法区分），以及两条版本链合并（`389595` → `10951`、`2925` → `295872`）。它写在 `0001`、`0004`、`0005` 之后，`pnpm collect` 重写目录后仍然生效；每条语句都幂等，第二次执行不再改动任何行。
 
-`data/increments/0012-song-english-names.sql` 是**唯一**的英文名文件：VocaDB 没给英文名的行、百科写法与 VocaDB 不一致的行（`アイ` 的 `AI` → `EYE`、`げんてん` 的 `Origin` → `Genten`、`ビバハピ` 的 `Viva Happy` → `VIVA HAPPY` 等）全在这里，只写可重复执行的 `UPDATE`。最后一个插入 `songs` 行的增量是 `0009`（两个 Block），所以这个文件在 `0001` 之后按文件名顺序执行时，VocaDB 曲目、`0009` 补的歌与其中手工登记的本地曲目（`2000000024`–`2000000029`）都已经存在。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文。
+`data/increments/0012-song-english-names.sql` 是**唯一**的英文名文件：VocaDB 没给英文名的行、百科写法与 VocaDB 不一致的行（`アイ` 的 `AI` → `EYE`、`げんてん` 的 `Origin` → `Genten`、`ビバハピ` 的 `Viva Happy` → `VIVA HAPPY` 等）全在这里，只写可重复执行的 `UPDATE`。2026-11-08 起，所有 `name_en` 为空的行都在这里补齐：VocaDB 有英文名的按 VocaDB 写，VocaDB 自己也为空的按罗马字或曲目自带的拉丁原名写（`ジェミニ` → Gemini、`ロキ` → ROKI、`De Los Santos`），手工登记的古典 / 鼓童曲目（`2000000001`–`2000000023`）也在同一个文件里给出英文题名。最后一个插入 `songs` 行的增量是 `0009`（两个 Block），所以这个文件在 `0001` 之后按文件名顺序执行时，VocaDB 曲目、`0009` 补的歌与其中手工登记的本地曲目（`2000000024`–`2000000029`）都已经存在。中文名仍只写在 `data/song-titles.zh-CN.json`，英文名进 `songs.name_en`，`shared/lookup.ts` 的检索因此也能命中英文。
 
 `data/song-aliases.json` 是**日文显示名与备用写法**的手工文件：上游 `songs.name` 不可用（例如 404329 的 default name 是 emoji `🔪、🔪、🔪`）时不改 catalog，而是登记一条 `language: "ja"` 的别名；`shared/song-aliases.ts` 校验，`japaneseAliasTitle` 让 `ja` 别名优先于 `name_ja` / `name` 显示，`songAliasTitles` 把全部别名加进检索（客户端 `shared/lookup.ts`、API `scripts/build-api.ts` 的 `aliases` 字段）。`en` 别名只参与检索，规范英文名仍只来自 `0012`；中文名不进这个文件。
 
@@ -213,11 +213,11 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - 备注已经给出 `共 N 场`（`city-only when city has several shows: N`）的行不再显示覆盖数，由该警告独占数字，避免同一格出现两个不同总数。`/shows` 与 `SetlistTable` 是按演出的视图，不显示覆盖数。
 
 
-`shared/name-map.ts` 是四个译名文件共用的底座：`parseNameMap` 校验「原名 → 中文名」对象（键不能为空、值不能为空、大小写不能重复），`formatLocalizedName` 处理中文模式下的主名与原文注记。`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json`，按系列名查出中文名，并把演出名里的系列标签换成中文名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`）或语言为 `original` 时原样返回。`shared/character-names.ts` 校验 `data/characters.zh-CN.json`，按当前语言给出角色显示名（缺条目时回退规范名），并用对应的 `zh-CN` / `ja` collation 给角色名排序。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配。
+`shared/name-map.ts` 是各译名文件共用的底座：`parseNameMap` 校验「原名 → 一个语言的显示名」对象（键不能为空、值不能为空、大小写不能重复），`parseNameMaps` 把中文与英文两份文件并成 `NameMaps`，`nameIn` 按语言取行，`formatLocalizedName` 处理翻译模式下的主名与原文注记。`shared/song-titles.ts` 校验并格式化中文歌名。`shared/series-titles.ts` 校验 `data/series-titles.zh-CN.json` 与 `data/series-titles.en.json`，按系列名查出对应语言的系列名，并把演出名里的系列标签换成译名而保留系列年度年份；没有条目的系列（如 `MIKU EXPO`）或语言为日语时原样返回。`shared/character-names.ts` 校验 `data/characters.zh-CN.json` 与 `data/characters.en.json`，按当前语言给出角色显示名（缺条目时回退规范名），并用对应的 `zh-CN` / `ja` / `en` collation 给角色名排序。`shared/venue-names.ts` 校验只有英文的 `data/venue-names.en.json`。`shared/characters.ts` 把声库名收成角色。`shared/lookup.ts` 做目录内子串匹配。
 
 `shared/performance-name.ts` 的 `shortPerformanceName` 去掉演出名里已由「系列」列显示的系列名与年份，留下城市、系列后缀或周年说明；匹配时兼容 `初音ミク「マジカルミライ」` + 2013 与 `初音ミク「マジカルミライ 2013」` 两种写法。
 
-`shared/place-names.ts` 校验 `data/place-names.zh-CN.json`，并按站点语言把演出名里的地点换成中文名。拉丁字母的键按整词、不区分大小写匹配，长键优先（`東京都` 先于 `東京`）；语言为 `original` 时原样返回。
+`shared/place-names.ts` 校验 `data/place-names.zh-CN.json` 与 `data/place-names.en.json`，并按站点语言把演出名里的地点换成对应语言的写法。拉丁字母的键按整词、不区分大小写匹配，长键优先（`東京都` 先于 `東京`）；中文模式会把地点前的 `in` / `at` 一起删掉，英文模式保留连接词并归一拼写，日语模式原样返回。
 
 `shared/cities.ts` 把 `performances` 聚合成城市排行。城市由 `place-names.zh-CN.json` 的中文名与 `shared/rotation.ts` 的 `CITY_ALIASES` 共同识别：按 `series_suffix` → `name` → `name_ja` → `venue_name` 依次匹配，长拼写优先，所以 `Washington D.C.` 不会被 `Washington` 抢走。中文名去掉末尾「都 / 市」后作为分组键，`東京都`、`東京`、`TOKYO` 因此同组（`京都` 这类会短于两个字的名字保留后缀）。演出数是不同 `performances` 行数；场次是每行覆盖的演出日数，传入 `showCounts` 时会把日场 / 夜场拆开（`start_date`–`end_date` 闭区间，无日期或倒序的区间计 1 个场次，最长 14 天）。配信、线上与 VR 行默认剔除；识别不出城市的行只汇总到 `unknown`，不编造城市。
 
@@ -261,7 +261,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `edition_premieres` 表与 `series_number` 列保留（来自 VocaDB，用于系列年度首演与歌单差异对照），但**不再**是导航层级：页面只按 系列 → 演出 → 场次 展示，`series_number` 只在需要时作为演出旁的年份标签出现。
 
-`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `shared/lookup.ts` 的五个 `local*Matches` 在已下载的目录里匹配，不向站外发请求；`app/composables/useSearchHits.ts` 把查询、译名与分区顺序集中到一处，`SiteSearch` 与 `/search` 都只消费它的 `sections`，因此两边的匹配、排序与分区顺序不会分叉。结果浮层依次列 系列 → 演出 → 地点 → 制作人 → 歌曲（`SEARCH_SECTIONS`），分区标题写真实命中总数，超过该类型上限时补「已显示前 M 条」；条目沿用同一套 `SearchRow`（系列名 + 演出数、演出名 + 日期·场馆、地点 + 演出数、制作人 + 角色徽章 + 歌曲数、歌曲 + 制作人）。系列 / 演出 / 地点 / 制作人默认各 5 条、歌曲 50 条，浮层底部固定一个「查看全部结果」入口，歌曲被截断时写成「查看全部 N 首」，都指向 `/search?q=`。中文名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongTitle.spellings` 提供的中文名、其 `aliases` 及 `songs.name_en`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的译名，地点并入 `usePlaceNames` 的译名，输入页面上看到的中文名同样能命中。`Enter` 不再猜一个条目打开，而是 `navigateTo('/search?q=...')` 并关闭浮层；点击浮层里的某一条仍然直接进对应详情页。
+`app/components/SiteSearch.vue` 是页眉的全局搜索：宽屏是常驻输入框加浮层结果，窄屏是顶栏按钮打开的全屏浮层。它只用 `shared/lookup.ts` 的五个 `local*Matches` 在已下载的目录里匹配，不向站外发请求；`app/composables/useSearchHits.ts` 把查询、译名与分区顺序集中到一处，`SiteSearch` 与 `/search` 都只消费它的 `sections`，因此两边的匹配、排序与分区顺序不会分叉。结果浮层依次列 系列 → 演出 → 地点 → 制作人 → 歌曲（`SEARCH_SECTIONS`），分区标题写真实命中总数，超过该类型上限时补「已显示前 M 条」；条目沿用同一套 `SearchRow`（系列名 + 演出数、演出名 + 日期·场馆、地点 + 演出数、制作人 + 角色徽章 + 歌曲数、歌曲 + 制作人）。系列 / 演出 / 地点 / 制作人默认各 5 条、歌曲 50 条，浮层底部固定一个「查看全部结果」入口，歌曲被截断时写成「查看全部 N 首」，都指向 `/search?q=`。译名也参与匹配：歌曲并入 `data/song-aliases.json` 的别名（`useSongAliases`）与 `useSongTitle.spellings` 提供的中文名、其 `aliases` 及 `songs.name_en`（`shared/song-titles.ts` 的 `songTitleSpellings`），系列与演出并入 `useSeriesTitles` 的中文 / 英文译名，地点并入 `usePlaceNames` 的译名、场馆并入 `useVenueNames` 的英文名，输入页面上看到的译名同样能命中。`Enter` 不再猜一个条目打开，而是 `navigateTo('/search?q=...')` 并关闭浮层；点击浮层里的某一条仍然直接进对应详情页。
 
 外部 AI agent 如何使用目录、公开 HTTP 路由与计数口径，见 [`skills/query-concert-stats/SKILL.md`](../skills/query-concert-stats/SKILL.md)。该目录是可安装给任意外部 agent 的公开 skill 布局（`npx skills add RJiazhen/miku-concert-stats@query-concert-stats`），结构是「门面 + 每个端点一份子说明」：
 
@@ -293,7 +293,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 界面语言同时喂给 Nuxt UI 自身的 i18n：`app/app.vue` 把 `UApp :locale` 绑到 `uiLocaleOf(locale)`，所以表格空态、下拉无匹配、弹窗关闭、分页与 toast 等内置文案跟着切换；`ULocaleSelect` 因需要显示国旗 emoji，没有采用，改用本站自己的图标按钮加语言列表。
 
-共享的 i18n 目录是 `shared/i18n/`：`zh.ts` 定义全部键（`MessageKey`），`ja.ts` 与 `en.ts` 用 `Record<MessageKey, string>` 保证不缺条目，`index.ts` 的 `translate` 负责 `{name}` 占位替换，`locale.ts` 定义 `Locale`、浏览器语言映射与 `<html lang>` 标签。`app/composables/useLocale.ts` 保存语言状态（`localStorage` 键 `miku-concert-stats-locale`）与「显示日文原名」开关（`miku-concert-stats-show-original-title`，默认开），暴露 `t` 给所有页面与组件；服务端和首屏先渲染中文，挂载后按已存选择或 `navigator.language` 切换，避免注水不一致。`useLocaleDocument` 在默认布局里同步 `<html lang>` 与标题模板。
+共享的 i18n 目录是 `shared/i18n/`：`zh.ts` 定义全部键（`MessageKey`），`ja.ts` 与 `en.ts` 用 `Record<MessageKey, string>` 保证不缺条目，`index.ts` 的 `translate` 负责 `{name}` 占位替换，`locale.ts` 定义 `Locale`、浏览器语言映射与 `<html lang>` 标签。数据侧的名字不走 `i18n/`，而是每种名字一对文件、经 `shared/name-map.ts` 的 `NameMaps` 合并：角色 `characters.zh-CN.json` / `characters.en.json`、系列 `series-titles.*`、地点 `place-names.*`，以及只有英文的 `venue-names.en.json`；歌名的英文来自 `songs.name_en`。`app/composables/useLocale.ts` 保存语言状态（`localStorage` 键 `miku-concert-stats-locale`）与「显示日文原名」开关（`miku-concert-stats-show-original-title`，默认开），暴露 `t` 给所有页面与组件；服务端和首屏先渲染中文，挂载后按已存选择或 `navigator.language` 切换，避免注水不一致。`useLocaleDocument` 在默认布局里同步 `<html lang>` 与标题模板。
 
 `app/composables/useSongTitle.ts` 负责歌名显示：日语只显示日文名，若登记别名覆盖了目录原名（例如 404329 的 `ナイフ、ナイフ、ナイフ` 覆盖 `🔪、🔪、🔪`），目录原名用灰色小字附在下面；中文与英语显示译名（中文取 `song-titles.zh-CN.json`，英语取 `songs.name_en`）并把日文原名放进同一行灰色小字，这一行受「显示日文原名」开关控制，关掉后只留译名（搜索命中日文写法时仍在结果第二行说明命中项）。`shared/song-titles.ts` 的 `formatSongTitle` / `matchSongTitle` 只接收 `Locale`、名字来源与 `showOriginalTitle`，不再有独立的「原文 / 中文」布尔状态。
 
@@ -331,7 +331,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
   - `reports/quality.json`、`reports/setlist-differences.json`
   约 1,100 个文件、8.6 MB。
 - `server/assets/api/rank.json`：构建期生成的紧凑计数（每首歌的场次 / 演出数、系列与日历年的分解、首次出现的系列年度、角色与制作人名单，以及计入配信后的另一套数字），由 `nuxt.config.ts` 的 `nitro.serverAssets` 以 `assets:api` 挂载，只给搜索 / 排行 / 首演三个动态路由用。
-- `server/assets/api/timeline.json`：构建期生成的逐年序列输入（每个演出只保留时间线读取的字段与逐场次曲目、曲目署名、系列名，以及 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` 原文），只给时间线动态路由用。约 300 KB，gzip 后约 50 KB。
+- `server/assets/api/timeline.json`：构建期生成的逐年序列输入（每个演出只保留时间线读取的字段与逐场次曲目、曲目署名、系列名，以及 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` / `place-names.en.json` 原文），只给时间线动态路由用。约 300 KB，gzip 后约 50 KB。
 
 动态路由（`server/api/v1/`）读取 `assets:api` 并在内存里过滤，返回小页面而不是整库：
 
@@ -340,7 +340,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 - `GET /api/v1/debuts?year=&series=`：该年首次出现在目录里的歌曲；带 `series` 时用该系列的系列年度（`seriesNumber`）判断。
 - `GET /api/v1/timeline?mode=&series=&yearFrom=&yearTo=&character=&producer=&city=&includeBroadcast=&mergeVariants=&newSongBaseline=&includeSongIds=&includePerformances=`：`/timeline` 的逐年序列（场次 / 演出、按系列的堆叠、角色出场与角色曲目、新曲 / 复演、系列跨度、城市迁移）。Worker 从 `timeline.json` 还原一份等价目录，再调用页面用的同一个 `buildTimeline`，所以同一组筛选给出的数字与页面一致。**配信默认计入**（时间线页默认口径，与 `/series` 总数对齐）；`includeBroadcast=0` 才与排行默认口径一致。
 
-`shared/timeline-api.ts` 负责这份资产的生成与还原：`buildTimelineAsset` 在构建期读 `timelineSetlists`（`shared/timeline.ts` 导出的逐场次曲目）与 `showCountsByPerformance` 的两级场次来源，把每个演出的场次与曲目压成数组；`timelineCatalogFromAsset` 在 Worker 里填回 `Catalog`，其中每个演出都带自己的派生场次行，因此不需要源歌单层。角色、版本合并与城市匹配继续用 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` 的现有解析器，资产里存的是原文而不是解析结果。`tests/timeline-api.test.ts` 用真实目录多组筛选比对页面与还原目录的输出，任何一边改了口径都会失败。
+`shared/timeline-api.ts` 负责这份资产的生成与还原：`buildTimelineAsset` 在构建期读 `timelineSetlists`（`shared/timeline.ts` 导出的逐场次曲目）与 `showCountsByPerformance` 的两级场次来源，把每个演出的场次与曲目压成数组；`timelineCatalogFromAsset` 在 Worker 里填回 `Catalog`，其中每个演出都带自己的派生场次行，因此不需要源歌单层。角色、版本合并与城市匹配继续用 `characters.json` / `song-variants.json` / `place-names.zh-CN.json` / `place-names.en.json` 的现有解析器，资产里存的是原文而不是解析结果。`tests/timeline-api.test.ts` 用真实目录多组筛选比对页面与还原目录的输出，任何一边改了口径都会失败。
 
 **新增或改动公开端点时，同一次提交里要一起给出接口说明与 skill 说明**：`index.json` 的 `endpoints` 自述、`skills/query-concert-stats/endpoints/<name>.md` 这份端点子说明、门面端点表里的一行、以及本节，缺一不可。`/skill.md` 读门面，`/skill/endpoints/<name>.md` 读子说明，改完部署即对站外 AI agent 生效。
 
@@ -500,21 +500,25 @@ WHERE (country_code IS NULL OR trim(country_code) = '') AND id IN (…);
 
 对象。键同样是 VocaDB 歌曲 id，记录同一首歌的繁体中文名，结构与 `song-titles.zh-CN.json` 相同。暂不参与显示与检索，只作为日后切换或对照的资料；`tests/song-titles.test.ts` 只校验格式与 id 是否存在。
 
-### `data/place-names.zh-CN.json`
+### `data/place-names.zh-CN.json` 与 `data/place-names.en.json`
 
-对象。键是 VocaDB 演出名里的地点写法（拉丁字母或日文），值是中文名。键不能只差大小写；渲染时长键优先，拉丁键按整词匹配。只收录人工核对过的地点，没收录的写法保持原样。
+对象。键是 VocaDB 演出名里的地点写法（拉丁字母或日文），值是中文名（`.zh-CN.json`）或英文名（`.en.json`）。两份文件分开存，`shared/name-map.ts` 的 `parseNameMaps` 把它们并成一个 `NameMaps`，`parsePlaceNames` 再把两种语言的名字挂到同一个 spelling 条目上。键不能只差大小写；渲染时长键优先，拉丁键按整词匹配。只收录人工核对过的地点，没收录的写法保持原样。英文文件把日文写法罗马化（`東京` / `東京都` → Tokyo、`横浜市` → Yokohama），拉丁写法按官方拼写归一（`TOKYO` → Tokyo、`Washington D.C.` → Washington, D.C.），城市排行与演出页的城市名也从这里取英文名；中文保留 `in` / `at` 前接词会一起删掉的旧行为（`in Tokyo` → `东京`），英文保留 `in` 只换地名。
 
-### `data/series-titles.zh-CN.json`
+### `data/series-titles.zh-CN.json` 与 `data/series-titles.en.json`
 
-对象。键是目录里 `series.name` 的原文（日文或拉丁字母），值是中文系列名。只收录人工核对过的译名；`MIKU EXPO` 没有收录，使用官方拉丁写法，显示时保持原文。渲染时键必须与 `series.name` 完全一致，缺条目时回退原文，不会显示空字符串；`localizeSeriesInName` 还会把演出名里的系列标签换掉并保留系列年度年份（`初音ミク「マジカルミライ 2024」` → `魔法未来 2024`，`MIKU WITH YOU 2024 in Shanghai` → `未来有你 2024 in Shanghai`）。
+对象。键是目录里 `series.name` 的原文（日文或拉丁字母），值是中文系列名或英文系列名。只收录人工核对过的译名；`MIKU EXPO` 的中文文件没有收录，使用官方拉丁写法，显示时保持原文，英文文件则补上官方英文名（`初音ミク「マジカルミライ」` → Magical Mirai、`初音ミクシンフォニー` → Hatsune Miku Symphony）。渲染时键必须与 `series.name` 完全一致，缺条目时回退原文，不会显示空字符串；`localizeSeriesInName` 还会把演出名里的系列标签换掉并保留系列年度年份（`初音ミク「マジカルミライ 2024」` → 中文 `魔法未来 2024`、英文 `Magical Mirai 2024`，`MIKU WITH YOU 2024 in Shanghai` → `未来有你 2024 in Shanghai`）。
 
 ### `data/characters.json`
 
 对象。键是展示用的角色名，同时是内部规范名（canonical id）：筛选项的 `value`、`?character=`、`splitCharacterChips` 的 `key` 与应援色查找都用它，翻译只作用于显示文本。值含 `patterns`（锚定名称开头的正则）、可选 `aliases`（整段或前缀别名）与可选 `color`（应援色 `#rrggbb`，非法值会让解析抛错）。排行页的角色筛选项不按这个顺序列出，而是取当前排行中实际出现的角色，按出现次数从多到少排列，并带上次数；次数相同时按当前显示语言的 collation 排序（中文 `zh-CN`、原文 `ja`）。歌手列的标签用 `color` 作边框、同色 12% 透明度作底色；`shared/character-chips.ts` 的 `splitCharacterChips` 只让前 3 个角色直接显示，其余收进末尾的 `+N` 按钮，悬停时用同样的彩色标签在气泡里列出剩余角色。
 
-### `data/characters.zh-CN.json`
+### `data/characters.zh-CN.json` 与 `data/characters.en.json`
 
-对象。键是 `data/characters.json` 的规范角色名，值是人工核对过的简体中文显示名。只收录有既定中文写法的角色（如 `初音ミク` → `初音未来`、`鏡音リン` → `镜音铃`），拉丁名与没有通行译名的角色（如 `MEIKO`、`寒音ジミ`）不写，显示时回退日文规范名，不会出现空标签。`patterns` / `aliases` 的匹配与 `color` 不读这个文件；`tests/character-names.test.ts` 校验每个键都在 `characters.json` 里、值非空，并覆盖语言回退与两种 collation 的排序。
+对象。键是 `data/characters.json` 的规范角色名，值是人工核对过的简体中文显示名或英文显示名。中文文件只收录有既定中文写法的角色（如 `初音ミク` → `初音未来`、`鏡音リン` → `镜音铃`）；英文文件覆盖全部规范角色（`初音ミク` → Hatsune Miku、`寒音ジミ` → Samune Zimi、`可不` → KAFU、`星界` → SEKAI），拉丁名保持原写法。缺行时回退日文规范名，不会出现空标签。`patterns` / `aliases` 的匹配与 `color` 不读这两个文件；`tests/character-names.test.ts` 校验每个键都在 `characters.json` 里、值非空，并覆盖语言回退与三种语言的排序。
+
+### `data/venue-names.en.json`
+
+对象。键是 VocaDB 的场馆原名（多为日文或带中文的英文混合写法），值是人工核对过的英文场馆名（`日本武道館` → Nippon Budokan、`幕張メッセ` → Makuhari Messe、`横浜国際平和会議場` → PACIFICO Yokohama）。只有英文文件：中文与日文显示仍保持目录原名，英文模式在演出页、系列页与搜索结果里替换成英文名。`shared/venue-names.ts` 校验并按语言取用；缺行时回退原名。
 
 ## 运行、构建、测试、部署
 
@@ -631,7 +635,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

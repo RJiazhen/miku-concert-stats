@@ -1,8 +1,8 @@
 import type { Locale } from './i18n/index.ts'
 
 /**
- * Shared shape of the hand-checked translation files: songs, series, places, and characters all
- * map a catalog spelling to one Chinese name and are displayed through the same language switch.
+ * Shared shape of the hand-checked translation files: songs, series, places, venues, and characters
+ * all map a catalog spelling to one display name per language and share the same language switch.
  */
 
 /** Primary name plus the original beside it, when a translation is showing. */
@@ -11,11 +11,23 @@ export type NameView = {
   originalNote: string | null
 }
 
-/** A catalog spelling to Chinese name file. */
+/** A catalog spelling to display name file for one language. */
 export type NameMap = Record<string, string>
 
+/** Chinese and English files beside each other, so one lookup serves both languages. */
+export type NameMaps = {
+  zh: NameMap
+  en: NameMap
+}
+
+/** Raw Chinese and English files, as read from `data/*.zh-CN.json` and `data/*.en.json`. */
+export type NameMapInput = {
+  zh: unknown
+  en?: unknown
+}
+
 /**
- * Validates a translation file that maps a spelling to one Chinese name.
+ * Validates a translation file that maps a spelling to one display name.
  * Throws when the value is not an object, a key is blank, a name is blank, or two keys differ
  * only in case (which would make lookup order matter).
  *
@@ -37,6 +49,26 @@ export const parseNameMap = (value: unknown, what: string): NameMap => {
     file[key] = name
   }
   return file
+}
+
+/**
+ * Validates the Chinese file and the optional English file together.
+ * A missing English file leaves English names untranslated.
+ */
+export const parseNameMaps = (input: NameMapInput, what: string): NameMaps => {
+  return {
+    zh: parseNameMap(input.zh, what),
+    en: parseNameMap(input.en ?? {}, what),
+  }
+}
+
+/**
+ * Translation of one catalog spelling in `locale`, or null when that language has no row.
+ * Japanese is the catalog language, so it never takes a row from these files.
+ */
+export const nameIn = (maps: NameMaps, key: string, locale: Locale): string | null => {
+  if (locale === 'ja') return null
+  return maps[locale][key] ?? null
 }
 
 /**

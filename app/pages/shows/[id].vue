@@ -9,6 +9,7 @@ import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
 import { catalogSchedules } from '~~/shared/performance-setlists.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+import { useVenueNames } from '~/composables/useVenueNames.ts'
 import { fromVocaDB } from '~~/shared/repertoire.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
@@ -16,6 +17,7 @@ const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { locale, t } = useLocale()
+const { localizeVenue } = useVenueNames()
 const { localizePerformanceSeries, seriesTitle } = useSeriesTitles()
 
 /** Parsed once: the city matcher only depends on the static place list. */
@@ -106,18 +108,25 @@ const performanceLabel = computed(() => {
 })
 
 /** Date span, venue, and start time printed under the title; empty fields stay null. */
-const headerFacts = computed(() => (performance.value ? performanceHeaderFacts(performance.value) : null))
+const headerFacts = computed(() => {
+  const current = performance.value
+  if (!current) return null
+  const facts = performanceHeaderFacts(current)
+  return { ...facts, venue: localizeVenue(facts.venue) }
+})
 
 /** Series name and series year in the site language, e.g. `初音ミクライブパーティー 2012`. */
 const seriesView = computed(() => (series.value ? seriesTitle(series.value.name) : null))
 
-/** City of this show; the VocaDB spelling is kept when the site shows original names. */
+/** City of this show; the VocaDB spelling is kept when the site shows Japanese names. */
 const cityName = computed(() => {
   const current = performance.value
   if (!current) return null
   const match = matchCity(current, cityIndex)
   if (match === null) return null
-  return locale.value === 'zh' ? match.city : match.original
+  if (locale.value === 'zh') return match.city
+  if (locale.value === 'en') return localizePlace(match.original)
+  return match.original
 })
 
 /** Series name for the first crumb; null when the catalog has no series row. */

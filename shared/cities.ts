@@ -1,4 +1,5 @@
 import type { PlaceNameIndex } from './place-names.ts'
+import type { Locale } from './i18n/index.ts'
 import { showsForPerformance } from './event-schedule.ts'
 import { CITY_ALIASES } from './rotation.ts'
 import { isBroadcastAppearance, performanceYear } from './stats.ts'
@@ -22,6 +23,8 @@ type CitySpelling = {
 export type CityIndex = {
   /** Every spelling, longest first so `Washington D.C.` wins over `Washington`. */
   spellings: readonly CitySpelling[]
+  /** Chinese city key to the English name shown while the site language is English. */
+  englishNames: ReadonlyMap<string, string>
 }
 
 /** City named by a performance label, with the spelling exactly as the catalog writes it. */
@@ -90,6 +93,10 @@ const cityPattern = (spelling: string): RegExp => {
   return new RegExp(escaped)
 }
 
+/** Capitalizes the words of a lower-case Latin city alias, so `new york` shows as `New York`. */
+const titleCase = (value: string): string =>
+  value.replace(/(^|[\s-])([a-z])/g, (_match, lead: string, letter: string) => `${lead}${letter.toUpperCase()}`)
+
 /**
  * Grouping key for a Chinese place name.
  * Drops a trailing 都 / 市 so 东京都, 东京, and 東京都 share one row; a name that would
@@ -109,17 +116,24 @@ export const cityKey = (name: string): string => {
 export const buildCityIndex = (places: PlaceNameIndex): CityIndex => {
   /** Lower-cased spelling to its Chinese city and source text, so one spelling never claims two cities. */
   const claimed = new Map<string, { city: string; text: string }>()
+  /** Chinese city key to the English label; the first spelling with a translation wins. */
+  const englishNames = new Map<string, string>()
 
-  /** Records one spelling when no other city already owns it. */
+  /** Records one spelling when no other city already owns it, and claims the English label. */
   const add = (city: string, spelling: string): void => {
     const text = spelling.trim()
     if (text === '') return
+    if (!englishNames.has(city)) {
+      const translated = places.names.en[text]
+      if (translated !== undefined) englishNames.set(city, translated)
+      else if (LATIN.test(text)) englishNames.set(city, titleCase(text))
+    }
     const folded = text.toLowerCase()
     if (claimed.has(folded)) return
     claimed.set(folded, { city, text })
   }
 
-  for (const [spelling, name] of Object.entries(places.names)) add(cityKey(name), spelling)
+  for (const [spelling, name] of Object.entries(places.names.zh)) add(cityKey(name), spelling)
 
   for (const [key, aliases] of CITY_ALIASES) {
     const city = claimed.get(key)?.city
@@ -130,7 +144,17 @@ export const buildCityIndex = (places: PlaceNameIndex): CityIndex => {
   const spellings = [...claimed.values()]
     .sort((left, right) => right.text.length - left.text.length)
     .map(({ text, city }) => ({ city, pattern: cityPattern(text) }))
-  return { spellings }
+  return { spellings, englishNames }
+}
+
+/**
+ * City name shown in the active language.
+ * English uses the checked English name (or the Latin spelling); Chinese and Japanese keep the
+ * Chinese city key the ranking groups by.
+ */
+export const cityLabel = (index: CityIndex, city: string, locale: Locale): string => {
+  if (locale === 'en') return index.englishNames.get(city) ?? city
+  return city
 }
 
 /**

@@ -84,6 +84,7 @@ export const en: Record<keyof typeof zh, string> = {
   'col.characters': 'Singers',
   'col.showCount': 'Shows',
   'col.performanceCount': 'Performances',
+  'col.performanceCountShort': 'Perf.',
   'col.firstYear': 'First year',
   'col.lastYear': 'Last year',
   'col.date': 'Date',

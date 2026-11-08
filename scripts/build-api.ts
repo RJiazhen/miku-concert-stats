@@ -109,7 +109,10 @@ export const buildApiFiles = (root = repoRoot()): void => {
   const titlesZh = parseSongTitles(readJsonFile(root, path.join('data', 'song-titles.zh-CN.json')))
   const songAliases = parseSongAliases(readJsonFile(root, path.join('data', 'song-aliases.json')))
   const rules = parseCharacterConfig(readJsonFile(root, path.join('data', 'characters.json')))
-  const places = parsePlaceNames(readJsonFile(root, path.join('data', 'place-names.zh-CN.json')))
+  const places = parsePlaceNames({
+    zh: readJsonFile(root, path.join('data', 'place-names.zh-CN.json')),
+    en: readJsonFile(root, path.join('data', 'place-names.en.json')),
+  })
   const merges = parseSetlistMerges(readJsonFile(root, path.join('data', 'setlist-merges.json')))
   const review = reviewRotations(catalog)
   const showCounts = showCountsByPerformance(catalog, review)
@@ -696,7 +699,10 @@ export const buildApiFiles = (root = repoRoot()): void => {
     nameZhOf: (songId) => titlesZh[String(songId)]?.title ?? null,
     characters: readJsonFile(root, path.join('data', 'characters.json')),
     variants: readJsonFile(root, path.join('data', 'song-variants.json')),
-    places: readJsonFile(root, path.join('data', 'place-names.zh-CN.json')),
+    places: {
+      zh: readJsonFile(root, path.join('data', 'place-names.zh-CN.json')),
+      en: readJsonFile(root, path.join('data', 'place-names.en.json')),
+    },
   }))
 
   console.log(

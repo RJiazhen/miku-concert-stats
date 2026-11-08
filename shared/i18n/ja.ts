@@ -84,6 +84,7 @@ export const ja: Record<keyof typeof zh, string> = {
   'col.characters': '歌手',
   'col.showCount': '公演回数',
   'col.performanceCount': '公演数',
+  'col.performanceCountShort': '公演数',
   'col.firstYear': '初登場年',
   'col.lastYear': '最終登場年',
   'col.date': '日付',

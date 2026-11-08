@@ -93,7 +93,7 @@ const columns: TableColumn<RankedProducer>[] = [
   { accessorKey: 'songCount', header: sortableHeader(t('col.songCount')), enableSorting: true },
   { accessorKey: 'performedSongCount', header: sortableHeader(t('col.performedSongCount')), enableSorting: true },
   { accessorKey: 'appearanceCount', header: sortableHeader(t('col.appearanceCount')), enableSorting: true },
-  { accessorKey: 'performanceCount', header: sortableHeader(t('col.performanceCount')), enableSorting: true },
+  { accessorKey: 'performanceCount', header: sortableHeader(t('col.performanceCountShort')), enableSorting: true },
   { accessorKey: 'showCount', header: sortableHeader(t('col.shows')), enableSorting: true },
   { accessorKey: 'firstYear', header: sortableHeader(t('col.firstYear')), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader(t('col.lastYear')), enableSorting: true },

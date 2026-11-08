@@ -85,6 +85,7 @@ export const zh = {
   'col.characters': '歌手',
   'col.showCount': '场次数',
   'col.performanceCount': '演出数',
+  'col.performanceCountShort': '演出数',
   'col.firstYear': '最早年份',
   'col.lastYear': '最晚年份',
   'col.date': '日期',

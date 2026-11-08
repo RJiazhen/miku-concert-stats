@@ -1,4 +1,5 @@
-import raw from '~~/data/series-titles.zh-CN.json'
+import rawZh from '~~/data/series-titles.zh-CN.json'
+import rawEn from '~~/data/series-titles.en.json'
 import {
   formatSeriesTitle,
   localizeSeriesInName,
@@ -11,7 +12,7 @@ import {
 import { useLocale } from './useLocale.ts'
 
 /** Parsed once: the series list is static build-time data. */
-export const seriesTitles: SeriesTitleFile = parseSeriesTitles(raw)
+export const seriesTitles: SeriesTitleFile = parseSeriesTitles({ zh: rawZh, en: rawEn })
 
 /**
  * Localizes series names to the site's current language.
@@ -20,11 +21,12 @@ export const seriesTitles: SeriesTitleFile = parseSeriesTitles(raw)
 export const useSeriesTitles = () => {
   const { locale } = useLocale()
 
-  /** Chinese series name when the site language is Chinese, otherwise the catalog name. */
+  /** Chinese or English series name when that language is active, otherwise the catalog name. */
   const localizeSeries = (name: string): string => localizeSeriesName(seriesTitles, name, locale.value)
 
-  /** Primary series name plus the catalog name when a Chinese name is showing. */
-  const seriesTitle = (name: string): SeriesTitleView => formatSeriesTitle(name, seriesTitleFor(seriesTitles, name), locale.value)
+  /** Primary series name plus the catalog name when a translation is showing. */
+  const seriesTitle = (name: string): SeriesTitleView =>
+    formatSeriesTitle(name, seriesTitleFor(seriesTitles, name, locale.value), locale.value)
 
   /** Performance name with its series label in the current language; the series year stays. */
   const localizePerformanceSeries = (text: string, seriesName: string, seriesNumber: number | null): string => {

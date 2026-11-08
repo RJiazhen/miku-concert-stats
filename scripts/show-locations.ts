@@ -156,7 +156,10 @@ const readTable = (root: string): ShowLocationIndex => {
 
 /** City groups derived from the catalog; also returns the ids that resolved to no city. */
 const readGroups = (root: string, catalog: Catalog): { groups: LocationGroup[]; unknownCityIds: number[] } => {
-  const places = parsePlaceNames(JSON.parse(readFileSync(path.join(root, 'data', 'place-names.zh-CN.json'), 'utf8')))
+  const places = parsePlaceNames({
+    zh: JSON.parse(readFileSync(path.join(root, 'data', 'place-names.zh-CN.json'), 'utf8')),
+    en: JSON.parse(readFileSync(path.join(root, 'data', 'place-names.en.json'), 'utf8')),
+  })
   return groupPerformancesByLocation(catalog.performances, buildCityIndex(places))
 }
 

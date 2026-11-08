@@ -6,12 +6,14 @@ import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+import { useVenueNames } from '~/composables/useVenueNames.ts'
 import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overview.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
+const { localizeVenue } = useVenueNames()
 const { localizeSeries, localizePerformanceSeries, seriesTitle } = useSeriesTitles()
 const { t } = useLocale()
 
@@ -85,7 +87,10 @@ type PerformanceView = {
   seriesLabel: string
   dates: string | null
   year: number | null
+  /** Catalog venue spelling, used as the filter value. */
   venue: string | null
+  /** Venue name in the site language, printed in the table. */
+  venueLabel: string | null
   shows: number
   hasSetlist: boolean
 }
@@ -101,6 +106,7 @@ const performanceRows = computed<PerformanceView[]>(() =>
       dates: row.dates,
       year: row.year,
       venue: row.venue,
+      venueLabel: localizeVenue(row.venue),
       shows: row.shows,
       hasSetlist: row.hasSetlist,
     }
@@ -166,7 +172,7 @@ const sortableHeader = useSortableHeader()
 
 const seriesColumns = computed<TableColumn<SeriesView>[]>(() => [
   { accessorKey: 'primary', header: sortableHeader(t('col.series')), enableSorting: true },
-  { accessorKey: 'performances', header: sortableHeader(t('col.performanceCount')), enableSorting: true },
+  { accessorKey: 'performances', header: sortableHeader(t('col.performanceCountShort')), enableSorting: true },
   { accessorKey: 'shows', header: sortableHeader(t('col.shows')), enableSorting: true },
   { accessorKey: 'years', header: sortableHeader(t('col.years')), enableSorting: true },
   { accessorKey: 'firstDate', header: sortableHeader(t('col.firstShow')), enableSorting: true },
@@ -304,7 +310,7 @@ useHead({ title: computed(() => t('series.indexTitle')) })
           </NuxtLink>
         </template>
         <template #venue-cell="{ row }">
-          <span class="text-muted">{{ cell(row.original.venue) }}</span>
+          <span class="text-muted">{{ cell(row.original.venueLabel) }}</span>
         </template>
         <template #shows-cell="{ row }">
           <span class="tabular-nums text-muted">{{ row.original.shows }}</span>

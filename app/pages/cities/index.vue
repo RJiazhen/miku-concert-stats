@@ -5,12 +5,12 @@ import { useCatalog } from '~/composables/useCatalog.ts'
 import { placeNames } from '~/composables/usePlaceNames.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
-import { buildCityIndex, rankCities } from '~~/shared/cities.ts'
+import { buildCityIndex, cityLabel, rankCities } from '~~/shared/cities.ts'
 import { showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
 const { catalog, error, pending, load } = useCatalog()
-const { t } = useLocale()
+const { locale, t } = useLocale()
 
 /** Parsed once: the checked place list and its matchers never change at runtime. */
 const cityIndex = buildCityIndex(placeNames)
@@ -51,7 +51,7 @@ const ranking = computed(() =>
 const rows = computed<RankedCity[]>(() => {
   return (ranking.value?.rows ?? []).map((row, index) => ({
     rank: index + 1,
-    city: row.city,
+    city: cityLabel(cityIndex, row.city, locale.value),
     originalNames: row.originalNames.join(' / '),
     concerts: row.concerts,
     shows: row.shows,
@@ -75,7 +75,7 @@ const sortableHeader = useSortableHeader()
 const columns = computed<TableColumn<RankedCity>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true },
   { accessorKey: 'city', header: sortableHeader(t('col.city')), enableSorting: true },
-  { accessorKey: 'concerts', header: sortableHeader(t('col.performanceCount')), enableSorting: true },
+  { accessorKey: 'concerts', header: sortableHeader(t('col.performanceCountShort')), enableSorting: true },
   { accessorKey: 'shows', header: sortableHeader(t('col.shows')), enableSorting: true },
   { accessorKey: 'firstYear', header: sortableHeader(t('col.firstYear')), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader(t('col.lastYear')), enableSorting: true },

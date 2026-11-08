@@ -186,19 +186,33 @@ const filtered = computed(() =>
 const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true, meta: { class: { th: 'w-14' } } },
   { accessorKey: 'name', header: sortableHeader(t('col.song')), enableSorting: true, meta: { class: { td: 'max-w-[220px]' } } },
-  { accessorKey: 'artists', header: t('col.producers'), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
+  { accessorKey: 'artists', header: sortableHeader(t('col.producers')), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
   {
     id: 'characters',
     accessorFn: (row) => row.characterList.map(localizeCharacter).join('、'),
     header: sortableHeader(t('col.characters')),
     enableSorting: true,
     sortingFn: (left, right) => compareCharacterLists(left.original.characterList, right.original.characterList),
-    meta: { class: { th: 'w-[236px]', td: 'w-[236px]' } },
+    // `w-full` makes this column absorb the width the other columns leave over.
+    meta: { class: { th: 'w-full min-w-[236px]', td: 'min-w-[236px]' } },
   },
-  { accessorKey: 'count', header: sortableHeader(mode.value === 'show' ? t('col.showCount') : t('col.performanceCount')), enableSorting: true },
+  {
+    accessorKey: 'count',
+    header: sortableHeader(
+      mode.value === 'show' ? t('col.showCount') : t('col.performanceCountShort'),
+      { tooltip: mode.value === 'show' ? undefined : t('col.performanceCount') },
+    ),
+    enableSorting: true,
+    meta: { class: { th: 'w-16', td: 'whitespace-nowrap' } },
+  },
   // 按演出统计时 count 已经是演出数，不再重复一列。
   ...(mode.value === 'show'
-    ? [{ accessorKey: 'performanceCount', header: sortableHeader(t('col.performanceCount')), enableSorting: true }]
+    ? [{
+        accessorKey: 'performanceCount',
+        header: sortableHeader(t('col.performanceCountShort'), { tooltip: t('col.performanceCount') }),
+        enableSorting: true,
+        meta: { class: { th: 'w-16', td: 'whitespace-nowrap' } },
+      }]
     : []),
   { accessorKey: 'firstYear', header: sortableHeader(t('col.firstYear')), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader(t('col.lastYear')), enableSorting: true },
@@ -577,7 +591,7 @@ useHead({ title: computed(() => t('rank.title')) })
           <CharacterChips
             :names="row.original.characterList"
             :wrap="false"
-            class="w-[236px]"
+            class="min-w-[236px]"
           />
         </template>
         <template #count-cell="{ row }">

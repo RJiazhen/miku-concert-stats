@@ -1,15 +1,21 @@
 import type { Locale } from './i18n/index.ts'
-import { parseNameMap, type NameMap } from './name-map.ts'
+import { parseNameMaps, type NameMapInput, type NameMaps } from './name-map.ts'
 
-/** Place as written by VocaDB to its Chinese name. */
-export type PlaceNameFile = NameMap
+/** Place as written by VocaDB to its checked Chinese and English names. */
+export type PlaceNameFile = NameMaps
+
+/** The names one place spelling shows per language; null when that language has no row. */
+export type PlaceNameNames = {
+  zh: string | null
+  en: string | null
+}
 
 /** One checked place with the matcher built from its spelling. */
 export type PlaceNameEntry = {
   /** Place as written by VocaDB, kept for reporting. */
   key: string
-  /** Chinese name shown when the site language is Chinese. */
-  name: string
+  /** Chinese and English names; Japanese keys gain an English romanization here. */
+  names: PlaceNameNames
   /** Matches the place in a performance name. */
   pattern: RegExp
   /** Matches `in`/`at` before the place, so the English connector goes away with the translation. */
@@ -41,18 +47,19 @@ const connectorPattern = (key: string): RegExp => {
 }
 
 /** Empty index so callers can skip localization without branching. */
-export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: {}, entries: [] })
+export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, en: {} }, entries: [] })
 
 /**
- * Validates the place list and builds the matchers.
+ * Validates the place files and builds the matchers.
  * Throws on a blank key or name, and on two spellings that differ only in case.
  */
-export const parsePlaceNames = (value: unknown): PlaceNameIndex => {
-  const names = parseNameMap(value, 'Place name')
-  const entries = Object.entries(names)
-    .map(([key, name]) => ({
+export const parsePlaceNames = (input: NameMapInput): PlaceNameIndex => {
+  const names = parseNameMaps(input, 'Place name')
+  const keys = new Set([...Object.keys(names.zh), ...Object.keys(names.en)])
+  const entries = [...keys]
+    .map((key) => ({
       key,
-      name,
+      names: { zh: names.zh[key] ?? null, en: names.en[key] ?? null },
       pattern: placePattern(key),
       connectorPattern: connectorPattern(key),
     }))
@@ -61,15 +68,19 @@ export const parsePlaceNames = (value: unknown): PlaceNameIndex => {
 }
 
 /**
- * Replaces checked place names with their Chinese name.
- * An English `in` / `at` directly in front of the place is dropped with it, so the note reads `10th Anniversary 大阪`.
- * Japanese and English keep the VocaDB text untouched, because the checked list only has Chinese names.
+ * Replaces checked place names with their name in `locale`.
+ * Chinese also drops an English `in` / `at` directly in front of the place, so the note reads
+ * `10th Anniversary 大阪`; English keeps the connector and only normalizes the spelling
+ * (`10th Anniversary in Osaka`), and Japanese keeps the VocaDB text untouched.
  */
 export const localizePlaceNames = (text: string, index: PlaceNameIndex, locale: Locale): string => {
-  if (locale !== 'zh' || text === '') return text
+  if (locale === 'ja' || text === '') return text
   let localized = text
   for (const entry of index.entries) {
-    localized = localized.replace(entry.connectorPattern, entry.name).replace(entry.pattern, entry.name)
+    const name = entry.names[locale]
+    if (name === null) continue
+    if (locale === 'zh') localized = localized.replace(entry.connectorPattern, name)
+    localized = localized.replace(entry.pattern, name)
   }
   return localized
 }

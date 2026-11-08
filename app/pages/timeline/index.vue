@@ -9,7 +9,7 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { localeTag } from '~~/shared/i18n/index.ts'
-import { buildCityIndex, matchCity } from '~~/shared/cities.ts'
+import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
 import { buildProducerIndex } from '~~/shared/producers.ts'
 import { emptySongVariantIndex } from '~~/shared/song-variants.ts'
 import { buildTimeline, type NewSongBaseline, type TimelineCount } from '~~/shared/timeline.ts'
@@ -142,7 +142,7 @@ const cityItems = computed(() => {
     counts.set(match.city, (counts.get(match.city) ?? 0) + 1)
   }
   const rows = [...counts].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], 'zh'))
-  return rows.map(([city, count]) => ({ label: `${city}（${count}）`, value: city }))})
+  return rows.map(([city, count]) => ({ label: `${cityLabel(cityIndex, city, locale.value)}（${count}）`, value: city }))})
 
 /** Producer names from the catalog index, the same list `/producers` prints. */
 const producerItems = computed(() => {
@@ -554,7 +554,7 @@ const chips = computed<Chip[]>(() => {
   if (showCharacterShares.value) list.push({ key: 'share', label: t('timeline.chipShare') })
   if (newSongBaseline.value === 'filtered') list.push({ key: 'baseline', label: t('timeline.chipBaseline') })
   for (const id of selectedSeries.value) list.push({ key: `series:${id}`, label: seriesLabel(id) })
-  for (const name of selectedCities.value) list.push({ key: `city:${name}`, label: t('timeline.chipCity', { name }) })
+  for (const name of selectedCities.value) list.push({ key: `city:${name}`, label: t('timeline.chipCity', { name: cityLabel(cityIndex, name, locale.value) }) })
   for (const name of selectedProducers.value) list.push({ key: `producer:${name}`, label: t('timeline.chipProducer', { name }) })
   for (const name of selectedCharacters.value) list.push({ key: `character:${name}`, label: t('timeline.chipCharacter', { name }) })
   if (yearRange.value.from !== null || yearRange.value.to !== null) {
