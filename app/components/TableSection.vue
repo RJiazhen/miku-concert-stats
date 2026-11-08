@@ -78,7 +78,7 @@ const hasHeader = computed(() => props.title !== '' || props.count !== null)
       :meta="meta"
       class="ranking-scroll"
       :style="fill ? tableStyle : undefined"
-      :ui="{ th: 'px-1.5 py-2.5', td: 'px-1.5 py-2.5', ...ui }"
+      :ui="{ th: 'px-3 py-2.5', td: 'px-3 py-2.5', ...ui }"
     >
       <template #empty>
         <slot name="empty">
