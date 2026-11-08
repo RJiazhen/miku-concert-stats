@@ -38,8 +38,7 @@ const UNKNOWN_COLOR = 'var(--color-slate-500)'
 
 /** Years a chart can jump to, in page order. */
 const CHARTS = [
-  { key: 'shows', label: '场次 / 演出' },
-  { key: 'performances', label: '系列分布' },
+  { key: 'shows', label: '场次 / 系列' },
   { key: 'characters', label: '角色出场' },
   { key: 'new-songs', label: '新曲 / 复演' },
   { key: 'series-spans', label: '系列活跃' },
@@ -172,31 +171,12 @@ const yearItems = computed(() => [
   ...yearOptions.value.map((year) => ({ label: `${year} 年`, value: year })),
 ])
 
-/** Chart 1: 场次 bars plus a 演出 line on the right axis. */
-const totalChart = computed(() => {
-  const current = timeline.value
-  if (current === null) return { bars: [] as ChartSeries[], lines: [] as ChartSeries[] }
-  const bars: ChartSeries[] = [{
-    key: 'shows',
-    label: '场次数',
-    color: PALETTE[0],
-    values: current.byYear.map((row) => row.shows),
-  }]
-  const lines: ChartSeries[] = [{
-    key: 'performances',
-    label: '演出数',
-    color: PALETTE[1],
-    values: current.byYear.map((row) => row.performances),
-  }]
-  return { bars, lines }
-})
-
 /** Series rows behind the stacked chart, grouped into the top five plus 其他. */
 const seriesChartBars = computed<ChartSeries[]>(() => {
   const current = timeline.value
   if (current === null) return []
   const index = new Map<string, number>()
-  for (const row of current.seriesByYear) index.set(`${row.year}:${row.seriesId}`, row.performances)
+  for (const row of current.seriesByYear) index.set(`${row.year}:${row.seriesId}`, row.shows)
   const valuesOf = (seriesId: number): number[] => current.years.map((year) => index.get(`${year}:${seriesId}`) ?? 0)
   if (seriesFocus.value !== 0) return [{
     key: `series:${seriesFocus.value}`,
@@ -205,7 +185,7 @@ const seriesChartBars = computed<ChartSeries[]>(() => {
     values: valuesOf(seriesFocus.value),
   }]
   const ordered = [...current.seriesSpans].sort(
-    (left, right) => right.performances - left.performances || left.seriesId - right.seriesId,
+    (left, right) => right.shows - left.shows || left.seriesId - right.seriesId,
   )
   const top = ordered.slice(0, 5)
   const rest = ordered.slice(5)
@@ -636,8 +616,12 @@ const goToChart = async (key: string): Promise<void> => {
   document.getElementById(`chart-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-/** Opens the series page behind a stacked bar. */
+/** Chart 1's click handler: a bar segment opens its series, empty band space toggles the year list. */
 const selectSeriesSegment = (payload: { year: number; key: string }): void => {
+  if (payload.key === '') {
+    showsYear.value = showsYear.value === payload.year ? null : payload.year
+    return
+  }
   const id = Number(payload.key.replace('series:', ''))
   if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
 }
@@ -646,11 +630,6 @@ const selectSeriesSegment = (payload: { year: number; key: string }): void => {
 const selectSeriesSpan = (payload: { key: string }): void => {
   const id = Number(payload.key.replace('series:', ''))
   if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
-}
-
-/** Toggles the detail list of one year on chart 1. */
-const selectShowsYear = (payload: { year: number }): void => {
-  showsYear.value = showsYear.value === payload.year ? null : payload.year
 }
 
 /** Toggles the detail list of one year on chart 3. */
@@ -870,16 +849,20 @@ watch(() => route.query.chart, (value) => {
       <section id="chart-shows" class="scroll-mt-24">
         <TimelineChartCard
           title="场次数年度变化"
-          unit="柱=场次，右轴线=演出"
-          note="柱按演出日计数，日场 / 夜场由场次说明中已核实的昼夜证据拆分；折线是当年的演出数，跨日演出只计一次。"
+          unit="按场次计数 · 颜色区分系列"
+          note="默认堆叠前 5 个系列，其余并入「其他」；日场 / 夜场由场次说明中已核实的昼夜证据拆分。点击柱段进入系列页，点击柱间空白展开该年演出列表。"
         >
+          <template #actions>
+            <FilterField label="系列聚焦">
+              <USelect v-model="seriesFocus" :items="seriesFocusItems" size="sm" class="w-48" />
+            </FilterField>
+          </template>
           <TimelineBarChart
             :years="timeline.years"
-            :bars="totalChart.bars"
-            :right-lines="totalChart.lines"
+            :bars="seriesChartBars"
+            stacked
             unit="场次"
-            right-unit="演出"
-            @select="selectShowsYear"
+            @select="selectSeriesSegment"
           />
           <template #footer>
             <div v-if="showsYear !== null" class="mt-3 border-t border-default/60 pt-3">
@@ -893,27 +876,6 @@ watch(() => route.query.chart, (value) => {
               </ul>
             </div>
           </template>
-        </TimelineChartCard>
-      </section>
-
-      <section id="chart-performances" class="scroll-mt-24">
-        <TimelineChartCard
-          title="演出数年度变化（按系列）"
-          unit="按演出计数 · 每个演出计一次"
-          note="默认堆叠前 5 个系列，其余并入「其他」；点击柱段进入系列页。"
-        >
-          <template #actions>
-            <FilterField label="系列聚焦">
-              <USelect v-model="seriesFocus" :items="seriesFocusItems" size="sm" class="w-48" />
-            </FilterField>
-          </template>
-          <TimelineBarChart
-            :years="timeline.years"
-            :bars="seriesChartBars"
-            stacked
-            unit="演出"
-            @select="selectSeriesSegment"
-          />
         </TimelineChartCard>
       </section>
 

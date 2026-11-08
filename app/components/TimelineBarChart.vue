@@ -362,12 +362,14 @@ const selectYear = (year: number, key: string): void => {
         <rect
           v-for="(_, index) in years"
           :key="`band:${index}`"
+          class="cursor-pointer"
           :x="MARGIN.left + band * index"
           :y="MARGIN.top"
           :width="band"
           :height="plotHeight"
           fill="transparent"
           @mouseenter="hovered = index"
+          @click="selectYear(years[index] ?? 0, '')"
         />
 
         <g
