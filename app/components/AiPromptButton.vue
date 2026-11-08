@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /** Demo prompt pointing at the plain-text skill; kept to three short lines so it stays easy to skim. */
 const PROMPT = [
-  '读取 https://miku-concert-stats.rjiazhen.top/skill.md 后回答：',
+  '读取 https://miku-concert-stats.rjiazhen.top/skill.md，用其中的 /api/v1 接口回答（URL 里的日文先 percent-encoding，接口报错先按 skill 排错，不要直接改用搜索引擎）：',
   '1. メルト 按场次、按演出各演了多少次？',
   '2. マジカルミライ 2024 东京场歌单有哪些？',
 ].join('\n')

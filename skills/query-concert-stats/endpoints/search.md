@@ -15,6 +15,8 @@ Valid series ids, character names, producer names, and the catalogue year range.
 
 `q` is 1–80 characters. Song titles match the original, Japanese, English, and Chinese names; producers and series match their names as a case-insensitive substring. Optional `type=songs|producers|series` (default `all`) and `limit` (default 10, maximum 25).
 
+Encode `q` before sending it. Raw Japanese or Chinese in the query string gets **400 with an empty body** from the CDN, before this endpoint runs — that is an encoding failure, not "no match". Use `?q=%E3%83%A1%E3%83%AB%E3%83%88`, `curl -G --data-urlencode 'q=メルト' https://miku-concert-stats.rjiazhen.top/api/v1/search`, or an ASCII title (`?q=Melt`; the encoded Chinese title works the same way). The row that comes back tells you which title matched through `name` / `nameEn` / `nameZh`.
+
 ```json
 {
   "query": "melt",
@@ -61,6 +63,8 @@ Ids follow VocaDB where a matching entry exists, but a local entry can carry a r
 
 ## Common mistakes
 
+- Sending raw Japanese or Chinese in `q`; the CDN rejects the URI with an empty `400` before the search code sees the query. Encode it or search `nameEn` / `nameZh`.
+- Reading that empty `400` as "no such song" and switching to a web search. It is an encoding failure; retry encoded once before concluding anything.
 - Reporting a search result count as "how many times it was performed" — `counts.songs` is the number of matching songs.
 - Using a Chinese alias as the answer title. Show `nameZh` and add the alias once in parentheses at most.
 - Retrying the same query many times in different languages. One retry is enough.

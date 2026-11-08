@@ -9,6 +9,8 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 
 ## `GET /api/v1/songs/{id}.json`
 
+`search` already returns `showCount` / `eventCount`, so open this payload only when the answer needs `bySeries`, `byYear`, `performances[]`, `variants`, or `videos`. A failed detail request does not invalidate counts you already read from `search`; say which part is missing instead of dropping the whole answer.
+
 ```json
 {
   "song": { "id": 1322, "name": "メルト", "nameZh": "融化", "producer": "ryo", "producers": ["ryo"], "characters": ["初音ミク"], "category": "vocaloid", "categoryLabel": "VOCALOID 歌曲", "showCount": 90, "eventCount": 61, "firstYear": 2010, "lastYear": 2025, "approximate": false, "url": "..." },

@@ -271,6 +271,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题（用户另行指定来源时例外）、在每条回答末尾附站的 `参考链接`（歌曲 / 演出 / 系列 / 制作人页），并在首次空提问的演示之后、且 skill 未被本地安装时，追加一次安装命令。API 覆盖不到的部分（未收录的演出、`null` 字段、发行信息、站外数据等）允许改用手上的其他工具或站外来源补齐，但站内数字仍以 API 为准，且必须标明哪部分来自站外。
 
+门面另有两节专门写请求侧排错，因为外部 agent 最常见的失败不是数据缺口而是 URL 写法：`q` 里的非 ASCII 必须先 percent-encoding（裸日文会被 CDN 以 `400` 空响应挡在 API 之前），编码不了就改用 `nameEn` / `nameZh` 检索；再按 `400` / `403` / `404` / 返回 HTML / 批量里单条失败分别给出处理方式。演示请求因此改成 ASCII 的 `?q=Melt`（并保留编码后的日文写法），三条请求互相独立，其中一条失败不阻止回答另一问。`endpoints/search.md` 重复编码要点，`endpoints/songs.md` 说明 `search` 已带 `showCount` / `eventCount`、单曲详情只用于分解与 `coverage`。
+
 仓库内部的歌单采编流程（抓百科逐曲表 → 对曲名 → 展开场次 → 出报告）见 [`.cursor/skills/update-concert-data/SKILL.md`](../.cursor/skills/update-concert-data/SKILL.md)；只给一个网址 / 页面元素时的单场录入与冲突核对见 [`.cursor/skills/ingest-setlist-from-page/SKILL.md`](../.cursor/skills/ingest-setlist-from-page/SKILL.md)。这两个只作为 Cursor 内部 skill 使用，不对外发布。
 
 `app/components/SetlistTable.vue` 是 `/raw` 与 `/shows` 共用的歌单表：槽位用 `rowspan` 合并序号单元格，末尾一列在演出页是「场次」（该行属于这个演出的哪一天 / 日场 / 夜场），在 `/raw` 的跨演出对照是「演出」（该行属于哪个城市站）；每个场次都演出的行留空。列是「序号 / 歌曲 / 歌手 / 场次或演出 / 数据说明」，不显示 VocaDB 原始备注；「数据说明」先用 `formatRotationReason` 写成黄色警告，再把 `info` 里的原始背景片段用灰色原文附在末尾。`/shows` 会传入 `currentPerformanceId`、`currentCity` 与系列名：页头已经写出当前演出与场次，因此只属于当前演出的行留空，确实属于其他演出的行只显示 `shortPerformanceName` 留下的城市等短名（再经 `localizePlace`），完整演出名保留在气泡里；`/raw` 不传这些 prop，仍显示 VocaDB 完整名。
@@ -338,7 +340,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 `public/api` 与 `server/assets/api` 都是构建产物，已加入 `.gitignore`；改完数据重新部署后 API 才会更新。
 
-`app/components/AiPromptButton.vue` 是页眉右侧的图标按钮（`i-tabler:ai`，即 A + I 描边字形，不带文字标签，`aria-label` 与 tooltip 说明用途）。按钮与字形都锁定 28px（`ui.base: 'size-7 justify-center p-0'`、`ui.leadingIcon: 'size-7'`），因此与 `size="sm"` 的其他页眉控件同高，图标放大也不会撑高页眉（始终 59px）；`justify-center` 必须在 `base` 里写，因为 Nuxt UI 的按钮主题只做垂直居中。点击后用 `navigator.clipboard.writeText` 写入三行固定提示词——第一行指向 `/skill.md`，后两行是要目录数据才能回答的问题。成功后按钮 6 秒内换成绿色对勾（`i-lucide-check`），并在按钮下方 24px（`mt-6`）处用绝对定位的浮层提示「粘贴到 AI 对话框中试试吧~」，背景用不透明的 `bg-elevated` 而不是半透明色块；失败时同一位置提示改为「复制失败，请手动让 AI 读取 /skill.md」。提示语不用 toast，避免页面底部弹出通知，也不占用页眉宽度；提示词本身不在页面上展示。`tabler:ai` 来自 `@iconify-json/tabler`（devDependency），`icon.clientBundle.scan` 只把用到的这一个图标打进客户端包。
+`app/components/AiPromptButton.vue` 是页眉右侧的图标按钮（`i-tabler:ai`，即 A + I 描边字形，不带文字标签，`aria-label` 与 tooltip 说明用途）。按钮与字形都锁定 28px（`ui.base: 'size-7 justify-center p-0'`、`ui.leadingIcon: 'size-7'`），因此与 `size="sm"` 的其他页眉控件同高，图标放大也不会撑高页眉（始终 59px）；`justify-center` 必须在 `base` 里写，因为 Nuxt UI 的按钮主题只做垂直居中。点击后用 `navigator.clipboard.writeText` 写入三行固定提示词——第一行指向 `/skill.md` 并附一句请求侧提醒（URL 里的日文先 percent-encoding，接口报错先按 skill 排错、不要直接改用搜索引擎），后两行是要目录数据才能回答的问题。成功后按钮 6 秒内换成绿色对勾（`i-lucide-check`），并在按钮下方 24px（`mt-6`）处用绝对定位的浮层提示「粘贴到 AI 对话框中试试吧~」，背景用不透明的 `bg-elevated` 而不是半透明色块；失败时同一位置提示改为「复制失败，请手动让 AI 读取 /skill.md」。提示语不用 toast，避免页面底部弹出通知，也不占用页眉宽度；提示词本身不在页面上展示。`tabler:ai` 来自 `@iconify-json/tabler`（devDependency），`icon.clientBundle.scan` 只把用到的这一个图标打进客户端包。
 
 `server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
 
