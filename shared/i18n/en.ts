@@ -54,8 +54,6 @@ export const en: Record<keyof typeof zh, string> = {
   'footer.data1': 'Songs, performances, and setlists come from the',
   'footer.data2': 'public API. Songs VocaDB does not list (classical arrangements, instrumental pieces) are registered from the track list on',
   'footer.data3': 'and marked on the page. When reusing these databases, link back to VocaDB. License details:',
-  'footer.ai1': 'Let an external AI read this site directly:',
-  'footer.ai2': '(plain text, no install needed).',
   'rank.title': 'Song ranking',
   'rank.heading1': 'Hatsune Miku concert',
   'rank.heading2': 'song statistics',

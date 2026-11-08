@@ -54,8 +54,6 @@ export const ja: Record<keyof typeof zh, string> = {
   'footer.data1': '楽曲・公演・セットリストは',
   'footer.data2': 'の公開 API に基づきます。VocaDB に収録されていない楽曲（クラシック編曲・器楽曲など）は',
   'footer.data3': 'の曲目表から登録し、ページ内に注記します。これらのデータを転載する際は VocaDB へリンクしてください。ライセンスは',
-  'footer.ai1': '外部 AI にこのサイトの説明を直接読ませる：',
-  'footer.ai2': '（プレーンテキスト、インストール不要）。',
   'rank.title': '楽曲ランキング',
   'rank.heading1': '初音ミク コンサート',
   'rank.heading2': '楽曲統計',

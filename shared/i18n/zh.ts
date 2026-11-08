@@ -55,8 +55,6 @@ export const zh = {
   'footer.data1': '曲目、演出和歌单来自',
   'footer.data2': '公共 API；VocaDB 没有收录的曲目（古典改编、器乐曲等）按',
   'footer.data3': '的逐曲表登记，页内会标注。转载这些数据库内容时请链回 VocaDB。许可说明见',
-  'footer.ai1': '让外部 AI 直接读取本站说明：',
-  'footer.ai2': '（纯文本，无需安装）。',
   'rank.title': '曲目排行',
   'rank.heading1': '初音未来演唱会',
   'rank.heading2': '曲目统计',
