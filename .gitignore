@@ -13,6 +13,13 @@ server/assets/api
 *.log
 .env
 .env.*
+.dev.vars
+.dev.vars.*
+*.pem
+*.p12
+credentials.json
+secrets.*
+.wrangler.toml.local
 tmp/
 temp/
 __pycache__/

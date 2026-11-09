@@ -10,7 +10,9 @@ compatibility_flags = ["nodejs_compat"]
 # shows the "反馈服务暂不可用" fallback there instead of writing to a local KV.
 [[kv_namespaces]]
 binding = "FEEDBACK"
-id = "777b49ffd2744f12a54fc3611ff791e9"
+# Create with: pnpm exec wrangler kv namespace create FEEDBACK
+# Leave empty for local UI work; feedback POST returns 503 without a real namespace.
+id = ""
 
 # Cloudflare Access application that gates the maintainer backend
 # (/admin, every /admin/* page, /api/admin/*, and the /api/feedback admin routes).
@@ -27,8 +29,9 @@ id = "777b49ffd2744f12a54fc3611ff791e9"
 # The Worker also 302s an unauthenticated /admin page request to this Access
 # application's login URL, so the destinations above must match the deployed routes.
 [vars]
-ACCESS_TEAM_DOMAIN = "summer-thunder-62e1.cloudflareaccess.com"
-ACCESS_AUD = "87de2159d583fb4b7536e98227178ba3150fc953ef3a3f817e2f8334cdd00e4b"
+# Fill from Zero Trust > Access > Applications (your own app). Empty = admin APIs fail closed.
+ACCESS_TEAM_DOMAIN = ""
+ACCESS_AUD = ""
 
 # Cloudflare Web Analytics JS beacon (/admin shows the numbers at /admin/analytics).
 # Create the site in Cloudflare dashboard > Web Analytics > Add a site, then copy the
@@ -45,12 +48,13 @@ NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN = ""
 #   pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN
 # The token only needs Account > Account Analytics > Read. While either setting is
 # blank the admin page answers "not configured" and never calls Cloudflare.
-CF_ACCOUNT_TAG = "f6660f9fb6f3b68d4cbb337c220954e5"
+# Account ID (32 hex chars). Leave blank locally; set in the dashboard or .dev.vars for deploy.
+CF_ACCOUNT_TAG = ""
 
 # Host (and only host) the analytics page counts. Every GraphQL alias filters on `requestHost`, so
 # other Web Analytics sites in the same account never appear. Leave it blank to keep the page in the
 # "not configured" state instead of falling back to account-wide numbers.
-CF_ANALYTICS_HOST = "miku-concert-stats.rjiazhen.top"
+CF_ANALYTICS_HOST = ""
 
 # First-party visitor analytics (/admin/analytics > 访客统计). The browser keeps a random visitor id
 # in localStorage and posts one page view per navigation; the Worker writes them here, and the admin

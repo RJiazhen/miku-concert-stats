@@ -1,6 +1,7 @@
 # 初音未来演唱会曲目播放统计 — 设计
 
-只读参考：`~/projects/others/open-personal-note/notes/ideas/hatsune-miku-concert-song-statistics.md`。
+> Historical design notes from early scoping. Current runtime behavior lives in
+> [architecture.md](architecture.md); prefer that file for ongoing development.
 
 本文件固定范围、数据边界和模块划分。开演钟点只写入有出处的值；缺数据时界面保持空态，不补造。
 
