@@ -69,9 +69,6 @@ const trendCategories = [
   { key: 'pageviews', label: '页面浏览量' },
 ]
 
-/** True when the window has any visitor at all. */
-const hasVisitors = computed(() => props.overview.visitors > 0)
-
 /** Busiest day by distinct visitors. */
 const peakDay = computed<AdminVisitorDay | null>(() => {
   if (!hasVisitors.value) return null
