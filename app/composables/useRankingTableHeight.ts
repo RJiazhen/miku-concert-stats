@@ -1,7 +1,7 @@
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue'
 
-/** Table height floor kept from before #14, when the ranking tables were capped at `70vh`. */
-const MIN_HEIGHT = '70vh'
+/** Table height floor: most of the viewport even when the heading and filters above the table are tall. */
+const MIN_HEIGHT = '85vh'
 
 /** A template ref target: a plain element, a component instance exposing `$el`, or nothing. */
 type AnchorTarget = Element | { $el?: unknown } | null
@@ -23,7 +23,7 @@ const resolveAnchor = (anchor: AnchorTarget): HTMLElement | null => {
 
 /**
  * Sizes a ranking table so it fills the viewport below the page header and filter block,
- * while never dropping below the historical `70vh` table height.
+ * while never dropping below the `85vh` table height floor.
  *
  * The measured offset is the distance from the document top to `tableAnchor`, so the
  * resulting height stays stable while the page scrolls. It is measured after mount, when
@@ -55,7 +55,7 @@ export const useRankingTableHeight = (): RankingTableHeight => {
     })
   }
 
-  /** Inline height that fills the remaining viewport but stays at least `70vh`. */
+  /** Inline height that fills the remaining viewport but stays at least `85vh`. */
   const tableStyle = computed(() => ({
     height: tableTop.value === null ? MIN_HEIGHT : `max(${MIN_HEIGHT}, calc(100dvh - ${tableTop.value}px))`,
   }))
