@@ -259,7 +259,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 | `/producers` | `app/pages/producers/index.vue` | 制作人排行榜。`UTable` 排序，默认按曲目数降序，可按名字搜索；每行给出曲目数、演出曲目、表演次数、演出数、场次、最早/最晚年份、主要角色与最多 3 首代表作（链到 `/songs/{id}`）；制作人名链到 `/producers/{name}`；页头汇总制作人数与去重后的曲目数 |
 | `/producers/{name}` | `app/pages/producers/[...name].vue` | 制作人详情。路由键是名字（`encodeURIComponent`），有结构化 `artist_id` 时附 VocaDB artist 外链；页头给出曲目数、演出曲目、表演次数、演出数、场次、年份跨度与按角色汇总的署名次数；「署名曲目」表列出曲名、投稿年份与场次，可按列排序；「出场记录」每个演出一行，链到 `/series/{id}` 与 `/shows/{id}`；名字不在目录里时显示空状态而不是 404 |
 | `/report` | `app/pages/report.vue` | 差异核验。按范围/分级/合并状态筛选，列出差异曲目并链到 VocaDB，可复制 Markdown；范围是同一系列年度或相邻系列年度 |
-| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本，每条给出类型、制作人与歌手（制作人先取该版本的 `song_producers`，没有时才退回 `artist_string` 的 `feat.` 前并去掉 VocaDB 的 `Unknown producer(s)` 占位，每个名字链到 `/producers/{name}`；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次 |
+| `/songs/{id}` | `app/pages/songs/[id].vue` | 单曲详情。页头写原版的投稿日期与演出角色；没有并入其他版本时不渲染「其他版本」卡片，有则只列并入的版本（URL 用变体 id 打开时跳过该变体本身，避免链回当前页），每条给出类型、制作人与歌手（制作人先取该版本的 `song_producers`，没有时才退回 `artist_string` 的 `feat.` 前并去掉 VocaDB 的 `Unknown producer(s)` 占位，每个名字链到 `/producers/{name}`；歌手取自 `song_vocalists`，没有该歌的名单时退回 `feat.` 名单，解析不到时用原版的）；出场记录备注列写明本演出覆盖几个场次 |
 | `/shows/{id}` | `app/pages/shows/[id].vue` | 一个演出的场次列表、轮换解析结果与长度一致性；歌单来自专辑时显示来源提示。面包屑只有 系列 → 演出 两级，系列项链到 `/series/{id}` |
 | `/series` | `app/pages/series/index.vue` | 系列与演出总览。上半是系列表（演出数、场次、年份跨度、首次与最近演出），下半是全部演出的表（日期、演出、系列、场馆、场次），可按系列或 `?place=` 场馆筛选与排序；两张表都链到 `/series/{id}` 与 `/shows/{id}` |
 | `/series/{id}` | `app/pages/series/[id].vue` | 系列主页：该系列的全部演出（每个城市站一行，列出日期、场馆与场次数并链到 `/shows/{id}`），带年份跨度、演出数与场次合计，页头链回 `/series` 总览。站内只有 系列 → 演出 → 场次 三级，不再有年度索引页 |
@@ -649,7 +649,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放）。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

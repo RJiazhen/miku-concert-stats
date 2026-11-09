@@ -6,7 +6,7 @@ import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow 
 import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useLocale } from '~/composables/useLocale.ts'
-import { songCategoryLabel } from '~~/shared/repertoire.ts'
+import { isVocaloidSong, songCategoryLabel } from '~~/shared/repertoire.ts'
 
 const props = defineProps<{
   catalog: Catalog

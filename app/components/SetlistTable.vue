@@ -7,7 +7,7 @@ import { songCharacters } from '~/composables/useCharacters.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useLocale } from '~/composables/useLocale.ts'
-import { songCategoryLabel } from '~~/shared/repertoire.ts'
+import { isVocaloidSong, songCategoryLabel } from '~~/shared/repertoire.ts'
 
 const props = defineProps<{
   display: SetlistDisplay

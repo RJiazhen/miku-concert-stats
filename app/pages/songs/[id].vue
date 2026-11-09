@@ -119,28 +119,34 @@ const creditViewsOf = (creditSong: SongRow): CreditView[] =>
     kind: kindLabelOf(flags.kindOf(credit.name, credit.artistId)),
   }))
 
-/** Variant entries with the facts the 其他版本 card needs to describe each merged song. */
+/**
+ * Variant entries with the facts the 其他版本 card needs to describe each merged song.
+ * A variant id is also a page address, so the entry the URL already names is dropped:
+ * linking it would point at the page the reader is on and the click would do nothing.
+ */
 const variantRows = computed(() => {
   const canonicalCharacters = songCharacters(song.value ?? null)
-  return variantIds.value.map((id) => {
-    const entry = variants.entries.get(id)
-    const variantSong = songById(id)
-    // A variant without its own cast is sung by the same characters as the original.
-    const ownCharacters = songCharacters(variantSong ?? null)
-    const characters = ownCharacters.length > 0 ? ownCharacters : canonicalCharacters
-    // The song entry's structured roster wins; `artist_string` is only the fallback.
-    const producerCredits = variantSong ? creditViewsOf(variantSong) : []
-    return {
-      id,
-      name: variantSong?.name ?? String(id),
-      /** Chinese kind label; the raw `kind` token stays in the lookup file. */
-      kindLabel: entry ? variantKindLabel(entry.kind, locale.value) : t('variant.other'),
-      /** 制作人 credits, each linked to its producer page and flagged when checked. */
-      producerCredits,
-      /** 演出角色 of the variant; an empty list hides that half of the line. */
-      characters,
-    }
-  })
+  return variantIds.value
+    .filter((id) => id !== songId.value)
+    .map((id) => {
+      const entry = variants.entries.get(id)
+      const variantSong = songById(id)
+      // A variant without its own cast is sung by the same characters as the original.
+      const ownCharacters = songCharacters(variantSong ?? null)
+      const characters = ownCharacters.length > 0 ? ownCharacters : canonicalCharacters
+      // The song entry's structured roster wins; `artist_string` is only the fallback.
+      const producerCredits = variantSong ? creditViewsOf(variantSong) : []
+      return {
+        id,
+        name: variantSong?.name ?? String(id),
+        /** Chinese kind label; the raw `kind` token stays in the lookup file. */
+        kindLabel: entry ? variantKindLabel(entry.kind, locale.value) : t('variant.other'),
+        /** 制作人 credits, each linked to its producer page and flagged when checked. */
+        producerCredits,
+        /** 演出角色 of the variant; an empty list hides that half of the line. */
+        characters,
+      }
+    })
 })
 
 /** One row of the 出场记录 table. */
