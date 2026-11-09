@@ -1,6 +1,6 @@
 ---
 name: continue
-description: 推进 miku-concert-stats 的一个开发任务一个阶段：首次调用登记对应 issue 并新建 worktree 开发、提交到任务分支，然后起本地开发服务器交给用户检查；用户确认后再次调用才把整条分支 squash 合入 main（提交信息带 `Closes #N`）、push、等 Workers Builds，成功后核对 issue 已关闭并清理 worktree 与分支；没有合并权限时改为推送分支并开 PR。Use when the user asks to 开始这个任务, 接着做, 继续改, 交付给我看看, 检查完上线, 合并部署, or ship current changes.
+description: 推进 miku-concert-stats 的一个开发任务一个阶段：首次调用新建 worktree 开发（有对得上的 issue 才记录，没有就直接做、不追问用户）、提交到任务分支，然后起本地开发服务器交给用户检查；用户确认后再次调用才把整条分支 squash 合入 main（有 issue 时提交信息带 `Closes #N`）、push、等 Workers Builds，成功后核对 issue 已关闭并清理 worktree 与分支；没有合并权限时改为推送分支并开 PR。Use when the user asks to 开始这个任务, 接着做, 继续改, 交付给我看看, 检查完上线, 合并部署, or ship current changes.
 disable-model-invocation: true
 ---
 
@@ -17,7 +17,7 @@ disable-model-invocation: true
 - 任务目录要登记进旁边的 `miku-concert-stats.code-workspace` 的 `folders`。
 - 生产地址 <https://miku-concert-stats.rjiazhen.top>。push 到 `main` 后 Workers Builds 自动跑 `pnpm build` 并 `npx wrangler deploy`，在 GitHub 上表现为名为 `Workers Builds: miku-concert-stats` 的 check run。
 - 任务分支以 **squash** 合入 `main`：一个任务在 `main` 上只留一个提交，历史保持线性。
-- 一个开发任务对应仓库里的一个 issue（`RJiazhen/miku-concert-stats`）。GitHub 只在 `Closes` / `Fixes` / `Resolves #N` 这类关键词**落到 `main`** 时自动关闭 issue；提交信息里的普通 `(#N)` 只是引用，不关闭任何东西。所以 issue 号必须由本 skill 记录、写进 squash 提交信息或 PR 正文，并在上线后核对它真的变成 `CLOSED`。
+- issue 是**可选**的，不是开工前提：用户点了号、或关键词搜到唯一一条对得上的，才记录；没有对得上的就不关联，**不要因此询问用户**。GitHub 只在 `Closes` / `Fixes` / `Resolves #N` 这类关键词**落到 `main`** 时自动关闭 issue；提交信息里的普通 `(#N)` 只是引用，不关闭任何东西。关联了 issue 时，号必须由本 skill 记录、写进 squash 提交信息或 PR 正文，并在上线后核对它真的变成 `CLOSED`。
 - 合并权限决定走向：`gh api "repos/RJiazhen/miku-concert-stats" --jq .permissions.push` 为 `true`（或自己就是仓库 owner）才走 squash 合并上线；否则只推送分支并开 PR，不碰 `main`。
 - 相关规则：`.cursor/rules/git-worktree.mdc`、`.cursor/rules/testing.mdc`、`.cursor/rules/ui-style-review.mdc`；涉及 `data/` 时还要遵守 `.cursor/rules/data-sources.mdc`。
 
@@ -85,12 +85,13 @@ git -C "$MAIN" worktree add \
 
 然后把目录登记进 workspace 文件（`.../miku-concert-stats.worktrees/miku-concert-stats.code-workspace`）：向 `folders` 追加 `{ "name": "<branch>", "path": "<branch>" }`，保留已有项。
 
-**登记任务的 issue**（建完 worktree 之后、动手实现之前）：
+**登记任务的 issue（可选）**（建完 worktree 之后、动手实现之前）：
 
 - 用户本轮点了 issue 号 → 就是它。
-- 没点号 → 用关键词搜：`gh issue list --state open --search "<关键词>"`；唯一对上就采用；对不上或有多条 → 用 `AskQuestion` 让用户给号，或确认「本任务不关联 issue」。
-- 把结果写进 worktree 的临时文件，Ship 阶段据此关闭，不靠对话记忆：`printf '%s\n' "<N>" > "$WORKTREE/tmp/task-issue"`（`tmp/` 不进仓库）。
-- 关联不上就写空文件，并在汇报里写明「本任务未关联 issue」；Ship 时跳过所有 issue 步骤。
+- 没点号 → 用关键词搜：`gh issue list --state open --search "<关键词>"`；唯一对上就采用。
+- 对不上或有多条都不确定 → 本任务不关联 issue，**直接继续实现，不要用 `AskQuestion` 问用户**。
+- 关联上了就把号写进 worktree 的临时文件，Ship 阶段据此关闭，不靠对话记忆：`printf '%s\n' "<N>" > "$WORKTREE/tmp/task-issue"`（`tmp/` 不进仓库）。
+- 未关联就写空文件，并在汇报里写明「本任务未关联 issue」；Ship 时跳过所有 issue 步骤。
 
 ### 3. 实现
 
@@ -174,7 +175,7 @@ git -C "$WORKTREE" log --oneline origin/main..HEAD
 ```
 
 - `$WORKTREE` 必须就是本任务的 worktree（本对话上一轮汇报过的那个）；指向别人的 worktree 时停下，用 `AskQuestion` 确认，不要合并别人的分支。
-- `$ISSUE` 读不到（没登记过）→ 按 Start 第 2 步补登记一次；确实没有对应 issue 就留空，后续 issue 步骤全部跳过。
+- `$ISSUE` 读不到（没登记过）→ 留空即可，**不要追问用户**；后续 issue 步骤全部跳过。
 - 还有未提交改动 → 先按 Start 第 4 步提交到任务分支，再继续。
 - 工作区干净、`origin/main..HEAD` 也为空 → 没有可上线的内容，说明并停止。
 - 改动涉及 `shared/`、`server/`、`app/`、`scripts/`、`data/`、`tests/` 的逻辑或数据 → 跑 `pnpm test`。
