@@ -49,7 +49,6 @@ type RankedProducer = {
   name: string
   /** Checked flag; `label` rows only appear behind the switch and carry a badge. */
   kind: ProducerRow['kind']
-  songCount: number
   performedSongCount: number
   appearanceCount: number
   performanceCount: number
@@ -71,7 +70,6 @@ const rows = computed<RankedProducer[]>(() => {
     rank: position + 1,
     name: row.name,
     kind: row.kind,
-    songCount: row.songCount,
     performedSongCount: row.performedSongCount,
     appearanceCount: row.appearanceCount,
     performanceCount: row.performanceCount,
@@ -101,8 +99,8 @@ const totals = computed(() => {
   return { producers: all.length, songs: songs.size, performed: performed.size }
 })
 
-/** Default order: most credited songs first. */
-const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'songCount', desc: true }])
+/** Default order: the rank the rows are built in, most credited songs first. */
+const sorting = ref<{ id: string; desc: boolean }[]>([{ id: 'rank', desc: false }])
 
 /** Sortable header button, shared with every other table on the site. */
 const sortableHeader = useSortableHeader()
@@ -111,7 +109,6 @@ const columns: TableColumn<RankedProducer>[] = [
   { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true },
   // Narrow screens give the name two lines instead of a tooltip they cannot reach; `sm:` caps it at 152px.
   { accessorKey: 'name', header: sortableHeader(t('producers.breadcrumb')), enableSorting: true, meta: { class: { td: 'max-w-[180px] sm:max-w-[152px]' } } },
-  { accessorKey: 'songCount', header: sortableHeader(t('col.songCount')), enableSorting: true },
   { accessorKey: 'performedSongCount', header: sortableHeader(t('col.performedSongCount')), enableSorting: true },
   { accessorKey: 'appearanceCount', header: sortableHeader(t('col.appearanceCount')), enableSorting: true },
   { accessorKey: 'performanceCount', header: sortableHeader(t('col.performanceCountShort')), enableSorting: true },
@@ -206,9 +203,6 @@ useHead({ title: computed(() => t('producers.indexTitle')) })
           </UTooltip>
           <UBadge v-if="kindLabelOf(row.original.kind)" color="neutral" variant="subtle" size="sm" class="shrink-0">{{ kindLabelOf(row.original.kind) }}</UBadge>
         </div>
-      </template>
-      <template #songCount-cell="{ row }">
-        <UBadge color="primary" variant="subtle">{{ row.original.songCount }}</UBadge>
       </template>
       <template #performedSongCount-cell="{ row }">
         <span class="tabular-nums text-muted">{{ row.original.performedSongCount }}</span>
