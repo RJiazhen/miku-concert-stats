@@ -590,11 +590,7 @@ useHead({ title: computed(() => t('rank.title')) })
           <span v-else class="text-muted">—</span>
         </template>
         <template #characters-cell="{ row }">
-          <CharacterChips
-            :names="row.original.characterList"
-            :wrap="false"
-            class="min-w-[236px]"
-          />
+          <CharacterChips :names="row.original.characterList" />
         </template>
         <template #count-cell="{ row }">
           <UBadge v-if="!row.original.approximate" color="primary" variant="subtle">

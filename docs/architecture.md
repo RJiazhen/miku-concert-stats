@@ -243,7 +243,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 - `app/components/TableSection.vue`：标题 / 计数 / 说明 + `UTable` 的统一外壳。默认 `fill` 用 `useRankingTableHeight` 撑满视口并粘性表头，`fill=false` 用于卡片内表格；统一 `th/td` 内边距、`ranking-scroll`、`USkeleton` 加载态与 `UEmpty` 空状态，并把页面传进来的命名单元格插槽转发给 `UTable`。`loading` 时不打印 `count`，避免骨架旁边先闪一个用空数据算出的计数。
 - `app/components/PageSkeleton.vue`：详情页的正文骨架，目录读出来之前占住页头与表格的位置，参数与用途见上一节。
-- `app/components/CharacterChip.vue` / `CharacterChips.vue`：角色（演出歌手）标签。边框与淡底色取自 `characters.json` 的应援色，超过 `limit` 的角色收进 `+N` 气泡；`wrap=false` 供固定宽度的排行榜列使用。`CharacterChips` 按当前语言给每个标签传中文显示名（`CharacterChip` 的 `label`），`key` 与应援色仍用规范名，所以切换语言不会重复渲染、`+N` 与颜色不受影响；未配中文名的角色显示日文名。制作人署名这类非角色标签用 `UBadge`。
+- `app/components/CharacterChip.vue` / `CharacterChips.vue`：角色（演出歌手）标签。边框与淡底色取自 `characters.json` 的应援色。折叠只发生在平板宽度（Tailwind `md`..`lg`，即 768px–1023px）：此时前 `limit`（默认 3）个标签直接显示，其余收进 `+N` 气泡；手机（`md` 以下）与桌面（`lg` 及以上）都换行显示全部标签并隐藏 `+N`。断点写在组件的类名上（其余标签 `md:hidden lg:inline`、`+N` 按钮 `max-md:hidden lg:hidden`），不依赖视口 JS，SSR 与注水的输出一致。`fold="never"` 用于页头与卡片这类每个宽度都能换行的位置，直接显示全部标签且不渲染 `+N`。`CharacterChips` 按当前语言给每个标签传中文显示名（`CharacterChip` 的 `label`），`key` 与应援色仍用规范名，所以切换语言不会重复渲染、`+N` 与颜色不受影响；未配中文名的角色显示日文名。制作人署名这类非角色标签用 `UBadge`。
 - `app/components/SortableHeader.vue` + `app/composables/useSortableHeader.ts`：所有可排序表头共用的 ghost 按钮与升降序图标。
 - `app/components/FilterField.vue`：`UFormField` 包装的筛选标签，替换手写 `<label>`。
 
@@ -251,7 +251,7 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 | 路由 | 文件 | 做什么 |
 | --- | --- | --- |
-| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人，`q` 记录从结果页带过来的歌曲搜索）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列限宽 236px，最多直接显示 3 个彩色应援色标签，其余收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
+| `/` | `app/pages/index.vue` | 排行。`UTable` + TanStack 排序，按场次（默认）或按演出统计；系列、年份、配信、串烧、角色、制作人筛选；筛选写入 URL query（`mode=event` 切到按演出，`producer` 记录制作人，`q` 记录从结果页带过来的歌曲搜索）；合并版本行显示「含 N 个版本」（N 含原版）；「制作人」列只显示 `feat.` 之前的制作人，每个名字链到 `/producers/{name}`，宽度受限并带同样可点的完整署名气泡；「歌手」列最小宽度 236px、吸收其他列剩余的宽度，手机与桌面换行显示全部彩色应援色标签，只有平板宽度（`md`..`lg`）把 3 个之后的角色收进末尾的 `+N` 按钮，悬停时气泡用同样的标签列出剩余角色；「演出数」列展示去重后的演出行数（按演出统计时与次数列相同，因此该模式隐藏此列）；歌曲列限宽 288px |
 | `/timeline` | `app/pages/timeline/index.vue` | 时间线图表。在浏览器里用 `shared/timeline.ts` 聚合，展示按系列的场次数（堆叠柱，颜色区分系列）、角色曲目（柱=该年带该角色的不同曲目数，可切换「合唱按人数均分」；「其他」只合并颜色，悬停图例列出成员、悬停该柱段列出当年各成员曲目数）、新曲 / 复演曲，另附系列活跃甘特图与巡演城市迁移。筛选（系列 `series_id`、城市、制作人 `producer`、角色、年份 `from` / `to`、配信、合并版本、合唱口径 `chorus`、角色占比折线 `share`、新曲基准 `baseline`）与图表选择 `chart` 都写在 URL query 里；角色图右上角两个开关分别是「合唱按人数均分」（改计数规则）与「显示角色占比」（多画每个角色的右轴虚线，「其他」不画线），分子分母共用同一套曲目计数规则；图表目录在 `xl` 及以上是左侧吸顶栏，更窄时收进左下角一个悬浮按钮（`UPopover`）；顶部筛选卡片完全滚出视口后（`IntersectionObserver` 观察卡片本身），同一组控件由 `app/components/TimelineFilters.vue` 渲染到右下角 `FeedbackWidget` 上方的悬浮按钮里（`UPopover`，带已选条件数徽标，滑回顶部或卡片重新可见时自动收起），内联卡片与悬浮面板共用一组 `v-model`；图表是内联 SVG，支持悬停明细、键盘焦点与点击跳转 `/shows`、`/series`、`/songs`；绘制宽度按全目录年份跨度（`catalogYears`）算（`TimelineBarChart` / `TimelineGantt` 的 `span` 属性），轴两端被裁掉后总宽度不变，柱子和间隙按比例加宽 |
 | `/search` | `app/pages/search.vue` | 搜索结果页。`?q=` 保存查询词，顶部输入框即时匹配并 `replace` 同步 URL，清空显示空状态；按 系列 → 演出 → 地点 → 制作人 → 歌曲 分区列出全部命中，分区标题给出真实总数，每区先显示 20 条并可用「显示更多」展开；目录加载中显示骨架，失败显示错误，加载完成前不显示「没有结果」 |
 | `/raw` | `app/pages/raw.vue` | 原始数据。跨演出歌单对照（同一系列年度多个演出的歌单并排，`SetlistTable`）、11 张数据表（每张 100 行分页，表定义与分页在 `app/composables/useRawTables.ts`）、质量报告（缺 PV、无歌单演出、专辑曲目补位、未解析备注、串烧隔离、疑似重复，数据在 `app/composables/useRawQuality.ts`） |
@@ -523,7 +523,7 @@ WHERE (country_code IS NULL OR trim(country_code) = '') AND id IN (…);
 
 ### `data/characters.json`
 
-对象。键是展示用的角色名，同时是内部规范名（canonical id）：筛选项的 `value`、`?character=`、`splitCharacterChips` 的 `key` 与应援色查找都用它，翻译只作用于显示文本。值含 `patterns`（锚定名称开头的正则）、可选 `aliases`（整段或前缀别名）与可选 `color`（应援色 `#rrggbb`，非法值会让解析抛错）。排行页的角色筛选项不按这个顺序列出，而是取当前排行中实际出现的角色，按出现次数从多到少排列，并带上次数；次数相同时按当前显示语言的 collation 排序（中文 `zh-CN`、原文 `ja`）。歌手列的标签用 `color` 作边框、同色 12% 透明度作底色；`shared/character-chips.ts` 的 `splitCharacterChips` 只让前 3 个角色直接显示，其余收进末尾的 `+N` 按钮，悬停时用同样的彩色标签在气泡里列出剩余角色。
+对象。键是展示用的角色名，同时是内部规范名（canonical id）：筛选项的 `value`、`?character=`、`splitCharacterChips` 的 `key` 与应援色查找都用它，翻译只作用于显示文本。值含 `patterns`（锚定名称开头的正则）、可选 `aliases`（整段或前缀别名）与可选 `color`（应援色 `#rrggbb`，非法值会让解析抛错）。排行页的角色筛选项不按这个顺序列出，而是取当前排行中实际出现的角色，按出现次数从多到少排列，并带上次数；次数相同时按当前显示语言的 collation 排序（中文 `zh-CN`、原文 `ja`）。歌手列的标签用 `color` 作边框、同色 12% 透明度作底色；`shared/character-chips.ts` 的 `splitCharacterChips` 只让前 3 个角色留在折叠集合里，`CharacterChips` 仅在平板宽度（`md`..`lg`）把这部分收进末尾的 `+N` 按钮，悬停时用同样的彩色标签在气泡里列出剩余角色；手机与桌面全部直接显示。
 
 ### `data/characters.zh-CN.json`、`data/characters.zh-Hant.json` 与 `data/characters.en.json`
 
@@ -649,7 +649,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`fix-singer-fold-tablet-only` 用 `3181`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

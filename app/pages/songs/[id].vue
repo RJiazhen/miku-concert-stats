@@ -407,7 +407,7 @@ useHead({ title: computed(() => title.value?.primary ?? t('song.breadcrumb')) })
         </p>
         <div v-if="showsCharacterLine" class="flex flex-wrap items-center gap-2 text-sm text-muted">
           <span>{{ t('song.performedBy') }}</span>
-          <CharacterChips :names="characters" size="sm" />
+          <CharacterChips :names="characters" size="sm" fold="never" />
         </div>
       </header>
 
@@ -449,7 +449,7 @@ useHead({ title: computed(() => title.value?.primary ?? t('song.breadcrumb')) })
             </p>
             <div v-if="row.characters.length > 0" class="flex flex-wrap items-center gap-2 text-xs text-muted">
               <span>{{ t('song.performedBy') }}</span>
-              <CharacterChips :names="row.characters" />
+              <CharacterChips :names="row.characters" fold="never" />
             </div>
           </li>
         </ul>

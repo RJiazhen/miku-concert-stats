@@ -6,46 +6,56 @@ import { useCharacterNames } from '~/composables/useCharacterNames.ts'
 const props = withDefaults(defineProps<{
   /** Base character names, in display order. */
   names: readonly string[]
-  /** Chips shown inline before the rest collapse behind `+N`. */
+  /** Chips kept inline while folded, i.e. on tablet widths. */
   limit?: number
+  /**
+   * `tablet` collapses the names past `limit` into `+N` only on tablet widths (`md`..`lg`), so
+   * cramped tables stay readable; `never` prints them all and drops the counter, for page headers
+   * and cards that have room to wrap at every width.
+   */
+  fold?: 'tablet' | 'never'
   /** `xs` for table cells, `sm` for page headers. */
   size?: 'xs' | 'sm'
-  /** `false` keeps every chip on one line and clips the overflow, used by fixed-width cells. */
-  wrap?: boolean
   /** Text shown when no character matched, e.g. an em dash. */
   empty?: string
-}>(), { limit: 3, size: 'xs', wrap: true, empty: '—' })
+}>(), { limit: 3, fold: 'tablet', size: 'xs', empty: '—' })
 
 const { localizeCharacter } = useCharacterNames()
 
-/** Chips shown inline plus the canonical names revealed by the counter button. */
+/** Chips shown inline plus the names the counter would hold back while folded. */
 const split = computed(() => splitCharacterChips(props.names, props.limit))
+
+/** Names hidden on tablet only; phone and desktop print every chip and drop the counter. */
+const folded = computed(() => new Set(props.fold === 'never' ? [] : split.value.hidden))
+
+/** `+N` count, zero when this surface never folds. */
+const hiddenCount = computed(() => props.fold === 'never' ? 0 : split.value.hidden.length)
 </script>
 
 <template>
   <span v-if="names.length === 0" class="text-muted">{{ empty }}</span>
   <div
     v-else
-    class="flex items-center gap-1"
-    :class="wrap ? 'flex-wrap' : 'flex-nowrap overflow-hidden'"
+    class="flex flex-wrap items-center gap-1"
   >
     <CharacterChip
-      v-for="name in split.visible"
+      v-for="name in names"
       :key="name"
       :name="name"
       :label="localizeCharacter(name)"
       :size="size"
+      :class="folded.has(name) ? 'md:hidden lg:inline' : ''"
     />
     <UTooltip
-      v-if="split.hidden.length > 0"
+      v-if="hiddenCount > 0"
       :content="{ side: 'top' }"
     >
       <UButton
         color="neutral"
         variant="subtle"
         size="xs"
-        class="shrink-0 rounded border px-1 py-0.5 text-[11px] font-normal"
-        :label="`+${split.hidden.length}`"
+        class="shrink-0 rounded border px-1 py-0.5 text-[11px] font-normal max-md:hidden lg:hidden"
+        :label="`+${hiddenCount}`"
       />
       <template #content>
         <div class="flex max-w-60 flex-wrap items-center gap-1">
