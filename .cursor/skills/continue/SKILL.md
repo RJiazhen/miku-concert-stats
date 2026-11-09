@@ -1,6 +1,6 @@
 ---
 name: continue
-description: 推进 miku-concert-stats 的一个开发任务一个阶段：首次调用新建 worktree 开发、提交到任务分支，然后起本地开发服务器交给用户检查；用户确认后再次调用才把整条分支 squash 合入 main、push、等 Workers Builds，成功后清理 worktree 与分支；没有合并权限时改为推送分支并开 PR。Use when the user asks to 开始这个任务, 接着做, 继续改, 交付给我看看, 检查完上线, 合并部署, or ship current changes.
+description: 推进 miku-concert-stats 的一个开发任务一个阶段：首次调用登记对应 issue 并新建 worktree 开发、提交到任务分支，然后起本地开发服务器交给用户检查；用户确认后再次调用才把整条分支 squash 合入 main（提交信息带 `Closes #N`）、push、等 Workers Builds，成功后核对 issue 已关闭并清理 worktree 与分支；没有合并权限时改为推送分支并开 PR。Use when the user asks to 开始这个任务, 接着做, 继续改, 交付给我看看, 检查完上线, 合并部署, or ship current changes.
 disable-model-invocation: true
 ---
 
@@ -17,6 +17,7 @@ disable-model-invocation: true
 - 任务目录要登记进旁边的 `miku-concert-stats.code-workspace` 的 `folders`。
 - 生产地址 <https://miku-concert-stats.rjiazhen.top>。push 到 `main` 后 Workers Builds 自动跑 `pnpm build` 并 `npx wrangler deploy`，在 GitHub 上表现为名为 `Workers Builds: miku-concert-stats` 的 check run。
 - 任务分支以 **squash** 合入 `main`：一个任务在 `main` 上只留一个提交，历史保持线性。
+- 一个开发任务对应仓库里的一个 issue（`RJiazhen/miku-concert-stats`）。GitHub 只在 `Closes` / `Fixes` / `Resolves #N` 这类关键词**落到 `main`** 时自动关闭 issue；提交信息里的普通 `(#N)` 只是引用，不关闭任何东西。所以 issue 号必须由本 skill 记录、写进 squash 提交信息或 PR 正文，并在上线后核对它真的变成 `CLOSED`。
 - 合并权限决定走向：`gh api "repos/RJiazhen/miku-concert-stats" --jq .permissions.push` 为 `true`（或自己就是仓库 owner）才走 squash 合并上线；否则只推送分支并开 PR，不碰 `main`。
 - 相关规则：`.cursor/rules/git-worktree.mdc`、`.cursor/rules/testing.mdc`、`.cursor/rules/ui-style-review.mdc`；涉及 `data/` 时还要遵守 `.cursor/rules/data-sources.mdc`。
 
@@ -84,6 +85,13 @@ git -C "$MAIN" worktree add \
 
 然后把目录登记进 workspace 文件（`.../miku-concert-stats.worktrees/miku-concert-stats.code-workspace`）：向 `folders` 追加 `{ "name": "<branch>", "path": "<branch>" }`，保留已有项。
 
+**登记任务的 issue**（建完 worktree 之后、动手实现之前）：
+
+- 用户本轮点了 issue 号 → 就是它。
+- 没点号 → 用关键词搜：`gh issue list --state open --search "<关键词>"`；唯一对上就采用；对不上或有多条 → 用 `AskQuestion` 让用户给号，或确认「本任务不关联 issue」。
+- 把结果写进 worktree 的临时文件，Ship 阶段据此关闭，不靠对话记忆：`printf '%s\n' "<N>" > "$WORKTREE/tmp/task-issue"`（`tmp/` 不进仓库）。
+- 关联不上就写空文件，并在汇报里写明「本任务未关联 issue」；Ship 时跳过所有 issue 步骤。
+
 ### 3. 实现
 
 - 所有读写都用任务 worktree 的绝对路径，不要改 `$MAIN` 里的文件。
@@ -102,6 +110,7 @@ git -C "$WORKTREE" commit -m "<一句话说明这次改了什么>"
 ```
 
 - 不要 `git add -A`，提交信息写实际变更（简短祈使句英文），不加任何 co-author trailer。
+- 分支提交信息可以带 `(#N)` 便于追溯，但那个写法**不会**关闭 issue；关闭只靠 Ship 阶段写进 squash 提交的 `Closes #N`。
 - 提交后 `git -C "$WORKTREE" status --short` 确认干净。
 - 有 `permissions.push` 时顺手 `git -C "$WORKTREE" push -u origin "$BRANCH"`；没有就只留在本地，等 Ship 走 fork + PR。
 - 提交到任务分支不等于上线：用户确认前不要 merge、不要 push `main`、不要开 PR。
@@ -137,7 +146,7 @@ nohup env NUXT_IGNORE_LOCK=1 vp dev --port "$PORT" > tmp/dev-server.log 2>&1 &
 
 ### 6. 汇报并停止
 
-给出：worktree 路径、分支名（及是否已 push）、改了什么、跑了哪些验证（或为什么没跑）、开发地址 `http://127.0.0.1:<port>/`、样式参数（如有）。说明「检查后回复 `1` 或再次执行 `/continue` 才合并上线；要改就直接说改哪里」。**本轮不合并、不开 PR**。
+给出：worktree 路径、分支名（及是否已 push）、关联的 issue（`#N`，没有就写「未关联」）、改了什么、跑了哪些验证（或为什么没跑）、开发地址 `http://127.0.0.1:<port>/`、样式参数（如有）。说明「检查后回复 `1` 或再次执行 `/continue` 才合并上线；要改就直接说改哪里」。**本轮不合并、不开 PR、不关闭 issue**。
 
 ## Phase：Develop（继续开发）
 
@@ -159,11 +168,13 @@ nohup env NUXT_IGNORE_LOCK=1 vp dev --port "$PORT" > tmp/dev-server.log 2>&1 &
 WORKTREE="<本任务的 worktree>"
 BRANCH=$(git -C "$WORKTREE" branch --show-current)
 PORT=$(rg -o "$BRANCH 用 ([0-9]+)" -r '$1' "$WORKTREE/docs/architecture.md" 2>/dev/null | head -n1)
+ISSUE=$(cat "$WORKTREE/tmp/task-issue" 2>/dev/null | tr -dc '0-9')
 git -C "$WORKTREE" status --short
 git -C "$WORKTREE" log --oneline origin/main..HEAD
 ```
 
 - `$WORKTREE` 必须就是本任务的 worktree（本对话上一轮汇报过的那个）；指向别人的 worktree 时停下，用 `AskQuestion` 确认，不要合并别人的分支。
+- `$ISSUE` 读不到（没登记过）→ 按 Start 第 2 步补登记一次；确实没有对应 issue 就留空，后续 issue 步骤全部跳过。
 - 还有未提交改动 → 先按 Start 第 4 步提交到任务分支，再继续。
 - 工作区干净、`origin/main..HEAD` 也为空 → 没有可上线的内容，说明并停止。
 - 改动涉及 `shared/`、`server/`、`app/`、`scripts/`、`data/`、`tests/` 的逻辑或数据 → 跑 `pnpm test`。
@@ -189,12 +200,19 @@ git -C "$MAIN" fetch origin main
 git -C "$MAIN" merge --ff-only origin/main
 git -C "$MAIN" merge --squash "$BRANCH"
 git -C "$MAIN" status --short            # 确认有内容可提交
-git -C "$MAIN" commit -m "<一句话说明这次改了什么>"
+MSG="<一句话说明这次改了什么>"
+if [ -n "$ISSUE" ]; then
+  MSG="$MSG
+
+Closes #$ISSUE"
+fi
+git -C "$MAIN" commit -m "$MSG"
 git -C "$MAIN" push origin main
 ```
 
 - `--squash` 只把净改动放进暂存区，必须紧接着显式 `commit`；分支上已有多条提交时，`main` 上只留这一个。
 - 提交信息写实际变更，不要写 `update` 之类空泛措辞，也不要加任何 co-author trailer。
+- 有 issue 时**必须**在提交信息正文里单独一行写 `Closes #N`（`Refs #N`、`(#N)` 都不关闭 issue）。squash 提交是本任务唯一落到 `main` 的提交，也是唯一能触发自动关闭的地方。
 - 输出 `Already up to date` 或 `status --short` 为空 → 没有可合并内容，说明并停止，不要提交空 commit。
 - 冲突时停下，把冲突文件列给用户，不要替用户取舍；要 `reset --hard` 前必须先征得同意。
 - 例外：冲突只在 `docs/architecture.md` 的端口清单这一段（多个分支都往同一段追加端口）时，保留双方条目后继续，不要回滚别人的端口。
@@ -204,7 +222,7 @@ git -C "$MAIN" push origin main
 
 - 只推任务分支，**不改 `main`、不 merge、不删除 worktree**。
 - `git -C "$WORKTREE" push -u origin "$BRANCH"`；origin 不允许写时推到自己的 fork，再用 `gh pr create --base main --head "<fork-owner>:$BRANCH"`。
-- PR 正文写：改了什么、怎么验证的、开发地址（如仍可访问）。用 `gh pr create` 建 **ready** PR，不加 `--draft`；若自动带上 `Made with Cursor`，立刻 `gh pr edit` 删掉。
+- PR 正文写：改了什么、怎么验证的、开发地址（如仍可访问）；有 issue 时末尾单独一行写 `Closes #N`，让维护者合并 PR 时一并关闭。用 `gh pr create` 建 **ready** PR，不加 `--draft`；若自动带上 `Made with Cursor`，立刻 `gh pr edit` 删掉。
 - 汇报 PR URL 与 `gh pr checks <n>`。后续调用只推送更新、汇报状态，永远不 merge，等维护者合并。
 
 ### 3. 等 Workers Builds（仅 2a）
@@ -226,6 +244,22 @@ gh api "repos/RJiazhen/miku-concert-stats/commits/$SHA/check-runs" \
 
 ### 4. 清理（仅 2a 且 `completed success` 后）
 
+先核对 issue（`$ISSUE` 为空时整段跳过）：
+
+```bash
+gh issue view "$ISSUE" --repo RJiazhen/miku-concert-stats --json state,closedAt --jq '"\(.state) \(.closedAt)"'
+```
+
+- `CLOSED` → 自动关闭生效，继续清理。
+- 仍是 `OPEN` → `Closes #N` 没被识别（号写错、写进了分支提交、或 push 前改掉了提交信息）。不要静默放过，手工补关并留痕：
+
+```bash
+gh issue close "$ISSUE" --repo RJiazhen/miku-concert-stats \
+  --comment "已在 $(git -C "$MAIN" rev-parse HEAD) 合入 main（$BRANCH）。"
+```
+
+  然后在汇报里注明这一步是手工补的，并说明 `Closes` 为什么没生效。
+
 ```bash
 lsof -ti "tcp:$PORT" | while read -r pid; do kill "$pid"; done
 git -C "$WORKTREE" status --short          # 必须为空
@@ -244,4 +278,4 @@ git -C "$MAIN" worktree list
 
 ### 5. 汇报
 
-一句话说明：合入的 sha（或 PR URL）、手动查到的 check 结论、生产地址，以及已清理的 worktree / 分支 / workspace 条目。失败时说明卡在哪一步和下一步建议。不要写「应该已部署」「大概率成功」，没查到状态就先查。
+一句话说明：合入的 sha（或 PR URL）、手动查到的 check 结论、生产地址、issue 的最终状态（`#N CLOSED`／手工补关／未关联），以及已清理的 worktree / 分支 / workspace 条目。失败时说明卡在哪一步和下一步建议。不要写「应该已部署」「大概率成功」，没查到状态就先查。
