@@ -43,6 +43,7 @@ export const en: Record<keyof typeof zh, string> = {
   'nav.cities': 'Cities',
   'nav.producers': 'Producers',
   'nav.raw': 'Raw data',
+  'nav.more': 'More',
   'nav.main': 'Main navigation',
   'nav.open': 'Open navigation',
   'nav.github': 'GitHub repository',

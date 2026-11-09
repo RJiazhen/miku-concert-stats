@@ -98,6 +98,37 @@ const stopPointerTracking = (): void => {
 /** Whether the compact navigation panel is open. */
 const menuOpen = ref(false)
 
+/** Hover-open state of the desktop "more" navigation popover. */
+const moreOpen = ref(false)
+
+/** Pending close for the "more" popover, so crossing the gap into the panel never closes it. */
+let moreCloseTimer: ReturnType<typeof setTimeout> | undefined
+
+/** Opens the "more" popover and cancels a scheduled close. */
+const openMore = (): void => {
+  if (moreCloseTimer !== undefined) {
+    clearTimeout(moreCloseTimer)
+    moreCloseTimer = undefined
+  }
+  moreOpen.value = true
+}
+
+/** Closes the "more" popover after a short delay, long enough to reach the panel. */
+const closeMoreSoon = (): void => {
+  if (moreCloseTimer !== undefined) clearTimeout(moreCloseTimer)
+  moreCloseTimer = setTimeout(() => {
+    moreOpen.value = false
+    moreCloseTimer = undefined
+  }, 180)
+}
+
+/** Cancels a pending "more" close when the header unmounts. */
+const stopMoreCloseTimer = (): void => {
+  if (moreCloseTimer === undefined) return
+  clearTimeout(moreCloseTimer)
+  moreCloseTimer = undefined
+}
+
 /** Picks a language and closes whichever menu opened the choice. */
 const pickLanguage = (next: Locale): void => {
   setLocale(next)
@@ -121,10 +152,11 @@ const closeMenu = (): void => {
   menuOpen.value = false
 }
 
-/** Closes both menus, used by the Escape key. */
+/** Closes every open menu, used by the Escape key. */
 const closeMenus = (event: KeyboardEvent): void => {
   if (event.key !== 'Escape') return
   menuOpen.value = false
+  moreOpen.value = false
   languageOpen.value = false
 }
 
@@ -180,18 +212,30 @@ const setDark = (next: boolean): void => {
  * Primary navigation. Labels are resolved in the active language at render time.
  * The admin backend (`/admin/...`) is intentionally absent: it is a hidden entry point reached
  * only by direct URL and protected by Cloudflare Access, so never add it here or to the footer.
+ * The first `PRIMARY_LINK_COUNT` entries stay visible on the desktop row; the rest fold into the
+ * hover-opened "more" menu. The compact panel below `lg` still lists every entry.
  */
 const links = [
   { key: 'nav.songs', to: '/', icon: 'i-lucide-music' },
+  { key: 'nav.producers', to: '/producers', icon: 'i-lucide-user-round' },
   { key: 'nav.timeline', to: '/timeline', icon: 'i-lucide-chart-line' },
   { key: 'nav.series', to: '/series', icon: 'i-lucide-layers' },
   { key: 'nav.cities', to: '/cities', icon: 'i-lucide-map-pin' },
-  { key: 'nav.producers', to: '/producers', icon: 'i-lucide-user-round' },
   { key: 'nav.raw', to: '/raw', icon: 'i-lucide-table-2' },
 ] as const
 
+/** How many leading links stay on the desktop row before the rest move into the "more" menu. */
+const PRIMARY_LINK_COUNT = 3
+
+/** Links always visible on the desktop navigation row. */
+const primaryLinks = links.slice(0, PRIMARY_LINK_COUNT)
+
+/** Links hidden in the desktop "more" popover until the pointer or focus reaches it. */
+const overflowLinks = links.slice(PRIMARY_LINK_COUNT)
+
 onBeforeUnmount(stopCloseTimer)
 onBeforeUnmount(stopPointerTracking)
+onBeforeUnmount(stopMoreCloseTimer)
 </script>
 
 <template>
@@ -215,7 +259,7 @@ onBeforeUnmount(stopPointerTracking)
       <!-- Labels stay until the search input has already folded away at `xl`. -->
       <nav class="hidden items-center gap-1 lg:flex" :aria-label="t('nav.main')">
         <UButton
-          v-for="link in links"
+          v-for="link in primaryLinks"
           :key="link.to"
           :to="link.to"
           :icon="link.icon"
@@ -226,6 +270,51 @@ onBeforeUnmount(stopPointerTracking)
           size="sm"
           class="shrink-0"
         />
+        <!--
+          Hover opens the panel; a click pins or unpins it for keyboard and touch use.
+          Deliberately no `@focus` and no `mode="hover"`: Reka's `onCloseAutoFocus` moves focus
+          back to the trigger on close, so a focus-opened panel reopens right after it closes
+          (the pointer is already gone, so nothing would close it again).
+        -->
+        <UPopover
+          v-model:open="moreOpen"
+          :content="{ align: 'start', sideOffset: 6, collisionPadding: 8 }"
+        >
+          <UButton
+            icon="i-lucide-ellipsis"
+            :label="t('nav.more')"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            class="shrink-0"
+            :aria-label="t('nav.more')"
+            aria-haspopup="menu"
+            :aria-expanded="moreOpen"
+            @mouseenter="openMore"
+            @mouseleave="closeMoreSoon"
+            @click="moreOpen = !moreOpen"
+          />
+          <template #content>
+            <div
+              class="flex w-44 flex-col gap-1 p-1.5"
+              @mouseenter="openMore"
+              @mouseleave="closeMoreSoon"
+            >
+              <UButton
+                v-for="link in overflowLinks"
+                :key="link.to"
+                :to="link.to"
+                :icon="link.icon"
+                :label="t(link.key)"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                class="justify-start"
+                @click="moreOpen = false"
+              />
+            </div>
+          </template>
+        </UPopover>
       </nav>
 
       <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 lg:gap-3">

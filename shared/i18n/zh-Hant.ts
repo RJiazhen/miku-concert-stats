@@ -44,6 +44,7 @@ export const zhHant = {
   'nav.cities': '城市',
   'nav.producers': 'P主',
   'nav.raw': '原始資料',
+  'nav.more': '更多',
   'nav.main': '主導航',
   'nav.open': '開啟導航',
   'nav.github': 'GitHub 倉庫',

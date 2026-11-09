@@ -44,6 +44,7 @@ export const zh = {
   'nav.cities': '城市',
   'nav.producers': 'P主',
   'nav.raw': '原始数据',
+  'nav.more': '更多',
   'nav.main': '主导航',
   'nav.open': '打开导航',
   'nav.github': 'GitHub 仓库',

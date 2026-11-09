@@ -43,6 +43,7 @@ export const ja: Record<keyof typeof zh, string> = {
   'nav.cities': '都市',
   'nav.producers': 'P',
   'nav.raw': '生データ',
+  'nav.more': 'その他',
   'nav.main': 'メインナビゲーション',
   'nav.open': 'ナビゲーションを開く',
   'nav.github': 'GitHub リポジトリ',
