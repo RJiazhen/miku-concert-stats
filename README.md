@@ -1,48 +1,71 @@
-# Hatsune Miku Concert Setlist Stats
+<p align="center">
+  <img src="docs/assets/logo.png" alt="Hatsune Miku Concert Stats" width="120" height="120">
+</p>
 
-**English** | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md)
+<h1 align="center">Hatsune Miku Concert Stats</h1>
 
-Browser-side statistics for Crypton-produced Hatsune Miku concert setlists. Compare songs across shows, series, and years without running aggregation on the server. The Cloudflare Worker only serves SSR and a few APIs (feedback, admin, dynamic `/api/v1`); ranking and search run on a catalog downloaded into the browser.
+<p align="center">
+  <strong>English</strong> ·
+  <a href="docs/README.zh-CN.md">简体中文</a> ·
+  <a href="docs/README.zh-Hant.md">繁體中文</a> ·
+  <a href="docs/README.ja.md">日本語</a>
+</p>
 
-**Live site:** <https://miku-concert-stats.rjiazhen.top>
+<p align="center">
+  Explore song rankings, producers, timelines, and setlists across various Hatsune Miku concerts.
+</p>
 
-## Series covered
+<p align="center">
+  <a href="https://miku-concert-stats.rjiazhen.top"><strong>Open the site</strong></a>
+</p>
 
-マジカルミライ, MIKU EXPO, MIKU WITH YOU, 初音ミクシンフォニー, 初音ミクライブパーティー, SNOW MIKU LIVE!, and related catalogue entries curated in-repo.
+<table>
+  <tr>
+    <td align="center" valign="top" width="33%">
+      <img src="docs/assets/screenshot-ranking.en.png" alt="Song ranking"><br>
+      <sub>Song ranking</sub>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <img src="docs/assets/screenshot-timeline.en.png" alt="Timeline"><br>
+      <sub>Timeline</sub>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <img src="docs/assets/screenshot-producers.en.png" alt="Producer ranking"><br>
+      <sub>Producers</sub>
+    </td>
+  </tr>
+</table>
 
-## Site map
+## Features
 
-| Route | Content |
-| --- | --- |
-| `/` | Song ranking (by show count or performance), with series / year / character / keyword filters |
-| `/raw` | Raw tables, cross-show setlist compare, quality reports |
-| `/report` | Setlist difference review between shows in the same series year |
-| `/songs/{id}` | Song detail: variants, appearances, PV links |
-| `/shows/{id}` | One performance: dates, setlist, rotation notes |
-| `/series` | Series overview and filterable show list |
-| `/series/{id}` | One series and its performances |
-| `/timeline` | Timeline views across years |
-| `/producers` | Producer rankings |
+- **Song rankings** — See which songs appear most often across concerts, with filters for series, year, character, and producer
+- **Timeline** — Browse how shows and series unfold year by year and by city
+- **Producers** — Rank producers by how their songs show up on stage
+- **Series & shows** — Open a series or a single show and read its setlist
+- **Search** — Find songs, series, shows, places, and producers from the header
 
-Header search matches song, producer, series, show, and place names in the local catalog only.
+## Included concert series
 
-## Data sources
+- Magical Mirai
+- MIKU EXPO
+- MIKU WITH YOU
+- Hatsune Miku Symphony
+- Hatsune Miku Live Party
+- SNOW MIKU LIVE!
+- Hatsune Miku × Kodo
+- Hatsune Miku JAPAN TOUR 2023 〜THUNDERBOLT〜
+- Hatsune Miku JAPAN TOUR 2025 〜BLOOMING〜
+- Dekomiku LIVE starring Hatsune Miku
+- MikuFES
+- Natsu no Owari no 39 Matsuri
+- Natsu Matsuri Hatsune Kagami
+- Hatsune Miku GALAXY LIVE
+- Hatsune Miku LAWSON 50th Anniversary Special LIVE
+- Pokémon feat. Hatsune Miku VOLTAGE Live!
 
-Primary evidence: official pages and encyclopedias (Hatsune Miku Wiki, Moegirlpedia, etc.). [VocaDB](https://vocadb.net/) is a peer reference for names, song ids, and dates—not the sole authority. When redistributing VocaDB-derived content, link back to VocaDB and follow the [VocaDB License](https://wiki.vocadb.net/docs/license). This project does not host cover art, lyrics, or official trademarks.
+## Contribute
 
-## AI skill
-
-Install the public Agent Skill (no API keys):
-
-```bash
-npx skills add RJiazhen/miku-concert-stats@query-concert-stats
-```
-
-Or point an agent at <https://miku-concert-stats.rjiazhen.top/skill.md> / [`skills/query-concert-stats/SKILL.md`](skills/query-concert-stats/SKILL.md).
-
-## Develop / contribute
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/local-development.md`](docs/local-development.md). Most UI, stats, tests, and catalog work run **without** a Cloudflare account. Deploy and admin ops: [`docs/cloudflare.md`](docs/cloudflare.md). Architecture overview: [`docs/architecture.md`](docs/architecture.md).
+Development setup and contribution notes: [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## License
 

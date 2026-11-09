@@ -581,7 +581,7 @@ WHERE (country_code IS NULL OR trim(country_code) = '') AND id IN (…);
 
 ## 运行、构建、测试、部署
 
-贡献者日常流程见 [local-development.zh-CN.md](local-development.zh-CN.md) 与 [CONTRIBUTING.zh-CN.md](../CONTRIBUTING.zh-CN.md)；下方保留仓库内部约定与端口清单。
+贡献者日常流程见 [local-development.zh-CN.md](local-development.zh-CN.md) 与 [CONTRIBUTING.zh-CN.md](CONTRIBUTING.zh-CN.md)；下方保留仓库内部约定与端口清单。
 
 ```bash
 pnpm install

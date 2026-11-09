@@ -2,39 +2,43 @@
 
 **English** | [简体中文](local-development.zh-CN.md) | [繁體中文](local-development.zh-Hant.md) | [日本語](local-development.ja.md)
 
+## Tooling: prefer Vite+
+
+Use **[Vite+](https://viteplus.dev/) (`vp`)** for day-to-day work: `vp install`, `vp dev`, `vp test`, `vp lint`, and `vp build` / `vp run <script>`. pnpm remains the package manager (`packageManager` in `package.json`); Vite+ drives it. Reach for bare `pnpm <script>` only when you are not going through `vp`.
+
 ## Install and run
 
 ```bash
-pnpm install
-pnpm test
+vp install
+vp test
 vp dev                 # rebuilds catalog, then nuxt dev
 vp dev --port 3165     # optional port
 ```
 
-`vp` is vite-plus (`vite-plus` in package.json). Equivalent: `pnpm dev` → `scripts/dev.ts`.
+`vp` comes from the `vite-plus` devDependency. The first bootstrap on a clean machine can use `pnpm install` once so `vp` is on `PATH` via `pnpm exec vp` / `node_modules/.bin`.
 
 If the Nuxt lock file conflicts in parallel worktrees, `NUXT_IGNORE_LOCK=1 vp dev` is fine for local use.
 
 ## Catalog build
 
 ```bash
-pnpm build:catalog     # public/data/catalog.sqlite (+ .gz) from schema + increments
-pnpm build:api         # static /api/v1 assets (also part of broader build paths)
+vp run build:catalog   # public/data/catalog.sqlite (+ .gz) from schema + increments
+vp run build:api       # static /api/v1 assets (also part of broader build paths)
 ```
 
-You do not need `pnpm collect` to browse the site; increments already in git are enough.
+You do not need `vp run collect` to browse the site; increments already in git are enough.
 
 ## Optional data scripts
 
 ```bash
-pnpm collect                 # refresh from VocaDB (rate-limited; caches in data/cache/)
-pnpm collect:albums
-pnpm collect:vocalists
-pnpm collect:producers
-pnpm derive:setlists --check
-pnpm locations
-pnpm report:setlist
-pnpm report:producers
+vp run collect                 # refresh from VocaDB (rate-limited; caches in data/cache/)
+vp run collect:albums
+vp run collect:vocalists
+vp run collect:producers
+vp run derive:setlists -- --check
+vp run locations
+vp run report:setlist
+vp run report:producers
 ```
 
 Wiki curation helpers under `.cursor/skills/` may need `uv` / Python; they are optional for app UI work.
@@ -51,7 +55,7 @@ Wiki curation helpers under `.cursor/skills/` may need `uv` / Python; they are o
 ## Production build (needs your Cloudflare project)
 
 ```bash
-pnpm build
+vp run build           # or: pnpm build — runs catalog prebuild + nuxt build
 pnpm exec wrangler --cwd .output deploy
 ```
 
