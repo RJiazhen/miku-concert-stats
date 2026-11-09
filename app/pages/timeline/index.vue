@@ -785,13 +785,6 @@ const selectCityYear = (payload: { year: number }): void => {
   cityYear.value = cityYear.value === payload.year ? null : payload.year
 }
 
-/** Unit line printed on the character chart, naming the active song-count rule and optional lines. */
-const characterUnit = computed(() => {
-  const rule = splitChorusSongs.value ? t('timeline.characterRuleSplit') : t('timeline.characterRulePerSong')
-  const bars = t('timeline.characterBars', { rule })
-  return showCharacterShares.value ? `${bars}${t('timeline.characterLines')}` : bars
-})
-
 /** Note printed on the character chart; the share lines are only explained while they are drawn. */
 const characterNote = computed(() => {
   const base = t('timeline.characterNote')
@@ -887,7 +880,7 @@ useHead({ title: computed(() => t('timeline.title')) })
         <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('timeline.viewRanking') }}</UButton>
       </div>
       <p v-if="timeline" class="mt-3 text-xs leading-relaxed text-muted">
-        {{ t('timeline.intro', { exclusions: exclusionNote }) }}
+        {{ exclusionNote }}
       </p>
     </section>
 
@@ -945,7 +938,6 @@ useHead({ title: computed(() => t('timeline.title')) })
       <section id="chart-shows" class="scroll-mt-24">
         <TimelineChartCard
           :title="t('timeline.chartShows')"
-          :unit="t('timeline.modeByShow')"
           :note="t('timeline.modeByShowNote')"
         >
           <template #actions>
@@ -989,7 +981,6 @@ useHead({ title: computed(() => t('timeline.title')) })
       <section id="chart-characters" class="scroll-mt-24">
         <TimelineChartCard
           :title="t('timeline.characterTitle')"
-          :unit="characterUnit"
           :note="characterNote"
         >
           <template #actions>
@@ -1024,7 +1015,6 @@ useHead({ title: computed(() => t('timeline.title')) })
       <section id="chart-new-songs" class="scroll-mt-24">
         <TimelineChartCard
           :title="t('timeline.newSongsTitle')"
-          :unit="t('timeline.newSongsUnit')"
           :note="newSongNote"
         >
           <template #actions>
@@ -1079,7 +1069,6 @@ useHead({ title: computed(() => t('timeline.title')) })
       <section id="chart-series-spans" class="scroll-mt-24">
         <TimelineChartCard
           :title="t('timeline.seriesSpansTitle')"
-          :unit="t('timeline.seriesSpansUnit')"
           :note="t('timeline.seriesSpansNote')"
         >
           <TimelineGantt
@@ -1094,7 +1083,6 @@ useHead({ title: computed(() => t('timeline.title')) })
       <section id="chart-cities" class="scroll-mt-24">
         <TimelineChartCard
           :title="t('timeline.citiesTitle')"
-          :unit="t('timeline.citiesUnit')"
           :note="t('timeline.citiesNote', { unknownCountry: unknownCountryTotal, unknownCityPerformances: timeline.unknownCityPerformances, unknownCityShows: timeline.unknownCityShows })"
         >
           <TimelineBarChart
