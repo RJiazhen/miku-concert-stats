@@ -29,3 +29,20 @@ id = "777b49ffd2744f12a54fc3611ff791e9"
 [vars]
 ACCESS_TEAM_DOMAIN = "summer-thunder-62e1.cloudflareaccess.com"
 ACCESS_AUD = "87de2159d583fb4b7536e98227178ba3150fc953ef3a3f817e2f8334cdd00e4b"
+
+# Cloudflare Web Analytics JS beacon (/admin shows the numbers at /admin/analytics).
+# Create the site in Cloudflare dashboard > Web Analytics > Add a site, then copy the
+# token from the JS snippet it shows:
+#   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+#           data-cf-beacon='{"token":"<token>"}'></script>
+# Nuxt reads public runtime config from env variables, so the wrangler variable uses
+# the NUXT_ name. Leave it empty to render no beacon at all (local dev stays clean).
+NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN = ""
+
+# Account tag (Account ID, 32 hex chars) used by GET /api/admin/analytics to query
+# Cloudflare's GraphQL Analytics API. The API token is a secret and must NOT be written
+# here; store it once with:
+#   pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN
+# The token only needs Account > Account Analytics > Read. While either setting is
+# blank the admin page answers "not configured" and never calls Cloudflare.
+CF_ACCOUNT_TAG = "f6660f9fb6f3b68d4cbb337c220954e5"

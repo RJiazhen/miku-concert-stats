@@ -367,11 +367,14 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 - `/admin/feedback`：反馈收件箱，筛选、搜索、状态切换。
 - `/admin/data`：用 `useCatalog` 在浏览器读取公开的 `catalog.sqlite`，展示歌曲 / 演出 / 系列 / 歌单 / 视频规模、平台分布与数据新鲜度。
+- `/admin/analytics`：Cloudflare Web Analytics 的聚合视图，可切换近 7 / 30 天，展示页面浏览量、访问次数、采样比例与热门路径。
 - `/admin/system`：`/api/admin/session` 返回的 Access、身份、KV、目录版本与运行环境。
 
 `server/middleware/admin-guard.ts` 在页面渲染前运行：只处理 `GET` / `HEAD` 的 `/admin` 与 `/admin/*`。没有 `Cf-Access-Jwt-Assertion` 时用 `shared/admin.ts` 的 `buildAccessLoginUrl` 302 到 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/login/<hostname>?kid=<ACCESS_AUD>&redirect_url=<原路径>`；已经带着 token 但校验失败时不重定向，避免 Access 登录与失效 token 之间循环，改由页面显示「登录状态无效」。本地 `nuxt dev` 会通过 Cloudflare 模拟读到真实 `[vars]`，但 127.0.0.1 不是 Access 的 destination，所以 `import.meta.dev` 下只渲染后台外壳并提示不会跳转。`ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样不跳转，页面会提示配置缺失。
 
 `server/api/admin/session.get.ts` 返回 `{ configured, identity, storage, catalogVersion, environment, serverTime }`；`configured: false` 时身份为 `null`，让本地开发能渲染配置提示，配置完成后没有有效 token 仍是 401。鉴权成功的身份会由 guard 写入 `event.context.adminSession`，后台布局在 SSR 首屏直接读取，避免为了显示邮箱再发一次请求。
+
+`server/api/admin/analytics.get.ts` 与 session 走同一套 Access 校验（没有有效身份一律 401），只接受 `days=7|30`，其余取值按 7 天处理。它读取 Worker 绑定 `CF_ANALYTICS_API_TOKEN` / `CF_ACCOUNT_TAG`，向 `https://api.cloudflare.com/client/v4/graphql` 发一条 `rumPageloadEventsAdaptiveGroups` 查询（账户级 `accountTag` 过滤、UTC 日历日窗口），只取 `count`（页面浏览量）、`sum.visits`（访问次数）与按 `requestPath` 分组的聚合，不请求任何访客级维度。两项设置为空时接口返回 `{ configured: false }`，页面显示配置提示而不是报错；上游失败、响应格式不符或 GraphQL `errors` 非空时统一 502，token 既不返回也不写日志。`shared/admin.ts` 的 `AdminAnalytics` 是页面与接口共用的类型。公开页面只在 `app/layouts/default.vue` 里注入 beacon，后台布局不加载它，所以 `/admin` 自身不被统计。
 
 身份完全由 Cloudflare Access 负责，页面里没有密码框。`server/utils/access.ts` 读取 `Cf-Access-Jwt-Assertion` 请求头，用 WebCrypto 验证 RS256 签名（不引入 `jose` 之类的依赖），再校验 `iss` 必须等于 `https://<ACCESS_TEAM_DOMAIN>`、`aud` 必须包含 `ACCESS_AUD`，`exp` 已过期或 `nbf` 尚未生效都拒绝（允许 30 秒时钟偏差），`alg` 只接受 `RS256`（`none` 与 HMAC 混淆直接拒绝）。团队 JWKS 从 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs` 用 `fetch` 取，模块级缓存 5 分钟；取不到就拒绝，密钥轮换最迟 5 分钟后生效。
 
@@ -407,6 +410,9 @@ flowchart TD
   feedbackkv["KV binding FEEDBACK"]
   admin["/admin（隐藏后台，默认跳 /admin/feedback）"]
   adminapi["feedback + admin session APIs"]
+  analytics["/admin/analytics"]
+  analyticsapi["GET /api/admin/analytics"]
+  cfanalytics["Cloudflare GraphQL Analytics"]
   access["Cloudflare Access（登录重定向 + JWKS）"]
   worker["Nitro Worker SSR"]
   report["docs/reports"]
@@ -431,12 +437,17 @@ flowchart TD
   shared --> pages
   worker --> pages
   pages --> widget
+  pages -->|"JS beacon（仅公开页面）"| cfanalytics
   widget -->|"description + sourceUrl + page URL/title"| feedback
   feedback --> feedbackkv
   adminapi -->|"先校验 Access 身份"| access
   adminapi --> feedbackkv
   admin -->|"未登录时 302"| access
   admin -->|"直接输入 URL"| adminapi
+  admin --> analytics
+  analytics --> analyticsapi
+  analyticsapi -->|"先校验 Access 身份"| access
+  analyticsapi -->|"账户级聚合查询"| cfanalytics
   sqlite --> report
   report --> pages
 ```
@@ -445,12 +456,22 @@ flowchart TD
 
 ### `wrangler.toml`
 
-对象。`name`、`compatibility_date`、`compatibility_flags` 之外，还有反馈功能需要的三组配置：
+对象。`name`、`compatibility_date`、`compatibility_flags` 之外，还有反馈、后台与访问统计需要的几组配置：
 
 - `[[kv_namespaces]]`：`binding = "FEEDBACK"`，`id` 由 `pnpm exec wrangler kv namespace create FEEDBACK` 生成（当前是 `777b49ffd2744f12a54fc3611ff791e9`）。`nuxt build` 会把它抄进 `.output/server/wrangler.json`，部署时生效。换账号或删掉命名空间后必须重新创建并替换 id。
 - `[vars] ACCESS_TEAM_DOMAIN` / `ACCESS_AUD`：Cloudflare Access 应用的团队域名（如 `example.cloudflareaccess.com`，不带 `https://`，写 `https://` 也能被规范化）与 Audience（AUD）标签。仓库里已填好 2026-11-04 创建的应用；**任意一项为空时所有管理接口都返回 401 且没有 payload**，所以忘记填只会锁死后台，不会泄露反馈。
 - 手工步骤：在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 至少填 `/admin`、`/admin/*`、`/api/admin/*` 与 `/api/feedback/*`，策略只允许维护者邮箱；再把这个应用的 AUD 标签与团队域名填进 `[vars]` 并重新部署。`/admin` 与 `/admin/*` 让 Access 在边缘完成页面登录重定向，也让 Worker 自己拼出的登录 URL 能回到正确路径；`/api/admin/*` 覆盖 session 接口。注意不要写成 `/api/feedback*`：那会把公开的 `POST /api/feedback` 一起拦在 Access 后面，访客就无法提交反馈了；`/api/feedback/*` 只覆盖 `list` / `status` / `<id>` 这些管理路径。
 - 旧的 `FEEDBACK_TOKEN` secret 已不再被读取，管理接口也不接受 query / body 里的 `token`；如需清理线上的历史 secret，可执行 `pnpm exec wrangler secret delete FEEDBACK_TOKEN`。
+- `[vars] NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN`：Cloudflare Web Analytics 的 JS beacon token，公开值（它会出现在 HTML 里）。在 Cloudflare dashboard > Web Analytics > 选中站点，复制 JS snippet 里的 token：
+
+  ```html
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"<token>"}'></script>
+  ```
+
+  Nuxt 的公网 runtime config 从 `NUXT_` 前缀的环境变量读取，所以 wrangler 变量必须叫这个长名字（对应 `runtimeConfig.public.cloudflareWebAnalyticsToken`）。保持空字符串时 `app/layouts/default.vue` 不渲染任何 script 标签，本地开发与未配置的部署都不会向 Cloudflare 发请求。
+- `[vars] CF_ACCOUNT_TAG`：Cloudflare 账户 ID（32 位十六进制），供 `/api/admin/analytics` 查询 GraphQL Analytics。与 `CF_ANALYTICS_API_TOKEN` 一起从 Worker 绑定读取；任意一项为空时接口返回 `{ configured: false }`，不发起外部请求。
+- `CF_ANALYTICS_API_TOKEN` secret：账户级 API token，权限只需要 Account > Account Analytics > Read。不要写进仓库或 `[vars]`，用 `pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN` 写入；页面里也提供了同样的提示。Worker 从不回传或记录这个 token。
 
 `nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；Cloudflare 模拟会把 `[vars]` 带进开发环境，但 127.0.0.1 不是 Access 的 destination，所以 `/admin` 不会跳转，只渲染后台外壳并提示本地不读取真实反馈。要看真实数据请在浏览器里完成 Access 登录后打开线上页面。
 
@@ -572,7 +593,7 @@ pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-后台不再使用 secret，改由 Cloudflare Access 登录。2026-11-04 已创建应用 `miku-concert-stats feedback admin`（destinations：`/admin`、`/admin/*`、`/api/admin/*`、`/api/feedback/*`，策略 `my-cloudflare-account`），两项 `[vars]` 已填好。重建或换账号时的步骤：
+后台登录不再使用 secret，改由 Cloudflare Access 登录（访问统计另需一个独立的 `CF_ANALYTICS_API_TOKEN` secret，见下）。2026-11-04 已创建应用 `miku-concert-stats feedback admin`（destinations：`/admin`、`/admin/*`、`/api/admin/*`、`/api/feedback/*`，策略 `my-cloudflare-account`），两项 `[vars]` 已填好。重建或换账号时的步骤：
 
 1. 在 Zero Trust > Access > Applications 为 Worker 主机名新建 Self-hosted 应用，路径 destination 填 `/admin`、`/admin/*`、`/api/admin/*` 与 `/api/feedback/*`（不要用 `/api/feedback*`，否则会拦住公开的 `POST /api/feedback`）。
 2. 加一条 Allow 策略，只放行维护者邮箱（需要的话再加 MFA）。
@@ -589,6 +610,14 @@ ACCESS_AUD = "87de2159d583fb4b7536e98227178ba3150fc953ef3a3f817e2f8334cdd00e4b"
 ```bash
 cloudflared access curl "https://miku-concert-stats.rjiazhen.top/api/feedback/list?limit=200" | jq
 ```
+
+访问统计（`/admin/analytics`）与 Access 登录互相独立，需要另外三项配置：
+
+1. 在 Cloudflare dashboard > Web Analytics 添加站点，复制 JS snippet 里的 token，填进 `[vars] NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN`；部署后公开页面的 HTML 会出现 beacon 的 `<script defer>`，`/admin` 不会。
+2. 创建账户级 API token（Account > Account Analytics > Read），执行 `pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN` 保存；不要写进 `wrangler.toml`。
+3. 把账户 ID 填进 `[vars] CF_ACCOUNT_TAG`，重新部署后打开 `/admin/analytics`。两项服务端设置缺失时页面只显示「尚未配置」，不会调用 Cloudflare，也不会因为缺少配置而报错。
+
+beacon 只统计部署了 token 之后的访问，历史数据不会补录；同一个账户下的多个 Web Analytics 站点会合并显示。
 
 返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`status`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`；`collectedAt` 由服务端在缺省时补成 `receivedAt`，旧记录还可能带 `viewport`、`catalogVersion`，且缺 `status` 时按 `open` 返回。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
 
@@ -649,7 +678,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`fix-singer-fold-tablet-only` 用 `3181`，`feat-producer-variant-tag` 用 `3183`，`data-fire-flower-2011` 用 `3185`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`fix-singer-fold-tablet-only` 用 `3181`，`feat-producer-variant-tag` 用 `3183`，`data-fire-flower-2011` 用 `3185`，`feat-cloudflare-web-analytics` 用 `3187`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

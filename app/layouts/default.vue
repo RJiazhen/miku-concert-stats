@@ -5,6 +5,25 @@ const { t } = useLocale()
 
 /** Keeps `<html lang>` and the title template in step with the language switch. */
 useLocaleDocument()
+
+/** Beacon token from public runtime config; empty until NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN is set. */
+const analyticsToken = String(useRuntimeConfig().public.cloudflareWebAnalyticsToken ?? '').trim()
+
+// Public pages only: the admin layout never loads this component, so `/admin` stays unmeasured.
+// An empty token renders no script at all, so local development and unconfigured deploys are clean.
+useHead({
+  script:
+    analyticsToken === ''
+      ? []
+      : [
+          {
+            key: 'cloudflare-web-analytics',
+            src: 'https://static.cloudflareinsights.com/beacon.min.js',
+            defer: true,
+            'data-cf-beacon': JSON.stringify({ token: analyticsToken }),
+          },
+        ],
+})
 </script>
 
 <template>

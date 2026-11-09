@@ -57,6 +57,10 @@ export default defineNuxtConfig({
     public: {
       // The gzip file the browser downloads, hashed at build time.
       catalogVersion: catalogVersion(),
+      // Cloudflare Web Analytics beacon token. It is public by design (it ships in the HTML),
+      // so it lives in public config and is read from NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN.
+      // Empty disables the beacon, which keeps `nuxt dev` and unconfigured deploys clean.
+      cloudflareWebAnalyticsToken: '',
     },
   },
   nitro: {

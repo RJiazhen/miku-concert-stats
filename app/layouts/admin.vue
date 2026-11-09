@@ -15,6 +15,7 @@ useHead({
 const NAV = [
   { label: '反馈收件箱', to: '/admin/feedback', icon: 'i-lucide-inbox', hint: '处理站点错误报告' },
   { label: '数据概览', to: '/admin/data', icon: 'i-lucide-database', hint: '目录规模与来源' },
+  { label: '访问统计', to: '/admin/analytics', icon: 'i-lucide-chart-line', hint: 'Cloudflare Web Analytics' },
   { label: '系统状态', to: '/admin/system', icon: 'i-lucide-shield-check', hint: 'Access 与存储配置' },
 ]
 

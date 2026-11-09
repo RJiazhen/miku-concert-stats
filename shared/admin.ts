@@ -32,6 +32,41 @@ export type AccessLoginConfig = {
   aud: string
 }
 
+/** One page path in the Web Analytics top list; aggregates only, never a visitor. */
+export type AdminAnalyticsPath = {
+  /** `requestPath` as recorded by the Cloudflare beacon, e.g. `/shows/2959`. */
+  path: string
+  /** Page loads in the selected window. */
+  pageviews: number
+  /** Visits that started on this path. */
+  visits: number
+}
+
+/** Answer of `GET /api/admin/analytics` once CF_ANALYTICS_API_TOKEN and CF_ACCOUNT_TAG are set. */
+export type AdminAnalyticsConfigured = {
+  configured: true
+  /** Length of the queried window in days (7 or 30). */
+  days: number
+  /** First calendar day of the window, `YYYY-MM-DD` (UTC). */
+  from: string
+  /** Last calendar day of the window, `YYYY-MM-DD` (UTC). */
+  to: string
+  /** `count` of `rumPageloadEventsAdaptiveGroups`. */
+  pageviews: number
+  /** `sum.visits` of the same rows. */
+  visits: number
+  /** Sampling interval Cloudflare applied, or null when it did not report one. */
+  sampleInterval: number | null
+  /** Most loaded paths, largest first. */
+  topPaths: AdminAnalyticsPath[]
+}
+
+/** Answer while either Cloudflare Analytics setting is blank; keeps the page in a setup state. */
+export type AdminAnalyticsUnconfigured = { configured: false }
+
+/** Payload of `GET /api/admin/analytics`. */
+export type AdminAnalytics = AdminAnalyticsConfigured | AdminAnalyticsUnconfigured
+
 /**
  * Builds the Cloudflare Access login URL that sends a signed-out browser to the team IdP.
  *
