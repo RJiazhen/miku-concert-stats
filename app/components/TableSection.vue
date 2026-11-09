@@ -20,6 +20,11 @@ const props = withDefaults(defineProps<{
   /** Fills the viewport below the heading and keeps the header sticky, like the song ranking. */
   fill?: boolean
   sticky?: boolean
+  /**
+   * Renders only the rows in view, so a long table re-renders a few rows instead of all of them.
+   * Needs the bounded height that `fill` gives the table; otherwise leave it off.
+   */
+  virtualize?: boolean | Record<string, unknown>
   /** Per-column `meta`, e.g. a `rowspan` rule for merged cells. */
   meta?: Record<string, unknown>
   /** Extra `ui` overrides merged over the shared table look. */
@@ -34,6 +39,7 @@ const props = withDefaults(defineProps<{
   loading: false,
   fill: true,
   sticky: true,
+  virtualize: false,
   meta: undefined,
   ui: undefined,
   emptyIcon: 'i-lucide-search-x',
@@ -76,6 +82,7 @@ const hasHeader = computed(() => props.title !== '' || props.count !== null)
       :data="data"
       :columns="columns"
       :sticky="sticky"
+      :virtualize="virtualize"
       :meta="meta"
       class="ranking-scroll"
       :style="fill ? tableStyle : undefined"

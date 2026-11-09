@@ -531,6 +531,7 @@ useHead({ title: computed(() => t('rank.title')) })
       :data="filtered"
       :columns="columns"
       :loading="pending"
+      :virtualize="{ estimateSize: 48, overscan: 8 }"
       empty-icon="i-lucide-search-x"
       :empty-title="t('rank.emptyTitle')"
       :empty-description="t('rank.emptyDesc')"
