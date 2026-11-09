@@ -206,7 +206,7 @@ const filtered = computed(() =>
 const columns = computed<TableColumn<RankedSong>[]>(() => [
   { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true, meta: { class: { th: 'w-14' } } },
   { accessorKey: 'name', header: sortableHeader(t('col.song')), enableSorting: true, meta: { class: { td: 'max-w-[220px]' } } },
-  { accessorKey: 'artists', header: sortableHeader(t('col.producers')), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
+  { accessorKey: 'artists', header: sortableHeader(t('col.producers')), enableSorting: true, meta: { class: { td: 'max-w-[150px] sm:max-w-32' } } },
   {
     id: 'characters',
     accessorFn: (row) => row.characterList.map(localizeCharacter).join('、'),
@@ -593,7 +593,8 @@ useHead({ title: computed(() => t('rank.title')) })
         </template>
         <template #artists-cell="{ row }">
           <UTooltip v-if="row.original.producerList.length > 0" :content="{ side: 'top' }">
-            <span class="block max-w-32 truncate text-muted">
+            <!-- Two lines on phones, where there is no hover to reveal the tooltip. -->
+            <span class="block max-w-[150px] line-clamp-2 break-words text-muted sm:max-w-32 sm:line-clamp-1">
               <template v-for="(name, index) in row.original.producerList" :key="name">
                 <span v-if="index > 0">{{ t('setlist.join') }}</span>
                 <NuxtLink :to="producerPath(name)" class="text-muted no-underline hover:text-primary">{{ name }}</NuxtLink>

@@ -109,7 +109,8 @@ const sortableHeader = useSortableHeader()
 
 const columns: TableColumn<RankedProducer>[] = [
   { accessorKey: 'rank', header: sortableHeader(t('col.rank')), enableSorting: true },
-  { accessorKey: 'name', header: sortableHeader(t('producers.breadcrumb')), enableSorting: true },
+  // Narrow screens give the name two lines instead of a tooltip they cannot reach; `sm:` caps it at 152px.
+  { accessorKey: 'name', header: sortableHeader(t('producers.breadcrumb')), enableSorting: true, meta: { class: { td: 'max-w-[180px] sm:max-w-[152px]' } } },
   { accessorKey: 'songCount', header: sortableHeader(t('col.songCount')), enableSorting: true },
   { accessorKey: 'performedSongCount', header: sortableHeader(t('col.performedSongCount')), enableSorting: true },
   { accessorKey: 'appearanceCount', header: sortableHeader(t('col.appearanceCount')), enableSorting: true },
@@ -192,12 +193,19 @@ useHead({ title: computed(() => t('producers.indexTitle')) })
         <span class="font-mono text-muted">{{ row.original.rank }}</span>
       </template>
       <template #name-cell="{ row }">
-        <span class="inline-flex items-center gap-1.5">
-          <NuxtLink :to="producerPath(row.original.name)" class="text-highlighted no-underline hover:text-primary">
-            {{ row.original.name }}
-          </NuxtLink>
-          <UBadge v-if="kindLabelOf(row.original.kind)" color="neutral" variant="subtle" size="sm">{{ kindLabelOf(row.original.kind) }}</UBadge>
-        </span>
+        <!-- Mobile has no hover, so the name wraps to two lines there; from `sm:` one line plus the tooltip. -->
+        <div class="flex max-w-[180px] flex-nowrap items-center gap-1.5 overflow-hidden sm:max-w-[152px]">
+          <UTooltip :content="{ side: 'top' }">
+            <NuxtLink
+              :to="producerPath(row.original.name)"
+              class="line-clamp-2 min-w-0 break-words text-highlighted no-underline hover:text-primary sm:line-clamp-1"
+            >
+              {{ row.original.name }}
+            </NuxtLink>
+            <template #content>{{ row.original.name }}</template>
+          </UTooltip>
+          <UBadge v-if="kindLabelOf(row.original.kind)" color="neutral" variant="subtle" size="sm" class="shrink-0">{{ kindLabelOf(row.original.kind) }}</UBadge>
+        </div>
       </template>
       <template #songCount-cell="{ row }">
         <UBadge color="primary" variant="subtle">{{ row.original.songCount }}</UBadge>
@@ -221,10 +229,11 @@ useHead({ title: computed(() => t('producers.indexTitle')) })
         <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
       </template>
       <template #topSong-cell="{ row }">
+        <!-- Two lines on phones; one clipped line from `sm:`, where the name column has room. -->
         <NuxtLink
           v-if="row.original.topSong"
           :to="`/songs/${row.original.topSong.id}`"
-          class="block max-w-40 truncate text-xs text-primary no-underline hover:underline"
+          class="block max-w-40 line-clamp-2 break-words text-xs text-primary no-underline hover:underline sm:line-clamp-1"
         >
           <SongTitle :song-id="row.original.topSong.id" :original="row.original.topSong.name" truncate />
         </NuxtLink>

@@ -182,7 +182,7 @@ const songColumns = computed<TableColumn<SongView>[]>(() => [
 const appearanceColumns = computed<TableColumn<AppearanceView>[]>(() => [
   { accessorKey: 'date', header: sortableHeader(t('col.date')), enableSorting: true },
   { accessorKey: 'seriesLabel', header: sortableHeader(t('col.series')), enableSorting: true, meta: { class: { td: 'max-w-32' } } },
-  { accessorKey: 'performanceLabel', header: sortableHeader(t('col.performance')), enableSorting: true, meta: { class: { td: 'max-w-[260px]' } } },
+  { accessorKey: 'performanceLabel', header: sortableHeader(t('col.performance')), enableSorting: true, meta: { class: { td: 'max-w-[200px] sm:max-w-[260px]' } } },
   { id: 'songs', header: t('col.songs'), accessorFn: (row) => row.songs.map((song) => song.name).join('、'), meta: { class: { td: 'max-w-[280px]' } } },
 ])
 
@@ -303,10 +303,11 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
           <span class="whitespace-nowrap font-mono text-muted">{{ cell(row.original.date) }}</span>
         </template>
         <template #seriesLabel-cell="{ row }">
+          <!-- Two lines on phones, where the hover tooltip is unreachable; one clipped line from `sm:`. -->
           <UTooltip :text="row.original.seriesLabel" :content="{ side: 'top' }">
             <NuxtLink
               :to="`/series/${row.original.seriesId}`"
-              class="block max-w-32 truncate text-primary no-underline hover:underline"
+              class="block max-w-32 line-clamp-2 break-words text-primary no-underline hover:underline sm:line-clamp-1"
             >
               {{ row.original.seriesLabel }}
             </NuxtLink>
@@ -316,7 +317,7 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
           <UTooltip :text="row.original.performanceLabel" :content="{ side: 'top' }">
             <NuxtLink
               :to="`/shows/${row.original.performanceId}`"
-              class="block max-w-[260px] truncate text-primary no-underline hover:underline"
+              class="block max-w-[200px] line-clamp-2 break-words text-primary no-underline hover:underline sm:max-w-[260px] sm:line-clamp-1"
             >
               {{ row.original.performanceLabel }}
             </NuxtLink>
@@ -324,12 +325,13 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
         </template>
         <template #songs-cell="{ row }">
           <UTooltip v-if="row.original.songs.length > 0" :content="{ side: 'top' }">
-            <div class="flex max-w-[280px] flex-nowrap items-center gap-x-2 overflow-hidden">
+            <!-- Phones wrap the whole list instead of clipping it, since the tooltip needs a pointer. -->
+            <div class="flex max-w-[280px] flex-wrap items-center gap-x-2 gap-y-1 sm:flex-nowrap sm:overflow-hidden">
               <template v-for="(song, index) in row.original.songs" :key="song.songId">
                 <span v-if="index > 0" class="shrink-0 text-muted">{{ t('setlist.join') }}</span>
                 <NuxtLink
                   :to="`/songs/${song.songId}`"
-                  class="min-w-0 truncate text-highlighted no-underline hover:text-primary"
+                  class="min-w-0 text-highlighted no-underline hover:text-primary sm:truncate"
                 >
                   <SongTitle :song-id="song.songId" :original="song.name" truncate />
                 </NuxtLink>

@@ -17,10 +17,11 @@ const view = computed(() => titleView(props.songId, props.original))
 
 <template>
   <span :class="truncate ? 'song-title flex min-w-0 max-w-full flex-col' : 'song-title inline-flex flex-col'">
-    <span :class="truncate ? 'truncate' : undefined">{{ view.primary }}</span>
+    <!-- Two lines on phones, where a hover tooltip cannot reveal the rest; one clipped line from `sm:`. -->
+    <span :class="truncate ? 'line-clamp-2 break-words sm:line-clamp-1' : undefined">{{ view.primary }}</span>
     <span
       v-if="view.originalNames.length > 0"
-      :class="['song-original text-xs font-normal text-muted', truncate ? 'truncate' : undefined]"
+      :class="['song-original text-xs font-normal text-muted', truncate ? 'line-clamp-1 break-words' : undefined]"
     >{{ view.originalNames.join(' · ') }}</span>
   </span>
 </template>
