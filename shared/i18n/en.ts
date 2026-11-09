@@ -329,6 +329,7 @@ export const en: Record<keyof typeof zh, string> = {
   'timeline.earliest': 'first',
   'timeline.latest': 'latest',
   'timeline.filter': 'Filters',
+  'timeline.floatingMenu': 'Filters and charts',
   'timeline.unitShows': 'shows',
   'timeline.unitSongs': 'songs',
   'timeline.unitPerformances': 'performances',

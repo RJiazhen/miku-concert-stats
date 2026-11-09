@@ -330,6 +330,7 @@ export const zh = {
   'timeline.earliest': '最早',
   'timeline.latest': '最近',
   'timeline.filter': '筛选',
+  'timeline.floatingMenu': '筛选与图表',
   'timeline.unitShows': '场次',
   'timeline.unitSongs': '曲目',
   'timeline.unitPerformances': '演出',

@@ -330,6 +330,7 @@ export const zhHant = {
   'timeline.earliest': '最早',
   'timeline.latest': '最近',
   'timeline.filter': '篩選',
+  'timeline.floatingMenu': '篩選與圖表',
   'timeline.unitShows': '場次',
   'timeline.unitSongs': '曲目',
   'timeline.unitPerformances': '演出',

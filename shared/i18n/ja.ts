@@ -329,6 +329,7 @@ export const ja: Record<keyof typeof zh, string> = {
   'timeline.earliest': '最初',
   'timeline.latest': '最新',
   'timeline.filter': '絞り込み',
+  'timeline.floatingMenu': '絞り込みとグラフ',
   'timeline.unitShows': '公演回',
   'timeline.unitSongs': '曲',
   'timeline.unitPerformances': '公演',

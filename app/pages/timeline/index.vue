@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { characterNames, characterRules } from '~/composables/useCharacters.ts'
 import { useCharacterNames } from '~/composables/useCharacterNames.ts'
@@ -627,45 +627,6 @@ const reset = (): void => {
   cityYear.value = null
 }
 
-/** Inline filter card; observed so the floating menu can take over once it scrolls away. */
-const filterCard = ref<HTMLElement | null>(null)
-
-/** True once the inline filter card has scrolled above the viewport. */
-const filterCardAway = ref(false)
-
-/** Open state of the floating filter menu shown while the inline card is off screen. */
-const filterMenuOpen = ref(false)
-
-let filterCardObserver: IntersectionObserver | null = null
-
-/** Mirrors the inline card's visibility into `filterCardAway`; a card still below the viewport keeps the menu hidden. */
-const syncFilterCardAway = (entries: IntersectionObserverEntry[]): void => {
-  const entry = entries[0]
-  if (entry === undefined) return
-  filterCardAway.value = !entry.isIntersecting && entry.boundingClientRect.top < 0
-}
-
-/** Starts watching the inline filter card. */
-const startFilterCardTracking = (): void => {
-  if (filterCard.value === null) return
-  filterCardObserver = new IntersectionObserver(syncFilterCardAway, { threshold: 0 })
-  filterCardObserver.observe(filterCard.value)
-}
-
-/** Releases the inline filter card observer. */
-const stopFilterCardTracking = (): void => {
-  filterCardObserver?.disconnect()
-  filterCardObserver = null
-}
-
-onMounted(startFilterCardTracking)
-onUnmounted(stopFilterCardTracking)
-
-/** Closes the floating menu when the inline card is back on screen. */
-watch(filterCardAway, (away) => {
-  if (!away) filterMenuOpen.value = false
-})
-
 /** Scrolls to one chart and records the focus in the URL hash. */
 const goToChart = async (key: string): Promise<void> => {
   focusedChart.value = key
@@ -673,12 +634,12 @@ const goToChart = async (key: string): Promise<void> => {
   document.getElementById(`chart-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-/** Open state of the folded chart navigation shown below the side-rail breakpoint. */
-const chartMenuOpen = ref(false)
+/** Open state of the single floating menu that folds the chart navigation and the filters together. */
+const floatingMenuOpen = ref(false)
 
-/** Scrolls to one chart from the folded menu and closes it. */
+/** Scrolls to one chart from the floating menu and closes it. */
 const selectChartFromMenu = (key: string): void => {
-  chartMenuOpen.value = false
+  floatingMenuOpen.value = false
   void goToChart(key)
 }
 
@@ -828,7 +789,7 @@ useHead({ title: computed(() => t('timeline.title')) })
       :description="error"
     />
 
-    <div v-else ref="filterCard">
+    <div v-else>
       <UCard>
         <TimelineFilters
           v-model:year-from="yearFrom"
@@ -1048,53 +1009,23 @@ useHead({ title: computed(() => t('timeline.title')) })
     </template>
     </main>
 
-    <!-- Narrower viewports fold the side rail into one floating button at the bottom left. -->
-    <div class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-40 sm:left-6 rail:hidden">
-      <UPopover v-model:open="chartMenuOpen" :content="{ align: 'start', side: 'top' }">
-        <UButton
-          icon="i-lucide-list"
-          color="neutral"
-          variant="solid"
-          size="sm"
-          class="rounded-full shadow-lg shadow-black/25"
-          :aria-label="t('timeline.chartNav')"
-          aria-haspopup="dialog"
-          :aria-expanded="chartMenuOpen"
-        />
-        <template #content>
-          <div class="flex w-44 flex-col gap-0.5 p-1">
-            <UButton
-              v-for="chart in CHARTS"
-              :key="chart.key"
-              :variant="focusedChart === chart.key ? 'soft' : 'ghost'"
-              color="neutral"
-              size="sm"
-              class="justify-start"
-              :label="chart.label"
-              @click="selectChartFromMenu(chart.key)"
-            />
-          </div>
-        </template>
-      </UPopover>
-    </div>
-
-    <!-- The inline filter card scrolls away with the page; this menu keeps the same controls reachable. -->
-    <div
-      v-if="filterCardAway && !error"
-      class="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 sm:right-6"
-    >
-      <UPopover v-model:open="filterMenuOpen" :content="{ align: 'end', side: 'top' }">
+    <!-- One floating menu for the whole page: the chart navigation and the filters share a
+         single button, mirroring the feedback button on the opposite side of the page. -->
+    <div v-if="!error" class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-40 sm:left-6">
+      <UPopover v-model:open="floatingMenuOpen" :content="{ align: 'start', side: 'top' }">
         <div class="relative">
           <UButton
             icon="i-lucide-sliders-horizontal"
             color="primary"
             variant="solid"
-            size="sm"
+            size="lg"
             class="rounded-full shadow-lg shadow-black/25"
-            :aria-label="t('timeline.filter')"
+            :aria-label="t('timeline.floatingMenu')"
             aria-haspopup="dialog"
-            :aria-expanded="filterMenuOpen"
-          />
+            :aria-expanded="floatingMenuOpen"
+          >
+            <span class="hidden sm:inline">{{ t('timeline.floatingMenu') }}</span>
+          </UButton>
           <UBadge
             v-if="activeCount > 0"
             color="primary"
@@ -1106,25 +1037,42 @@ useHead({ title: computed(() => t('timeline.title')) })
           </UBadge>
         </div>
         <template #content>
-          <div class="w-[min(22rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto p-3">
-            <TimelineFilters
-              v-model:year-from="yearFrom"
-              v-model:year-to="yearTo"
-              v-model:selected-series="selectedSeries"
-              v-model:selected-cities="selectedCities"
-              v-model:selected-producers="selectedProducers"
-              v-model:selected-characters="selectedCharacters"
-              v-model:include-broadcast="includeBroadcast"
-              v-model:merge-variants="mergeVariants"
-              :year-items="yearItems"
-              :series-items="seriesItems"
-              :city-items="cityItems"
-              :producer-items="producerItems"
-              :character-items="characterItems"
-              :active-count="activeCount"
-              :show-note="false"
-              @reset="reset"
-            />
+          <div class="w-[min(22rem,calc(100vw-2rem))] max-h-[70vh] space-y-3 overflow-y-auto p-3">
+            <div>
+              <p class="mb-1.5 px-1 text-xs font-medium tracking-[0.12em] text-muted uppercase">{{ t('timeline.charts') }}</p>
+              <div class="grid grid-cols-2 gap-0.5">
+                <UButton
+                  v-for="chart in CHARTS"
+                  :key="chart.key"
+                  :variant="focusedChart === chart.key ? 'soft' : 'ghost'"
+                  color="neutral"
+                  size="sm"
+                  class="justify-start"
+                  :label="chart.label"
+                  @click="selectChartFromMenu(chart.key)"
+                />
+              </div>
+            </div>
+            <div class="border-t border-default/60 pt-3">
+              <TimelineFilters
+                v-model:year-from="yearFrom"
+                v-model:year-to="yearTo"
+                v-model:selected-series="selectedSeries"
+                v-model:selected-cities="selectedCities"
+                v-model:selected-producers="selectedProducers"
+                v-model:selected-characters="selectedCharacters"
+                v-model:include-broadcast="includeBroadcast"
+                v-model:merge-variants="mergeVariants"
+                :year-items="yearItems"
+                :series-items="seriesItems"
+                :city-items="cityItems"
+                :producer-items="producerItems"
+                :character-items="characterItems"
+                :active-count="activeCount"
+                :show-note="false"
+                @reset="reset"
+              />
+            </div>
           </div>
         </template>
       </UPopover>
