@@ -90,17 +90,22 @@ type RankedSong = {
   firstYear: number | null
   lastYear: number | null
   approximate: boolean
-  /** 演出 whose 场次 could not be pinned down, linked from the ≈ badge tooltip. */
-  approximateShows: { id: number; name: string }[]
+  /**
+   * 演出 whose 场次 could not be pinned down, linked from the ≈ badge tooltip.
+   * Names stay in the catalog so a language switch never rebuilds the ranking to relabel them.
+   */
+  approximateShows: { id: number; name: string; seriesName: string; seriesNumber: number | null }[]
   variantSongIds: number[]
   /** Canonical song plus every merged variant, so the badge counts all versions. */
   versionCount: number
   variantNames: string
-  /** Full title in the active language, shown in the tooltip when the cell truncates. */
-  titleText: string
 }
 
-/** Ranking rows enriched with the display text and character list the table needs. */
+/**
+ * Ranking rows enriched with the character and producer lists the table needs.
+ * Nothing here is language-specific: locating the names happens while rendering, so switching
+ * languages only repaints the labels instead of ranking all 500+ songs again.
+ */
 const ranked = computed<RankedSong[]>(() => {
   if (!catalog.value) return []
   const songs = catalog.value.songs
@@ -108,8 +113,8 @@ const ranked = computed<RankedSong[]>(() => {
   const performancesById = new Map(catalog.value.performances.map((performance) => [performance.id, performance]))
   const seriesById = new Map(catalog.value.series.map((series) => [series.id, series]))
 
-  /** Uncertain 演出 as links to their page, oldest first, in the site language. */
-  const approximateShowsOf = (ids: readonly number[]): { id: number; name: string }[] =>
+  /** Uncertain 演出 as links to their page, oldest first, keeping the catalog names for render-time localization. */
+  const approximateShowsOf = (ids: readonly number[]): RankedSong['approximateShows'] =>
     ids
       .flatMap((id) => performancesById.get(id) ?? [])
       .sort((left, right) => (left.start_date ?? '').localeCompare(right.start_date ?? '') || left.id - right.id)
@@ -117,7 +122,9 @@ const ranked = computed<RankedSong[]>(() => {
         const series = seriesById.get(performance.series_id)
         return {
           id: performance.id,
-          name: localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number)),
+          name: performance.name,
+          seriesName: series?.name ?? '',
+          seriesNumber: performance.series_number,
         }
       })
   return rankSongAppearances(catalog.value, {
@@ -138,7 +145,6 @@ const ranked = computed<RankedSong[]>(() => {
     const variantNames = row.variantSongIds
       .map((id) => byId.get(id)?.name ?? String(id))
       .join('、')
-    const title = titleView(row.songId, row.name)
     return {
       songId: row.songId,
       rank: index + 1,
@@ -155,10 +161,22 @@ const ranked = computed<RankedSong[]>(() => {
       variantSongIds: row.variantSongIds,
       versionCount: row.variantSongIds.length + 1,
       variantNames,
-      titleText: title.originalNames.length === 0 ? title.primary : `${title.primary}（${title.originalNames.join(' · ')}）`,
     }
   })
 })
+
+/**
+ * Full title in the active language, shown in the tooltip when the song cell truncates.
+ * Read at render time so the ranking itself stays language-independent.
+ */
+const titleTextOf = (row: RankedSong): string => {
+  const title = titleView(row.songId, row.name)
+  return title.originalNames.length === 0 ? title.primary : `${title.primary}（${title.originalNames.join(' · ')}）`
+}
+
+/** Performance name with its series label and place in the active language, for the ≈ badge tooltip. */
+const showNameOf = (show: RankedSong['approximateShows'][number]): string =>
+  localizePlace(localizePerformanceSeries(show.name, show.seriesName, show.seriesNumber))
 
 /** Song spellings matched by the `?q=` filter, reusing every registered and translated name. */
 const songSpellings = (song: SongRow): string[] => spellings(song.id)
@@ -548,13 +566,14 @@ useHead({ title: computed(() => t('rank.title')) })
         </template>
         <template #name-cell="{ row }">
           <div class="flex flex-nowrap items-center gap-x-2 overflow-hidden" :style="{ maxWidth: `${NAME_WIDTH}px` }">
-            <UTooltip :text="row.original.titleText" :content="{ side: 'top' }">
+            <UTooltip :content="{ side: 'top' }">
               <NuxtLink
                 :to="`/songs/${row.original.songId}`"
                 class="min-w-0 truncate text-highlighted no-underline hover:text-primary"
               >
                 <SongTitle :song-id="row.original.songId" :original="row.original.name" truncate />
               </NuxtLink>
+              <template #content>{{ titleTextOf(row.original) }}</template>
             </UTooltip>
             <UTooltip v-if="row.original.variantSongIds.length > 0" :text="t('rank.mergedInto', { names: row.original.variantNames })">
               <UBadge color="secondary" variant="subtle" size="xs" class="shrink-0">
@@ -611,7 +630,7 @@ useHead({ title: computed(() => t('rank.title')) })
                 <ul class="list-disc space-y-0.5 pl-4 text-xs">
                   <li v-for="show in row.original.approximateShows" :key="show.id">
                     <NuxtLink :to="`/shows/${show.id}`" class="text-primary underline-offset-2 hover:underline">
-                      {{ show.name }}
+                      {{ showNameOf(show) }}
                     </NuxtLink>
                   </li>
                 </ul>

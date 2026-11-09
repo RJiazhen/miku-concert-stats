@@ -27,73 +27,12 @@ const toggleOriginalTitle = (next: boolean): void => {
   showOriginalTitle.value = next
 }
 
-/** Hover-open state of the desktop language popover. */
+/**
+ * Whether the desktop language popover is open. Only the trigger toggles it: opening on hover or
+ * focus as well made the trigger's own click toggle twice and let the close-time focus restore
+ * reopen the panel, so the menu flickered open and closed repeatedly after a choice.
+ */
 const languageOpen = ref(false)
-
-/**
- * Set after the visitor picks an option: hover and focus stay ignored until the pointer has left
- * the trigger and the panel. Otherwise the click that ends the choice hands focus back to the
- * trigger, whose focus / hover would reopen the very menu that just closed.
- */
-let hoverSuppressed = false
-
-/** Pending close, so moving the pointer from the button into the menu never closes it. */
-let closeTimer: ReturnType<typeof setTimeout> | undefined
-
-/** Opens the popover and cancels a scheduled close. */
-const openLanguages = (): void => {
-  if (hoverSuppressed) return
-  if (closeTimer !== undefined) {
-    clearTimeout(closeTimer)
-    closeTimer = undefined
-  }
-  languageOpen.value = true
-}
-
-/** Closes the popover after a short delay, long enough to cross the gap into the menu. */
-const closeLanguagesSoon = (): void => {
-  if (closeTimer !== undefined) clearTimeout(closeTimer)
-  closeTimer = setTimeout(() => {
-    languageOpen.value = false
-    closeTimer = undefined
-  }, 180)
-}
-
-/** Cancels a pending close when the component unmounts. */
-const stopCloseTimer = (): void => {
-  if (closeTimer === undefined) return
-  clearTimeout(closeTimer)
-  closeTimer = undefined
-}
-
-/** Whether a viewport point sits on the language trigger or the open panel. */
-const overLanguageSurface = (x: number, y: number): boolean => {
-  return document.elementFromPoint(x, y)?.closest('[data-language-surface]') != null
-}
-
-/**
- * Keeps the open panel in step with the pointer, and releases the post-selection lock once the
- * pointer is away from the trigger.
- * `mouseleave` alone is not enough: a panel opened by focus while the pointer is already outside
- * never receives one, so it used to stay open until the pointer happened to cross the trigger.
- */
-const trackLanguagePointer = (event: PointerEvent): void => {
-  const inside = overLanguageSurface(event.clientX, event.clientY)
-  if (!inside) hoverSuppressed = false
-  if (!languageOpen.value) return
-  if (inside) openLanguages()
-  else closeLanguagesSoon()
-}
-
-/** Starts following the pointer, so the open panel and the post-selection lock both react. */
-const startPointerTracking = (): void => {
-  document.addEventListener('pointermove', trackLanguagePointer)
-}
-
-/** Stops tracking the pointer when the header goes away. */
-const stopPointerTracking = (): void => {
-  document.removeEventListener('pointermove', trackLanguagePointer)
-}
 
 /** Whether the compact navigation panel is open. */
 const menuOpen = ref(false)
@@ -134,7 +73,6 @@ const pickLanguage = (next: Locale): void => {
   setLocale(next)
   languageOpen.value = false
   menuOpen.value = false
-  hoverSuppressed = true
 }
 
 /** Copies the AI prompt from the compact menu and reports the outcome as a toast. */
@@ -191,7 +129,6 @@ watch(menuOpen, syncBodyScroll)
 
 onMounted(() => {
   startWideTracking()
-  startPointerTracking()
   window.addEventListener('keydown', closeMenus)
 })
 onUnmounted(() => {
@@ -233,8 +170,6 @@ const primaryLinks = links.slice(0, PRIMARY_LINK_COUNT)
 /** Links hidden in the desktop "more" popover until the pointer or focus reaches it. */
 const overflowLinks = links.slice(PRIMARY_LINK_COUNT)
 
-onBeforeUnmount(stopCloseTimer)
-onBeforeUnmount(stopPointerTracking)
 onBeforeUnmount(stopMoreCloseTimer)
 </script>
 
@@ -324,33 +259,21 @@ onBeforeUnmount(stopMoreCloseTimer)
         <div class="hidden lg:block">
           <AiPromptButton />
         </div>
-        <!-- Hover opens the language menu; the original-name switch lives inside it. -->
+        <!-- Clicking the button toggles the language menu; the original-name switch lives inside. -->
         <UPopover
           v-model:open="languageOpen"
           class="hidden lg:inline-flex"
           :content="{ align: 'end', sideOffset: 8, collisionPadding: 8 }"
         >
           <UButton
-            data-language-surface
             icon="i-lucide-languages"
             color="neutral"
             variant="ghost"
             size="sm"
             :aria-label="t('nav.language')"
-            aria-haspopup="menu"
-            :aria-expanded="languageOpen"
-            @mouseenter="openLanguages"
-            @mouseleave="closeLanguagesSoon"
-            @focus="openLanguages"
-            @click="languageOpen = !languageOpen"
           />
           <template #content>
-            <div
-              data-language-surface
-              class="flex w-52 flex-col gap-1 p-1.5"
-              @mouseenter="openLanguages"
-              @mouseleave="closeLanguagesSoon"
-            >
+            <div class="flex w-52 flex-col gap-1 p-1.5">
               <UButton
                 v-for="item in languageItems"
                 :key="item.value"
