@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useElementWidth } from '~/composables/useElementWidth.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 
 /** One series drawn as bars or as a line; `values` is aligned with `years`. */
@@ -69,14 +70,17 @@ const { t } = useLocale()
 const MIN_WIDTH = 720
 const MARGIN = { top: 16, right: 56, bottom: 32, left: 48 }
 
+/** Column width the drawing stretches to, so a wide page has no dead space on the right. */
+const { widthAnchor, elementWidth } = useElementWidth()
+
 /** Index of the year under the cursor or keyboard focus. */
 const hovered = ref<number | null>(null)
 
 /** Year slots behind the drawing width, so a narrower filtered axis keeps the same drawing width. */
 const slots = computed(() => Math.max(props.years.length, props.span))
 
-/** Drawing width of the band scale, so dense years stay readable. */
-const width = computed(() => Math.max(MIN_WIDTH, slots.value * 42 + MARGIN.left + MARGIN.right))
+/** Drawing width of the band scale: 42 units per year, stretched to fill the column when wider. */
+const width = computed(() => Math.max(MIN_WIDTH, slots.value * 42 + MARGIN.left + MARGIN.right, elementWidth.value))
 const plotWidth = computed(() => width.value - MARGIN.left - MARGIN.right)
 const plotHeight = computed(() => props.height - MARGIN.top - MARGIN.bottom)
 const band = computed(() => plotWidth.value / Math.max(1, props.years.length))
@@ -450,7 +454,7 @@ const selectYear = (year: number, key: string): void => {
     </div>
 
     <p v-if="years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText ?? t('chart.noData') }}</p>
-    <div v-else class="-mx-1 overflow-x-auto px-1">
+    <div v-else ref="widthAnchor" class="-mx-1 overflow-x-auto px-1">
       <svg
         :width="width"
         :height="height"

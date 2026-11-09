@@ -197,7 +197,7 @@ onBeforeUnmount(stopPointerTracking)
 <template>
   <!-- One row at every width: nothing wraps, and narrow screens fold items away instead. -->
   <header class="glass-header sticky top-0 z-40">
-    <div class="mx-auto flex max-w-6xl items-center gap-x-2 px-4 py-3 sm:gap-x-4 sm:px-6">
+    <div class="mx-auto flex max-w-chrome items-center gap-x-2 px-4 py-3 sm:gap-x-4 sm:px-6">
       <NuxtLink to="/" class="group flex min-w-0 items-center gap-2.5 text-inherit no-underline">
         <img
           src="/logo.png"
@@ -333,7 +333,7 @@ onBeforeUnmount(stopPointerTracking)
     aria-modal="true"
     :aria-label="t('nav.open')"
   >
-    <div class="mx-auto h-full max-w-6xl overflow-y-auto px-4 pt-16 pb-6 sm:px-6">
+    <div class="mx-auto h-full max-w-chrome overflow-y-auto px-4 pt-16 pb-6 sm:px-6">
       <div class="flex flex-col gap-0.5">
           <UButton
             v-for="link in links"

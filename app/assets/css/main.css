@@ -31,6 +31,14 @@
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Page body keeps its 72rem column. The header rail is body + the timeline chart-rail gutter
+     (w-36 = 9rem plus mr-4 = 1rem) on both sides, so its inner content lines up with that rail's
+     left edge and mirrors the same overhang on the right.
+     `rail` is the viewport where the timeline's chart rail still fits in the left gutter. */
+  --container-body: 72rem;
+  --container-chrome: 92rem;
+  --breakpoint-rail: 91rem;
 }
 
 html {
