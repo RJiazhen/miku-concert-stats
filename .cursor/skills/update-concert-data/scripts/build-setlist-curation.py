@@ -1008,11 +1008,15 @@ def resolve_song(title: str, prefer: set[int]) -> int | None:
     return min(hits)
 
 
-def translate_rows(rows: list[dict], prefer: set[int]) -> tuple[list[dict], list[str]]:
+def translate_rows(
+    rows: list[dict], prefer: set[int], versions: dict[str, int] | None = None
+) -> tuple[list[dict], list[str]]:
     """Maps wiki titles to catalog song ids, collecting the ones that do not resolve.
 
     A repertoire entry marked `skip` is a repeat of a song already on the same list, so it stays
-    out of the rows and is reported instead of double counting.
+    out of the rows and is reported instead of double counting. `versions` pins a title to the
+    exact song id the 演出 played when a source names a version the wiki only writes as the
+    bare title.
     """
     songs: list[dict] = []
     unresolved: list[str] = []
@@ -1024,7 +1028,9 @@ def translate_rows(rows: list[dict], prefer: set[int]) -> tuple[list[dict], list
             continue
         # A hand-registered row keeps its reserved id even when its normalized title collides with
         # a VocaDB original (e.g. `恋は戦争(future retro remix by kz)` vs `恋は戦争`).
-        if repertoire is not None and repertoire.get("id") is not None:
+        if versions and title in versions:
+            song_id = versions[title]
+        elif repertoire is not None and repertoire.get("id") is not None:
             song_id = repertoire["id"]
         else:
             song_id = resolve_song(title, prefer)
@@ -1128,17 +1134,26 @@ def preferred_songs(pid: int) -> set[int]:
         db.close()
 
 
+# 版本归属的人工核对：百科逐曲表只写曲名，VocaDB 歌单可能把同一首歌登记成某个版本条目。
+# 2527（Live Party 2011 Singapore，2011-11-11）的 VocaDB 歌单 1 第 21 行是
+# `Fire◎Flower 2011`（S/3383，2011-07-06 的 2011 版），百科只写 `Fire◎Flower`，
+# 两者不冲突，按 VocaDB 的版本登记。不覆盖时 2011 版会在原曲 6387 名下，站内 3383 永远没有演出。
+VERSION_ROWS: dict[int, dict[str, int]] = {
+    2527: {"Fire◎Flower": 3383},
+}
+
 for item in WIKI_SETLISTS["entries"]:
     pid = item["performanceId"]
     prefer = preferred_songs(pid)
+    versions = VERSION_ROWS.get(pid, {})
     rows = item["rows"]
     scoped = [row for row in rows if row["when"]]
-    songs, unresolved = translate_rows([row for row in rows if not row["when"]], prefer)
+    songs, unresolved = translate_rows([row for row in rows if not row["when"]], prefer, versions)
     slots = []
     if scoped:
         for show_key, _, _ in show_rows(pid):
             played = [row for row in rows if show_matches(pid, show_key, row["when"])]
-            slot_songs, slot_unresolved = translate_rows(played, prefer)
+            slot_songs, slot_unresolved = translate_rows(played, prefer, versions)
             for title in slot_unresolved:
                 if title not in unresolved:
                     unresolved.append(title)
@@ -1148,7 +1163,7 @@ for item in WIKI_SETLISTS["entries"]:
             print(f"  warn: {pid} has constrained rows but no 場次 to place them")
     # The default list is the union, used only if a 場次 somehow matches no slot.
     if scoped:
-        songs, union_unresolved = translate_rows(rows, prefer)
+        songs, union_unresolved = translate_rows(rows, prefer, versions)
         for title in union_unresolved:
             if title not in unresolved:
                 unresolved.append(title)
@@ -1227,6 +1242,15 @@ for pid, schedule_note in SCHEDULE_NOTES.items():
     entry = performances.get(str(pid))
     if entry is not None:
         entry["note"] = f"{entry.get('note', '')}；日程来源：{schedule_note}"
+
+# 版本归属的维护者备注：说明某一行为什么登记成版本条目而不是百科写的曲名（VERSION_ROWS）。
+VERSION_NOTES = {
+    2527: "第 21 首按 VocaDB 歌单 1 登记为「Fire◎Flower 2011」（S/3383，2011 版），百科逐曲表只写曲名",
+}
+for pid, version_note in VERSION_NOTES.items():
+    entry = performances.get(str(pid))
+    if entry is not None:
+        entry["note"] = f"{entry['note']}；{version_note}" if entry.get("note") else version_note
 
 # 逐曲表循环只保留表本身的来源；官方日程页另有信息，追加在演出来源里。
 EXTRA_SOURCES = {
@@ -1330,6 +1354,21 @@ for pid, extra in EXTRA_SOURCES.items():
         for source in extra:
             source["accessedAt"] = "2026-11-06"
         entry["sources"] = extra + entry.get("sources", [])
+
+# 版本归属的依据也留成来源：VocaDB 歌单页单列，演出页页脚能看到它和百科逐曲表并排。
+VERSION_SOURCES = {
+    "2527": {
+        "url": "https://vocadb.net/L/1",
+        "title": "VocaDB：Hatsune Miku Live Party 2011 Mikupa♪ Singapore",
+        "accessedAt": "2026-11-09",
+        "confidence": "medium",
+        "note": "第 21 行记作 Fire◎Flower 2011（S/3383）；百科逐曲表只写曲名",
+    },
+}
+for pid, version_source in VERSION_SOURCES.items():
+    entry = performances.get(pid)
+    if entry is not None:
+        entry["sources"] = [version_source] + entry.get("sources", [])
 
 # 神戸 2023 比横浜多一首「白い雪のプリンセスは」（ダブルアンコール，神戸限定），
 # 所以两地的曲目数本来就不同；记下原因后不再报长度警告。

@@ -217,6 +217,18 @@ describe('committed catalog', () => {
         .filter((row) => row.show_key === '1941:2016-06-26:night')
         .map((row) => row.song_id)
       expect(taipeiDay).not.toEqual(taipeiNight)
+      // The Singapore 2011 wiki table only writes `Fire◎Flower`, but its VocaDB list records the
+      // 2011 remaster (3383). The override stays scoped: Tokyo keeps the 2008 original (6387).
+      const singapore2011 = catalog.performanceShowSetlistItems
+        .filter((row) => row.performance_id === 2527)
+        .map((row) => row.song_id)
+      expect(singapore2011).toContain(3383)
+      expect(singapore2011).not.toContain(6387)
+      const tokyo2011 = catalog.performanceShowSetlistItems
+        .filter((row) => row.performance_id === 2523)
+        .map((row) => row.song_id)
+      expect(tokyo2011).toContain(6387)
+      expect(tokyo2011).not.toContain(3383)
       // Album fallbacks are gone: every symphony stop now has a per-city wiki list.
       const symphony = catalog.performanceSetlists.find((row) => row.performance_id === 2959)
       expect(symphony?.source_kind).toBe('wiki')

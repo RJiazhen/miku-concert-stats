@@ -34312,7 +34312,7 @@
             "title": "右肩の蝶"
           },
           {
-            "id": 6387,
+            "id": 3383,
             "title": "Fire◎Flower"
           },
           {
@@ -34344,6 +34344,13 @@
       },
       "sources": [
         {
+          "url": "https://vocadb.net/L/1",
+          "title": "VocaDB：Hatsune Miku Live Party 2011 Mikupa♪ Singapore",
+          "accessedAt": "2026-11-09",
+          "confidence": "medium",
+          "note": "第 21 行记作 Fire◎Flower 2011（S/3383）；百科逐曲表只写曲名"
+        },
+        {
           "url": "https://w.atwiki.jp/hmiku/pages/67151.html",
           "title": "初音ミク Wiki：初音ミクライブパーティー 2011 Singapore（新加坡）",
           "accessedAt": "2026-11-06",
@@ -34351,7 +34358,7 @@
           "note": "逐曲表，含メドレー 拆分；27 行"
         }
       ],
-      "note": "歌单来自初音ミク Wiki 的逐曲表（新加坡），27 行"
+      "note": "歌单来自初音ミク Wiki 的逐曲表（新加坡），27 行；第 21 首按 VocaDB 歌单 1 登记为「Fire◎Flower 2011」（S/3383，2011 版），百科逐曲表只写曲名"
     },
     "2786": {
       "setlist": {
