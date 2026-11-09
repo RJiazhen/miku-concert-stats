@@ -2,21 +2,22 @@
 
 **English** | [简体中文](cloudflare.zh-CN.md) | [繁體中文](cloudflare.zh-Hant.md) | [日本語](cloudflare.ja.md)
 
-This project hosts production on Cloudflare Workers. **Forks and local UI work do not need these bindings filled.** Keep real account / KV / Access values out of git; use the dashboard, Wrangler secrets, or a gitignored `.dev.vars`.
+This project hosts production on Cloudflare Workers. **Forks and local UI work do not need Access / analytics vars.** Prefer the Cloudflare dashboard for account-specific settings so git stays free of them.
 
-## Bindings in `wrangler.toml` (template)
+## What lives where
 
-| Binding / var | Purpose | Repo default |
+| Binding / var | Purpose | In git `wrangler.toml`? |
 | --- | --- | --- |
-| `FEEDBACK` KV `id` | Feedback storage | empty string |
-| `ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` | Cloudflare Access for `/admin` and admin APIs | empty |
-| `NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` | Public Web Analytics beacon | empty |
-| `CF_ACCOUNT_TAG` | Account id for GraphQL analytics | empty |
-| `CF_ANALYTICS_HOST` | Host filter for analytics | empty |
-| `PAGEVIEWS` Analytics Engine | First-party pageviews | dataset name only |
-| Secret `CF_ANALYTICS_API_TOKEN` | Account Analytics Read | `wrangler secret put` only |
+| `FEEDBACK` KV `id` | Feedback storage | **Yes** — resource id required for `wrangler deploy` (not a secret; forks replace with their own namespace) |
+| `PAGEVIEWS` Analytics Engine | First-party pageviews | **Yes** — dataset name only |
+| `ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` | Cloudflare Access for `/admin` and admin APIs | **No** — dashboard Variables only |
+| `NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` | Public Web Analytics beacon | **No** — dashboard Variables |
+| `CF_ACCOUNT_TAG` / `CF_ANALYTICS_HOST` | GraphQL analytics scope | **No** — dashboard Variables |
+| Secret `CF_ANALYTICS_API_TOKEN` | Account Analytics Read | **No** — dashboard Secrets / `wrangler secret put` |
 
-Empty Access vars → all admin APIs **401** (fail closed). Missing KV → public feedback **503**.
+Do **not** commit those vars as empty strings: `wrangler deploy` would overwrite dashboard values with `""` and lock admin/analytics. Omit them from the file instead.
+
+Missing Access on the Worker → all admin APIs **401** (fail closed). Missing KV binding → public feedback **503**.
 
 ## Access destinations
 

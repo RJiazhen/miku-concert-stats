@@ -4,62 +4,27 @@ name = "miku-concert-stats"
 compatibility_date = "2026-10-06"
 compatibility_flags = ["nodejs_compat"]
 
-# Error reports from the floating feedback widget.
-# Created with: pnpm exec wrangler kv namespace create FEEDBACK
+# Feedback widget storage.
+# Create with: pnpm exec wrangler kv namespace create FEEDBACK
 # Local `nuxt dev` keeps the binding out of the request context, so the widget
 # shows the "反馈服务暂不可用" fallback there instead of writing to a local KV.
+# The namespace id is a resource identifier (not a secret); forks should create
+# their own namespace and replace this value, or drop the binding for UI-only work.
 [[kv_namespaces]]
 binding = "FEEDBACK"
-# Create with: pnpm exec wrangler kv namespace create FEEDBACK
-# Leave empty for local UI work; feedback POST returns 503 without a real namespace.
-id = ""
-
-# Cloudflare Access application that gates the maintainer backend
-# (/admin, every /admin/* page, /api/admin/*, and the /api/feedback admin routes).
-# Read both values from Zero Trust > Access > Applications after creating the
-# self-hosted application for the Worker hostname:
-#   ACCESS_TEAM_DOMAIN: team domain, e.g. example.cloudflareaccess.com (no scheme)
-#   ACCESS_AUD:         the application's Audience (AUD) tag
-# While either value is an empty string the Worker rejects every admin API with
-# 401 and returns no feedback payload at all, so an unconfigured deploy leaks
-# nothing. The public GET / and POST /api/feedback paths stay unprotected.
-# Self-hosted app "miku-concert-stats feedback admin" destinations must include:
-#   /admin, /admin/*, /api/admin/*, /api/feedback/*
-# Never a bare /api/feedback*: that would also gate the public POST /api/feedback.
-# The Worker also 302s an unauthenticated /admin page request to this Access
-# application's login URL, so the destinations above must match the deployed routes.
-[vars]
-# Fill from Zero Trust > Access > Applications (your own app). Empty = admin APIs fail closed.
-ACCESS_TEAM_DOMAIN = ""
-ACCESS_AUD = ""
-
-# Cloudflare Web Analytics JS beacon (/admin shows the numbers at /admin/analytics).
-# Create the site in Cloudflare dashboard > Web Analytics > Add a site, then copy the
-# token from the JS snippet it shows:
-#   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
-#           data-cf-beacon='{"token":"<token>"}'></script>
-# Nuxt reads public runtime config from env variables, so the wrangler variable uses
-# the NUXT_ name. Leave it empty to render no beacon at all (local dev stays clean).
-NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN = ""
-
-# Account tag (Account ID, 32 hex chars) used by GET /api/admin/analytics to query
-# Cloudflare's GraphQL Analytics API. The API token is a secret and must NOT be written
-# here; store it once with:
-#   pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN
-# The token only needs Account > Account Analytics > Read. While either setting is
-# blank the admin page answers "not configured" and never calls Cloudflare.
-# Account ID (32 hex chars). Leave blank locally; set in the dashboard or .dev.vars for deploy.
-CF_ACCOUNT_TAG = ""
-
-# Host (and only host) the analytics page counts. Every GraphQL alias filters on `requestHost`, so
-# other Web Analytics sites in the same account never appear. Leave it blank to keep the page in the
-# "not configured" state instead of falling back to account-wide numbers.
-CF_ANALYTICS_HOST = ""
+id = "777b49ffd2744f12a54fc3611ff791e9"
 
 # First-party visitor analytics (/admin/analytics > 访客统计). The browser keeps a random visitor id
 # in localStorage and posts one page view per navigation; the Worker writes them here, and the admin
-# API queries them back through the Analytics Engine SQL API with the token above.
+# API queries them back through the Analytics Engine SQL API.
 # The dataset is created on the first write, so a fresh account needs no manual setup.
 [[analytics_engine_datasets]]
 binding = "PAGEVIEWS"
 dataset = "miku_pageviews"
+
+# Account-specific [vars] (ACCESS_TEAM_DOMAIN, ACCESS_AUD, CF_ACCOUNT_TAG,
+# CF_ANALYTICS_HOST, NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN) and the secret
+# CF_ANALYTICS_API_TOKEN are NOT committed here. Set them in the Cloudflare
+# dashboard (Worker → Settings → Variables / Secrets) so deploys do not publish
+# account fingerprints in git and do not overwrite dashboard values with "".
+# See docs/cloudflare.md.

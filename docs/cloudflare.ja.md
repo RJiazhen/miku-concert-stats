@@ -2,37 +2,30 @@
 
 [English](cloudflare.md) | [简体中文](cloudflare.zh-CN.md) | [繁體中文](cloudflare.zh-Hant.md) | **日本語**
 
-本番は Cloudflare Workers 上です。**Fork やローカル UI 作業ではこれらのバインドを埋める必要はありません。** 実アカウント / KV / Access の値は git に入れず、ダッシュボード・Wrangler secret・無視対象の `.dev.vars` を使います。
+本番は Cloudflare Workers 上です。**Fork やローカル UI に Access / 分析変数は不要**です。アカウント固有の値はダッシュボードに置き、git に入れません。
 
-## `wrangler.toml` のバインド（テンプレート）
+## 何をどこに置くか
 
-| バインド / 変数 | 用途 | リポジトリ既定 |
+| バインド / 変数 | 用途 | git の `wrangler.toml` に書く？ |
 | --- | --- | --- |
-| `FEEDBACK` KV `id` | フィードバック保存 | 空文字 |
-| `ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` | `/admin` と管理 API の Access | 空 |
-| `NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` | Web Analytics beacon | 空 |
-| `CF_ACCOUNT_TAG` | GraphQL 分析用アカウント ID | 空 |
-| `CF_ANALYTICS_HOST` | 分析 host フィルタ | 空 |
-| `PAGEVIEWS` Analytics Engine | ファーストパーティ PV | dataset 名のみ |
-| Secret `CF_ANALYTICS_API_TOKEN` | Account Analytics Read | `wrangler secret put` のみ |
+| `FEEDBACK` KV `id` | フィードバック保存 | **はい** — `wrangler deploy` にリソース ID が必要（秘密ではない。fork は自前の namespace に置換） |
+| `PAGEVIEWS` Analytics Engine | ファーストパーティ PV | **はい** — dataset 名のみ |
+| `ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` | `/admin` と管理 API の Access | **いいえ** — ダッシュボード Variables |
+| `NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` | Web Analytics beacon | **いいえ** |
+| `CF_ACCOUNT_TAG` / `CF_ANALYTICS_HOST` | GraphQL 分析の範囲 | **いいえ** |
+| Secret `CF_ANALYTICS_API_TOKEN` | Account Analytics Read | **いいえ** — Secrets |
 
-Access が空 → 管理 API はすべて **401**。KV なし → 公開フィードバックは **503**。
+空文字でコミットしないこと。`wrangler deploy` がダッシュボードの値を `""` で上書きします。ファイルから省略してください。
+
+Access なし → 管理 API は **401**。KV なし → 公開フィードバックは **503**。
 
 ## Access destinations
 
-Self-hosted アプリに少なくとも次を含める：
-
 - `/admin`, `/admin/*`
 - `/api/admin/*`
-- `/api/feedback/*`（管理の list/status/detail）
+- `/api/feedback/*`
 
-`/api/feedback*` は使わない（公開 `POST /api/feedback` まで塞ぐため）。
-
-## 管理画面
-
-- Access 設定後、`/admin` は `/admin/feedback` へ
-- `/admin/feedback`, `/admin/data`, `/admin/system`, `/admin/analytics`
-- 公開ヘッダーからはリンクしない。Access ログイン後に URL 直打ち
+`/api/feedback*` は使わない。
 
 ## デプロイ
 
@@ -41,8 +34,6 @@ pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-Workers Builds は通常 `main` で `pnpm build` → `npx wrangler deploy`、`NODE_VERSION=22`。`PAGEVIEWS` 利用前にコンソールで Analytics Engine を有効化（無効だと `code 10089` になり得る）。
-
 ## ローカル
 
-`nuxt dev` は FEEDBACK KV を付けません。開発時の管理シェルは Access へ飛ばしません。[local-development.ja.md](local-development.ja.md) 参照。
+[local-development.ja.md](local-development.ja.md) 参照。
