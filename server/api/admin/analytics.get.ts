@@ -1,9 +1,9 @@
 import { createError, defineEventHandler, getQuery, type H3Event } from 'h3'
 import type { AdminAnalytics } from '../../../shared/admin.ts'
 import { resolveAdminIdentity } from '../../utils/admin.ts'
+import { analyticsSettingsOf } from '../../utils/analytics-settings.ts'
 import {
   analyticsRangeOf,
-  cloudflareAnalyticsConfigOf,
   fetchWebAnalyticsOverview,
 } from '../../utils/cloudflare-analytics.ts'
 
@@ -29,15 +29,16 @@ const requireAdminIdentity = async (event: H3Event): Promise<void> => {
 /**
  * `GET /api/admin/analytics?days=7|30` — aggregated Cloudflare Web Analytics numbers.
  *
- * The query is server-side and account-scoped; the page only ever sees totals and path counts.
- * When CF_ANALYTICS_API_TOKEN or CF_ACCOUNT_TAG is blank the route answers `{ configured: false }`,
- * which keeps the admin page in a setup state instead of throwing. The token is never returned,
- * logged, or included in an error message.
+ * The query is server-side, account-scoped and filtered to CF_ANALYTICS_HOST, so the page only
+ * ever sees this host's totals, daily series, paths and breakdowns. When
+ * CF_ANALYTICS_API_TOKEN, CF_ACCOUNT_TAG or CF_ANALYTICS_HOST is blank the route answers
+ * `{ configured: false }`, which keeps the admin page in a setup state instead of throwing. The
+ * token is never returned, logged, or included in an error message.
  */
 const getAdminAnalytics = async (event: H3Event): Promise<AdminAnalytics> => {
   await requireAdminIdentity(event)
 
-  const config = cloudflareAnalyticsConfigOf(event)
+  const config = analyticsSettingsOf(event)
   if (config === null) return { configured: false }
 
   const days = rangeDaysOf(getQuery(event).days)

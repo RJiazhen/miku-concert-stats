@@ -42,7 +42,7 @@ VocaDB 没有的演出 id 从 `3_000_000_000` 起（`shared/repertoire.ts` 的 `
 ## 技术栈
 
 - **Nuxt 4.6**，`srcDir` 为 `app/`。`shared/`、`scripts/`、`tests/`、`server/`、`data/` 留在根目录，`app/**` 通过 `~~/shared/*` 引用纯逻辑。
-- **Nuxt UI 4 + Tailwind CSS 4**。`nuxt.config.ts` 注册 `@nuxt/ui`，颜色 token 在 `app/app.config.ts` 绑定为 `primary: miku`、`secondary: magenta`，色阶定义在 `app/assets/css/main.css` 的 `@theme`。
+- **Nuxt UI 4 + Tailwind CSS 4**。`nuxt.config.ts` 注册 `@nuxt/ui`，颜色 token 在 `app/app.config.ts` 绑定为 `primary: miku`、`secondary: magenta`，色阶定义在 `app/assets/css/main.css` 的 `@theme`。图表用 Nuxt UI 自带的 `UChart`，它包的是 `@tanstack/charts`（Nuxt UI 的 peer dependency，本仓库在 `dependencies` 里显式安装 `^1`，不自己写 SVG 图表）。
 - **深色优先，默认跟随系统**。`@nuxtjs/color-mode`（由 Nuxt UI 注册）在 `html` 上加 `.dark`；页眉的 `UColorModeButton` 切换并记住选择。
 - **字体不联网**：`ui.fonts: false`，使用系统字体栈，避免构建期请求字体服务。
 - **图标本地打包**：`@iconify-json/lucide` + `icon.clientBundle.scan`，SSR 首屏不依赖 Iconify API。
@@ -368,14 +368,23 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 - `/admin/feedback`：反馈收件箱，筛选、搜索、状态切换。
 - `/admin/data`：用 `useCatalog` 在浏览器读取公开的 `catalog.sqlite`，展示歌曲 / 演出 / 系列 / 歌单 / 视频规模、平台分布与数据新鲜度。
-- `/admin/analytics`：Cloudflare Web Analytics 的聚合视图，可切换近 7 / 30 天，展示页面浏览量、访问次数、采样比例与热门路径。
+- `/admin/analytics`：两段对照视图。上半部「访客统计（第一方）」来自 Analytics Engine，按 `requestHost` 过滤，给出独立 / 新 / 回访访客、页面浏览量、人均浏览、访问会话、每日趋势、热门路径与设备 / 国家分布；下半部「Cloudflare 官方聚合」是 beacon 的账户级聚合（同样按 `requestHost` 过滤），用作对照，没有访客身份。趋势图由 Nuxt UI 的 `UChart`（`@tanstack/charts`）渲染，其余占比条是普通列表。
 - `/admin/system`：`/api/admin/session` 返回的 Access、身份、KV、目录版本与运行环境。
 
 `server/middleware/admin-guard.ts` 在页面渲染前运行：只处理 `GET` / `HEAD` 的 `/admin` 与 `/admin/*`。没有 `Cf-Access-Jwt-Assertion` 时用 `shared/admin.ts` 的 `buildAccessLoginUrl` 302 到 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/login/<hostname>?kid=<ACCESS_AUD>&redirect_url=<原路径>`；已经带着 token 但校验失败时不重定向，避免 Access 登录与失效 token 之间循环，改由页面显示「登录状态无效」。本地 `nuxt dev` 会通过 Cloudflare 模拟读到真实 `[vars]`，但 127.0.0.1 不是 Access 的 destination，所以 `import.meta.dev` 下只渲染后台外壳并提示不会跳转。`ACCESS_TEAM_DOMAIN` 或 `ACCESS_AUD` 为空时同样不跳转，页面会提示配置缺失。
 
 `server/api/admin/session.get.ts` 返回 `{ configured, identity, storage, catalogVersion, environment, serverTime }`；`configured: false` 时身份为 `null`，让本地开发能渲染配置提示，配置完成后没有有效 token 仍是 401。鉴权成功的身份会由 guard 写入 `event.context.adminSession`，后台布局在 SSR 首屏直接读取，避免为了显示邮箱再发一次请求。
 
-`server/api/admin/analytics.get.ts` 与 session 走同一套 Access 校验（没有有效身份一律 401），只接受 `days=7|30`，其余取值按 7 天处理。它读取 Worker 绑定 `CF_ANALYTICS_API_TOKEN` / `CF_ACCOUNT_TAG`，向 `https://api.cloudflare.com/client/v4/graphql` 发一条 `rumPageloadEventsAdaptiveGroups` 查询（账户级 `accountTag` 过滤、UTC 日历日窗口），只取 `count`（页面浏览量）、`sum.visits`（访问次数）与按 `requestPath` 分组的聚合，不请求任何访客级维度。两项设置为空时接口返回 `{ configured: false }`，页面显示配置提示而不是报错；上游失败、响应格式不符或 GraphQL `errors` 非空时统一 502，token 既不返回也不写日志。`shared/admin.ts` 的 `AdminAnalytics` 是页面与接口共用的类型。公开页面只在 `app/layouts/default.vue` 里注入 beacon，后台布局不加载它，所以 `/admin` 自身不被统计。
+`server/api/admin/analytics.get.ts` 与 session 走同一套 Access 校验（没有有效身份一律 401），只接受 `days=7|30`，其余取值按 7 天处理。它读取 Worker 绑定 `CF_ANALYTICS_API_TOKEN` / `CF_ACCOUNT_TAG` / `CF_ANALYTICS_HOST`，向 `https://api.cloudflare.com/client/v4/graphql` 发一条 `rumPageloadEventsAdaptiveGroups` 查询（账户级 `accountTag` 过滤、UTC 日历日窗口），**每个别名都带 `requestHost: $host`**，因此账户里其它 Web Analytics 站点与其它域名的页面不会出现在任何数字里。返回的总量、每日趋势、热门路径与设备 / 浏览器 / 国家分布全部是聚合值，不请求任何访客级维度：Web Analytics 本身没有访客 ID，唯一访客、回访访客与访客路径都无法从现有数据得到；`sum.visits` 只是 Cloudflare 估算的访问会话数。三项设置为空时接口返回 `{ configured: false }`，页面显示配置提示而不是报错；上游失败、响应格式不符或 GraphQL `errors` 非空时统一 502，token 既不返回也不写日志。`shared/admin.ts` 的 `AdminAnalytics` 是页面与接口共用的类型。公开页面只在 `app/layouts/default.vue` 里注入 beacon，后台布局不加载它，所以 `/admin` 自身不被统计。
+
+### 第一方访客统计（Analytics Engine）
+
+Web Analytics 只有聚合值，没有访客身份，所以「独立 / 新 / 回访访客」由站内第一方埋点另记一份：
+
+- **采集**：`app/plugins/visit-tracker.client.ts` 在浏览器里生成一个随机 UUID 存进 `localStorage`（`miku:visitor-id`），另一个存在 `sessionStorage`（`miku:session-id`，每标签页一个）。首屏渲染与每次客户端跳转各发一条 `POST /api/analytics/pageview`；`/admin*` 不记录，`navigator.doNotTrack` 命中时整个插件不注册。它只发送访客 ID、会话 ID、路径、来源 host、设备类别与「是否首次」，不发 User-Agent 原文、不读 Cookie、不记录 IP。
+- **入库**：`server/api/analytics/pageview.post.ts` 校验同源 `Origin`（缺失或跨源一律 403，防止别站灌数）、限制 4 KB 请求体、用 `shared/visitor-tracking.ts` 的 `parsePageviewPayload` 校验 UUID 与路径，再经 `server/utils/visitor-analytics.ts` 的 `recordPageview` 写进 Analytics Engine（绑定 `PAGEVIEWS`，数据集 `miku_pageviews`）。列顺序固定：`index1` 存访客 ID（同时是采样键，因此独立访客数在采样下仍然准确），`blob1` host、`blob2` path、`blob3` 会话 ID、`blob4` 来源 host、`blob5` 设备、`blob6` 国家（取自 `CF-IPCountry`）、`blob7` 首次标记。本地 `nuxt dev` 没有该绑定，写入静默跳过，接口仍返回 204。
+- **查询**：`server/api/admin/visitors.get.ts` 与其它管理接口共用 Access 校验与 `CF_ANALYTICS_API_TOKEN` / `CF_ACCOUNT_TAG` / `CF_ANALYTICS_HOST` 三项设置（`server/utils/analytics-settings.ts`）。它向 Analytics Engine SQL API 发若干条语句（总量、新访客、每日、路径、设备、国家），每条都带 `timestamp` 区间与 `blob1 = <host>`，所以预览域名和其它 host 不会混入。`COUNT(DISTINCT index1)` 得到去重访客，页面浏览量按 `SUM(_sample_interval)` 计；采样时用 `weightedDistinct`（`distinct × 采样权重 ÷ 行数`）估算访客，函数在 `shared/admin.ts`，单元测试在 `tests/visitor-tracking.test.ts`。
+- **口径**：访客 ID 是浏览器本地随机值，不是登录身份，清站点数据即成为新访客；`sum.visits` 一类的会话估算不用在这里，页面的「访问会话」是去重后的会话 ID 数。Analytics Engine 保留 90 天，页面只提供近 7 / 30 天两种窗口。
 
 身份完全由 Cloudflare Access 负责，页面里没有密码框。`server/utils/access.ts` 读取 `Cf-Access-Jwt-Assertion` 请求头，用 WebCrypto 验证 RS256 签名（不引入 `jose` 之类的依赖），再校验 `iss` 必须等于 `https://<ACCESS_TEAM_DOMAIN>`、`aud` 必须包含 `ACCESS_AUD`，`exp` 已过期或 `nbf` 尚未生效都拒绝（允许 30 秒时钟偏差），`alg` 只接受 `RS256`（`none` 与 HMAC 混淆直接拒绝）。团队 JWKS 从 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs` 用 `fetch` 取，模块级缓存 5 分钟；取不到就拒绝，密钥轮换最迟 5 分钟后生效。
 
@@ -417,6 +426,8 @@ flowchart TD
   access["Cloudflare Access（登录重定向 + JWKS）"]
   worker["Nitro Worker SSR"]
   report["docs/reports"]
+  pageviewapi["/api/analytics/pageview"]
+  ae["Analytics Engine miku_pageviews"]
 
   vocadb --> collect
   collect --> cache
@@ -439,6 +450,9 @@ flowchart TD
   worker --> pages
   pages --> widget
   pages -->|"JS beacon（仅公开页面）"| cfanalytics
+  pages -->|"POST /api/analytics/pageview（访客 ID）"| pageviewapi
+  pageviewapi -->|"writeDataPoint"| ae
+  analyticsapi -->|"COUNT(DISTINCT index1) 等 SQL"| ae
   widget -->|"kind + description + sourceUrl + page URL/title"| feedback
   feedback --> feedbackkv
   adminapi -->|"先校验 Access 身份"| access
@@ -471,7 +485,9 @@ flowchart TD
   ```
 
   Nuxt 的公网 runtime config 从 `NUXT_` 前缀的环境变量读取，所以 wrangler 变量必须叫这个长名字（对应 `runtimeConfig.public.cloudflareWebAnalyticsToken`）。保持空字符串时 `app/layouts/default.vue` 不渲染任何 script 标签，本地开发与未配置的部署都不会向 Cloudflare 发请求。
-- `[vars] CF_ACCOUNT_TAG`：Cloudflare 账户 ID（32 位十六进制），供 `/api/admin/analytics` 查询 GraphQL Analytics。与 `CF_ANALYTICS_API_TOKEN` 一起从 Worker 绑定读取；任意一项为空时接口返回 `{ configured: false }`，不发起外部请求。
+- `[vars] CF_ACCOUNT_TAG`：Cloudflare 账户 ID（32 位十六进制），供 `/api/admin/analytics` 查询 GraphQL Analytics。与 `CF_ANALYTICS_API_TOKEN`、`CF_ANALYTICS_HOST` 一起从 Worker 绑定读取；任意一项为空时接口返回 `{ configured: false }`，不发起外部请求。
+- `[vars] CF_ANALYTICS_HOST`：只统计的站点 host（不带协议，例如 `miku-concert-stats.rjiazhen.top`）。GraphQL 的每个别名都用 `requestHost` 过滤，账户里其它 Web Analytics 站点与其它域名不会计入；留空同样走 `{ configured: false }`，不会退化成账户级合并统计。
+- `[[analytics_engine_datasets]]`：`binding = "PAGEVIEWS"`、`dataset = "miku_pageviews"`，第一方访客事件的写入目标。数据集在第一次写入时自动创建，不需要手工建表；Admin API 通过 `analytics_engine/sql` 查询它，用的仍是 `CF_ANALYTICS_API_TOKEN`。Worker 侧绑定缺失（本地 `nuxt dev`）时 `/api/analytics/pageview` 返回 204 但不写任何数据。
 - `CF_ANALYTICS_API_TOKEN` secret：账户级 API token，权限只需要 Account > Account Analytics > Read。不要写进仓库或 `[vars]`，用 `pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN` 写入；页面里也提供了同样的提示。Worker 从不回传或记录这个 token。
 
 `nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；Cloudflare 模拟会把 `[vars]` 带进开发环境，但 127.0.0.1 不是 Access 的 destination，所以 `/admin` 不会跳转，只渲染后台外壳并提示本地不读取真实反馈。要看真实数据请在浏览器里完成 Access 登录后打开线上页面。
@@ -616,9 +632,11 @@ cloudflared access curl "https://miku-concert-stats.rjiazhen.top/api/feedback/li
 
 1. 在 Cloudflare dashboard > Web Analytics 添加站点，复制 JS snippet 里的 token，填进 `[vars] NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN`；部署后公开页面的 HTML 会出现 beacon 的 `<script defer>`，`/admin` 不会。
 2. 创建账户级 API token（Account > Account Analytics > Read），执行 `pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN` 保存；不要写进 `wrangler.toml`。
-3. 把账户 ID 填进 `[vars] CF_ACCOUNT_TAG`，重新部署后打开 `/admin/analytics`。两项服务端设置缺失时页面只显示「尚未配置」，不会调用 Cloudflare，也不会因为缺少配置而报错。
+3. 把账户 ID 填进 `[vars] CF_ACCOUNT_TAG`，把只统计的站点 host 填进 `[vars] CF_ANALYTICS_HOST`，重新部署后打开 `/admin/analytics`。三项服务端设置任意一项缺失时页面只显示「尚未配置」，不会调用 Cloudflare，也不会退化成账户级合并统计。
 
-beacon 只统计部署了 token 之后的访问，历史数据不会补录；同一个账户下的多个 Web Analytics 站点会合并显示。
+beacon 只统计部署了 token 之后的访问，历史数据不会补录；查询按 `requestHost` 过滤，所以同一个账户下的其它 Web Analytics 站点不会合并进来。Web Analytics 只有聚合数据，没有访客 ID：唯一访客数、回访访客与访客路径都无法从它得到，`visits` 是 Cloudflare 估算的访问会话数。
+
+第一方访客统计没有额外的手工配置：`[[analytics_engine_datasets]]` 的 `PAGEVIEWS` 绑定会随 `wrangler deploy` 一起创建，数据集在第一次写入时自动出现。上线后打开公开页面即可产生数据，`/admin/analytics` 上半部随即从空状态变为真实数字；Analytics Engine 只保留 90 天，需要更长历史时只能再加 R2 归档（当前没有做）。
 
 返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`status`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`；`collectedAt` 由服务端在缺省时补成 `receivedAt`，旧记录还可能带 `viewport`、`catalogVersion`，且缺 `status` 时按 `open` 返回。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
 
@@ -679,7 +697,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`fix-singer-fold-tablet-only` 用 `3181`，`feat-producer-variant-tag` 用 `3183`，`data-fire-flower-2011` 用 `3185`，`feat-cloudflare-web-analytics` 用 `3187`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`，`feat-header-nav-overflow-menu` 用 `3193`，`feat-layout-width-overflow` 用 `3195`，`feat-feedback-kind-radio` 用 `3197`，`fix-home-locale-switch-speed` 用 `3199`，`fix-producer-single-top-song` 用 `3201`，`fix-locale-switch-latency` 用 `3194`（`3193` 已被 `feat-header-nav-overflow-menu` 占用）。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`fix-singer-fold-tablet-only` 用 `3181`，`feat-producer-variant-tag` 用 `3183`，`data-fire-flower-2011` 用 `3185`，`feat-cloudflare-web-analytics` 用 `3187`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`，`feat-header-nav-overflow-menu` 用 `3193`，`feat-layout-width-overflow` 用 `3195`，`feat-feedback-kind-radio` 用 `3197`，`fix-home-locale-switch-speed` 用 `3199`，`fix-producer-single-top-song` 用 `3201`，`fix-locale-switch-latency` 用 `3194`（`3193` 已被 `feat-header-nav-overflow-menu` 占用），`feat-analytics-site-scope` 用 `3197`（`feat-feedback-kind-radio` 也登记了 `3197`，本任务收尾后释放）。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

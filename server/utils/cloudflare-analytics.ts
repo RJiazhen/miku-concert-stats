@@ -2,12 +2,19 @@
  * Cloudflare Web Analytics queries for the maintainer backend.
  *
  * Nothing here is visitor-level: the GraphQL datasets are asked for aggregates only, and the API
- * token never leaves the Worker. Both settings come from the Cloudflare bindings (the same place
- * ACCESS_TEAM_DOMAIN and ACCESS_AUD come from), so an unconfigured deployment degrades to a
- * "not configured" answer instead of an exception.
+ * token never leaves the Worker. Every alias is filtered by `requestHost`, so a Web Analytics
+ * account that also tracks other sites or hostnames contributes nothing but this site's rows.
+ * All settings come from the Cloudflare bindings (the same place ACCESS_TEAM_DOMAIN and ACCESS_AUD
+ * come from), so an unconfigured deployment degrades to a "not configured" answer instead of an
+ * exception.
  */
-import type { H3Event } from 'h3'
-import type { AdminAnalyticsConfigured, AdminAnalyticsPath } from '../../shared/admin.ts'
+import type {
+  AdminAnalyticsBreakdown,
+  AdminAnalyticsConfigured,
+  AdminAnalyticsDay,
+  AdminAnalyticsPath,
+} from '../../shared/admin.ts'
+import type { AnalyticsSettings } from './analytics-settings.ts'
 
 /** Cloudflare GraphQL Analytics endpoint; the only request destination of this module. */
 const GRAPHQL_ENDPOINT = 'https://api.cloudflare.com/client/v4/graphql'
@@ -15,41 +22,75 @@ const GRAPHQL_ENDPOINT = 'https://api.cloudflare.com/client/v4/graphql'
 /** How many paths the top list keeps; enough to explain the traffic without pagination. */
 const TOP_PATH_LIMIT = 20
 
+/** How many slices each breakdown keeps; the head of the distribution explains the rest. */
+const DEVICE_LIMIT = 4
+const BROWSER_LIMIT = 6
+const COUNTRY_LIMIT = 8
+
 /**
- * One query for the whole page: account totals plus the busiest paths, over a UTC date window.
- * `count` is page views and `sum.visits` is visits, matching the Web Analytics dashboard.
+ * One query for the whole page: totals, a daily series, the busiest paths and three breakdowns.
+ * `count` is page views and `sum.visits` is visits, matching the Web Analytics dashboard. Every
+ * alias carries the same `requestHost` filter so the account cannot leak another site's rows.
  */
-const WEB_ANALYTICS_QUERY = `query WebAnalyticsOverview($accountTag: String!, $since: Date!, $until: Date!) {
+const WEB_ANALYTICS_QUERY = `query WebAnalyticsOverview($accountTag: String!, $host: String!, $since: Date!, $until: Date!) {
   viewer {
     accounts(filter: { accountTag: $accountTag }) {
       totals: rumPageloadEventsAdaptiveGroups(
         limit: 1
-        filter: { date_geq: $since, date_leq: $until }
+        filter: { date_geq: $since, date_leq: $until, requestHost: $host }
       ) {
         count
         sum { visits }
         avg { sampleInterval }
       }
+      daily: rumPageloadEventsAdaptiveGroups(
+        limit: 31
+        filter: { date_geq: $since, date_leq: $until, requestHost: $host }
+        orderBy: [date_ASC]
+      ) {
+        count
+        sum { visits }
+        dimensions { date }
+      }
       topPaths: rumPageloadEventsAdaptiveGroups(
         limit: ${TOP_PATH_LIMIT}
-        filter: { date_geq: $since, date_leq: $until }
+        filter: { date_geq: $since, date_leq: $until, requestHost: $host }
         orderBy: [count_DESC]
       ) {
         count
         sum { visits }
         dimensions { requestPath }
       }
+      devices: rumPageloadEventsAdaptiveGroups(
+        limit: ${DEVICE_LIMIT}
+        filter: { date_geq: $since, date_leq: $until, requestHost: $host }
+        orderBy: [count_DESC]
+      ) {
+        count
+        sum { visits }
+        dimensions { deviceType }
+      }
+      browsers: rumPageloadEventsAdaptiveGroups(
+        limit: ${BROWSER_LIMIT}
+        filter: { date_geq: $since, date_leq: $until, requestHost: $host }
+        orderBy: [count_DESC]
+      ) {
+        count
+        sum { visits }
+        dimensions { userAgentBrowser }
+      }
+      countries: rumPageloadEventsAdaptiveGroups(
+        limit: ${COUNTRY_LIMIT}
+        filter: { date_geq: $since, date_leq: $until, requestHost: $host }
+        orderBy: [count_DESC]
+      ) {
+        count
+        sum { visits }
+        dimensions { countryName }
+      }
     }
   }
 }`
-
-/** The two Worker settings the analytics routes need; both blank means "not configured". */
-export type CloudflareAnalyticsConfig = {
-  /** Account-scoped API token with Account Analytics read access. Never returned or logged. */
-  apiToken: string
-  /** 32-hex account tag from the Cloudflare dashboard. */
-  accountTag: string
-}
 
 /** Closed window the page asks for: 7 or 30 whole UTC days, ending today. */
 export type AnalyticsRange = {
@@ -58,18 +99,18 @@ export type AnalyticsRange = {
   to: string
 }
 
-/** The part of `event.context.cloudflare.env` this module reads. */
-type AnalyticsBindings = {
-  CF_ANALYTICS_API_TOKEN?: string
-  CF_ACCOUNT_TAG?: string
-}
-
 /** GraphQL group row; every field is optional because it comes from an external service. */
 type GraphqlGroup = {
   count?: unknown
   sum?: { visits?: unknown }
   avg?: { sampleInterval?: unknown }
-  dimensions?: { requestPath?: unknown }
+  dimensions?: {
+    requestPath?: unknown
+    date?: unknown
+    deviceType?: unknown
+    userAgentBrowser?: unknown
+    countryName?: unknown
+  }
 }
 
 /** Narrows an untrusted value to a finite non-negative integer. */
@@ -78,23 +119,8 @@ const wholeNumber = (value: unknown): number | null => {
   return Math.max(0, Math.trunc(value))
 }
 
-/** Reads the two analytics settings from the request's Cloudflare bindings. */
-const analyticsBindingsOf = (event: H3Event): AnalyticsBindings => {
-  const context = event.context as unknown as { cloudflare?: { env?: AnalyticsBindings } }
-  return context.cloudflare?.env ?? {}
-}
-
-/**
- * Returns the Cloudflare Analytics settings, or `null` when either is blank.
- * The comparison happens after trimming so a whitespace-only var behaves like a missing one.
- */
-export const cloudflareAnalyticsConfigOf = (event: H3Event): CloudflareAnalyticsConfig | null => {
-  const bindings = analyticsBindingsOf(event)
-  const apiToken = (bindings.CF_ANALYTICS_API_TOKEN ?? '').trim()
-  const accountTag = (bindings.CF_ACCOUNT_TAG ?? '').trim()
-  if (apiToken === '' || accountTag === '') return null
-  return { apiToken, accountTag }
-}
+/** Reads a GraphQL alias that should be an array of groups, tolerating a missing alias. */
+const rowsOf = (value: unknown): unknown[] => (Array.isArray(value) ? value : [])
 
 /**
  * Builds the UTC calendar-day window the query uses.
@@ -106,12 +132,80 @@ export const analyticsRangeOf = (days: number, now = new Date()): AnalyticsRange
   return { days, from: start.toISOString().slice(0, 10), to: end.toISOString().slice(0, 10) }
 }
 
+/** Enumerates every UTC date in the window as `YYYY-MM-DD`, oldest first. */
+const datesBetween = (from: string, to: string): string[] => {
+  const end = Date.parse(`${to}T00:00:00Z`)
+  const dates: string[] = []
+  for (let cursor = Date.parse(`${from}T00:00:00Z`); cursor <= end; cursor += 86_400_000) {
+    dates.push(new Date(cursor).toISOString().slice(0, 10))
+  }
+  return dates
+}
+
+/** Builds the daily series, zero-filling days that produced no beacon rows. */
+const dailyOf = (rows: unknown, range: AnalyticsRange): AdminAnalyticsDay[] => {
+  const byDate = new Map<string, { pageviews: number; visits: number }>()
+  for (const raw of rowsOf(rows)) {
+    const group = raw as GraphqlGroup
+    const date = typeof group.dimensions?.date === 'string' ? group.dimensions.date : ''
+    if (date === '') continue
+    const current = byDate.get(date) ?? { pageviews: 0, visits: 0 }
+    current.pageviews += wholeNumber(group.count) ?? 0
+    current.visits += wholeNumber(group.sum?.visits) ?? 0
+    byDate.set(date, current)
+  }
+  return datesBetween(range.from, range.to).map((date) => {
+    const day = byDate.get(date) ?? { pageviews: 0, visits: 0 }
+    return { date, pageviews: day.pageviews, visits: day.visits }
+  })
+}
+
+/** Maps the top-path alias, largest first. */
+const topPathsOf = (rows: unknown): AdminAnalyticsPath[] => {
+  const paths: AdminAnalyticsPath[] = []
+  for (const raw of rowsOf(rows)) {
+    const group = raw as GraphqlGroup
+    const path = typeof group.dimensions?.requestPath === 'string' ? group.dimensions.requestPath : ''
+    paths.push({
+      path,
+      pageviews: wholeNumber(group.count) ?? 0,
+      visits: wholeNumber(group.sum?.visits) ?? 0,
+    })
+  }
+  paths.sort((left, right) => right.pageviews - left.pageviews)
+  return paths
+}
+
+/** Maps one breakdown alias (device, browser or country), largest first. */
+const breakdownOf = (
+  rows: unknown,
+  dimension: 'deviceType' | 'userAgentBrowser' | 'countryName',
+): AdminAnalyticsBreakdown[] => {
+  const slices: AdminAnalyticsBreakdown[] = []
+  for (const raw of rowsOf(rows)) {
+    const group = raw as GraphqlGroup
+    const value = group.dimensions?.[dimension]
+    if (typeof value !== 'string' || value === '') continue
+    slices.push({
+      label: value,
+      pageviews: wholeNumber(group.count) ?? 0,
+      visits: wholeNumber(group.sum?.visits) ?? 0,
+    })
+  }
+  slices.sort((left, right) => right.pageviews - left.pageviews)
+  return slices
+}
+
 /**
  * Reshapes one GraphQL response into the page payload.
  * Returns `null` when the body has GraphQL errors or no account row, so the caller can fail with a
  * generic 502 instead of rendering zeros that look like real traffic.
  */
-const summarise = (payload: unknown, range: AnalyticsRange): AdminAnalyticsConfigured | null => {
+const summarise = (
+  payload: unknown,
+  range: AnalyticsRange,
+  host: string,
+): AdminAnalyticsConfigured | null => {
   if (typeof payload !== 'object' || payload === null) return null
   const body = payload as { data?: unknown; errors?: unknown }
   if (Array.isArray(body.errors) && body.errors.length > 0) return null
@@ -121,28 +215,35 @@ const summarise = (payload: unknown, range: AnalyticsRange): AdminAnalyticsConfi
   if (typeof viewer !== 'object' || viewer === null) return null
   const accounts = (viewer as { accounts?: unknown }).accounts
   if (!Array.isArray(accounts) || accounts.length === 0) return null
-  const account = accounts[0] as { totals?: unknown; topPaths?: unknown }
-  const totals = Array.isArray(account.totals) ? (account.totals[0] as GraphqlGroup | undefined) : undefined
+  const account = accounts[0] as {
+    totals?: unknown
+    daily?: unknown
+    topPaths?: unknown
+    devices?: unknown
+    browsers?: unknown
+    countries?: unknown
+  }
+  const totals = Array.isArray(account.totals)
+    ? (account.totals[0] as GraphqlGroup | undefined)
+    : undefined
   const pageviews = wholeNumber(totals?.count) ?? 0
   const visits = wholeNumber(totals?.sum?.visits) ?? 0
   const sampleIntervalRaw = wholeNumber(totals?.avg?.sampleInterval)
   const sampleInterval = sampleIntervalRaw === null || sampleIntervalRaw === 0 ? null : sampleIntervalRaw
 
-  const topPaths: AdminAnalyticsPath[] = []
-  if (Array.isArray(account.topPaths)) {
-    for (const raw of account.topPaths) {
-      const group = raw as GraphqlGroup
-      const path = typeof group.dimensions?.requestPath === 'string' ? group.dimensions.requestPath : ''
-      topPaths.push({
-        path,
-        pageviews: wholeNumber(group.count) ?? 0,
-        visits: wholeNumber(group.sum?.visits) ?? 0,
-      })
-    }
+  return {
+    configured: true,
+    host,
+    ...range,
+    pageviews,
+    visits,
+    sampleInterval,
+    daily: dailyOf(account.daily, range),
+    topPaths: topPathsOf(account.topPaths),
+    devices: breakdownOf(account.devices, 'deviceType'),
+    browsers: breakdownOf(account.browsers, 'userAgentBrowser'),
+    countries: breakdownOf(account.countries, 'countryName'),
   }
-  topPaths.sort((left, right) => right.pageviews - left.pageviews)
-
-  return { configured: true, ...range, pageviews, visits, sampleInterval, topPaths }
 }
 
 /**
@@ -151,7 +252,7 @@ const summarise = (payload: unknown, range: AnalyticsRange): AdminAnalyticsConfi
  * upstream message are never included in the result.
  */
 export const fetchWebAnalyticsOverview = async (
-  config: CloudflareAnalyticsConfig,
+  config: AnalyticsSettings,
   range: AnalyticsRange,
 ): Promise<AdminAnalyticsConfigured | null> => {
   let response: Response
@@ -164,7 +265,12 @@ export const fetchWebAnalyticsOverview = async (
       },
       body: JSON.stringify({
         query: WEB_ANALYTICS_QUERY,
-        variables: { accountTag: config.accountTag, since: range.from, until: range.to },
+        variables: {
+          accountTag: config.accountTag,
+          host: config.host,
+          since: range.from,
+          until: range.to,
+        },
       }),
     })
   } catch {
@@ -172,5 +278,5 @@ export const fetchWebAnalyticsOverview = async (
   }
   if (!response.ok) return null
   const payload: unknown = await response.json().catch(() => null)
-  return summarise(payload, range)
+  return summarise(payload, range, config.host)
 }

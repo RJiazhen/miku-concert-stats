@@ -46,3 +46,16 @@ NUXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN = ""
 # The token only needs Account > Account Analytics > Read. While either setting is
 # blank the admin page answers "not configured" and never calls Cloudflare.
 CF_ACCOUNT_TAG = "f6660f9fb6f3b68d4cbb337c220954e5"
+
+# Host (and only host) the analytics page counts. Every GraphQL alias filters on `requestHost`, so
+# other Web Analytics sites in the same account never appear. Leave it blank to keep the page in the
+# "not configured" state instead of falling back to account-wide numbers.
+CF_ANALYTICS_HOST = "miku-concert-stats.rjiazhen.top"
+
+# First-party visitor analytics (/admin/analytics > 访客统计). The browser keeps a random visitor id
+# in localStorage and posts one page view per navigation; the Worker writes them here, and the admin
+# API queries them back through the Analytics Engine SQL API with the token above.
+# The dataset is created on the first write, so a fresh account needs no manual setup.
+[[analytics_engine_datasets]]
+binding = "PAGEVIEWS"
+dataset = "miku_pageviews"
