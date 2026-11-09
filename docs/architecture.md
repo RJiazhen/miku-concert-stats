@@ -487,7 +487,7 @@ flowchart TD
   Nuxt 的公网 runtime config 从 `NUXT_` 前缀的环境变量读取，所以 wrangler 变量必须叫这个长名字（对应 `runtimeConfig.public.cloudflareWebAnalyticsToken`）。保持空字符串时 `app/layouts/default.vue` 不渲染任何 script 标签，本地开发与未配置的部署都不会向 Cloudflare 发请求。
 - `[vars] CF_ACCOUNT_TAG`：Cloudflare 账户 ID（32 位十六进制），供 `/api/admin/analytics` 查询 GraphQL Analytics。与 `CF_ANALYTICS_API_TOKEN`、`CF_ANALYTICS_HOST` 一起从 Worker 绑定读取；任意一项为空时接口返回 `{ configured: false }`，不发起外部请求。
 - `[vars] CF_ANALYTICS_HOST`：只统计的站点 host（不带协议，例如 `miku-concert-stats.rjiazhen.top`）。GraphQL 的每个别名都用 `requestHost` 过滤，账户里其它 Web Analytics 站点与其它域名不会计入；留空同样走 `{ configured: false }`，不会退化成账户级合并统计。
-- `[[analytics_engine_datasets]]`：`binding = "PAGEVIEWS"`、`dataset = "miku_pageviews"`，第一方访客事件的写入目标。数据集在第一次写入时自动创建，不需要手工建表；Admin API 通过 `analytics_engine/sql` 查询它，用的仍是 `CF_ANALYTICS_API_TOKEN`。Worker 侧绑定缺失（本地 `nuxt dev`）时 `/api/analytics/pageview` 返回 204 但不写任何数据。
+- `[[analytics_engine_datasets]]`：`binding = "PAGEVIEWS"`、`dataset = "miku_pageviews"`，第一方访客事件的写入目标。**Analytics Engine 需先在控制台启用**（Workers & Pages > Analytics Engine > Enable），否则上传 Worker 会以 `code 10089` 失败；启用后数据集 `miku_pageviews` 在面板创建，名称与 binding 必须和这里一致。Admin API 通过 `analytics_engine/sql` 查询它，用的仍是 `CF_ANALYTICS_API_TOKEN`。Worker 侧绑定缺失（本地 `nuxt dev`）时 `/api/analytics/pageview` 返回 204 但不写任何数据。
 - `CF_ANALYTICS_API_TOKEN` secret：账户级 API token，权限只需要 Account > Account Analytics > Read。不要写进仓库或 `[vars]`，用 `pnpm exec wrangler secret put CF_ANALYTICS_API_TOKEN` 写入；页面里也提供了同样的提示。Worker 从不回传或记录这个 token。
 
 `nuxt dev` 不把 `FEEDBACK` 绑定交给路由，因此开发环境提交固定返回 503，可以稳定验证降级路径；Cloudflare 模拟会把 `[vars]` 带进开发环境，但 127.0.0.1 不是 Access 的 destination，所以 `/admin` 不会跳转，只渲染后台外壳并提示本地不读取真实反馈。要看真实数据请在浏览器里完成 Access 登录后打开线上页面。
@@ -636,7 +636,7 @@ cloudflared access curl "https://miku-concert-stats.rjiazhen.top/api/feedback/li
 
 beacon 只统计部署了 token 之后的访问，历史数据不会补录；查询按 `requestHost` 过滤，所以同一个账户下的其它 Web Analytics 站点不会合并进来。Web Analytics 只有聚合数据，没有访客 ID：唯一访客数、回访访客与访客路径都无法从它得到，`visits` 是 Cloudflare 估算的访问会话数。
 
-第一方访客统计没有额外的手工配置：`[[analytics_engine_datasets]]` 的 `PAGEVIEWS` 绑定会随 `wrangler deploy` 一起创建，数据集在第一次写入时自动出现。上线后打开公开页面即可产生数据，`/admin/analytics` 上半部随即从空状态变为真实数字；Analytics Engine 只保留 90 天，需要更长历史时只能再加 R2 归档（当前没有做）。
+第一方访客统计有一项**账户级**前置条件：Analytics Engine 必须在 Cloudflare 控制台启用过（Workers & Pages > Analytics Engine > Enable）。没有启用时 `wrangler deploy` 会在上传阶段被拒，报 `workers.api.error.no_access_to_analytics_engine [code: 10089]`；这个开关只能从控制台打开，没有 API、wrangler 参数或 buildtime 环境变量可以替代。启用后 `[[analytics_engine_datasets]]` 的 `PAGEVIEWS` 绑定随 `wrangler deploy` 一起生效，数据集 `miku_pageviews` 在面板里创建（名称与 binding 必须与配置完全一致，否则 SQL 查不到数据）。上线后打开公开页面即可产生数据，`/admin/analytics` 上半部随即从空状态变为真实数字；Analytics Engine 只保留 90 天，需要更长历史时只能再加 R2 归档（当前没有做）。
 
 返回 `{ count, items }`，`items` 按提交时间倒序，每条含 `id`、`receivedAt`、`status`、`description`、`sourceUrl`、`pageUrl`、`pageTitle`；`collectedAt` 由服务端在缺省时补成 `receivedAt`，旧记录还可能带 `viewport`、`catalogVersion`，且缺 `status` 时按 `open` 返回。需要更多条目时加 `&limit=200`（上限 200）。反馈在 KV 里保留 180 天，过期自动删除。没有做 IP 限流、验证码或去重，只限制了请求体大小与字段长度。
 
