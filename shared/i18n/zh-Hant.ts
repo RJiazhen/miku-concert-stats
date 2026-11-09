@@ -331,6 +331,8 @@ export const zhHant = {
   'timeline.latest': '最近',
   'timeline.filter': '篩選',
   'timeline.floatingMenu': '篩選與圖表',
+  'timeline.closeMenu': '關閉篩選與圖表',
+  'timeline.applyFilters': '套用篩選',
   'timeline.unitShows': '場次',
   'timeline.unitSongs': '曲目',
   'timeline.unitPerformances': '演出',

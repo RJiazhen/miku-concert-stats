@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { FEEDBACK_DESCRIPTION_MAX, FEEDBACK_URL_MAX, isHttpUrl, type FeedbackKind } from '~~/shared/feedback.ts'
+import { useFloatingButtonCollapse } from '~/composables/useFloatingButtonCollapse.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 
 /** Response body of `POST /api/feedback`. */
@@ -60,54 +61,7 @@ const detectPrecisePointer = (): void => {
 onMounted(detectPrecisePointer)
 
 /** Whether the viewport is narrower than 40rem (640px), the only width where the button may collapse. */
-const isMobileViewport = (): boolean => window.matchMedia('(width < 40rem)').matches
-
-/** Whether the mobile button already shrank to its icon-only form for this visit. */
-const collapsed = ref(false)
-
-/** Collapses the mobile button once, then detaches both one-shot listeners. */
-const collapseButton = (): void => {
-  collapsed.value = true
-  window.removeEventListener('scroll', collapseButton, { capture: true })
-  window.removeEventListener('click', collapseButton, { capture: true })
-}
-
-/** Starts watching the first scroll or tap that collapses the mobile feedback button; a no-op on desktop. */
-const watchFirstInteraction = (): void => {
-  window.removeEventListener('scroll', collapseButton, { capture: true })
-  window.removeEventListener('click', collapseButton, { capture: true })
-  if (collapsed.value || !isMobileViewport()) return
-  window.addEventListener('scroll', collapseButton, { capture: true, passive: true })
-  window.addEventListener('click', collapseButton, { capture: true, passive: true })
-}
-onMounted(watchFirstInteraction)
-
-/** Re-arms the watch on narrowing and expands the button again on widening past 40rem. */
-const handleViewportChange = (event: MediaQueryListEvent): void => {
-  if (event.matches) {
-    watchFirstInteraction()
-    return
-  }
-  collapsed.value = false
-}
-
-let mobileMediaQuery: MediaQueryList | undefined
-
-/** Subscribes to the 40rem breakpoint crossing so the collapsed state can never leak onto desktop. */
-const watchViewportWidth = (): void => {
-  mobileMediaQuery = window.matchMedia('(width < 40rem)')
-  mobileMediaQuery.addEventListener('change', handleViewportChange)
-}
-
-/** Detaches the one-shot interaction listeners and the breakpoint listener. */
-const stopWatching = (): void => {
-  window.removeEventListener('scroll', collapseButton, { capture: true })
-  window.removeEventListener('click', collapseButton, { capture: true })
-  mobileMediaQuery?.removeEventListener('change', handleViewportChange)
-  mobileMediaQuery = undefined
-}
-onMounted(watchViewportWidth)
-onUnmounted(stopWatching)
+const collapsed = useFloatingButtonCollapse()
 
 /** Refreshes the page URL and title shown in the greyed-out fields. */
 const collectContext = (): void => {

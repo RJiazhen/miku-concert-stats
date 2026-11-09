@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { characterNames, characterRules } from '~/composables/useCharacters.ts'
 import { useCharacterNames } from '~/composables/useCharacterNames.ts'
@@ -637,7 +637,118 @@ const goToChart = async (key: string): Promise<void> => {
 /** Open state of the single floating menu that folds the chart navigation and the filters together. */
 const floatingMenuOpen = ref(false)
 
-/** Scrolls to one chart from the floating menu and closes it. */
+/** Folds the menu button's text label on phones, in step with the feedback button opposite it. */
+const floatingButtonCollapsed = useFloatingButtonCollapse()
+
+// The panel edits draft copies of the filters, so a half-finished selection never re-renders the
+// charts behind it. Only the confirm button writes the drafts back into the page state.
+
+/** Draft lower year bound; `YEAR_ANY` until a year is picked inside the panel. */
+const draftYearFrom = ref<number>(YEAR_ANY)
+/** Draft upper year bound; `YEAR_ANY` until a year is picked inside the panel. */
+const draftYearTo = ref<number>(YEAR_ANY)
+/** Draft series selection. */
+const draftSeries = ref<number[]>([])
+/** Draft city selection. */
+const draftCities = ref<string[]>([])
+/** Draft producer selection. */
+const draftProducers = ref<string[]>([])
+/** Draft character selection. */
+const draftCharacters = ref<string[]>([])
+/** Draft broadcast / VR counting switch. */
+const draftBroadcast = ref(true)
+/** Draft song-version merge switch. */
+const draftMergeVariants = ref(false)
+
+/** Copies the live filters into the drafts; runs every time the panel opens. */
+const fillDrafts = (): void => {
+  draftYearFrom.value = yearFrom.value
+  draftYearTo.value = yearTo.value
+  draftSeries.value = [...selectedSeries.value]
+  draftCities.value = [...selectedCities.value]
+  draftProducers.value = [...selectedProducers.value]
+  draftCharacters.value = [...selectedCharacters.value]
+  draftBroadcast.value = includeBroadcast.value
+  draftMergeVariants.value = mergeVariants.value
+}
+
+/** Count of non-default conditions among the drafts, printed on the panel's reset button. */
+const draftFilterCount = computed(() => {
+  const draftRange = normalizeYearRange({
+    from: draftYearFrom.value === YEAR_ANY ? null : draftYearFrom.value,
+    to: draftYearTo.value === YEAR_ANY ? null : draftYearTo.value,
+  })
+  let count = draftSeries.value.length + draftCities.value.length + draftProducers.value.length + draftCharacters.value.length
+  if (!draftBroadcast.value) count += 1
+  if (draftMergeVariants.value) count += 1
+  if (draftRange.from !== null || draftRange.to !== null) count += 1
+  return count
+})
+
+/** Clears every draft back to its default without touching the charts behind the panel. */
+const resetDraftFilters = (): void => {
+  draftYearFrom.value = YEAR_ANY
+  draftYearTo.value = YEAR_ANY
+  draftSeries.value = []
+  draftCities.value = []
+  draftProducers.value = []
+  draftCharacters.value = []
+  draftBroadcast.value = true
+  draftMergeVariants.value = false
+}
+
+/** Opens the panel with the current filters copied in. */
+const openFloatingMenu = (): void => {
+  fillDrafts()
+  floatingMenuOpen.value = true
+}
+
+/** Closes the panel and drops the drafts; the live filters keep their previous values. */
+const closeFloatingMenu = (): void => {
+  floatingMenuOpen.value = false
+}
+
+/** Applies the drafts to the live filters, then closes the panel so the charts redraw. */
+const applyDraftFilters = (): void => {
+  yearFrom.value = draftYearFrom.value
+  yearTo.value = draftYearTo.value
+  selectedSeries.value = [...draftSeries.value]
+  selectedCities.value = [...draftCities.value]
+  selectedProducers.value = [...draftProducers.value]
+  selectedCharacters.value = [...draftCharacters.value]
+  includeBroadcast.value = draftBroadcast.value
+  mergeVariants.value = draftMergeVariants.value
+  floatingMenuOpen.value = false
+}
+
+/** Closes the panel on Escape, discarding the drafts like every other dismissal. */
+const closeOnEscape = (event: KeyboardEvent): void => {
+  if (event.key !== 'Escape' || !floatingMenuOpen.value) return
+  floatingMenuOpen.value = false
+}
+
+/** Starts listening for the Escape key that dismisses the panel. */
+const startMenuDismiss = (): void => {
+  window.addEventListener('keydown', closeOnEscape)
+}
+onMounted(startMenuDismiss)
+
+/** Releases the dismiss listener. */
+const stopMenuDismiss = (): void => {
+  window.removeEventListener('keydown', closeOnEscape)
+}
+onUnmounted(stopMenuDismiss)
+
+/** Opens the panel when closed and discards it when open; the same button does both. */
+const toggleFloatingMenu = (): void => {
+  if (floatingMenuOpen.value) {
+    closeFloatingMenu()
+    return
+  }
+  openFloatingMenu()
+}
+
+/** Scrolls to one chart from the floating menu and closes it, dropping any unconfirmed filters. */
 const selectChartFromMenu = (key: string): void => {
   floatingMenuOpen.value = false
   void goToChart(key)
@@ -1010,72 +1121,93 @@ useHead({ title: computed(() => t('timeline.title')) })
     </main>
 
     <!-- One floating menu for the whole page: the chart navigation and the filters share a
-         single button, mirroring the feedback button on the opposite side of the page. -->
+         single button, mirroring the feedback button on the opposite side of the page. The panel
+         covers the whole viewport below `sm` and becomes a small popover above it. -->
     <div v-if="!error" class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-40 sm:left-6">
-      <UPopover v-model:open="floatingMenuOpen" :content="{ align: 'start', side: 'top' }">
-        <div class="relative">
+      <div
+        v-if="floatingMenuOpen"
+        role="dialog"
+        :aria-label="t('timeline.floatingMenu')"
+        class="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-default px-4 pt-4 pb-24 sm:absolute sm:inset-auto sm:bottom-full sm:left-0 sm:z-auto sm:mb-2 sm:block sm:h-auto sm:max-h-[70vh] sm:w-[min(22rem,calc(100vw-2rem))] sm:rounded-xl sm:bg-elevated sm:p-3 sm:ring sm:shadow-xl sm:ring-default"
+      >
+        <!-- Phones only: the panel covers the page, so it needs its own heading and close button. -->
+        <div class="mb-3 flex items-center justify-between gap-2 border-b border-default/60 pb-2 sm:hidden">
+          <p class="text-sm font-medium text-highlighted">{{ t('timeline.floatingMenu') }}</p>
           <UButton
-            icon="i-lucide-sliders-horizontal"
-            color="primary"
-            variant="solid"
-            size="lg"
-            class="rounded-full shadow-lg shadow-black/25"
-            :aria-label="t('timeline.floatingMenu')"
-            aria-haspopup="dialog"
-            :aria-expanded="floatingMenuOpen"
-          >
-            <span class="hidden sm:inline">{{ t('timeline.floatingMenu') }}</span>
-          </UButton>
-          <UBadge
-            v-if="activeCount > 0"
-            color="primary"
-            variant="solid"
-            size="xs"
-            class="pointer-events-none absolute -top-1 -right-1"
-          >
-            {{ activeCount }}
-          </UBadge>
+            icon="i-lucide-x"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            :aria-label="t('timeline.closeMenu')"
+            @click="closeFloatingMenu"
+          />
         </div>
-        <template #content>
-          <div class="w-[min(22rem,calc(100vw-2rem))] max-h-[70vh] space-y-3 overflow-y-auto p-3">
-            <div>
-              <p class="mb-1.5 px-1 text-xs font-medium tracking-[0.12em] text-muted uppercase">{{ t('timeline.charts') }}</p>
-              <div class="grid grid-cols-2 gap-0.5">
-                <UButton
-                  v-for="chart in CHARTS"
-                  :key="chart.key"
-                  :variant="focusedChart === chart.key ? 'soft' : 'ghost'"
-                  color="neutral"
-                  size="sm"
-                  class="justify-start"
-                  :label="chart.label"
-                  @click="selectChartFromMenu(chart.key)"
-                />
-              </div>
-            </div>
-            <div class="border-t border-default/60 pt-3">
-              <TimelineFilters
-                v-model:year-from="yearFrom"
-                v-model:year-to="yearTo"
-                v-model:selected-series="selectedSeries"
-                v-model:selected-cities="selectedCities"
-                v-model:selected-producers="selectedProducers"
-                v-model:selected-characters="selectedCharacters"
-                v-model:include-broadcast="includeBroadcast"
-                v-model:merge-variants="mergeVariants"
-                :year-items="yearItems"
-                :series-items="seriesItems"
-                :city-items="cityItems"
-                :producer-items="producerItems"
-                :character-items="characterItems"
-                :active-count="activeCount"
-                :show-note="false"
-                @reset="reset"
+        <div class="space-y-3">
+          <div>
+            <p class="mb-1.5 px-1 text-xs font-medium tracking-[0.12em] text-muted uppercase">{{ t('timeline.charts') }}</p>
+            <div class="grid grid-cols-2 gap-0.5">
+              <UButton
+                v-for="chart in CHARTS"
+                :key="chart.key"
+                :variant="focusedChart === chart.key ? 'soft' : 'ghost'"
+                color="neutral"
+                size="sm"
+                class="justify-start"
+                :label="chart.label"
+                @click="selectChartFromMenu(chart.key)"
               />
             </div>
           </div>
-        </template>
-      </UPopover>
+          <div class="border-t border-default/60 pt-3">
+            <TimelineFilters
+              v-model:year-from="draftYearFrom"
+              v-model:year-to="draftYearTo"
+              v-model:selected-series="draftSeries"
+              v-model:selected-cities="draftCities"
+              v-model:selected-producers="draftProducers"
+              v-model:selected-characters="draftCharacters"
+              v-model:include-broadcast="draftBroadcast"
+              v-model:merge-variants="draftMergeVariants"
+              :year-items="yearItems"
+              :series-items="seriesItems"
+              :city-items="cityItems"
+              :producer-items="producerItems"
+              :character-items="characterItems"
+              :active-count="draftFilterCount"
+              :show-note="false"
+              @reset="resetDraftFilters"
+            />
+          </div>
+          <!-- One confirm for both switches and pickers: nothing behind the panel redraws until it runs. -->
+          <div class="flex justify-end border-t border-default/60 pt-3">
+            <UButton
+              color="primary"
+              icon="i-lucide-check"
+              :label="t('timeline.applyFilters')"
+              class="max-sm:w-full max-sm:justify-center"
+              @click="applyDraftFilters"
+            />
+          </div>
+        </div>
+      </div>
+
+      <UButton
+        color="primary"
+        variant="solid"
+        size="lg"
+        class="relative z-50 rounded-full shadow-lg shadow-black/25 transition-[gap,padding] duration-200 motion-reduce:transition-none"
+        :class="floatingButtonCollapsed ? 'max-sm:gap-0 max-sm:px-2.5' : ''"
+        :aria-label="floatingMenuOpen ? t('timeline.closeMenu') : t('timeline.floatingMenu')"
+        aria-haspopup="dialog"
+        :aria-expanded="floatingMenuOpen"
+        @click="toggleFloatingMenu"
+      >
+        <UIcon :name="floatingMenuOpen ? 'i-lucide-x' : 'i-lucide-sliders-horizontal'" class="size-5" />
+        <span
+          class="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 motion-reduce:transition-none"
+          :class="floatingButtonCollapsed ? 'max-w-0 opacity-0 sm:max-w-24 sm:opacity-100' : 'max-w-24'"
+        >{{ floatingMenuOpen ? t('feedback.close') : t('timeline.filter') }}</span>
+      </UButton>
     </div>
   </div>
 </template>
