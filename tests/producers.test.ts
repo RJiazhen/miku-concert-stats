@@ -254,7 +254,7 @@ describe('producer index', () => {
       lastYear: 2024,
     })
     expect(kz?.roles).toEqual({ producer: 2, composer: 1, arranger: 1, voicemanipulator: 0 })
-    expect(kz?.topSongIds).toEqual([1, 2, 3])
+    expect(kz?.topSongId).toBe(1)
     // Each song carries the 演出 that played it, so a page can list songs per 演出.
     expect(kz?.songs.map((song) => [song.songId, song.performanceIds])).toEqual([
       [1, [1, 2, 4]],

@@ -56,12 +56,14 @@ type RankedProducer = {
   showCount: number
   firstYear: number | null
   lastYear: number | null
-  topSongs: { id: number; name: string }[]
+  topSong: { id: number; name: string } | null
 }
 
-/** Song names behind the 代表作 links, kept out of the sort key. */
-const topSongsOf = (row: ProducerRow): { id: number; name: string }[] =>
-  row.topSongIds.map((id) => ({ id, name: songById(id)?.name ?? String(id) }))
+/** Song name behind the 代表作 link, kept out of the sort key. */
+const topSongOf = (row: ProducerRow): { id: number; name: string } | null => {
+  const id = row.topSongId
+  return id === null ? null : { id, name: songById(id)?.name ?? String(id) }
+}
 
 const rows = computed<RankedProducer[]>(() => {
   const ordered = rankProducers(visibleRows.value, 'songCount')
@@ -76,7 +78,7 @@ const rows = computed<RankedProducer[]>(() => {
     showCount: row.showCount,
     firstYear: row.firstYear,
     lastYear: row.lastYear,
-    topSongs: topSongsOf(row),
+    topSong: topSongOf(row),
   }))
 })
 
@@ -115,7 +117,7 @@ const columns: TableColumn<RankedProducer>[] = [
   { accessorKey: 'showCount', header: sortableHeader(t('col.shows')), enableSorting: true },
   { accessorKey: 'firstYear', header: sortableHeader(t('col.firstYear')), enableSorting: true },
   { accessorKey: 'lastYear', header: sortableHeader(t('col.lastYear')), enableSorting: true },
-  { accessorKey: 'topSongs', header: t('col.topSongs'), enableSorting: false },
+  { accessorKey: 'topSong', header: t('col.topSongs'), enableSorting: false },
 ]
 
 /** Blank marker for a missing value. */
@@ -218,14 +220,14 @@ useHead({ title: computed(() => t('producers.indexTitle')) })
       <template #lastYear-cell="{ row }">
         <span class="tabular-nums text-muted">{{ cell(row.original.lastYear) }}</span>
       </template>
-      <template #topSongs-cell="{ row }">
-        <ul v-if="row.original.topSongs.length > 0" class="space-y-0.5">
-          <li v-for="song in row.original.topSongs" :key="song.id" class="min-w-0">
-            <NuxtLink :to="`/songs/${song.id}`" class="block max-w-40 truncate text-xs text-primary no-underline hover:underline">
-              <SongTitle :song-id="song.id" :original="song.name" truncate />
-            </NuxtLink>
-          </li>
-        </ul>
+      <template #topSong-cell="{ row }">
+        <NuxtLink
+          v-if="row.original.topSong"
+          :to="`/songs/${row.original.topSong.id}`"
+          class="block max-w-40 truncate text-xs text-primary no-underline hover:underline"
+        >
+          <SongTitle :song-id="row.original.topSong.id" :original="row.original.topSong.name" truncate />
+        </NuxtLink>
         <span v-else class="text-muted">—</span>
       </template>
     </TableSection>

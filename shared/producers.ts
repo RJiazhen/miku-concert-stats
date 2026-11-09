@@ -82,8 +82,8 @@ export type ProducerRow = {
   roles: ProducerRoleCounts
   /** Every credited song, most-performed first. */
   songs: ProducerSongRow[]
-  /** Up to three most-performed songs, for the index table. */
-  topSongIds: number[]
+  /** Most-performed song, shown as 代表作 in the index table; null when none was performed. */
+  topSongId: number | null
 }
 
 /** Every producer aggregated from one catalog, plus an exact-name lookup. */
@@ -434,7 +434,7 @@ export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptio
       lastYear: years.length === 0 ? null : Math.max(...years),
       roles: roleCounts,
       songs,
-      topSongIds: songs.filter((song) => song.showCount > 0).slice(0, 3).map((song) => song.songId),
+      topSongId: songs.find((song) => song.showCount > 0)?.songId ?? null,
     })
   }
 

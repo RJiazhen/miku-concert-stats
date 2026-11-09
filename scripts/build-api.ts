@@ -282,7 +282,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       showCount: row.showCount,
       firstYear: row.firstYear,
       lastYear: row.lastYear,
-      topSongs: row.topSongIds.map((id) => ({ id, ...songNamesOf(id) })),
+      topSongs: row.topSongId === null ? [] : [{ id: row.topSongId, ...songNamesOf(row.topSongId) }],
       url: `${BASE_URL}/producers/${encodeURIComponent(row.name)}`,
     }))
     .sort((left, right) => right.songCount - left.songCount || left.name.localeCompare(right.name, 'ja'))

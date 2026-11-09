@@ -41,6 +41,7 @@ Producer pages (and these two endpoints) list **only the songs this catalogue ha
 - `performanceCount` is the number of distinct 演出 credited.
 - A song with two credited producers is counted for each, so summing `songCount` across producers exceeds the catalogue total; never present such a sum as a database total.
 - A producer with no appearances is still listed, with `showCount: 0`.
+- `topSongs` holds at most one song: the producer's most-performed 代表作 in the catalogued 場次, and an empty array when nothing was performed.
 - Producer names follow the site rule: structured producer-side credits first, free text only for songs without them. Keep the official spelling (`DECO*27`, `kz`, `ryo`, `Mitchie M`) and do not translate a name.
 - Songs and 演出 in both payloads are already localized: `topSongs[]`, `songs[]`, and `performances[]` carry the song name fields and the 演出 name fields, and `performances[].seriesNameEn` / `seriesNameZh` give the series in the user's language. Use those instead of translating the catalog Japanese.
 
