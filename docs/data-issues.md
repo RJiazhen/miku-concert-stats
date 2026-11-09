@@ -374,6 +374,7 @@ VocaDB 的系列 173 只有 2026 上海站（13120）。成都站 2026-12-26 由
 2. **质量报告只给汇总数字**，不逐行列出「没有歌单或开始日期的演出」（目前 27 场，已按 `setlistPerformanceIds` 判定，百科来源的演出不再计入）。要定位具体场次只能查 `/raw` 的演出表。
 3. **公开页面只保留 系列 → 演出 → 场次 三级**，`/series/{id}` 是系列主页，`/editions` 路由已删除；`series_number` 仍留在数据里，只用于首演与歌单差异对照。
 4. **差异报告需要手动同步**：改动解析逻辑后必须跑 `pnpm report:setlist`，否则 CI 的 `pnpm report:setlist --check` 会失败。
+5. **中文曲名与角色映射的覆盖**（[#5](https://github.com/RJiazhen/miku-concert-stats/issues/5)）：`data/song-titles.zh-CN.json` 现有 397 条，对 590 首目录歌曲是 67.3%，但缺口按「是否需要中文名」拆开并不大：没有中文名的演出曲目里，多数标题就是拉丁字母（`Tell Your World`、`Just Be Friends`），站内规则直接沿用原名；日文标题里又多数与中文同名（`劣等上等`、`炉心融解`、`深海少女`、`快晴`、`秘密警察`），按规则不登记，登记只会虚增条数；真正要找译名的只是含假名的少数几首。`data/characters.json` 的 22 条规则已覆盖目录里出现的全部 voicebank 写法（`初音ミク Append (Dark)`、`初音ミク V4 (中文版)`、`鏡音リン Append (Power)` 等），没有待合并的写法；25 个未匹配歌手写法都不是角色——6 首是 VocaDB 的 `feat. various` 折叠（13724、22102、63660、563199、581632、586830），7 个同时是制作人署名，16 个是真人歌手 / 乐队 / 团体，`女声1 (AquesTalk)` 是非角色合成音源。逐首清单用 `pnpm report:names` 生成到 `tmp/name-coverage.md` 查看（临时文件，不进仓库）；`various` 缺真实名单的 6 首另开 follow-up（[#43](https://github.com/RJiazhen/miku-concert-stats/issues/43)）处理。
 
 ---
 

@@ -282,6 +282,11 @@
     "title": "初音未来的激唱",
     "source": "萌娘百科"
   },
+  "2942": {
+    "title": "秘密花园",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/The_secret_garden"
+  },
   "2949": {
     "title": "边缘",
     "source": "萌娘百科"
@@ -308,6 +313,11 @@
   "3019": {
     "title": "爱言叶",
     "source": "vocawiki"
+  },
+  "3027": {
+    "title": "纯真",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/Innocence"
   },
   "3129": {
     "title": "双重套索",
@@ -703,6 +713,11 @@
     "title": "海百合海底谭",
     "source": "萌娘百科"
   },
+  "50132": {
+    "title": "玻璃墙",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/Glass_Wall"
+  },
   "56903": {
     "title": "慢动作",
     "source": "萌娘百科"
@@ -722,6 +737,14 @@
   "63276": {
     "title": "让其响彻",
     "source": "vocadb-alias"
+  },
+  "65733": {
+    "title": "四叶草俱乐部",
+    "aliases": [
+      "四叶草♣俱乐部"
+    ],
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/四叶草俱乐部"
   },
   "65736": {
     "title": "雪人",
@@ -814,6 +837,11 @@
       "幽灵守则"
     ],
     "source": "vocadb-alias"
+  },
+  "114805": {
+    "title": "因果报应",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/Karma(Circus-P)"
   },
   "121112": {
     "title": "罪之名",
@@ -1366,6 +1394,11 @@
     "title": "新人类",
     "source": "萌娘百科"
   },
+  "481543": {
+    "title": "想象中的爱情故事",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/想象中的爱情故事"
+  },
   "486770": {
     "title": "在黄昏中苟活",
     "source": "vocawiki"
@@ -1447,9 +1480,19 @@
     "title": "在那千年誓约的尽头",
     "source": "vocawiki"
   },
+  "566239": {
+    "title": "少年",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/JUVENILE(Jin)"
+  },
   "579184": {
     "title": "我是幽灵属性",
     "source": "vocawiki"
+  },
+  "580445": {
+    "title": "超级英雄",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/SUPERHERO(Mellowcle)"
   },
   "581632": {
     "title": "上吧！大牙狸团",
@@ -1587,6 +1630,11 @@
   "853916": {
     "title": "心跳不已！",
     "source": "vocawiki"
+  },
+  "862431": {
+    "title": "幸福予你！",
+    "source": "vocawiki",
+    "comment": "https://voca.wiki/幸福予你！"
   },
   "878206": {
     "title": "爱迷挽歌",

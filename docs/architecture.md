@@ -167,6 +167,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 - `partitionSongLists` 把一个系列年度的歌单分成合并组与独立歌单。
 - `buildSetlistDisplay` 选演出最多的歌单作骨架，其余歌单用 LCS 对齐；重复曲目折叠进已有行；最后按槽位分组并给出行号、`演出` 标签与完整演出名。每个演出都演出的行不写演出标签。
 
+`shared/name-coverage.ts` 汇总中文曲名与角色映射的覆盖情况：按 `data/song-titles.zh-CN.json` 统计未登记中文名的歌曲，按是否演出过分开（拉丁字母标题沿用原名，不算缺口），并把 `assignCharacters` 返回的未匹配歌手写法按证据分类（`feat. various` 折叠、同时是制作人署名、非角色合成音源、待人工判断）。`scripts/name-coverage-report.ts`（`pnpm report:names`）把这个待办清单写到 `tmp/name-coverage.md`，是本地排查用的临时产物，**不进仓库、不跑 CI**；要留下结论就写进 `docs/data-issues.md`。
+
 `shared/setlist-diff.ts` 生成差异报告：单份歌单的结构指标（行数、去重曲目、正片/安可行数、分天替换行数）、两份歌单的 LCS 与差异曲目、五级分类（`identical` / `order-only` / `count-differs` / `segment-differs` / `probably-different-program`）。`scripts/setlist-diff-report.ts` 把它写成 `docs/reports/setlist-differences.{md,csv}`，`--check` 只比对不写入，CI 使用。
 
 `shared/event-schedule.ts` 是三级模型里的场次层：
@@ -541,6 +543,7 @@ pnpm locations                # 查看 / 维护 data/show-locations.json
 pnpm locations --check        # CI 用，校验 0013 没有过期
 pnpm report:setlist-review    # 重写 docs/reports/setlist-review.md（已存在时需 --force）
 pnpm report:confirmation      # 重写给人看的 docs/setlist-confirmation.md
+pnpm report:names             # 写出本地待办清单 tmp/name-coverage.md（不进仓库）
 ```
 
 开发服务器已占用 Nuxt 锁时，另开的检查要跳过锁：
@@ -640,7 +643,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`data-zh-name-coverage` 用 `3189`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 
