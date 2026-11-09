@@ -8,7 +8,9 @@ import { useProducerFlags } from '~/composables/useProducerFlags.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { buildProducerIndex, producerRoleLabel, rolesPresent, type ProducerRoleCounts } from '~~/shared/producers.ts'
+import { variantKindLabel } from '~~/shared/song-variants.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
@@ -16,6 +18,9 @@ const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { locale, t } = useLocale()
 const flags = useProducerFlags()
+
+/** Checked variant list; rows whose song is a variant of another carry its kind. */
+const variants = useSongVariants()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -35,7 +40,7 @@ const producerName = computed(() => {
 })
 
 /** Aggregated producers; the page reads exactly the index the ranking shows, labels included. */
-const index = computed(() => (catalog.value ? buildProducerIndex(catalog.value, { flags }) : null))
+const index = computed(() => (catalog.value ? buildProducerIndex(catalog.value, { flags, variants }) : null))
 
 /** Exact-name lookup; null while loading or when the name is not in the catalog. */
 const producer = computed(() => index.value?.byName.get(producerName.value) ?? null)
@@ -87,6 +92,10 @@ type SongView = {
   name: string
   publishYear: number | null
   showCount: number
+  /** Localized badge text for a variant row; null on the canonical row. */
+  variantLabel: string | null
+  /** Curator note shown as the badge tooltip; null when the entry has none. */
+  variantNote: string | null
 }
 
 /** Credited songs, most-performed first, exactly as the aggregation ordered them. */
@@ -96,6 +105,8 @@ const songRows = computed<SongView[]>(() =>
     name: song.name,
     publishYear: song.publishYear,
     showCount: song.showCount,
+    variantLabel: song.variantKind === null ? null : variantKindLabel(song.variantKind, locale.value),
+    variantNote: song.variantNote,
   })),
 )
 
@@ -250,9 +261,21 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
         :empty-description="t('producers.noSongsDesc')"
       >
         <template #name-cell="{ row }">
-          <NuxtLink :to="`/songs/${row.original.songId}`" class="text-highlighted no-underline hover:text-primary">
-            <SongTitle :song-id="row.original.songId" :original="row.original.name" />
-          </NuxtLink>
+          <span class="inline-flex items-center gap-x-2">
+            <NuxtLink :to="`/songs/${row.original.songId}`" class="text-highlighted no-underline hover:text-primary">
+              <SongTitle :song-id="row.original.songId" :original="row.original.name" />
+            </NuxtLink>
+            <UTooltip
+              v-if="row.original.variantLabel"
+              :text="row.original.variantNote ?? ''"
+              :disabled="!row.original.variantNote"
+              :content="{ side: 'top' }"
+            >
+              <UBadge color="secondary" variant="subtle" size="sm" class="shrink-0">
+                {{ row.original.variantLabel }}
+              </UBadge>
+            </UTooltip>
+          </span>
         </template>
         <template #publishYear-cell="{ row }">
           <span class="tabular-nums text-muted">{{ cell(row.original.publishYear) }}</span>

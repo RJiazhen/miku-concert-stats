@@ -5,6 +5,7 @@ import { derivedItemSongIds } from './performance-setlists.ts'
 import { producerNamesFor } from './producer-options.ts'
 import { emptyProducerFlagIndex, type ProducerFlagIndex, type ProducerKind } from './producer-flags.ts'
 import { reviewRotations } from './rotation.ts'
+import type { SongVariantIndex, VariantKind } from './song-variants.ts'
 import { isBroadcastAppearance, performanceYear } from './stats.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, SongRow } from './types.ts'
 
@@ -47,6 +48,10 @@ export type ProducerSongRow = {
   performanceCount: number
   /** Ids of those 演出, ascending; lets a page list which songs one 演出 played. */
   performanceIds: number[]
+  /** How this song differs from its canonical version; null on the canonical row. */
+  variantKind: VariantKind | null
+  /** Curator note of the variant entry, for a tooltip; null when absent or canonical. */
+  variantNote: string | null
 }
 
 /** One producer's aggregated concert record. */
@@ -104,6 +109,11 @@ export type ProducerIndexOptions = {
    * them and the detail page can explain what they are.
    */
   flags?: ProducerFlagIndex
+  /**
+   * Variant catalog used to mark rows. Statistics never fold variants here (a producer's
+   * 曲目数 keeps counting each credited song), so this only annotates the song rows.
+   */
+  variants?: SongVariantIndex
 }
 
 /** Sortable columns of the producer ranking. */
@@ -322,6 +332,9 @@ export const compareProducers = (key: ProducerSortKey, direction: 'asc' | 'desc'
  * `countedRows`, so a label or studio never ranks and never counts as one of the "x producers".
  * `byName` keeps their row, so `/producers/<name>` still explains what the name is and the song
  * page keeps its full credit. `/producers` can show `rows` behind its 包含厂牌 switch.
+ *
+ * `options.variants` only annotates each song row with its variant kind and note; 曲目数 and the
+ * other counts keep treating every credited song separately.
  */
 export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptions = {}): ProducerIndex => {
   const flags = options.flags ?? emptyProducerFlagIndex()
@@ -374,6 +387,7 @@ export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptio
       const appearance = appearances.get(songId)
       const showCount = appearance?.shows.size ?? 0
       const performanceCount = appearance?.performances.size ?? 0
+      const variant = options.variants?.entries.get(songId)
       if (appearance !== undefined) {
         appearanceCount += showCount
         for (const key of appearance.shows) showKeys.add(key)
@@ -387,6 +401,8 @@ export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptio
         showCount,
         performanceCount,
         performanceIds: [...(appearance?.performances ?? [])].sort((left, right) => left - right),
+        variantKind: variant?.kind ?? null,
+        variantNote: variant?.note ?? null,
       })
     }
     songs.sort(compareSongs)
