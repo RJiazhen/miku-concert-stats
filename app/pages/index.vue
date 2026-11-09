@@ -7,6 +7,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
+import { useProducerFlags } from '~/composables/useProducerFlags.ts'
 import { useSongTitle } from '~/composables/useSongTitle.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useCharacterNames } from '~/composables/useCharacterNames.ts'
@@ -27,6 +28,7 @@ import {
 
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
+const flags = useProducerFlags()
 const { vocadbSongUrl } = useSongLookup()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
@@ -378,7 +380,7 @@ watch(characterItems, keepCharacterFilterValid)
 
 /** Options for 制作人, built from the credit shown in each row so every choice returns rows. */
 const producerItems = computed(() =>
-  availableProducers(ranked.value).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
+  availableProducers(ranked.value, flags).map(({ name, count }) => ({ label: `${name}（${count}）`, value: name })),
 )
 
 /** Drops selected producers that no longer occur, so the selection never filters the ranking to nothing. */

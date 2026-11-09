@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { usePlaceNames } from '~/composables/usePlaceNames.ts'
+import { useProducerFlags } from '~/composables/useProducerFlags.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
@@ -14,6 +15,7 @@ const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
 const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { locale, t } = useLocale()
+const flags = useProducerFlags()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -32,11 +34,19 @@ const producerName = computed(() => {
   return raw ?? ''
 })
 
-/** Aggregated producers; the page reads exactly the index the ranking shows. */
-const index = computed(() => (catalog.value ? buildProducerIndex(catalog.value) : null))
+/** Aggregated producers; the page reads exactly the index the ranking shows, labels included. */
+const index = computed(() => (catalog.value ? buildProducerIndex(catalog.value, { flags }) : null))
 
 /** Exact-name lookup; null while loading or when the name is not in the catalog. */
 const producer = computed(() => index.value?.byName.get(producerName.value) ?? null)
+
+/** Localized flag of a label or collaborator page; null for an ordinary producer. */
+const kindBadge = computed(() => {
+  const kind = producer.value?.kind
+  if (kind === 'label') return t('producers.kindLabel')
+  if (kind === 'support') return t('producers.kindSupport')
+  return null
+})
 
 /** VocaDB artist page, only for structured credits that carry an id. */
 const vocadbArtistUrl = computed(() => {
@@ -195,6 +205,7 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
           {{ producer.name }}
         </h1>
         <div class="flex flex-wrap items-center gap-2 text-xs">
+          <UBadge v-if="kindBadge" color="neutral" variant="subtle">{{ kindBadge }}</UBadge>
           <UBadge
             v-for="fact in facts"
             :key="fact.label"

@@ -1,6 +1,7 @@
 import { computed, type Ref } from 'vue'
 import { useCatalog } from './useCatalog.ts'
 import { usePlaceNames } from './usePlaceNames.ts'
+import { useProducerFlags } from './useProducerFlags.ts'
 import { useSeriesTitles } from './useSeriesTitles.ts'
 import { useVenueNames } from './useVenueNames.ts'
 import { useSongTitle } from './useSongTitle.ts'
@@ -103,6 +104,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
   const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
   const { spellings } = useSongTitle()
   const { locale, t } = useLocale()
+  const flags = useProducerFlags()
 
   const caps: Record<SearchSectionKey, number> = {
     series: limits.series ?? LOOKUP_LIMITS.series,
@@ -145,7 +147,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       series: localSeriesMatches(data, query.value, seriesSpellings, caps.series),
       performances: localPerformanceMatches(data, query.value, performanceSpellings, caps.performances),
       places: localPlaceMatches(data, query.value, placeSpellings, caps.places),
-      producers: localProducerMatches(data, query.value, caps.producers),
+      producers: localProducerMatches(data, query.value, caps.producers, flags),
       songs: localSongMatches(data, query.value, songSpellings, caps.songs),
     }
   })

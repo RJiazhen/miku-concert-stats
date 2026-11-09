@@ -58,6 +58,7 @@ skill 是「门面 + 每个端点一份子说明」：`SKILL.md` 写适用问题
 | 文件 | 作用 |
 | --- | --- |
 | `data/song-variants.json` | 把 remix、remaster、声库、翻唱、语言版本并入同一首歌，排行与统计按合并后的歌计数 |
+| `data/producer-flags.json` | 给厂牌 / 工作室 / 乐团 / 团体打 `label` 标记，默认不进制作人排行、筛选与搜索（`/producers` 可开关显示），单曲页署名仍保留 |
 | `data/setlist-merges.json` | 同一系列年度不同演出的歌单并排对照（例如 2019 マジカルミライ 东京与大阪） |
 | `data/song-titles.zh-CN.json` | 歌曲中文名（`title` 唯一显示名，`aliases` 只供搜索匹配），页眉开关控制是否显示 |
 | `data/song-titles.zh-Hant.json` | 歌曲繁体中文名，与简体文件同结构，繁体中文界面显示 |

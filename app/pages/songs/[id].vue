@@ -5,13 +5,15 @@ import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { useProducerFlags } from '~/composables/useProducerFlags.ts'
 import { useSongNotes } from '~/composables/useSongNotes.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
-import { producerNamesFor } from '~~/shared/producer-options.ts'
-import { producerPath } from '~~/shared/producers.ts'
+import { producerCreditsOfSong, producerPath } from '~~/shared/producers.ts'
+import type { ProducerKind } from '~~/shared/producer-flags.ts'
+import type { SongRow } from '~~/shared/types.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 import { derivedItemSongIds } from '~~/shared/performance-setlists.ts'
 import { formatShowCoverage, showCoverage } from '~~/shared/show-coverage.ts'
@@ -28,6 +30,7 @@ import {
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
 const variants = useSongVariants()
+const flags = useProducerFlags()
 const { noteFor } = useSongNotes()
 const { songById, songHref, vocadbSongUrl } = useSongLookup()
 const { localizePlace } = usePlaceNames()
@@ -95,6 +98,27 @@ const groupIds = computed(() => variants.groupSongIds(canonicalId.value))
 /** 演出角色 of a credit line, as the chips the header and the variant card print. */
 const characterNamesOf = (credits: Parameters<typeof songCharacters>[0]): string[] => songCharacters(credits)
 
+/** One producer credit line: the linked name plus its checked flag, if any. */
+type CreditView = {
+  name: string
+  /** Localized `label` / `support` badge; null for an ordinary producer. */
+  kind: string | null
+}
+
+/** Localized flag of one producer credit; null for a core producer. */
+const kindLabelOf = (kind: ProducerKind): string | null => {
+  if (kind === 'label') return t('producers.kindLabel')
+  if (kind === 'support') return t('producers.kindSupport')
+  return null
+}
+
+/** 制作人 credits of one song, full roster with label / collaborator flags kept. */
+const creditViewsOf = (creditSong: SongRow): CreditView[] =>
+  producerCreditsOfSong(creditSong).map((credit) => ({
+    name: credit.name,
+    kind: kindLabelOf(flags.kindOf(credit.name, credit.artistId)),
+  }))
+
 /** Variant entries with the facts the 其他版本 card needs to describe each merged song. */
 const variantRows = computed(() => {
   const canonicalCharacters = songCharacters(song.value ?? null)
@@ -105,14 +129,14 @@ const variantRows = computed(() => {
     const ownCharacters = songCharacters(variantSong ?? null)
     const characters = ownCharacters.length > 0 ? ownCharacters : canonicalCharacters
     // The song entry's structured roster wins; `artist_string` is only the fallback.
-    const producerNames = variantSong ? producerNamesFor(variantSong) : []
+    const producerCredits = variantSong ? creditViewsOf(variantSong) : []
     return {
       id,
       name: variantSong?.name ?? String(id),
       /** Chinese kind label; the raw `kind` token stays in the lookup file. */
       kindLabel: entry ? variantKindLabel(entry.kind, locale.value) : t('variant.other'),
-      /** 制作人 names, each linked to its producer page. */
-      producerNames,
+      /** 制作人 credits, each linked to its producer page and flagged when checked. */
+      producerCredits,
       /** 演出角色 of the variant; an empty list hides that half of the line. */
       characters,
     }
@@ -300,6 +324,9 @@ const videoRows = computed<VideoRow[]>(() =>
 /** 演出角色 for the canonical song, printed as chips in the header. */
 const characters = computed(() => characterNamesOf(song.value ?? null))
 
+/** 制作人 credits of the canonical song, full roster with label / collaborator badges. */
+const producerCredits = computed<CreditView[]>(() => (song.value === null ? [] : creditViewsOf(song.value)))
+
 /** Muted facts under the title: 投稿日期 and 演出角色 of the canonical song. */
 /** Whether the catalog registered this song from a wiki setlist rather than VocaDB. */
 const outsideVocaDB = computed(() => {
@@ -364,6 +391,14 @@ useHead({ title: computed(() => title.value?.primary ?? t('song.breadcrumb')) })
           </UButton>
         </div>
         <p v-if="headerFacts" class="text-sm text-muted">{{ headerFacts }}</p>
+        <p v-if="producerCredits.length > 0" class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+          <span>{{ t('song.producer') }}</span>
+          <span v-for="(credit, creditIndex) in producerCredits" :key="credit.name" class="inline-flex items-center gap-1">
+            <span v-if="creditIndex > 0">{{ t('setlist.join') }}</span>
+            <NuxtLink :to="producerPath(credit.name)" class="text-muted no-underline hover:text-primary">{{ credit.name }}</NuxtLink>
+            <UBadge v-if="credit.kind" color="neutral" variant="subtle" size="sm">{{ credit.kind }}</UBadge>
+          </span>
+        </p>
         <div v-if="showsCharacterLine" class="flex flex-wrap items-center gap-2 text-sm text-muted">
           <span>{{ t('song.performedBy') }}</span>
           <CharacterChips :names="characters" size="sm" />
@@ -398,13 +433,12 @@ useHead({ title: computed(() => title.value?.primary ?? t('song.breadcrumb')) })
                 <UIcon name="i-lucide-external-link" class="size-3" />
               </ULink>
             </div>
-            <p v-if="row.producerNames.length > 0" class="text-xs text-muted">
-              <template v-if="row.producerNames.length > 0">
-                {{ t('song.producer') }}
-                <template v-for="(name, nameIndex) in row.producerNames" :key="name">
-                  <span v-if="nameIndex > 0">{{ t('setlist.join') }}</span>
-                  <NuxtLink :to="producerPath(name)" class="text-muted no-underline hover:text-primary">{{ name }}</NuxtLink>
-                </template>
+            <p v-if="row.producerCredits.length > 0" class="text-xs text-muted">
+              {{ t('song.producer') }}
+              <template v-for="(credit, creditIndex) in row.producerCredits" :key="credit.name">
+                <span v-if="creditIndex > 0">{{ t('setlist.join') }}</span>
+                <NuxtLink :to="producerPath(credit.name)" class="text-muted no-underline hover:text-primary">{{ credit.name }}</NuxtLink>
+                <UBadge v-if="credit.kind" color="neutral" variant="subtle" size="sm">{{ credit.kind }}</UBadge>
               </template>
             </p>
             <div v-if="row.characters.length > 0" class="flex flex-wrap items-center gap-2 text-xs text-muted">

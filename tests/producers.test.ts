@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { producersOfSong, songProducerSql } from '../scripts/vocadb/producers.ts'
 import { localProducerMatches } from '../shared/lookup.ts'
-import { buildProducerIndex, rankProducers } from '../shared/producers.ts'
+import { parseProducerFlags } from '../shared/producer-flags.ts'
+import { buildProducerIndex, producerCreditsOfSong, rankProducers } from '../shared/producers.ts'
 import type {
   Catalog,
   MedleyRow,
@@ -363,6 +364,36 @@ describe('producer index', () => {
     expect(rankProducers(index.rows, 'songCount').map((row) => row.name)).toEqual(['B', 'A'])
     expect(rankProducers(index.rows, 'appearanceCount').map((row) => row.name)).toEqual(['A', 'B'])
     expect(rankProducers(index.rows, 'firstYear', 'asc').map((row) => row.name)).toEqual(['A', 'B'])
+  })
+
+  it('keeps a flagged label out of the ranking while its credits and page row survive', () => {
+    const rows = producerCatalog()
+    const structured = producerSong(1, 'Structured', {
+      producers: [
+        { artistId: 45, name: 'DECO*27', roles: 'producer' },
+        { artistId: 60068, name: 'Rockwell', roles: 'producer, arranger' },
+      ],
+    })
+    const freeText = producerSong(2, 'Free text', { artist_string: 'DECO*27, OTOIRO feat. 初音ミク' })
+    rows.songs = [structured, freeText]
+    const flags = parseProducerFlags({
+      '60068': { kind: 'label', name: 'Rockwell' },
+      OTOIRO: { kind: 'label' },
+    })
+
+    const index = buildProducerIndex(rows, { flags })
+    expect(index.countedRows.map((row) => row.name)).toEqual(['DECO*27'])
+    // The label keeps its aggregated row, so its page still explains what the name is.
+    expect(index.byName.get('Rockwell')).toMatchObject({ kind: 'label', songCount: 1 })
+    expect(index.byName.get('OTOIRO')).toMatchObject({ kind: 'label', songCount: 1 })
+    // The song page reads the unfiltered credits, so the full roster stays visible.
+    expect(producerCreditsOfSong(structured).map((credit) => credit.name)).toEqual(['DECO*27', 'Rockwell'])
+    expect(producerCreditsOfSong(freeText).map((credit) => credit.name)).toEqual(['DECO*27', 'OTOIRO'])
+    // Without flags the aggregation is unchanged.
+    expect(buildProducerIndex(rows).countedRows.map((row) => row.name).sort()).toEqual(['DECO*27', 'OTOIRO', 'Rockwell'])
+    // A label never surfaces in the header search either.
+    expect(localProducerMatches(rows, 'rock', 5, flags).items).toEqual([])
+    expect(localProducerMatches(rows, 'rock').items.map((hit) => hit.name)).toEqual(['Rockwell'])
   })
 })
 

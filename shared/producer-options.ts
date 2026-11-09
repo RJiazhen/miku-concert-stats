@@ -1,4 +1,5 @@
 import { producerCredit } from './credit.ts'
+import { emptyProducerFlagIndex, type ProducerFlagIndex } from './producer-flags.ts'
 import type { SongRow } from './types.ts'
 
 /** Ranked row fields the producer picker reads. */
@@ -72,13 +73,28 @@ export const producerNamesForSongs = (songs: readonly SongRow[]): string[] => {
  * Rows without producers contribute nothing, and a producer repeated on one row counts once.
  * Callers pass the rows before the search and producer filters so the list cannot shrink as those are applied,
  * which also keeps every option able to match at least one row.
+ *
+ * Names flagged `label` are dropped, so the picker only offers names the ranking counts.
  */
-export const availableProducers = (rows: readonly ProducerRankedRow[]): ProducerOption[] => {
+export const availableProducers = (
+  rows: readonly ProducerRankedRow[],
+  flags: ProducerFlagIndex = emptyProducerFlagIndex(),
+): ProducerOption[] => {
   const counts = new Map<string, number>()
   for (const row of rows) {
-    for (const name of new Set(row.producerList)) counts.set(name, (counts.get(name) ?? 0) + 1)
+    for (const name of new Set(row.producerList)) {
+      if (!flags.isCounted(name)) continue
+      counts.set(name, (counts.get(name) ?? 0) + 1)
+    }
   }
   return [...counts]
     .map(([name, count]) => ({ name, count }))
     .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name, 'ja'))
 }
+
+/**
+ * Producer names that count in statistics and the API export: the full credit list minus the
+ * names flagged `label`. The song page keeps the unfiltered list so the credit evidence stays.
+ */
+export const countedProducerNames = (names: readonly string[], flags: ProducerFlagIndex): string[] =>
+  names.filter((name) => flags.isCounted(name))

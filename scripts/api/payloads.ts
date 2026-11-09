@@ -1,5 +1,6 @@
 import { albumIdFromSongListId, albumPageUrl, albumSetlistNotice } from '../../shared/album-setlists.ts'
 import type { LocalizedText } from '../../shared/localized-names.ts'
+import type { ProducerFlagIndex } from '../../shared/producer-flags.ts'
 import { isBroadcastAppearance } from '../../shared/stats.ts'
 import { songCategoryLabel } from '../../shared/repertoire.ts'
 import { japaneseAliasTitle, type SongAliasFile } from '../../shared/song-aliases.ts'
@@ -88,11 +89,13 @@ export const songSummary = (input: {
   titlesZh: Record<string, { title: string }>
   /** Japanese title the site shows; a registered `ja` alias already wins over `songs.name_ja`. */
   nameJa: string | null
+  /** Checked producer flags, so a label never appears in the exported producer field. */
+  flags: ProducerFlagIndex
   /** Localizes the first 演出 name, so the row carries all three languages. */
   performanceNamesOf: (performance: PerformanceRow) => LocalizedText
 }): SongSummaryPayload => {
-  const { song, summary, first, variants, groupSongs, rules, titlesZh, nameJa, performanceNamesOf } = input
-  const producers = producersOf(groupSongs)
+  const { song, summary, first, variants, groupSongs, rules, titlesZh, nameJa, flags, performanceNamesOf } = input
+  const producers = producersOf(groupSongs, flags)
   return {
     id: song.id,
     name: song.name,

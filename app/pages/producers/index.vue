@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useCatalog } from '~/composables/useCatalog.ts'
+import { useProducerFlags } from '~/composables/useProducerFlags.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
@@ -15,6 +16,7 @@ import {
 const { catalog, error, pending, load } = useCatalog()
 const { songById } = useSongLookup()
 const { t } = useLocale()
+const flags = useProducerFlags()
 
 /** Starts the browser catalog load after hydration. */
 const startLoad = (): void => {
@@ -25,13 +27,28 @@ onMounted(startLoad)
 /** Name filter, applied over the already aggregated rows. */
 const query = ref('')
 
-/** Aggregated producers, ranked under the default 曲目数 order. */
-const index = computed(() => (catalog.value ? buildProducerIndex(catalog.value) : null))
+/** Show label / studio / group credits too; off by default so they never rank. */
+const includeLabels = ref(false)
+
+/** Aggregated producers; `rows` also carries the flagged labels. */
+const index = computed(() => (catalog.value ? buildProducerIndex(catalog.value, { flags }) : null))
+
+/** Rows the table ranks: the counted producers, plus labels once the switch is on. */
+const visibleRows = computed<ProducerRow[]>(() => {
+  const current = index.value
+  if (current === null) return []
+  return includeLabels.value ? current.rows : current.countedRows
+})
+
+/** How many flagged labels the switch can add; 0 hides the switch entirely. */
+const labelCount = computed(() => (index.value === null ? 0 : index.value.rows.length - index.value.countedRows.length))
 
 /** A producer row plus its position under the default order and the text the table prints. */
 type RankedProducer = {
   rank: number
   name: string
+  /** Checked flag; `label` rows only appear behind the switch and carry a badge. */
+  kind: ProducerRow['kind']
   songCount: number
   performedSongCount: number
   appearanceCount: number
@@ -47,10 +64,11 @@ const topSongsOf = (row: ProducerRow): { id: number; name: string }[] =>
   row.topSongIds.map((id) => ({ id, name: songById(id)?.name ?? String(id) }))
 
 const rows = computed<RankedProducer[]>(() => {
-  const ordered = index.value === null ? [] : rankProducers(index.value.rows, 'songCount')
+  const ordered = rankProducers(visibleRows.value, 'songCount')
   return ordered.map((row, position) => ({
     rank: position + 1,
     name: row.name,
+    kind: row.kind,
     songCount: row.songCount,
     performedSongCount: row.performedSongCount,
     appearanceCount: row.appearanceCount,
@@ -69,9 +87,9 @@ const filtered = computed(() => {
   return rows.value.filter((row) => row.name.toLocaleLowerCase().includes(needle))
 })
 
-/** Distinct songs credited by at least one producer, and how many of them were performed. */
+/** Distinct songs credited by at least one visible producer, and how many of them were performed. */
 const totals = computed(() => {
-  const all = index.value?.rows ?? []
+  const all = visibleRows.value
   const songs = new Set<number>()
   const performed = new Set<number>()
   for (const row of all) {
@@ -102,6 +120,13 @@ const columns: TableColumn<RankedProducer>[] = [
 
 /** Blank marker for a missing value. */
 const cell = (value: number | null): string => (value === null ? '—' : String(value))
+
+/** Localized badge of a flagged row; null for a core producer. */
+const kindLabelOf = (kind: ProducerRow['kind']): string | null => {
+  if (kind === 'label') return t('producers.kindLabel')
+  if (kind === 'support') return t('producers.kindSupport')
+  return null
+}
 
 useHead({ title: computed(() => t('producers.indexTitle')) })
 </script>
@@ -143,24 +168,34 @@ useHead({ title: computed(() => t('producers.indexTitle')) })
       :empty-description="t('producers.emptyDesc')"
     >
       <template #note>
-        <ul class="grid gap-1 text-xs leading-relaxed text-muted">
-          <li>{{ t('producers.noteSongs') }}</li>
-          <li>{{ t('producers.notePerformed') }}</li>
-          <li>{{ t('producers.noteCounts') }}</li>
-        </ul>
-      </template>
-      <template #actions>
-        <FilterField :label="t('producers.filter')">
-          <UInput v-model="query" icon="i-lucide-search" size="sm" class="w-44" autocomplete="off" />
-        </FilterField>
+        <div class="grid items-start gap-x-6 gap-y-3 md:grid-cols-[minmax(0,1fr)_auto]">
+          <ul class="row-span-2 grid gap-1 text-xs leading-relaxed text-muted">
+            <li>{{ t('producers.noteSongs') }}</li>
+            <li>{{ t('producers.notePerformed') }}</li>
+            <li>{{ t('producers.noteCounts') }}</li>
+          </ul>
+          <FilterField :label="t('producers.filter')" class="justify-self-end">
+            <UInput v-model="query" icon="i-lucide-search" size="sm" class="w-44" autocomplete="off" />
+          </FilterField>
+          <UCheckbox
+            v-if="labelCount > 0"
+            v-model="includeLabels"
+            :label="t('producers.includeLabels', { n: labelCount })"
+            class="justify-self-end self-start text-xs"
+            size="sm"
+          />
+        </div>
       </template>
       <template #rank-cell="{ row }">
         <span class="font-mono text-muted">{{ row.original.rank }}</span>
       </template>
       <template #name-cell="{ row }">
-        <NuxtLink :to="producerPath(row.original.name)" class="text-highlighted no-underline hover:text-primary">
-          {{ row.original.name }}
-        </NuxtLink>
+        <span class="inline-flex items-center gap-1.5">
+          <NuxtLink :to="producerPath(row.original.name)" class="text-highlighted no-underline hover:text-primary">
+            {{ row.original.name }}
+          </NuxtLink>
+          <UBadge v-if="kindLabelOf(row.original.kind)" color="neutral" variant="subtle" size="sm">{{ kindLabelOf(row.original.kind) }}</UBadge>
+        </span>
       </template>
       <template #songCount-cell="{ row }">
         <UBadge color="primary" variant="subtle">{{ row.original.songCount }}</UBadge>

@@ -1,6 +1,7 @@
 import { assignCharacters, type CharacterRule } from '../../shared/characters.ts'
 import { derivedItemSongIds } from '../../shared/performance-setlists.ts'
-import { producerNamesForSongs } from '../../shared/producer-options.ts'
+import { countedProducerNames, producerNamesForSongs } from '../../shared/producer-options.ts'
+import type { ProducerFlagIndex } from '../../shared/producer-flags.ts'
 import {
   isBroadcastAppearance,
   performanceYear,
@@ -269,6 +270,7 @@ export const charactersOf = (songs: readonly SongRow[], rules: readonly Characte
   return rules.map((rule) => rule.name).filter((name) => matched.has(name))
 }
 
-/** Producer names of a merged variant group, structured credits first. */
-export const producersOf = (songs: readonly SongRow[]): string[] => producerNamesForSongs(songs)
+/** Producer names of a merged variant group, structured credits first, labels removed. */
+export const producersOf = (songs: readonly SongRow[], flags: ProducerFlagIndex): string[] =>
+  countedProducerNames(producerNamesForSongs(songs), flags)
 

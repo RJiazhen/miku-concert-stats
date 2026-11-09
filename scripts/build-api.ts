@@ -18,6 +18,7 @@ import {
   showCountsByPerformance,
 } from '../shared/performance-setlists.ts'
 import { buildProducerIndex, rolesPresent } from '../shared/producers.ts'
+import { parseProducerFlags } from '../shared/producer-flags.ts'
 import { fromVocaDB } from '../shared/repertoire.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import { buildSetlistDiffReport, pairDifferences } from '../shared/setlist-diff.ts'
@@ -112,6 +113,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
   const generatedAt = new Date().toISOString()
   const version = shortFileHash(catalogFile.replace(/\.sqlite$/, '.sqlite.gz'))
   const variants = parseSongVariants(readJsonFile(root, path.join('data', 'song-variants.json')))
+  const flags = parseProducerFlags(readJsonFile(root, path.join('data', 'producer-flags.json')))
   const titlesZh = parseSongTitles(readJsonFile(root, path.join('data', 'song-titles.zh-CN.json')))
   const songAliases = parseSongAliases(readJsonFile(root, path.join('data', 'song-aliases.json')))
   const rules = parseCharacterConfig(readJsonFile(root, path.join('data', 'characters.json')))
@@ -222,6 +224,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       rules,
       titlesZh,
       nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja,
+      flags,
       performanceNamesOf,
     }),
   )
@@ -265,8 +268,8 @@ export const buildApiFiles = (root = repoRoot()): void => {
   })
   performanceRows.sort((left, right) => (right.startDate ?? '').localeCompare(left.startDate ?? '') || right.id - left.id)
 
-  const producerIndex = buildProducerIndex(catalog)
-  const producerRows = producerIndex.rows
+  const producerIndex = buildProducerIndex(catalog, { flags })
+  const producerRows = producerIndex.countedRows
     .map((row) => ({
       id: producerIdOf(row),
       name: row.name,
@@ -319,13 +322,14 @@ export const buildApiFiles = (root = repoRoot()): void => {
     const alt = broadcastSummaries.get(song.id)
     const zh = titlesZh[String(song.id)]
     const aliases = songAliasTitles(songAliases, song.id)
+    const countedProducers = producersOf(groupSongs, flags)
     const row: ApiSongRow = {
       id: song.id,
       name: song.name,
       nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja,
       nameEn: song.name_en,
       nameZh: zh?.title ?? null,
-      producer: producersOf(groupSongs).join(', ') || null,
+      producer: countedProducers.join(', ') || null,
       category: song.category,
       show: summary.show,
       event: summary.event,
@@ -333,7 +337,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       lastYear: summary.lastYear,
       approximate: summary.approximate,
       characters: charactersOf(groupSongs, rules),
-      producers: producersOf(groupSongs),
+      producers: countedProducers,
       series: bucketCountsToRecord(summary.series),
       year: bucketCountsToRecord(summary.year),
       firstSeries: Object.fromEntries([...summary.firstSeries].map(([id, year]) => [String(id), year])),
@@ -540,6 +544,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
         rules,
         titlesZh,
         nameJa: japaneseAliasTitle(songAliases, song.id) ?? song.name_ja,
+        flags,
         performanceNamesOf,
       }),
       counts: {

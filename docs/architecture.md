@@ -227,6 +227,8 @@ Cloudflare 只压缩固定内容类型，`application/vnd.sqlite3` 不在其中�
 
 `shared/producers.ts` 把制作人聚合成排行榜与详情页。名单沿用 `shared/producer-options.ts` 的 `producerNamesFor`：结构化 `song_producers` 优先，整首歌没有任何结构化署名时才退回 `artist_string` 的 `feat.` 之前部分（`Unknown producer(s)` 之类占位不算）。因此 `samfree`、`40mP` 这类只有自由文本署名的制作人也有页面，但不会编造 VocaDB `artist_id`。曲目数是不同歌曲 id 数，变体版本分别计数、不合并版本组；演出曲目与表演次数读场次层 `performance_show_setlist_items`，没有展开行的旧目录回退到源歌单加 `showsForNotes`，串烧按 `medley_songs` 展开成组成曲；演出数是不同 `performances` 行数，场次是这些曲目出现过的 `show_key` 去重；配信、线上与 VR 演出默认剔除；场次层里有歌单的演出都计入，包括 `song_list_id` 为空、歌单只来自百科逐曲表的演出，与排行口径一致。没有出场记录的制作人仍然列出，演出数与场次为 0。`localProducerMatches` 供页眉搜索，按名字做大小写不敏感子串匹配，最多 5 位。
 
+`data/producer-flags.json` 与 `shared/producer-flags.ts` 给名字打 `label` / `support` / `core`。`buildProducerIndex` 返回两份列表：`rows` 是全部聚合结果，`countedRows` 去掉 `label`（厂牌、工作室、乐团、乐队、社团等非个人署名）。排行、制作人总数、制作人筛选、页眉搜索、时间线制作人筛选与 `scripts/build-api.ts` 的导出都读 `countedRows`，所以默认视角里没有这些名字；`/producers` 表头有一个默认关闭的「包含厂牌 / 团体」开关，打开后改读 `rows`，这些行带徽章、也参与该表的排名编号与总计。`byName` 始终包含全部行，详情页照旧可打开并标出类别。`support`（非核心协作方）保留计数、只加标记。单曲页的制作人署名读未过滤的 `producerCreditsOfSong`，整份署名都显示。
+
 `shared/overview.ts` 给 `/series` 总览页供数：`buildSeriesOverview` 按 `series_id` 汇总每系列的演出数、场次、年份跨度与首末演出日期，按首次演出日期升序；`buildPerformanceOverview` 把全部演出摊平成一行一条，日期倒序、无日期的排在最后，并带场馆、场次与「有没有歌单」。两者都接受可选的 `showCounts`（`performanceSchedules` 的场次数），没传时按日历天计场次。
 
 ### 页面、组件、服务端
@@ -456,6 +458,10 @@ flowchart TD
 
 对象。键是变体歌曲 id 的十进制字符串，值是 `canonical`（并入的歌曲 id）、`kind`、可选 `note`。只能一级映射，不允许 A → B → C。单曲页的版本备注取自 `variantVersionNote`：`kind` 与标题差异之外，`cover` 还会用变体歌曲自己的署名解析出演出角色，附在全角括号里（如 `翻唱（鏡音リン、鏡音レン）`）；解析不到角色时不加括号。
 
+### `data/producer-flags.json`
+
+对象。键是 VocaDB 制作人 id（纯数字，必须同时写 `name`）或制作人显示名，值是 `kind`（`label` / `support` / `core`，默认 `core`）与 `note`。`note` 必填，用来留下判定依据（VocaDB artist type、与同曲其它署名的关系）；`shared/producer-flags.ts` 校验并把 id 与名字一起索引，制作人 id 优先于显示名，所以 VocaDB 改了写法也不会丢标记。`label` 涵盖厂牌、工作室、乐团、乐队与社团这类非个人署名：`buildProducerIndex` 的 `countedRows` 不含它们，因此默认不进 `/producers` 排行与制作人总数、不进制作人筛选与页眉搜索、不进时间线制作人筛选与 API 导出；`/producers` 页面的「包含厂牌 / 团体」开关（默认关闭）改用 `rows` 显示全部。`byName` 与 `/producers/<name>`、单曲页署名始终保留。`support` 不排除，只加「协作方」标记。原始 `song_producers` 与 `artist_string` 不改，`pnpm collect` 重写 `0001` 不会覆盖这个文件。
+
 ### `data/song-notes.json`
 
 对象。键是歌曲 id 的十进制字符串，值是单曲页正文的一句中文说明。`shared/song-notes.ts` 校验键是 id、文本非空。单曲页用 canonical id 查找，合并版本组共用主条目的说明；`tests/song-notes.test.ts` 保证每个键都指向目录里真实存在的歌曲。
@@ -643,7 +649,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`data-zh-name-coverage` 用 `3189`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放）。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

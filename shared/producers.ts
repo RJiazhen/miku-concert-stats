@@ -3,6 +3,7 @@ import { performanceSchedules, showsForNotes } from './event-schedule.ts'
 import type { LookupResult } from './lookup.ts'
 import { derivedItemSongIds } from './performance-setlists.ts'
 import { producerNamesFor } from './producer-options.ts'
+import { emptyProducerFlagIndex, type ProducerFlagIndex, type ProducerKind } from './producer-flags.ts'
 import { reviewRotations } from './rotation.ts'
 import { isBroadcastAppearance, performanceYear } from './stats.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, SongRow } from './types.ts'
@@ -53,6 +54,8 @@ export type ProducerRow = {
   name: string
   /** VocaDB artist id, used only for the external artist link. */
   artistId: number | null
+  /** Checked kind from `data/producer-flags.json`; `core` when the file says nothing. */
+  kind: ProducerKind
   /** Distinct credited song ids, variants counted separately. */
   songIds: number[]
   /** 曲目数: every credited song, whether or not a setlist played it. */
@@ -80,7 +83,14 @@ export type ProducerRow = {
 
 /** Every producer aggregated from one catalog, plus an exact-name lookup. */
 export type ProducerIndex = {
+  /** Every row, labels included, sorted by 曲目数. */
   rows: ProducerRow[]
+  /**
+   * Rows the statistics count: `rows` without `label` names. Rankings, totals, filters, search,
+   * and the API export read this list; `/producers` may show `rows` instead behind its switch.
+   */
+  countedRows: ProducerRow[]
+  /** Exact-name lookup over every row, so a label page still opens and explains what it is. */
   byName: ReadonlyMap<string, ProducerRow>
 }
 
@@ -88,6 +98,12 @@ export type ProducerIndex = {
 export type ProducerIndexOptions = {
   /** Count livestream, online, and VR performances. They are excluded by default like the song ranking. */
   includeBroadcast?: boolean
+  /**
+   * Checked producer flags. `label` names stay out of `rows`, so the ranking, totals, filters,
+   * and search never count them; they keep an entry in `byName` so a song page can still link to
+   * them and the detail page can explain what they are.
+   */
+  flags?: ProducerFlagIndex
 }
 
 /** Sortable columns of the producer ranking. */
@@ -301,8 +317,14 @@ export const compareProducers = (key: ProducerSortKey, direction: 'asc' | 'desc'
  * 场次 is the union of the show keys those songs played. Broadcast-only 演出 stay out.
  *
  * A producer without any appearance is still listed, with 演出数 and 场次 both 0.
+ *
+ * Names flagged `label` in `data/producer-flags.json` stay in `rows` but are left out of
+ * `countedRows`, so a label or studio never ranks and never counts as one of the "x producers".
+ * `byName` keeps their row, so `/producers/<name>` still explains what the name is and the song
+ * page keeps its full credit. `/producers` can show `rows` behind its 包含厂牌 switch.
  */
 export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptions = {}): ProducerIndex => {
+  const flags = options.flags ?? emptyProducerFlagIndex()
   const appearances = songAppearances(catalog, options)
   const performanceById = new Map(catalog.performances.map((row) => [row.id, row]))
   const songsById = new Map(catalog.songs.map((row) => [row.id, row]))
@@ -383,6 +405,7 @@ export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptio
     rows.push({
       name,
       artistId: artistIdByName.get(name) ?? null,
+      kind: flags.kindOf(name, artistIdByName.get(name) ?? null),
       songIds,
       songCount: songIds.length,
       performedSongIds: songs.filter((song) => song.showCount > 0).map((song) => song.songId),
@@ -400,7 +423,11 @@ export const buildProducerIndex = (catalog: Catalog, options: ProducerIndexOptio
   }
 
   rows.sort(compareProducers('songCount', 'desc'))
-  return { rows, byName: new Map(rows.map((row) => [row.name, row])) }
+  return {
+    rows,
+    countedRows: rows.filter((row) => row.kind !== 'label'),
+    byName: new Map(rows.map((row) => [row.name, row])),
+  }
 }
 
 /** Copies the rows into the order one column asks for; the input stays untouched. */
@@ -417,15 +444,18 @@ export const rolesPresent = (roles: ProducerRoleCounts): ProducerRole[] =>
 /** Page path of one producer; the name is the route key and is URI-encoded. */
 export const producerPath = (name: string): string => `/producers/${encodeURIComponent(name)}`
 
-/** One parsed index per catalog, so header search does not rebuild it on every keystroke. */
-const indexCache = new WeakMap<Catalog, ProducerIndex>()
+/** One parsed index per catalog and flag set, so header search does not rebuild it per keystroke. */
+const indexCache = new WeakMap<Catalog, Map<ProducerFlagIndex, ProducerIndex>>()
 
-/** Builds or reuses the producer index of one catalog. */
-const cachedProducerIndex = (catalog: Catalog): ProducerIndex => {
-  const cached = indexCache.get(catalog)
+/** Builds or reuses the producer index of one catalog under one flag set. */
+const cachedProducerIndex = (catalog: Catalog, flags: ProducerFlagIndex): ProducerIndex => {
+  const byFlags = indexCache.get(catalog)
+  const cached = byFlags?.get(flags)
   if (cached !== undefined) return cached
-  const index = buildProducerIndex(catalog)
-  indexCache.set(catalog, index)
+  const index = buildProducerIndex(catalog, { flags })
+  const bucket = byFlags ?? new Map<ProducerFlagIndex, ProducerIndex>()
+  bucket.set(flags, index)
+  indexCache.set(catalog, bucket)
   return index
 }
 
@@ -433,18 +463,20 @@ const cachedProducerIndex = (catalog: Catalog): ProducerIndex => {
  * Finds producers already in the catalog.
  * Matching is a case-insensitive substring over the producer names, in the ranking's default
  * order (most songs first). The default cap is five hits; `total` keeps the real hit count.
+ * Only counted rows are searched, so a flagged label never surfaces in the header search.
  */
 export const localProducerMatches = (
   catalog: Catalog,
   query: string,
   limit = 5,
+  flags: ProducerFlagIndex = emptyProducerFlagIndex(),
 ): LookupResult<ProducerLookupHit> => {
   const needle = query.trim().toLocaleLowerCase()
   const empty = (): LookupResult<ProducerLookupHit> => ({ items: [], total: 0, limit })
   if (needle === '') return empty()
-  const index = cachedProducerIndex(catalog)
+  const index = cachedProducerIndex(catalog, flags)
   const hits: ProducerLookupHit[] = []
-  for (const row of index.rows) {
+  for (const row of index.countedRows) {
     if (!row.name.toLocaleLowerCase().includes(needle)) continue
     hits.push({ name: row.name, roles: rolesPresent(row.roles), songCount: row.songCount })
   }

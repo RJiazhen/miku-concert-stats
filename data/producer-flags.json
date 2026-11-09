@@ -1,0 +1,66 @@
+{
+  "OTOIRO": {
+    "kind": "label",
+    "note": "DECO*27 所属厂牌，出现在十余首曲目的 artist_string 联合署名里；VocaDB 没有独立条目，按 issue #27 判为厂牌。"
+  },
+  "60068": {
+    "kind": "label",
+    "name": "Rockwell",
+    "note": "DECO*27 团队的录音 / 编曲工作室；VocaDB Ar/60068 的类型是 Producer，但它是工作室署名而非个人，按 issue #27 标为厂牌。"
+  },
+  "54531": {
+    "kind": "label",
+    "name": "東京フィルハーモニー交響楽団",
+    "note": "初音ミクシンフォニー 的演奏乐团；VocaDB Ar/54531 的类型是 OtherGroup，署名带 producer, arranger，但不是个人制作人。"
+  },
+  "56929": {
+    "kind": "label",
+    "name": "鼓童",
+    "note": "太鼓演奏团体；VocaDB Ar/56929 的类型是 OtherGroup，鼓童合作演出的曲目署名是团体而不是个人。"
+  },
+  "855": {
+    "kind": "label",
+    "name": "HoneyWorks",
+    "note": "创作团体；VocaDB Ar/855 的类型是 OtherGroup，两首曲目同时单独署名 shito / Gom，团体名重复计入没有意义。"
+  },
+  "237": {
+    "kind": "label",
+    "name": "1640mP",
+    "note": "164 与 40mP 的合作名义；VocaDB Ar/237 的类型是 OtherGroup，同一首歌里 40mP 已单独署名。"
+  },
+  "55068": {
+    "kind": "label",
+    "name": "ELS",
+    "note": "编曲团体；VocaDB Ar/55068 的类型是 OtherGroup，同一首歌里 はりーP、よぴー 已单独署名。"
+  },
+  "95308": {
+    "kind": "label",
+    "name": "BUMP OF CHICKEN",
+    "note": "乐队；VocaDB Ar/95308 的类型是 Band，同一首歌里 藤原基央 已单独署名。"
+  },
+  "30": {
+    "kind": "label",
+    "name": "Last Note.",
+    "note": "制作团体名；VocaDB Ar/30 的类型是 Band，同一首歌里 ラスノ 已单独署名。"
+  },
+  "supercell": {
+    "kind": "label",
+    "note": "ryo 的创作团体；VocaDB Ar/249 的类型是 OtherGroup，同一首歌里 ryo 已单独署名。"
+  },
+  "MOSAIC.WAV": {
+    "kind": "label",
+    "note": "音乐社团；VocaDB Ar/1452 的类型是 Circle，登记曲目的署名只有社团名。"
+  },
+  "Anamanaguchi": {
+    "kind": "label",
+    "note": "乐队；VocaDB Ar/46762 的类型是 Band，两首曲目的署名只有乐队名。"
+  },
+  "WONDERFUL★OPPORTUNITY!": {
+    "kind": "label",
+    "note": "与 じーざすP 并列署名的制作组合，同一首歌里 じーざすP 已单独署名；VocaDB 查不到独立条目。"
+  },
+  "愛知民謡（編曲：鼓童）": {
+    "kind": "label",
+    "note": "曲名本身（愛知民謡，鼓童 编曲），不是制作人；登记在 鼓童 合作演出的曲目里，不能算作某个人的署名。"
+  }
+}

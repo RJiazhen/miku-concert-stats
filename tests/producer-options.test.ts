@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { availableProducers, producerNamesFor, producerNamesForSongs } from '../shared/producer-options.ts'
+import { parseProducerFlags } from '../shared/producer-flags.ts'
 import type { SongRow } from '../shared/types.ts'
 
 /** Song row with only the producer-relevant fields filled in. */
@@ -116,6 +117,12 @@ describe('availableProducers', () => {
 
   it('counts a producer once per row even when the row repeats the name', () => {
     expect(availableProducers([{ producerList: ['kz', 'kz'] }])).toEqual([{ name: 'kz', count: 1 }])
+  })
+
+  it('drops a flagged label from the picker but keeps the real producers on the row', () => {
+    const flags = parseProducerFlags({ OTOIRO: { kind: 'label' } })
+    const options = availableProducers([{ producerList: ['DECO*27', 'OTOIRO'] }], flags)
+    expect(options).toEqual([{ name: 'DECO*27', count: 1 }])
   })
 
   it('returns no options when there are no rows or no producers', () => {

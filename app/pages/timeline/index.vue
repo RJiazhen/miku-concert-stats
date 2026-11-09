@@ -7,6 +7,7 @@ import { placeNames, usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { useProducerFlags } from '~/composables/useProducerFlags.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { localeTag } from '~~/shared/i18n/index.ts'
 import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
@@ -54,6 +55,7 @@ const { localizeSeries, localizePerformanceSeries } = useSeriesTitles()
 const { localizeCharacter, compareCharacters } = useCharacterNames()
 const { songName } = useSongLookup()
 const variants = useSongVariants()
+const flags = useProducerFlags()
 const route = useRoute()
 
 /** Parsed once: the checked place list and its matchers never change at runtime. */
@@ -144,11 +146,11 @@ const cityItems = computed(() => {
   const rows = [...counts].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], 'zh'))
   return rows.map(([city, count]) => ({ label: `${cityLabel(cityIndex, city, locale.value)}（${count}）`, value: city }))})
 
-/** Producer names from the catalog index, the same list `/producers` prints. */
+/** Producer names from the catalog index, the same list `/producers` prints by default; labels never rank. */
 const producerItems = computed(() => {
   if (!catalog.value) return []
-  const index = buildProducerIndex(catalog.value)
-  return index.rows.map((row) => ({ label: `${row.name}（${row.songCount}）`, value: row.name }))
+  const index = buildProducerIndex(catalog.value, { flags })
+  return index.countedRows.map((row) => ({ label: `${row.name}（${row.songCount}）`, value: row.name }))
 })
 
 /** Character options from `data/characters.json`, in config order; `value` stays the canonical name. */
