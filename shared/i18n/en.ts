@@ -323,7 +323,7 @@ export const en: Record<keyof typeof zh, string> = {
   'timeline.filter': 'Filters',
   'timeline.floatingMenu': 'Filters and charts',
   'timeline.closeMenu': 'Close filters and charts',
-  'timeline.applyFilters': 'Apply filters',
+  'timeline.confirmFilters': 'Confirm',
   'timeline.unitShows': 'shows',
   'timeline.unitSongs': 'songs',
   'timeline.unitPerformances': 'performances',

@@ -59,6 +59,14 @@ body {
   color: var(--color-neutral-100);
 }
 
+/* Select and menu popups are teleported to <body> and Reka writes `z-index: auto` inline, so a
+   floating panel that carries a z-index of its own can end up above its own dropdowns (or under
+   unrelated ones). Pin every popup wrapper above the floating panels' `z-60` layer; the panels
+   are raised above the header, footer, and buttons so nothing in the page can cover them. */
+[data-reka-popper-content-wrapper] {
+  z-index: 70 !important;
+}
+
 /* Radial glows are painted on a fixed layer so page content keeps full contrast. */
 .stage-glow {
   position: fixed;

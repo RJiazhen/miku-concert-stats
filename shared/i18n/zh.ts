@@ -324,7 +324,7 @@ export const zh = {
   'timeline.filter': '筛选',
   'timeline.floatingMenu': '筛选与图表',
   'timeline.closeMenu': '关闭筛选与图表',
-  'timeline.applyFilters': '应用筛选',
+  'timeline.confirmFilters': '确认',
   'timeline.unitShows': '场次',
   'timeline.unitSongs': '曲目',
   'timeline.unitPerformances': '演出',

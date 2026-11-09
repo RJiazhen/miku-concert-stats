@@ -323,7 +323,7 @@ export const ja: Record<keyof typeof zh, string> = {
   'timeline.filter': '絞り込み',
   'timeline.floatingMenu': '絞り込みとグラフ',
   'timeline.closeMenu': '絞り込みとグラフを閉じる',
-  'timeline.applyFilters': '絞り込みを適用',
+  'timeline.confirmFilters': '確認',
   'timeline.unitShows': '公演回',
   'timeline.unitSongs': '曲',
   'timeline.unitPerformances': '公演',
