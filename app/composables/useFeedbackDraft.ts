@@ -1,13 +1,22 @@
 import { nextTick, onMounted, ref, watch } from 'vue'
+import {
+  DEFAULT_FEEDBACK_KIND,
+  normalizeFeedbackKind,
+  type FeedbackKind,
+} from '~~/shared/feedback.ts'
 
 /** localStorage key holding the unsent draft, namespaced with the site prefix. */
 export const FEEDBACK_DRAFT_KEY = 'miku-feedback-draft'
 
-/** The two fields the visitor types; the page context is re-collected on every open. */
-export type FeedbackDraft = { description: string; sourceUrl: string }
+/** The fields the visitor edits; the page context is re-collected on every open. */
+export type FeedbackDraft = { kind: FeedbackKind; description: string; sourceUrl: string }
 
 /** Empty draft used when nothing is stored or storage is unavailable. */
-const emptyDraft = (): FeedbackDraft => ({ description: '', sourceUrl: '' })
+const emptyDraft = (): FeedbackDraft => ({
+  kind: DEFAULT_FEEDBACK_KIND,
+  description: '',
+  sourceUrl: '',
+})
 
 /** Reads the cached draft. SSR, private mode and corrupt JSON all fall back to an empty draft. */
 const readStoredDraft = (): FeedbackDraft => {
@@ -19,6 +28,7 @@ const readStoredDraft = (): FeedbackDraft => {
     if (typeof decoded !== 'object' || decoded === null) return emptyDraft()
     const draft = decoded as Partial<FeedbackDraft>
     return {
+      kind: normalizeFeedbackKind(draft.kind),
       description: typeof draft.description === 'string' ? draft.description : '',
       sourceUrl: typeof draft.sourceUrl === 'string' ? draft.sourceUrl : '',
     }
@@ -48,11 +58,13 @@ const clearStoredDraft = (): void => {
 }
 
 /**
- * Persists the feedback form while the visitor types.
+ * Persists the feedback form while the visitor edits it.
  * Closing or cancelling the modal keeps the draft; only `clearDraft()` (after a successful
- * submit) removes it. Restores the stored text when the component mounts.
+ * submit) removes it. Restores the stored values when the component mounts. Switching the kind
+ * keeps the typed text, because the kind is just another draft field.
  */
 export const useFeedbackDraft = () => {
+  const kind = ref<FeedbackKind>(DEFAULT_FEEDBACK_KIND)
   const description = ref('')
   const sourceUrl = ref('')
   /** Guards the watcher while a successful submit empties the form, so no empty draft is written back. */
@@ -61,19 +73,21 @@ export const useFeedbackDraft = () => {
   /** Applies the cached draft after hydration, so server HTML and client HTML agree. */
   onMounted(() => {
     const stored = readStoredDraft()
+    kind.value = stored.kind
     description.value = stored.description
     sourceUrl.value = stored.sourceUrl
   })
 
-  /** Saves on every keystroke; last write wins across tabs. */
-  watch([description, sourceUrl], () => {
+  /** Saves on every edit; last write wins across tabs. */
+  watch([kind, description, sourceUrl], () => {
     if (clearing.value) return
-    writeStoredDraft({ description: description.value, sourceUrl: sourceUrl.value })
+    writeStoredDraft({ kind: kind.value, description: description.value, sourceUrl: sourceUrl.value })
   })
 
   /** Empties the form and the cache after a successful submit. */
   const clearDraft = async (): Promise<void> => {
     clearing.value = true
+    kind.value = DEFAULT_FEEDBACK_KIND
     description.value = ''
     sourceUrl.value = ''
     clearStoredDraft()
@@ -81,5 +95,5 @@ export const useFeedbackDraft = () => {
     clearing.value = false
   }
 
-  return { description, sourceUrl, clearDraft }
+  return { kind, description, sourceUrl, clearDraft }
 }

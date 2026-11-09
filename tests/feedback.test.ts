@@ -52,6 +52,20 @@ describe('parseFeedbackPayload', () => {
     expect(rejection({ description: 12 })).toBe('请填写问题描述')
   })
 
+  it('defaults to the error kind and keeps a feature request', () => {
+    expect(acceptance(validBody()).kind).toBe('error')
+    expect(acceptance({ ...validBody(), kind: 'feature' }).kind).toBe('feature')
+    // An unknown kind is treated like an omitted one, never rejecting the submission.
+    expect(acceptance({ ...validBody(), kind: 'praise' }).kind).toBe('error')
+    expect(rejection({ kind: 'feature' })).toBe('请填写功能描述')
+    expect(rejection({ kind: 'feature', description: 'a'.repeat(FEEDBACK_DESCRIPTION_MAX + 1) })).toBe(
+      `功能描述最多 ${FEEDBACK_DESCRIPTION_MAX} 个字符`,
+    )
+    expect(rejection({ kind: 'feature', ...validBody(), sourceUrl: 'ftp://example.com' })).toBe(
+      '相关链接必须是 http:// 或 https:// 开头的网址',
+    )
+  })
+
   it('trims the description', () => {
     expect(acceptance({ description: '  数据不对  ' }).description).toBe('数据不对')
   })
@@ -136,6 +150,7 @@ describe('parseFeedbackPayload', () => {
       pageTitle: '歌曲排行',
     })
     expect(payload).toEqual({
+      kind: 'error',
       description: '页面上的数据不对',
       sourceUrl: null,
       pageUrl: 'https://example.com/songs?series=1',
@@ -170,6 +185,7 @@ describe('parseFeedbackPayload', () => {
       'catalogVersion',
       'collectedAt',
       'description',
+      'kind',
       'pageTitle',
       'pageUrl',
       'sourceUrl',
@@ -186,6 +202,7 @@ describe('stored record', () => {
       id: 'abc',
       receivedAt: '2026-11-04T07:17:00.000Z',
       collectedAt: '2026-11-04T07:17:00.000Z',
+      kind: 'error',
       description: '2024 年东京场的播放量不对',
       sourceUrl: null,
       pageUrl: null,
@@ -214,9 +231,15 @@ describe('stored record', () => {
 
   it('round-trips through JSON', () => {
     const record = buildFeedbackRecord(
-      acceptance({ ...validBody(), sourceUrl: 'https://vocadb.net/S/1', pageUrl: 'https://example.com/raw' }),
+      acceptance({
+        ...validBody(),
+        kind: 'feature',
+        sourceUrl: 'https://vocadb.net/S/1',
+        pageUrl: 'https://example.com/raw',
+      }),
       { id: 'abc', now: new Date('2026-11-04T07:17:00.000Z') },
     )
+    expect(record.kind).toBe('feature')
     expect(parseFeedbackRecord(JSON.stringify(record))).toEqual(record)
   })
 
@@ -266,7 +289,7 @@ describe('feedback status', () => {
       viewport: null,
       catalogVersion: null,
     }
-    expect(parseFeedbackRecord(JSON.stringify(legacy))).toEqual({ ...legacy, status: 'open' })
+    expect(parseFeedbackRecord(JSON.stringify(legacy))).toEqual({ ...legacy, kind: 'error', status: 'open' })
   })
 
   it('keeps an explicit resolved status when reading KV JSON', () => {

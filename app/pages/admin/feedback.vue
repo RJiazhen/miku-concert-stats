@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import {
+  FEEDBACK_KIND_LABEL,
   FEEDBACK_STATUS_LABEL,
   isHttpUrl,
   type FeedbackRecord,
@@ -161,7 +162,7 @@ onMounted(async () => {
           反馈收件箱
         </h1>
         <p class="max-w-2xl text-sm leading-relaxed text-muted">
-          站点访客通过右下角的「报告错误」提交的记录。收件箱只追加不删除，记录在提交 180 天后由
+          站点访客通过右下角的「反馈」提交的问题与功能请求。收件箱只追加不删除，记录在提交 180 天后由
           KV TTL 自动过期；状态修改会重写同一条记录。
         </p>
       </div>
@@ -269,7 +270,7 @@ onMounted(async () => {
       v-else-if="items.length === 0"
       icon="i-lucide-inbox"
       title="暂无反馈"
-      description="收到的错误报告会按时间倒序出现在这里。"
+      description="收到的反馈会按时间倒序出现在这里。"
       variant="naked"
       class="rounded-xl border border-dashed border-default py-12"
     />
@@ -306,6 +307,9 @@ onMounted(async () => {
                   size="sm"
                 >
                   {{ FEEDBACK_STATUS_LABEL[item.status] }}
+                </UBadge>
+                <UBadge :color="item.kind === 'feature' ? 'secondary' : 'neutral'" variant="subtle" size="sm">
+                  {{ FEEDBACK_KIND_LABEL[item.kind] }}
                 </UBadge>
                 <time :datetime="item.receivedAt">{{ formatTime(item.receivedAt) }}</time>
                 <UBadge v-if="item.viewport" color="neutral" variant="subtle" size="sm">

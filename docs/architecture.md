@@ -312,14 +312,15 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 `app/composables/useSongLookup.ts` 提供 `songById` / `songName`；`useSongVariants.ts` 与 `useSetlistMerges.ts` 在模块加载时解析各自的 JSON 清单。
 
-`app/components/FeedbackWidget.vue` 是固定右下角的「报告错误」悬浮按钮（`UButton` + `i-lucide-message-square-warning`，窄屏只显示图标，底部留 `env(safe-area-inset-bottom)`），挂在 `app/layouts/default.vue`，所以每个页面都有。点击打开 `UModal`：
+`app/components/FeedbackWidget.vue` 是固定右下角的「反馈」悬浮按钮（`UButton` + `i-lucide-message-square-text`，窄屏只显示图标，底部留 `env(safe-area-inset-bottom)`），挂在 `app/layouts/default.vue`，所以每个页面都有。点击打开 `UModal`：
 
+- 弹窗标题「反馈」，第一项是「反馈类型」单选：「页面有错误」（默认）与「请求新功能」。切换只改下方表单项的标题与说明文字（描述字段、「可选链接」字段），已填写的内容与草稿都不清空。
 - 只读灰底字段只有两个，由页面当场采集：页面链接（含查询串）与页面标题。`readonly` 而不是 `disabled`，文字仍可选中复制。不采集视口、采集时间、目录版本，也不采集 IP、User-Agent 等指纹信息。
-- 弹窗只有标题「报告错误」，没有副标题；可编辑项只有「问题描述」与「正确的数据来源（可选）」。
-- 「问题描述」必填，最多 4000 字；「正确的数据来源（可选）」只在非空时校验为 http/https，最多 2000 字符。
-- 提交中按钮进入 pending，失败保留草稿并显示服务端返回的中文原因。
+- 可编辑项是描述（页面有错误时为「问题描述」，请求新功能时为「功能描述」）与可选链接（分别为「正确的数据来源」与「相关链接」）。
+- 描述必填，最多 4000 字；可选链接只在非空时校验为 http/https，最多 2000 字符。
+- 提交中按钮进入 pending，失败保留草稿并显示服务端返回的中文原因；`kind` 随请求一起提交，旧记录缺少该字段时按 `error` 解析。
 
-`app/composables/useFeedbackDraft.ts` 把描述与来源链接写进 `localStorage` 键 `miku-feedback-draft`，每次输入即写、重新打开弹窗或刷新页面都会恢复；关闭 / 取消都不清除，只有提交成功后才删除。`localStorage` 的读写全部包在 `try/catch` 里，SSR、无痕模式和损坏的 JSON 都退回空草稿。
+`app/composables/useFeedbackDraft.ts` 把反馈类型、描述与可选链接写进 `localStorage` 键 `miku-feedback-draft`，每次输入即写、重新打开弹窗或刷新页面都会恢复；关闭 / 取消都不清除，只有提交成功后才删除。`localStorage` 的读写全部包在 `try/catch` 里，SSR、无痕模式和损坏的 JSON 都退回空草稿。
 
 站内不提供 VocaDB 检索代理。浏览器只读构建好的目录，页内搜索不发起任何站外请求；VocaDB 只由构建期的采集脚本访问。
 
@@ -359,7 +360,7 @@ skill 要求 agent 默认用这套接口回答初音未来演唱会数据问题�
 
 `app/components/AiPromptButton.vue` 是页眉右侧的图标按钮（`i-tabler:ai`，即 A + I 描边字形，不带文字标签，`aria-label` 与 tooltip 说明用途）。按钮与字形都锁定 28px（`ui.base: 'size-7 justify-center p-0'`、`ui.leadingIcon: 'size-7'`），因此与 `size="sm"` 的其他页眉控件同高，图标放大也不会撑高页眉（始终 59px）；`justify-center` 必须在 `base` 里写，因为 Nuxt UI 的按钮主题只做垂直居中。点击后用 `navigator.clipboard.writeText` 写入三行固定提示词——第一行只指向 `/skill.md` 并要求「按其说明用当前语言回答」，后两行是要目录数据才能回答的问题，且用该语言写歌名与演出名（中文「融化」「魔法未来 2024 东京场」、英文「Melt」「Magical Mirai 2024 in Tokyo」、日文「メルト」「マジカルミライ 2024 東京公演」），顺带演示 API 自带的三语名字；请求侧规则（只打 `/api/v1`、非 ASCII 先 percent-encoding、报错按 skill 排错而不改用搜索引擎、站外来源要标注）全部写在 `SKILL.md` 的 `Start here` 一节，避免用户在复制的提示词里读到接口细节。成功后按钮 6 秒内换成绿色对勾（`i-lucide-check`），并在按钮下方 24px（`mt-6`）处用绝对定位的浮层提示「粘贴到 AI 对话框中试试吧~」，背景用不透明的 `bg-elevated` 而不是半透明色块；失败时同一位置提示改为「复制失败，请手动让 AI 读取 /skill.md」。提示语不用 toast，避免页面底部弹出通知，也不占用页眉宽度；提示词本身不在页面上展示。`tabler:ai` 来自 `@iconify-json/tabler`（devDependency），`icon.clientBundle.scan` 只把用到的这一个图标打进客户端包。
 
-`server/api/feedback.post.ts` 接收悬浮按钮的报告。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
+`server/api/feedback.post.ts` 接收悬浮按钮的反馈。请求体上限 16 KB，必须是 JSON；`shared/feedback.ts` 的 `parseFeedbackPayload` 解析 `kind`（`error` / `feature`，缺失或未知时按 `error`），按类型选用「问题描述 / 功能描述」的校验文案，去掉首尾空白、校验长度与 URL 协议，再写成 `feedback:<服务器 ISO 时间>:<uuid>` 存进 KV，`expirationTtl` 为 180 天。没有绑定（`nuxt dev` 总是如此）或 KV 写入失败时返回 503 与中文提示，客户端保留草稿。描述内容不会写进任何日志。
 
 `server/api/feedback/list.get.ts`、`server/api/feedback/[id].get.ts` 与 `server/api/feedback/status.post.ts` 组成维护者后台的数据接口；页面在 `app/pages/admin/` 下，统一使用 `app/layouts/admin.vue`（Nuxt UI 的 `UDashboardGroup` + `UDashboardSidebar` + `UDashboardNavbar`）提供完整后台外壳：固定侧栏、顶部导航、登录状态、主题切换与返回站点入口。后台不挂在任何公共导航、页脚或组件里，只能直接输入 URL；`useHead` 写 `robots: noindex, nofollow`。
 
@@ -438,7 +439,7 @@ flowchart TD
   worker --> pages
   pages --> widget
   pages -->|"JS beacon（仅公开页面）"| cfanalytics
-  widget -->|"description + sourceUrl + page URL/title"| feedback
+  widget -->|"kind + description + sourceUrl + page URL/title"| feedback
   feedback --> feedbackkv
   adminapi -->|"先校验 Access 身份"| access
   adminapi --> feedbackkv
@@ -678,7 +679,7 @@ NUXT_IGNORE_LOCK=1 vp dev --port <port>
 
 用后台 / detached 的方式启动，让它在本任务结束后继续存活。
 
-`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`fix-singer-fold-tablet-only` 用 `3181`，`feat-producer-variant-tag` 用 `3183`，`data-fire-flower-2011` 用 `3185`，`feat-cloudflare-web-analytics` 用 `3187`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`，`feat-layout-width-overflow` 用 `3195`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
+`feat-browser-tab-titles` 用 `3161`，`feat-timeline-chart-anchor` 用 `3163`，`feat-timeline-axis-trim` 用 `3165`，`feat-site-i18n-ja-en` 用 `3167`，`feat-series-searchable-select` 用 `3169`，`fix-drop-footer-skill-note` 用 `3171`，`feat-english-name-translations` 用 `3173`，`feat-localized-api-names` 用 `3175`，`feat-traditional-chinese` 用 `3177`，`fix-locale-ssr-detection` 用 `3179`，`fix-singer-fold-tablet-only` 用 `3181`，`feat-producer-variant-tag` 用 `3183`，`data-fire-flower-2011` 用 `3185`，`feat-cloudflare-web-analytics` 用 `3187`，`data-zh-name-coverage` 用 `3189`，`feat-producer-kind-flags` 用 `3189`（已随任务收尾释放），`fix-setlist-vocaloid-import` 用 `3191`，`feat-layout-width-overflow` 用 `3195`，`feat-feedback-kind-radio` 用 `3197`。新工作树自己挑一个没被占用的端口并记录下来（本节或任务报告），`/continue` 会自动分配并写进本节；同一端口上已有 Nuxt 进程时，`NUXT_IGNORE_LOCK=1` 用来绕开 `.nuxt` 的锁。
 
 任务结尾要把服务器地址（如 `http://127.0.0.1:3117/`）告诉用户。服务器是热更新的，改完代码不用重启；只有 `public/data/catalog.sqlite.gz` 重新生成时才需要硬刷新页面。
 

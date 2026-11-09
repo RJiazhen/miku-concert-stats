@@ -30,8 +30,33 @@ export const FEEDBACK_KEY_PREFIX = 'feedback:'
 /** Default number of entries the inbox route returns. */
 export const FEEDBACK_INBOX_LIMIT = 50
 
+/** What the visitor is sending: a problem on the page, or a request for something new. */
+export type FeedbackKind = 'error' | 'feature'
+
+/** Kind used when a body omits or misspells the field; matches the modal's first radio option. */
+export const DEFAULT_FEEDBACK_KIND: FeedbackKind = 'error'
+
+/** Chinese labels for the kind radio and the admin inbox. */
+export const FEEDBACK_KIND_LABEL: Record<FeedbackKind, string> = {
+  error: '页面有错误',
+  feature: '请求新功能',
+}
+
+/** Name given to the description field per kind, reused by validation messages. */
+const KIND_DESCRIPTION_LABEL: Record<FeedbackKind, string> = {
+  error: '问题描述',
+  feature: '功能描述',
+}
+
+/** Name given to the optional link field per kind, reused by validation messages. */
+const KIND_SOURCE_LABEL: Record<FeedbackKind, string> = {
+  error: '数据来源链接',
+  feature: '相关链接',
+}
+
 /** Normalised submission. Optional context fields are `null` when absent or blank. */
 export type FeedbackPayload = {
+  kind: FeedbackKind
   description: string
   sourceUrl: string | null
   pageUrl: string | null
@@ -104,6 +129,16 @@ const optionalUrl = (
   return { ok: true, value: raw }
 }
 
+/** Whether a value is a known feedback kind. */
+export const isFeedbackKind = (value: unknown): value is FeedbackKind => {
+  return value === 'error' || value === 'feature'
+}
+
+/** Normalises a stored or requested kind; missing or unknown values become the default. */
+export const normalizeFeedbackKind = (value: unknown): FeedbackKind => {
+  return isFeedbackKind(value) ? value : DEFAULT_FEEDBACK_KIND
+}
+
 /**
  * Validates and normalises a decoded JSON body from `POST /api/feedback`.
  * Returns the trimmed payload, or a Chinese message describing the first problem.
@@ -111,13 +146,17 @@ const optionalUrl = (
 export const parseFeedbackPayload = (raw: unknown): FeedbackValidation => {
   if (!isPlainObject(raw)) return { ok: false, message: '请求内容不是有效的反馈数据' }
 
+  // The kind decides the wording of the other checks, so it is resolved before them.
+  const kind = normalizeFeedbackKind(raw.kind)
+  const descriptionLabel = KIND_DESCRIPTION_LABEL[kind]
+
   const description = optionalText(raw.description)
-  if (description === null) return { ok: false, message: '请填写问题描述' }
+  if (description === null) return { ok: false, message: `请填写${descriptionLabel}` }
   if (description.length > FEEDBACK_DESCRIPTION_MAX) {
-    return { ok: false, message: `问题描述最多 ${FEEDBACK_DESCRIPTION_MAX} 个字符` }
+    return { ok: false, message: `${descriptionLabel}最多 ${FEEDBACK_DESCRIPTION_MAX} 个字符` }
   }
 
-  const sourceUrl = optionalUrl(optionalText(raw.sourceUrl), FEEDBACK_URL_MAX, '数据来源链接')
+  const sourceUrl = optionalUrl(optionalText(raw.sourceUrl), FEEDBACK_URL_MAX, KIND_SOURCE_LABEL[kind])
   if (!sourceUrl.ok) return sourceUrl
 
   const pageUrl = optionalUrl(optionalText(raw.pageUrl), FEEDBACK_URL_MAX, '页面链接')
@@ -140,6 +179,7 @@ export const parseFeedbackPayload = (raw: unknown): FeedbackValidation => {
   return {
     ok: true,
     value: {
+      kind,
       description,
       sourceUrl: sourceUrl.value,
       pageUrl: pageUrl.value,
@@ -201,6 +241,7 @@ export const parseFeedbackRecord = (raw: string): FeedbackRecord | null => {
     id,
     receivedAt,
     collectedAt: text(decoded.collectedAt),
+    kind: normalizeFeedbackKind(decoded.kind),
     description,
     sourceUrl: text(decoded.sourceUrl),
     pageUrl: text(decoded.pageUrl),

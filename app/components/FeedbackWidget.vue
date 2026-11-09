@@ -1,18 +1,45 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { FEEDBACK_DESCRIPTION_MAX, FEEDBACK_URL_MAX, isHttpUrl } from '~~/shared/feedback.ts'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { FEEDBACK_DESCRIPTION_MAX, FEEDBACK_URL_MAX, isHttpUrl, type FeedbackKind } from '~~/shared/feedback.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 
 /** Response body of `POST /api/feedback`. */
 type FeedbackResponse = { ok: true; id: string }
 
-const { description, sourceUrl, clearDraft } = useFeedbackDraft()
+const { kind, description, sourceUrl, clearDraft } = useFeedbackDraft()
 const { t } = useLocale()
 
 const open = ref(false)
 const pending = ref(false)
 const errorMessage = ref('')
 const successId = ref('')
+
+/** Radio options for the kind of feedback; the error report stays first as the default. */
+const kindItems = computed<{ label: string; value: FeedbackKind }[]>(() => [
+  { label: t('feedback.kindError'), value: 'error' },
+  { label: t('feedback.kindFeature'), value: 'feature' },
+])
+
+/**
+ * Labels and hints that follow the selected kind. Only the wording changes: switching the radio
+ * leaves the typed description and link untouched, and both kinds still submit the same fields.
+ */
+const kindCopy = computed(() => {
+  if (kind.value === 'feature') {
+    return {
+      description: t('feedback.featureDescription'),
+      placeholder: t('feedback.featureDescriptionPlaceholder'),
+      source: t('feedback.featureSource'),
+      sourceHelp: t('feedback.featureSourceHelp'),
+    }
+  }
+  return {
+    description: t('feedback.errorDescription'),
+    placeholder: t('feedback.errorDescriptionPlaceholder'),
+    source: t('feedback.errorSource'),
+    sourceHelp: t('feedback.errorSourceHelp'),
+  }
+})
 
 // Read-only page context, re-collected every time the modal opens.
 const pageUrl = ref('')
@@ -23,7 +50,7 @@ const readonlyFieldUi = { base: 'bg-elevated/50 text-muted ring-default/50' }
 
 let closeTimer: ReturnType<typeof setTimeout> | undefined
 
-/** Whether 问题描述 may autofocus; false on touch devices so the soft keyboard stays closed. */
+/** Whether the description field may autofocus; false on touch devices so the soft keyboard stays closed. */
 const autofocusDescription = ref(false)
 
 /** Enables autofocus only for a precise pointer, keeping the modal fully visible on phones. */
@@ -123,12 +150,12 @@ const submit = async (): Promise<void> => {
   if (pending.value) return
   const trimmedDescription = description.value.trim()
   if (trimmedDescription === '') {
-    errorMessage.value = t('feedback.needDescription')
+    errorMessage.value = t(kind.value === 'feature' ? 'feedback.featureNeedDescription' : 'feedback.errorNeedDescription')
     return
   }
   const trimmedSource = sourceUrl.value.trim()
   if (trimmedSource !== '' && !isHttpUrl(trimmedSource)) {
-    errorMessage.value = t('feedback.invalidSource')
+    errorMessage.value = t(kind.value === 'feature' ? 'feedback.featureInvalidSource' : 'feedback.errorInvalidSource')
     return
   }
 
@@ -138,6 +165,7 @@ const submit = async (): Promise<void> => {
     const response = await $fetch<FeedbackResponse>('/api/feedback', {
       method: 'POST',
       body: {
+        kind: kind.value,
         description: trimmedDescription,
         sourceUrl: trimmedSource === '' ? null : trimmedSource,
         pageUrl: pageUrl.value || null,
@@ -170,7 +198,7 @@ const submit = async (): Promise<void> => {
     :aria-expanded="open"
     @click="openModal"
   >
-    <UIcon name="i-lucide-message-square-warning" class="size-5" />
+    <UIcon name="i-lucide-message-square-text" class="size-5" />
     <span
       class="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 motion-reduce:transition-none"
       :class="collapsed ? 'max-w-0 opacity-0 sm:max-w-24 sm:opacity-100' : 'max-w-24'"
@@ -194,6 +222,14 @@ const submit = async (): Promise<void> => {
         />
 
         <template v-else>
+          <URadioGroup
+            v-model="kind"
+            :items="kindItems"
+            :legend="t('feedback.kind')"
+            orientation="horizontal"
+            size="sm"
+          />
+
           <div class="space-y-3">
             <UFormField :label="t('feedback.pageUrl')">
               <UInput
@@ -209,20 +245,20 @@ const submit = async (): Promise<void> => {
             </UFormField>
           </div>
 
-          <UFormField :label="t('feedback.description')" required :hint="`${description.length}/${FEEDBACK_DESCRIPTION_MAX}`">
+          <UFormField :label="kindCopy.description" required :hint="`${description.length}/${FEEDBACK_DESCRIPTION_MAX}`">
             <UTextarea
               v-model="description"
               :rows="4"
               :maxlength="FEEDBACK_DESCRIPTION_MAX"
-              :placeholder="t('feedback.descriptionPlaceholder')"
+              :placeholder="kindCopy.placeholder"
               class="w-full"
               :autofocus="autofocusDescription"
             />
           </UFormField>
 
           <UFormField
-            :label="t('feedback.source')"
-            :help="t('feedback.sourceHelp')"
+            :label="kindCopy.source"
+            :help="kindCopy.sourceHelp"
           >
             <UInput
               v-model="sourceUrl"
