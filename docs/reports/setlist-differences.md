@@ -11,7 +11,7 @@
 - 可能不是同一套节目：15 对
 - 仅顺序不同：0 对
 - 完全相同：0 对
-- 相邻系列年度对比：57 对（仅作参考，不参与上面的分级统计）
+- 相邻系列年度对比：58 对（仅作参考，不参与上面的分级统计）
 
 ## 读法
 
@@ -216,6 +216,9 @@
 - **MIKU WITH YOU 2025** · [17590](https://vocadb.net/SongList/Details/17590) → [23552](https://vocadb.net/SongList/Details/23552) · 行数 28 → 26（-2） · 正片/安可 28/0 → 26/0（安可 0） · 共有 8 / 仅左 20 / 仅右 18 · LCS 0.18 · 未合并 · 可能不是同一套节目
       - 仅左：ワールドイズマイン / ダーリンダンス / Yellow / ANIMAL / 天才ロック / タイムマシン / キレキャリオン / レッドランドマーカー / 抜錨 / FLASH / 神っぽいな / 積乱雲グラフィティ / アンノウン・マザーグース / ローリンガール / ODDS&ENDS / ツギハギスタッカート / いいねってYEAH! / 太陽系デスコ / ヴァンパイア / Tell Your World
       - 仅右：Mag1c / Baby Maniacs -Eight Mix- / ハイパーリアリティショウ / リモコン / ワールズエンド・ダンスホール / 番凩 / ドクター＝ファンクビート / どりーみんチュチュ / 快晴 / 星のカケラ（piano ver.） / ウミユリ海底譚 / 僕が夢を捨てて大人になるまで / Satisfaction / 39 / ブループラネット / メルト / ポケットのモンスター / Blessing
+- **MIKU WITH YOU 2026** · [23552](https://vocadb.net/SongList/Details/23552) → [29163](https://vocadb.net/SongList/Details/29163) · 行数 26 → 27（+1） · 正片/安可 26/0 → 27/0（安可 0） · 共有 5 / 仅左 21 / 仅右 22 · LCS 0.07 · 未合并 · 可能不是同一套节目
+      - 仅左：Baby Maniacs -Eight Mix- / COME BACK / ハイパーリアリティショウ / リモコン / ワールズエンド・ダンスホール / 番凩 / ドクター＝ファンクビート / どりーみんチュチュ / 跨时空日记 / 快晴 / 星のカケラ（piano ver.） / ウミユリ海底譚 / 僕が夢を捨てて大人になるまで / ロミオとシンデレラ / 月西江 / Satisfaction / 39 / ブループラネット / メルト / ポケットのモンスター / Blessing
+      - 仅右：ローリンガール / ダーリンダンス / 神っぽいな / StargazeR / カルチャ / ヴァンパイア / 夜舞うシルエット / 新人類 / テレキャスタービーボーイ (long ver.) / みかぼし / ダブルラリアット / 让我们拥抱哭泣 / REALITY / キミペディア / 愛Dee / Packaged / アイ / ワールドイズマイン / 彩虹游乐园 / 歌に形はないけれど / みんなみくみくにしてあげる♪  / DECORATOR
 - **SNOW MIKU LIVE! 2018** · [3951](https://vocadb.net/SongList/Details/3951) → [7339](https://vocadb.net/SongList/Details/7339) · 行数 27 → 29（+2） · 正片/安可 25/2 → 26/3（安可 +1） · 共有 5 / 仅左 22 / 仅右 24 · LCS 0.14 · 未合并 · 可能不是同一套节目
       - 仅左：Sharing The World / 千本桜 / みくみくにしてあげる♪【してやんよ】 / 恋色病棟 / Fire◎Flower / 右肩の蝶 / メランコリック / ココロ / Glass Wall / Parades / ピアノ×フォルテ×スキャンダル / Pane dhiria / ロミオとシンデレラ / ぽっぴっぽー / Venus di Ujung Jari / Just be Friends / ルカルカ★ナイトフィーバー / 秘密警察 / 初音ミクの激唱 / ワールドイズマイン / メルト / 星のカケラ（piano ver.）
       - 仅右：気まぐれメルシィ / ゴーストルール / 裏表ラバーズ / 脱法ロック / スイートマジック / スノーマン / celluloid / 深海少女 / 結ンデ開イテ羅刹ト骸 / トリノコシティ / ゆめゆめ / 忘却心中 / Leia / アカツキアライヴァル / ジェミニ / カラフル×メロディ / リモコン / 愛の詩 / ローリンガール / ODDS&ENDS / 歌に形はないけれど / letter song / 好き！雪！本気マジック / 四角い地球を丸くする
@@ -223,7 +226,7 @@
       - 仅左：気まぐれメルシィ / こっち向いて Baby / ゴーストルール / 裏表ラバーズ / 脱法ロック / celluloid / 深海少女 / 結ンデ開イテ羅刹ト骸 / トリノコシティ / ゆめゆめ / 忘却心中 / アカツキアライヴァル / ジェミニ / カラフル×メロディ / リモコン / 白い雪のプリンセスは / Tell Your World / 歌に形はないけれど / letter song
       - 仅右：テオ / こちら、幸福安心委員会です。 / ステラ / 炉心融解 / 右肩の蝶 / Fire◎Flower / 劣等上等 / ピアノ×フォルテ×スキャンダル / Pane dhiria / Packaged / アンノウン・マザーグース / なりすましゲンガー / Birthday / No Logic / Hello, Worker / それがあなたの幸せとしても / Nyanyanyanyanyanyanya! / Satisfaction / ワールドイズマイン / 雪がとける前に / スターナイトスノウ / アイ
 - **初音ミクライブパーティー 2011** · [3952](https://vocadb.net/SongList/Details/3952) → [1](https://vocadb.net/SongList/Details/1) · 行数 40 → 27（-13） · 正片/安可 40/0 → 25/2（安可 +2） · 共有 4 / 仅左 35 / 仅右 23 · LCS 0.08 · 未合并 · 可能不是同一套节目
-      - 仅左：ハジメテノオト / Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / サウンド / 恋スルVOC@LOID / Dear cocoa girls / StargazeR / The secret garden / ミラクルペイント / Innocence / ハト / みくみく菌にご注意♪ / サヨナラ・グッバイ / ロミオとシンデレラ / Dear / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / 星屑ユートピア / Just Be Friends / magnet / Alice / あなたの歌姫 / moon / 初音ミクの消失 / 炉心融解 / 右肩の蝶 / Promise / from Y to Y / サイハテ / ストロボナイツ / SPiCa / 愛言葉
+      - 仅左：ハジメテノオト / Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / サウンド / 恋スルVOC@LOID / Dear cocoa girls / StargazeR / The secret garden / ミラクルペイント / Innocence / ハト / みくみく菌にご注意♪ / サヨナラ・グッバイ / ロミオとシンデレラ / Dear / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / 星屑ユートピア / Just Be Friends / magnet / Alice / あなたの歌姫 (full ver.) / moon / 初音ミクの消失 / 炉心融解 / 右肩の蝶 / Promise / from Y to Y / サイハテ / ストロボナイツ / SPiCa / 愛言葉
       - 仅右：初めての恋が終わる時 / ローリンガール / 二息歩行 / アルビノ / 恋色病棟 / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / RIP=RELEASE / ルカルカ★ナイトフィーバー / 私の時間 / ＊ハロー、プラネット。 / こっち向いて Baby / Yellow / カラフル×メロディ / メランコリック / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA / みくみくにしてあげる♪【してやんよ】 / 歌に形はないけれど
 - **初音ミクライブパーティー 2012** · [1](https://vocadb.net/SongList/Details/1) → [31](https://vocadb.net/SongList/Details/31) · 行数 27 → 25（-2） · 正片/安可 25/2 → 25/0（安可 -2） · 共有 16 / 仅左 11 / 仅右 9 · LCS 0.22 · 未合并 · 可能不是同一套节目
       - 仅左：二息歩行 / アルビノ / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / ＊ハロー、プラネット。 / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA
