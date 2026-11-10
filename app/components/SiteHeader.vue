@@ -3,7 +3,7 @@ import { LOCALES, localeSelfName, type Locale } from '~~/shared/i18n/index.ts'
 import { useAiPrompt } from '~/composables/useAiPrompt.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 
-const { t, locale, setLocale, showOriginalTitle } = useLocale()
+const { t, locale, setLocale, showOriginalTitle, currentName } = useLocale()
 const { copyPrompt: writePrompt } = useAiPrompt()
 const colorMode = useColorMode()
 const toast = useToast()
@@ -255,18 +255,35 @@ onBeforeUnmount(stopMoreCloseTimer)
       <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 lg:gap-3">
         <!-- Input from `xl`; below that the same search stays available as its icon button. -->
         <SiteSearch />
-        <!-- Below lg the AI prompt, language, theme, and GitHub buttons live in the menu panel. -->
+        <!-- Below lg the AI prompt, theme, and GitHub buttons live in the menu panel; language is always visible. -->
         <div class="hidden lg:block">
           <AiPromptButton />
         </div>
-        <!-- Clicking the button toggles the language menu; the original-name switch lives inside. -->
+        <div class="hidden lg:block">
+          <UColorModeButton color="neutral" variant="ghost" size="sm" />
+        </div>
+        <div class="hidden lg:block">
+          <UTooltip :text="t('nav.github')">
+            <UButton
+              to="https://github.com/RJiazhen/miku-concert-stats"
+              target="_blank"
+              rel="noopener noreferrer"
+              icon="i-tabler:brand-github"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :aria-label="t('nav.githubNewWindow')"
+            />
+          </UTooltip>
+        </div>
+        <!-- Language switcher: always visible at top right, shows current language name. -->
         <UPopover
           v-model:open="languageOpen"
-          class="hidden lg:inline-flex"
           :content="{ align: 'end', sideOffset: 8, collisionPadding: 8 }"
         >
           <UButton
             icon="i-lucide-languages"
+            :label="currentName"
             color="neutral"
             variant="ghost"
             size="sm"
@@ -301,23 +318,6 @@ onBeforeUnmount(stopMoreCloseTimer)
             </div>
           </template>
         </UPopover>
-        <div class="hidden lg:block">
-          <UColorModeButton color="neutral" variant="ghost" size="sm" />
-        </div>
-        <div class="hidden lg:block">
-          <UTooltip :text="t('nav.github')">
-            <UButton
-              to="https://github.com/RJiazhen/miku-concert-stats"
-              target="_blank"
-              rel="noopener noreferrer"
-              icon="i-tabler:brand-github"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              :aria-label="t('nav.githubNewWindow')"
-            />
-          </UTooltip>
-        </div>
         <!-- Far right below lg: the folded navigation plus every utility that left the row. -->
         <UButton
           icon="i-lucide-menu"
@@ -359,36 +359,6 @@ onBeforeUnmount(stopMoreCloseTimer)
             class="justify-start"
             @click="closeMenu"
           />
-          <div class="mt-1 flex flex-col gap-0.5 border-t border-default pt-1">
-            <p class="px-2.5 pt-1 pb-0.5 text-[11px] tracking-wide text-muted uppercase">{{ t('nav.language') }}</p>
-            <UButton
-              v-for="item in languageItems"
-              :key="`menu:${item.value}`"
-              color="neutral"
-              :variant="item.value === locale ? 'soft' : 'ghost'"
-              size="md"
-              class="justify-between"
-              :label="item.label"
-              :trailing-icon="item.value === locale ? 'i-lucide-check' : undefined"
-              @click="pickLanguage(item.value)"
-            />
-          </div>
-          <div class="mt-1 flex flex-col gap-0.5 border-t border-default pt-1">
-            <label
-              class="flex items-center justify-between gap-3 px-2.5 py-2 whitespace-nowrap"
-            >
-              <span class="text-sm" :class="originalTitleDisabled ? 'text-dimmed' : 'text-muted'">
-                {{ t('nav.showOriginalTitle') }}
-              </span>
-              <USwitch
-                :model-value="originalTitleShown"
-                :disabled="originalTitleDisabled"
-                :aria-label="t('nav.showOriginalTitle')"
-                size="sm"
-                @update:model-value="toggleOriginalTitle"
-              />
-            </label>
-          </div>
           <!-- Appearance: label on the left, a themed switch whose thumb shows sun or moon. -->
           <div class="mt-1 flex flex-col gap-0.5 border-t border-default pt-1">
             <label class="flex items-center justify-between gap-3 px-2.5 py-2 whitespace-nowrap">
