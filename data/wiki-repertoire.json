@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "note": "百科逐曲表里 catalog 没有、VocaDB 也查不到的曲目。按普通歌曲登记，id 从 2000000000 起，不与 VocaDB 的 song id 冲突。category 说明它是不是 VOCALOID 歌曲；skip=true 表示不值得单独登记（同曲再演），只写进演出备注。",
+  "idBase": 2000000000,
+  "songs": {
+    "ピアノ協奏曲 第5番「皇帝」第1楽章": {
+      "id": 2000000001,
+      "category": "classical",
+      "artist": "ベートーヴェン",
+      "note": "贝多芬《第五钢琴协奏曲“皇帝”》第一乐章，钢琴与管弦乐编制"
+    },
+    "ピアノ協奏曲 第2番 第1楽章": {
+      "id": 2000000002,
+      "category": "classical",
+      "artist": "ラフマニノフ",
+      "note": "拉赫玛尼诺夫《第二钢琴协奏曲》第一乐章"
+    },
+    "交響曲第9番": {
+      "id": 2000000003,
+      "category": "classical",
+      "artist": "ベートーヴェン",
+      "note": "贝多芬《第九交响曲》，神戸公演安可的管弦乐版"
+    },
+    "ピアノソナタ 第11番イ長調 K.331 第3楽章（トルコ行進曲）": {
+      "id": 2000000004,
+      "category": "classical",
+      "artist": "モーツァルト",
+      "note": "莫扎特《第十一钢琴奏鸣曲》第三乐章《土耳其进行曲》"
+    },
+    "そりすべり": {
+      "id": 2000000005,
+      "category": "classical",
+      "artist": "ルロイ・アンダーソン",
+      "note": "《雪橇》，管弦乐小品，大阪公演 Christmas special"
+    },
+    "White Christmas": {
+      "id": 2000000006,
+      "category": "traditional",
+      "artist": "アーヴィング・バーリン",
+      "note": "圣诞歌曲，大阪公演 Christmas special 的管弦乐改编"
+    },
+    "ジングルベル": {
+      "id": 2000000007,
+      "category": "traditional",
+      "artist": null,
+      "note": "传统圣诞歌曲，大阪公演 Christmas special 的管弦乐改编"
+    },
+    "蜂の風": {
+      "id": 2000000008,
+      "category": "traditional",
+      "artist": "愛知民謡（編曲：鼓童）",
+      "note": "爱知县民谣，鼓童改编为太鼓与管弦乐"
+    },
+    "巴": {
+      "id": 2000000010,
+      "category": "instrumental",
+      "artist": "坂東玉三郎",
+      "note": "鼓童原创曲，舞与太鼓"
+    },
+    "三宅": {
+      "id": 2000000011,
+      "category": "instrumental",
+      "artist": "鼓童",
+      "note": "鼓童原创曲"
+    },
+    "巡 -MEGURU-": {
+      "id": 2000000012,
+      "category": "instrumental",
+      "artist": "鼓童",
+      "note": "鼓童原创曲"
+    },
+    "SHAKE": {
+      "id": 2000000013,
+      "category": "instrumental",
+      "artist": "鼓童",
+      "note": "鼓童原创曲"
+    },
+    "能菅＋平胴": {
+      "id": 2000000014,
+      "category": "instrumental",
+      "artist": "鼓童",
+      "note": "鼓童原创曲，能管与平胴"
+    },
+    "族": {
+      "id": 2000000015,
+      "category": "instrumental",
+      "artist": "鼓童",
+      "note": "鼓童原创曲"
+    },
+    "LION（獅子吼）": {
+      "id": 2000000017,
+      "category": "instrumental",
+      "artist": "鼓童",
+      "note": "鼓童原创曲"
+    },
+    "BURNING": {
+      "id": 2000000018,
+      "category": "instrumental",
+      "artist": "鼓童",
+      "note": "鼓童原创曲"
+    },
+    "スーパートルコ行進曲": {
+      "id": 2000000019,
+      "category": "vocaloid",
+      "artist": "ガルナ（オワタP）",
+      "note": "VOCALOID 歌曲；VocaDB 检索只返回同名翻唱，暂按百科标题登记"
+    },
+    "嗚呼、素晴らしきニャン生": {
+      "id": 2000000020,
+      "category": "vocaloid",
+      "artist": "Nem",
+      "note": "VOCALOID 歌曲；VocaDB 检索只返回同名翻唱，暂按百科标题登记"
+    },
+    "おちゃめ機能": {
+      "id": 2000000021,
+      "category": "vocaloid",
+      "artist": "コジマジP",
+      "note": "VOCALOID 歌曲；VocaDB 检索只返回同名翻唱，暂按百科标题登记"
+    },
+    "Nyan Cat": {
+      "id": 2000000022,
+      "category": "vocaloid",
+      "artist": "daniwellP",
+      "note": "VOCALOID 歌曲；VocaDB 检索只返回同名翻唱，暂按百科标题登记"
+    },
+    "乙女解剖": {
+      "id": 2000000023,
+      "category": "vocaloid",
+      "artist": "DECO*27",
+      "note": "DECO*27 的原创曲；VocaDB 检索只返回同名翻唱，没有可直接对应的原创条目"
+    },
+    "電気の恋人-I am Programmer's Song-": {
+      "id": 2000000024,
+      "category": "vocaloid",
+      "artist": "MOSAIC.WAV",
+      "note": "MOSAIC.WAV 的初音ミク原创曲；VocaDB 只有同名翻唱，没有可直接对应的原创条目，按百科标题登记"
+    },
+    "HATUNEtive": {
+      "id": 2000000025,
+      "category": "vocaloid",
+      "artist": "MOSAIC.WAV",
+      "note": "MOSAIC.WAV 的初音ミク原创曲；VocaDB 没有对应条目，按百科标题登记"
+    },
+    "intro (デP Megamix)": {
+      "id": 2000000026,
+      "category": "vocaloid",
+      "artist": "デッドボールP",
+      "note": "デッドボールP 曲目的开场 MegaMix；VocaDB 没有对应条目，按百科标题整体登记，不拆分"
+    },
+    "既成事実三部作Megamix": {
+      "id": 2000000027,
+      "category": "vocaloid",
+      "artist": "デッドボールP",
+      "note": "由「既成事実」「続・既成事実」「真・既成事実」三曲合成的 MegaMix；整体登记，不拆分"
+    },
+    "恋は戦争(future retro remix by kz)": {
+      "id": 2000000028,
+      "category": "vocaloid",
+      "artist": "ryo",
+      "note": "「恋は戦争」的 future retro remix（kz），同一场里先演 remix 再演原曲；VocaDB 没有单独条目，按百科标题登记"
+    },
+    "SWEET MEMORIES": {
+      "id": 2000000029,
+      "category": "vocaloid",
+      "artist": "大村雅朗",
+      "note": "松田聖子 1983 年的歌曲（大村雅朗作曲）。夏祭初音鑑 东京公演作为安可曲由初音ミク翻唱，VocaDB 只有原曲与翻唱条目，没有这场演出的版本"
+    },
+    "ぽっぴっぽー（Grand Finale）": {
+      "id": null,
+      "skip": true,
+      "category": "vocaloid",
+      "artist": "ラマーズP",
+      "note": "同一场里对「ぽっぴっぽー」的再演，单独登记会重复计数，只写进演出备注"
+    },
+    "ワールドイズマイン（ダブルアンコール）": {
+      "id": null,
+      "skip": true,
+      "category": "vocaloid",
+      "artist": "ryo",
+      "note": "2012 最後のミクの日感謝祭 的昼场音响故障后，作为补填把第 3 首「ワールドイズマイン」再演一次；同一场重复，不重复计数"
+    }
+  }
+}

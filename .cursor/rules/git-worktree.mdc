@@ -1,0 +1,45 @@
+---
+description: 每个开发任务必须在独立 worktree 中完成；main 检出只用于合并与推送
+alwaysApply: true
+---
+
+# 每个开发任务用独立 worktree
+
+开工前先建 worktree，不要在 `main` 检出里直接改代码。`main` 只承担合并与推送（以及 `/continue` 的 squash 提交），不承载开发改动。
+
+## 1. 新建
+
+`/continue` 第一次调用会自动完成本节：建 worktree、从 `origin/main` 拉分支、登记 workspace、挑端口。手工建时照下面的命令。
+
+```bash
+MAIN="$HOME/projects/full-stack/miku-concert-stats.worktrees/main"
+BRANCH="<task-branch>"   # 例如 fix-chinese-song-search
+
+git -C "$MAIN" fetch origin main
+git -C "$MAIN" worktree add \
+  "$HOME/projects/full-stack/miku-concert-stats.worktrees/$BRANCH" \
+  -b "$BRANCH" origin/main
+```
+
+- 目录名与分支名一致：`.../miku-concert-stats.worktrees/<branch>`。
+- 分支从 `origin/main` 拉出，不要复用已经合并过的旧分支。
+- 把新目录加进旁边的 `miku-concert-stats.code-workspace` 的 `folders`（`name` 与 `path` 都用分支名）。
+- 开发服务器端口按工作树分配，挑一个没被占用的，并记录到 `docs/architecture.md` 的端口清单。
+
+## 2. 开发与提交
+
+- 改动、`pnpm test`、`vp dev` 都在该 worktree 里进行。
+- 只 `git add` 本次任务涉及的具体路径，不要 `git add -A`。
+- 提交信息用简短的祈使句英文，不加任何 co-author trailer。
+
+## 3. 收尾
+
+- 开发完成后用 `/continue` 起本地开发服务器（`vp dev`），把地址、改动与验收项交给用户检查；用户确认前不改 `main`、不合并、不开 PR。
+- 用户确认后再次执行 `/continue`：它把整条分支 squash 成一个提交合入 `main` 再 push，`main` 上不会留下逐条开发提交；没有该仓库合并权限时改为推送分支并开 PR，不碰 `main`。
+- 部署成功后由 `/continue` 收尾：先停掉开发服务器，再移除该 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录。部署失败时不要清理，留在原地继续修；手工合并时保留 worktree，等用户确认后再删。
+
+## 不要做
+
+- 不要 `git checkout main` 切换主检出，也不要在 `main` 检出里提交开发改动。
+- 不要在同一个 worktree 里并行做两个无关任务。
+- 纯文档 / 规则 / skill 的文字修订不算开发任务，直接在 `main` 提交并 push 即可，不必单独开 worktree。

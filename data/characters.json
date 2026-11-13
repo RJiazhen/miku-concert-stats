@@ -1,0 +1,97 @@
+{
+  "初音ミク": {
+    "patterns": ["^初音ミク(?:\\s|$)"],
+    "aliases": ["Hatsune Miku"],
+    "color": "#39C5BB"
+  },
+  "鏡音リン": {
+    "patterns": ["^鏡音リン(?:\\s|$)"],
+    "aliases": ["Kagamine Rin"],
+    "color": "#FFC800"
+  },
+  "鏡音レン": {
+    "patterns": ["^鏡音レン(?:\\s|$)"],
+    "aliases": ["Kagamine Len"],
+    "color": "#FFE211"
+  },
+  "巡音ルカ": {
+    "patterns": ["^巡音ルカ(?:\\s|$)"],
+    "aliases": ["Megurine Luka"],
+    "color": "#FF9EB5"
+  },
+  "MEIKO": {
+    "patterns": ["^MEIKO(?:\\s|$)"],
+    "color": "#E03131"
+  },
+  "KAITO": {
+    "patterns": ["^KAITO(?:\\s|$)"],
+    "color": "#3B82F6"
+  },
+  "GUMI": {
+    "patterns": ["^GUMI(?:\\s|$)"],
+    "aliases": ["Megpoid"],
+    "color": "#6CC24A"
+  },
+  "IA": {
+    "patterns": ["^IA(?:\\s|$)"],
+    "color": "#9AA0B5"
+  },
+  "flower": {
+    "patterns": ["^flower(?:\\s|$)", "^v flower(?:\\s|$)"],
+    "color": "#8B5CF6"
+  },
+  "MAYU": {
+    "patterns": ["^MAYU(?:\\s|$)"],
+    "color": "#B44BF3"
+  },
+  "重音テト": {
+    "patterns": ["^重音テト(?:SV)?(?:\\s|$)"],
+    "aliases": ["Kasane Teto"],
+    "color": "#EF4444"
+  },
+  "寒音ジミ": {
+    "patterns": ["^寒音ジミ(?:\\s|$)"],
+    "color": "#22C1A6"
+  },
+  "神威がくぽ": {
+    "patterns": ["^神威がくぽ(?:\\s|$)"],
+    "aliases": ["Camui Gackpo", "Gackpo"],
+    "color": "#7C3AED"
+  },
+  "結月ゆかり": {
+    "patterns": ["^結月ゆかり(?:\\s|$)"],
+    "color": "#D946EF"
+  },
+  "東北ずん子": {
+    "patterns": ["^東北ずん子(?:\\s|$)"],
+    "color": "#7CB342"
+  },
+  "音街ウナ": {
+    "patterns": ["^音街ウナ(?:\\s|$)"],
+    "color": "#38BDF8"
+  },
+  "猫村いろは": {
+    "patterns": ["^猫村いろは(?:\\s|$)"],
+    "color": "#F59E0B"
+  },
+  "歌愛ユキ": {
+    "patterns": ["^歌愛ユキ(?:\\s|$)"],
+    "color": "#B8C4D0"
+  },
+  "SeeU": {
+    "patterns": ["^SeeU(?:\\s|$)"],
+    "color": "#FBBF24"
+  },
+  "galaco": {
+    "patterns": ["^galaco(?:\\s|$)"],
+    "color": "#FB7185"
+  },
+  "可不": {
+    "patterns": ["^可不(?:\\s|$)"],
+    "color": "#E8DCC8"
+  },
+  "星界": {
+    "patterns": ["^星界(?:\\s|$)"],
+    "color": "#3B5BDB"
+  }
+}

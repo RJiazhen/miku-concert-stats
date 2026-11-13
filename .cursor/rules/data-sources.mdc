@@ -1,0 +1,45 @@
+---
+description: 数据来源与 id 对齐口径：VocaDB 只是与百科同级的参考源，已采集的数据不因 VocaDB 差异而被废弃或改写
+globs:
+  - "data/**/*.json"
+  - "data/increments/*.sql"
+  - "scripts/**/*.{ts,py}"
+  - "shared/**/*.ts"
+  - "docs/**/*.md"
+  - ".cursor/skills/**/*.md"
+alwaysApply: true
+---
+
+# 数据来源与 id 对齐
+
+这个项目的目录不以上游 VocaDB 为权威。VocaDB 是**和其他 wiki 同级的参考来源**：能补曲名、歌曲 id、演出日期就用，缺的就不等它。
+
+## 来源顺序
+
+1. 官方来源：官网、官方票务页、官方专辑 / 逐曲表、官方公告。
+2. 百科：初音ミク Wiki（atwiki）、萌娘百科、VocaDB Fandom。
+3. VocaDB 公共 API。
+
+冲突时先看官方，其次看百科，最后才用 VocaDB。**任何来源都不独占**：一处写了什么，就按它的 `performance_setlist_sources` / `songs.source_url` 记账，不因为 VocaDB 的说法不同而改掉已登记的来源。
+
+## id 对齐
+
+- 尽量和 VocaDB 对齐：`performances.id`、`series.id`、`songs.id` 已有 VocaDB id 的直接沿用，方便外部互操作。
+- VocaDB 没有对应条目时才启用保留区间：歌曲 `2_000_000_000` 起，演出 `3_000_000_000` 起，系列 `900_000_000` 起（`shared/repertoire.ts`）。
+- 对齐是「尽量」，不是目标本身：新补的本地行不必等 VocaDB 出现同一条目再换 id，也不为了凑成一个 VocaDB id 去改已有引用。
+
+## 与 VocaDB 不一致时
+
+- **保留已采集的数据。** VocaDB 没有这个演出、改了名字、换了日期、删了歌单或补了新歌单，都不构成删除或回改本项目已有记录的理由。
+- `pnpm collect` 会整表重写 `0001`。跑完后对比演出数与场次数：如果少了一场是本项目已经采集过的，就在 `data/increments/` 用 `INSERT OR IGNORE` 把它补回来（连同日程来源），不要接受删除；`pnpm derive:setlists --check` 报「unknown performance」也是同一个信号。
+- 不因为 VocaDB 缺少某场演出就把它从统计、排行、索引里拿掉；不因为 VocaDB 的歌单来了就覆盖百科逐曲表（百科逐曲表整份替换 VocaDB 行，反向不成立）。
+- 演出名、日期、场馆这类显示信息，只有在官方或百科有证据时才改；`data/increments/` 里的人工更正写在 `0001` 之后，保持幂等。
+- 目录里两个 id 指向同一场演出 / 同一首歌，按重复项人工裁决：写进 `data/setlist-merges.json`、`data/song-variants.json` 或 `docs/data-issues.md`，不要用「上游有就用上游」的方式自动替换。
+- 差异本身要留下记录：`docs/data-issues.md` 或对应 review 报告里写明「我们保留了什么、和 VocaDB 差在哪」。
+
+## 采编时的具体判断
+
+- 补一场演出：先看官方与百科能不能证明日程与曲目；只有 VocaDB 有就说清这是 VocaDB 单源，照常入库并标 `confidence`。
+- 补一首歌：曲名解析优先本地 catalog，其次百科标题，最后才用 VocaDB 检索定位 id；查不到就登记本地曲目（`data/wiki-repertoire.json`），不要跳过。
+- 制作人署名：VocaDB 的结构化署名仍是首选证据，但官方专辑署名更优先；两者冲突写进 `docs/reports/producer-conflicts.md` 由人裁决，不自动采用任一方。
+- 重新 `pnpm collect` 之前先确认它不会带走人工补录（`INSERT OR IGNORE` 是否覆盖），跑完核对演出数、场次数与 `pnpm derive:setlists --check`。

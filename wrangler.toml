@@ -1,0 +1,29 @@
+# Nitro's cloudflare-module preset writes .output/server/wrangler.json and
+# overrides main/assets. Deploy with: pnpm exec wrangler --cwd .output deploy
+name = "miku-concert-stats"
+compatibility_date = "2026-10-06"
+compatibility_flags = ["nodejs_compat"]
+
+# Feedback widget storage.
+# Create with: pnpm exec wrangler kv namespace create FEEDBACK
+# Local `nuxt dev` keeps the binding out of the request context, so the widget
+# shows the "反馈服务暂不可用" fallback there instead of writing to a local KV.
+# The namespace id is a resource identifier (not a secret); forks should create
+# their own namespace and replace this value, or drop the binding for UI-only work.
+[[kv_namespaces]]
+binding = "FEEDBACK"
+id = "777b49ffd2744f12a54fc3611ff791e9"
+
+# First-party visitor analytics (/admin/analytics > 访客统计). The browser keeps a random visitor id
+# in localStorage and posts one page view per navigation; the Worker writes them here, and the admin
+# API queries them back through the Analytics Engine SQL API.
+# The dataset is created on the first write, so a fresh account needs no manual setup.
+[[analytics_engine_datasets]]
+binding = "PAGEVIEWS"
+dataset = "miku_pageviews"
+
+# Account-specific [vars] (ACCESS_TEAM_DOMAIN, ACCESS_AUD, CF_ACCOUNT_TAG,
+# CF_ANALYTICS_HOST) and the secret CF_ANALYTICS_API_TOKEN are NOT committed
+# here. Set them in the Cloudflare dashboard (Worker → Settings → Variables /
+# Secrets) so deploys do not publish account fingerprints in git and do not
+# overwrite dashboard values with "". See docs/cloudflare.md.

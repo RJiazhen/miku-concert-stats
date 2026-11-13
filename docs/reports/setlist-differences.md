@@ -1,0 +1,279 @@
+# 歌单差异核验报告
+
+由 `pnpm report:setlist` 生成。数据来自已提交的 VocaDB 增量 SQL。
+每行左侧是勾选框，人工核对后可直接在此文件打勾。
+
+## 总览
+
+- 同一系列年度歌单对：33 对，其中 17 对已在 data/setlist-merges.json 合并
+- 正片/安可段不一致：6 对
+- 曲目有增减：12 对
+- 可能不是同一套节目：15 对
+- 仅顺序不同：0 对
+- 完全相同：0 对
+- 相邻系列年度对比：58 对（仅作参考，不参与上面的分级统计）
+
+## 读法
+
+- 行数：`左 → 右（差值）`
+- 正片/安可：`左正片行数/左安可行数 → 右正片行数/右安可行数（安可差值）`
+- 共有 / 仅左 / 仅右：按去重曲目统计
+- LCS：最长公共子序列占比，1.00 表示顺序完全相同
+- 「未合并」表示两份歌单目前分开显示；确认是同一套节目后，可写入 `data/setlist-merges.json`
+
+## 同一系列年度歌单对
+
+- [ ] **初音ミク「マジカルミライ」 2019** · [8101](https://vocadb.net/SongList/Details/8101) → [8102](https://vocadb.net/SongList/Details/8102) · 行数 34 → 33（-1） · 正片/安可 29/5 → 29/4（安可 -1） · 共有 30 / 仅左 4 / 仅右 3 · LCS 0.82 · 已合并 · 正片/安可段不一致
+      - 仅左：Catch the Wave / アンノウン・マザーグース / ワールズエンド・ダンスホール / ローリンガール
+      - 仅右：Satisfaction / アンハッピーリフレイン / 裏表ラバーズ
+- [ ] **初音ミク「マジカルミライ」 2020** · [9131](https://vocadb.net/SongList/Details/9131) → [9173](https://vocadb.net/SongList/Details/9173) · 行数 21 → 24（+3） · 正片/安可 21/0 → 24/0（安可 0） · 共有 16 / 仅左 5 / 仅右 8 · LCS 0.67 · 已合并 · 正片/安可段不一致
+      - 仅左：Nostalogic (MEIKO-SAN mix) / Change me / 秘密警察 / 39みゅーじっく! / 命に嫌われている。
+      - 仅右：ラムネイドブルーの憧憬 / ピアノ×フォルテ×スキャンダル / 忘却心中 / え？あぁ、そう。- 10th Anniversary Edition - / アルビノ -revive- / グリーンライツ・セレナーデ / ブレス・ユア・ブレス / ぽかぽかの星
+- [ ] **MIKU EXPO 2014** · [213](https://vocadb.net/SongList/Details/213) → [221](https://vocadb.net/SongList/Details/221) · 行数 27 → 27（0） · 正片/安可 27/0 → 23/4（安可 +4） · 共有 21 / 仅左 6 / 仅右 6 · LCS 0.74 · 已合并 · 正片/安可段不一致
+      - 仅左：マージナル / 千年の独奏歌 / Venus di Ujung Jari / ダブルラリアット / 初音ミクの激唱 / letter song
+      - 仅右：Sharing The World / Glass Wall / Parades / Just be Friends / ワールドイズマイン / Starduster
+- [ ] **MIKU EXPO 2024** · [16544](https://vocadb.net/SongList/Details/16544) → [18446](https://vocadb.net/SongList/Details/18446) · 行数 30 → 28（-2） · 正片/安可 30/0 → 28/0（安可 0） · 共有 22 / 仅左 8 / 仅右 6 · LCS 0.60 · 已合并 · 正片/安可段不一致
+      - 仅左：天才ロック / GEDO / フロイライン＝ビブリォチカ / on the rocks / Sharing The World / Sharing The World [ SPANISH VER ] / それがあなたの幸せとしても / ワールドイズマイン
+      - 仅右：新人類 / テレキャスタービーボーイ (long ver.) / レッドランドマーカー / Midnight Surf / lost and found / メルト
+- [ ] **MIKU EXPO 2024** · [16544](https://vocadb.net/SongList/Details/16544) → [18583](https://vocadb.net/SongList/Details/18583) · 行数 30 → 28（-2） · 正片/安可 30/0 → 28/0（安可 0） · 共有 22 / 仅左 8 / 仅右 6 · LCS 0.60 · 已合并 · 正片/安可段不一致
+      - 仅左：天才ロック / GEDO / フロイライン＝ビブリォチカ / on the rocks / Sharing The World / Sharing The World [ SPANISH VER ] / それがあなたの幸せとしても / ハイパーリアリティショウ
+      - 仅右：ココロ / Fire◎Flower / レッドランドマーカー / Midnight Surf / ルカルカ★ナイトフィーバー / 深海少女
+- [ ] **初音ミクシンフォニー 2023** · [1000039621 · 专辑曲目](https://vocadb.net/Al/39621) → [1000040398 · 专辑曲目](https://vocadb.net/Al/40398) · 行数 24 → 25（+1） · 正片/安可 24/0 → 25/0（安可 0） · 共有 14 / 仅左 10 / 仅右 11 · LCS 0.52 · 未合并 · 正片/安可段不一致
+      - 仅左：Tell Your World / アトラクトライト / ハジメテノオト / Birthday Song for ミク / 愛言葉 / rain stops, good-bye / よつばのクローバー / メルト / 千年の誓いの果てに / 矛盾のグリムジエンド
+      - 仅右：ダーリンダンス / 初音ミクの消失 / 初音ミクの激唱（LONG VERSION） / 天樂 / みくみくにしてあげる♪【してやんよ】 / 私の時間 / Starduster / Packaged / 星のカケラ / 39 / ブループラネット
+- [ ] **MIKU EXPO 2016** · [6570](https://vocadb.net/SongList/Details/6570) → [6571](https://vocadb.net/SongList/Details/6571) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 23 / 仅左 3 / 仅右 3 · LCS 0.81 · 已合并 · 曲目有增减
+      - 仅左：ありふれたせかいせいふく / 愛言葉 / ルカルカ★ナイトフィーバー
+      - 仅右：深海少女 / Just Be Friends / Sharing The World
+- [ ] **MIKU EXPO 2016** · [6570](https://vocadb.net/SongList/Details/6570) → [6572](https://vocadb.net/SongList/Details/6572) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 19 / 仅左 7 / 仅右 7 · LCS 0.65 · 已合并 · 曲目有增减
+      - 仅左：ありふれたせかいせいふく / 愛言葉 / Glass Wall / 東京テディベア / ルカルカ★ナイトフィーバー / 初音ミクの激唱 / 積乱雲グラフィティ
+      - 仅右：celluloid / 炉心融解 / いーあるふぁんくらぶ / Just Be Friends / 千本桜 / 初音ミクの激唱（LONG VERSION） / 紡唄 -つむぎうた-
+- [ ] **MIKU EXPO 2016** · [6571](https://vocadb.net/SongList/Details/6571) → [6572](https://vocadb.net/SongList/Details/6572) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 20 / 仅左 6 / 仅右 6 · LCS 0.69 · 已合并 · 曲目有增减
+      - 仅左：深海少女 / Glass Wall / 東京テディベア / 初音ミクの激唱 / 積乱雲グラフィティ / Sharing The World
+      - 仅右：celluloid / 炉心融解 / いーあるふぁんくらぶ / 千本桜 / 初音ミクの激唱（LONG VERSION） / 紡唄 -つむぎうた-
+- [ ] **MIKU EXPO 2016** · [6571](https://vocadb.net/SongList/Details/6571) → [6950](https://vocadb.net/SongList/Details/6950) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 19 / 仅左 7 / 仅右 7 · LCS 0.50 · 未合并 · 曲目有增减
+      - 仅左：magnet / Weekender Girl / Glass Wall / 恋は戦争 / 積乱雲グラフィティ / Sharing The World / 星のカケラ（piano ver.）
+      - 仅右：ストリーミングハート / 月西江 / いーあるふぁんくらぶ / 紡唄 -つむぎうた- / 気まぐれメルシィ / ODDS&ENDS / 歌に形はないけれど
+- [ ] **MIKU EXPO 2018** · [7979](https://vocadb.net/SongList/Details/7979) → [7985](https://vocadb.net/SongList/Details/7985) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 21 / 仅左 5 / 仅右 5 · LCS 0.81 · 已合并 · 曲目有增减
+      - 仅左：砂の惑星 / ロミオとシンデレラ / ワールズエンド・ダンスホール / Just Be Friends / 歌に形はないけれど
+      - 仅右：深海少女 / えれくとりっく・えんじぇぅ / ビバハピ / ルカルカ★ナイトフィーバー / ハジメテノオト
+- [ ] **MIKU EXPO 2018** · [7979](https://vocadb.net/SongList/Details/7979) → [7988](https://vocadb.net/SongList/Details/7988) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 23 / 仅左 3 / 仅右 3 · LCS 0.88 · 已合并 · 曲目有增减
+      - 仅左：砂の惑星 / ロミオとシンデレラ / ワールズエンド・ダンスホール
+      - 仅右：glow / 初音ミクの消失 / 裏表ラバーズ
+- [ ] **MIKU EXPO 2018** · [7985](https://vocadb.net/SongList/Details/7985) → [7988](https://vocadb.net/SongList/Details/7988) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 21 / 仅左 5 / 仅右 5 · LCS 0.81 · 已合并 · 曲目有增减
+      - 仅左：深海少女 / えれくとりっく・えんじぇぅ / ビバハピ / ルカルカ★ナイトフィーバー / ハジメテノオト
+      - 仅右：glow / 初音ミクの消失 / 裏表ラバーズ / Just Be Friends / 歌に形はないけれど
+- [ ] **MIKU EXPO 2019** · [8103](https://vocadb.net/SongList/Details/8103) → [8104](https://vocadb.net/SongList/Details/8104) · 行数 25 → 25（0） · 正片/安可 25/0 → 25/0（安可 0） · 共有 18 / 仅左 7 / 仅右 7 · LCS 0.72 · 已合并 · 曲目有增减
+      - 仅左：みんなみくみくにしてあげる♪  / 脱法ロック / スイートマジック / 8HIT -V4X ver.- / Yellow / Hello, Worker / ODDS&ENDS
+      - 仅右：みくみくにしてあげる♪【してやんよ】 / 右肩の蝶 / 東京テディベア / リモコン / Satisfaction / ダブルラリアット / メルト
+- [ ] **MIKU EXPO 2020** · [8631](https://vocadb.net/SongList/Details/8631) → [8641](https://vocadb.net/SongList/Details/8641) · 行数 25 → 25（0） · 正片/安可 25/0 → 25/0（安可 0） · 共有 19 / 仅左 6 / 仅右 6 · LCS 0.76 · 已合并 · 曲目有增减
+      - 仅左：ラズベリー＊モンスター / スイートマジック / 脱法ロック / No Logic / ローリンガール / Sharing The World
+      - 仅右：ヒビカセ / ココロ / 右肩の蝶 / Never Die / アンハッピーリフレイン / Sharing The World
+- [ ] **MIKU EXPO 2020** · [8631](https://vocadb.net/SongList/Details/8631) → [8654](https://vocadb.net/SongList/Details/8654) · 行数 25 → 25（0） · 正片/安可 25/0 → 25/0（安可 0） · 共有 18 / 仅左 7 / 仅右 7 · LCS 0.72 · 已合并 · 曲目有增减
+      - 仅左：ラズベリー＊モンスター / スイートマジック / 脱法ロック / 8HIT / No Logic / ローリンガール / Sharing The World
+      - 仅右：ヒビカセ / ココロ / 右肩の蝶 / リモコン / Never Die / アンハッピーリフレイン / Sharing The World
+- [ ] **MIKU EXPO 2020** · [8641](https://vocadb.net/SongList/Details/8641) → [8654](https://vocadb.net/SongList/Details/8654) · 行数 25 → 25（0） · 正片/安可 25/0 → 25/0（安可 0） · 共有 24 / 仅左 1 / 仅右 1 · LCS 0.96 · 已合并 · 曲目有增减
+      - 仅左：8HIT
+      - 仅右：リモコン
+- [ ] **MIKU EXPO 2024** · [18446](https://vocadb.net/SongList/Details/18446) → [18583](https://vocadb.net/SongList/Details/18583) · 行数 28 → 28（0） · 正片/安可 28/0 → 28/0（安可 0） · 共有 23 / 仅左 5 / 仅右 5 · LCS 0.82 · 已合并 · 曲目有增减
+      - 仅左：新人類 / テレキャスタービーボーイ (long ver.) / lost and found / ハイパーリアリティショウ / メルト
+      - 仅右：ココロ / Fire◎Flower / ルカルカ★ナイトフィーバー / 深海少女 / ワールドイズマイン
+- [ ] **初音ミク「マジカルミライ」 2023** · [12354](https://vocadb.net/SongList/Details/12354) → [13440](https://vocadb.net/SongList/Details/13440) · 行数 22 → 39（+17） · 正片/安可 19/3 → 39/0（安可 -3） · 共有 7 / 仅左 15 / 仅右 32 · LCS 0.13 · 未合并 · 可能不是同一套节目
+      - 仅左：フューチャー・イヴ / 砂の惑星 / ヴァンパイア / 天才ロック / 私の恋はヘルファイア / #心がどっか寂しいんだ / FLASH / Someday'z Coming / Loading Memories / どりーみんチュチュ / shake it！ / Jump for Joy / SnowMix♪ / DECORATOR / Blessing
+      - 仅右：カルチャ / 神っぽいな / ローリンガール / ゴーストルール / 初音ミクの消失 / GEDO / ヘッジホッグ / スキキライ / 8HIT / いいねってYEAH! / レッドランドマーカー / きみとぼくのレゾナンス / ラムネイドブルーの憧憬 / 星空クロノグラフ / king妃jack躍 / 二次元ドリームフィーバー / Weekender Girl / ツギハギスタッカート / 抜錨 / Never Die / Hello, Worker / 星屑ユートピア / スノーマン / レイニースノードロップ / あったかいと / 敗走 / erase or zero / drop pop candy / フェレス / ブループラネット / Birthday Song for ミク / HERO
+- [ ] **MIKU EXPO 2016** · [6570](https://vocadb.net/SongList/Details/6570) → [6950](https://vocadb.net/SongList/Details/6950) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 17 / 仅左 9 / 仅右 9 · LCS 0.38 · 未合并 · 可能不是同一套节目
+      - 仅左：magnet / Weekender Girl / ありふれたせかいせいふく / 愛言葉 / Glass Wall / 恋は戦争 / ルカルカ★ナイトフィーバー / 積乱雲グラフィティ / 星のカケラ（piano ver.）
+      - 仅右：ストリーミングハート / 深海少女 / 月西江 / いーあるふぁんくらぶ / 紡唄 -つむぎうた- / Just Be Friends / 気まぐれメルシィ / ODDS&ENDS / 歌に形はないけれど
+- [ ] **MIKU EXPO 2016** · [6572](https://vocadb.net/SongList/Details/6572) → [6950](https://vocadb.net/SongList/Details/6950) · 行数 26 → 26（0） · 正片/安可 26/0 → 26/0（安可 0） · 共有 18 / 仅左 8 / 仅右 8 · LCS 0.42 · 未合并 · 可能不是同一套节目
+      - 仅左：magnet / Weekender Girl / 恋は戦争 / celluloid / 炉心融解 / 千本桜 / 初音ミクの激唱（LONG VERSION） / 星のカケラ（piano ver.）
+      - 仅右：ストリーミングハート / 深海少女 / 月西江 / 東京テディベア / 気まぐれメルシィ / 初音ミクの激唱 / ODDS&ENDS / 歌に形はないけれど
+- [ ] **MIKU EXPO 2018** · [7758](https://vocadb.net/SongList/Details/7758) → [7979](https://vocadb.net/SongList/Details/7979) · 行数 32 → 26（-6） · 正片/安可 32/0 → 26/0（安可 0） · 共有 12 / 仅左 20 / 仅右 14 · LCS 0.25 · 未合并 · 可能不是同一套节目
+      - 仅左：みくみくにしてあげる♪【してやんよ】 / ラズベリー＊モンスター / アゲアゲアゲイン / 炉心融解 / 脱法ロック / 忘却心中 / glow / Through The Night / エンヴィキャットウォーク / Can't Make a Song!! / ダブルラリアット / 8HIT / ジェミニ / Nyanyanyanyanyanyanya! / ヒビカセ / ルカルカ★ナイトフィーバー / 桜ノ雨 / Decade / ミク / Sharing The World [ SPANISH VER ]
+      - 仅右：秘密警察 / エイリアンエイリアン / アンノウン・マザーグース / Glass Wall / ピアノ×フォルテ×スキャンダル / ロキ / 劣等上等 / Cybernetic / ワールズエンド・ダンスホール / 星屑ユートピア / Birthday / 初音ミクの激唱（LONG VERSION） / 歌に形はないけれど / 魔法みたいなミュージック！
+- [ ] **MIKU EXPO 2018** · [7758](https://vocadb.net/SongList/Details/7758) → [7985](https://vocadb.net/SongList/Details/7985) · 行数 32 → 26（-6） · 正片/安可 32/0 → 26/0（安可 0） · 共有 10 / 仅左 22 / 仅右 16 · LCS 0.22 · 未合并 · 可能不是同一套节目
+      - 仅左：みくみくにしてあげる♪【してやんよ】 / ラズベリー＊モンスター / アゲアゲアゲイン / 炉心融解 / 脱法ロック / 忘却心中 / glow / Through The Night / ロミオとシンデレラ / エンヴィキャットウォーク / Can't Make a Song!! / ダブルラリアット / Just Be Friends / 8HIT / ジェミニ / Nyanyanyanyanyanyanya! / ヒビカセ / 桜ノ雨 / Decade / 砂の惑星 / ミク / Sharing The World [ SPANISH VER ]
+      - 仅右：秘密警察 / エイリアンエイリアン / アンノウン・マザーグース / Glass Wall / ピアノ×フォルテ×スキャンダル / ロキ / 劣等上等 / Cybernetic / 深海少女 / えれくとりっく・えんじぇぅ / ビバハピ / 星屑ユートピア / Birthday / 初音ミクの激唱（LONG VERSION） / ハジメテノオト / 魔法みたいなミュージック！
+- [ ] **MIKU EXPO 2018** · [7758](https://vocadb.net/SongList/Details/7758) → [7988](https://vocadb.net/SongList/Details/7988) · 行数 32 → 26（-6） · 正片/安可 32/0 → 26/0（安可 0） · 共有 11 / 仅左 21 / 仅右 15 · LCS 0.25 · 未合并 · 可能不是同一套节目
+      - 仅左：みくみくにしてあげる♪【してやんよ】 / ラズベリー＊モンスター / アゲアゲアゲイン / 炉心融解 / 脱法ロック / 忘却心中 / Through The Night / ロミオとシンデレラ / エンヴィキャットウォーク / Can't Make a Song!! / ダブルラリアット / 8HIT / ジェミニ / Nyanyanyanyanyanyanya! / ヒビカセ / ルカルカ★ナイトフィーバー / 桜ノ雨 / Decade / 砂の惑星 / ミク / Sharing The World [ SPANISH VER ]
+      - 仅右：秘密警察 / エイリアンエイリアン / アンノウン・マザーグース / Glass Wall / ピアノ×フォルテ×スキャンダル / ロキ / 劣等上等 / Cybernetic / 初音ミクの消失 / 裏表ラバーズ / 星屑ユートピア / Birthday / 初音ミクの激唱（LONG VERSION） / 歌に形はないけれど / 魔法みたいなミュージック！
+- [ ] **MIKU EXPO 2022** · [10387](https://vocadb.net/SongList/Details/10387) → [10913](https://vocadb.net/SongList/Details/10913) · 行数 18 → 28（+10） · 正片/安可 18/0 → 28/0（安可 0） · 共有 17 / 仅左 0 / 仅右 11 · LCS 0.54 · 已合并 · 可能不是同一套节目
+      - 仅右：ココロ / ゴーストルール / 忘却心中 / ルカルカ★ナイトフィーバー / アンノウン・マザーグース / ドクター＝ファンクビート / ロミオとシンデレラ / ワールドイズマイン / 右肩の蝶 / Cybernetic / Tell Your World
+- [ ] **初音ミクライブパーティー 2011** · [1](https://vocadb.net/SongList/Details/1) → [12](https://vocadb.net/SongList/Details/12) · 行数 27 → 26（-1） · 正片/安可 25/2 → 26/0（安可 -2） · 共有 20 / 仅左 7 / 仅右 6 · LCS 0.48 · 未合并 · 可能不是同一套节目
+      - 仅左：恋色病棟 / 初音ミクの激唱（LONG VERSION） / ダブルラリアット / ココロ / 右肩の蝶 / Fire◎Flower 2011 / みくみくにしてあげる♪【してやんよ】
+      - 仅右：星のカケラ / 悪ノ娘 / 悪ノ召使 / Fire◎Flower / 初音ミクの激唱 / Starduster
+- [ ] **初音ミクライブパーティー 2011** · [1](https://vocadb.net/SongList/Details/1) → [84](https://vocadb.net/SongList/Details/84) · 行数 27 → 24（-3） · 正片/安可 25/2 → 21/3（安可 +1） · 共有 1 / 仅左 26 / 仅右 23 · LCS 0.04 · 未合并 · 可能不是同一套节目
+      - 仅左：初めての恋が終わる時 / ローリンガール / 二息歩行 / アルビノ / 恋色病棟 / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / RIP=RELEASE / ダブルラリアット / ルカルカ★ナイトフィーバー / 私の時間 / ＊ハロー、プラネット。 / こっち向いて Baby / Yellow / カラフル×メロディ / メランコリック / ココロ / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA / みくみくにしてあげる♪【してやんよ】 / 歌に形はないけれど / メルト
+      - 仅右：Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / 恋スルVOC@LOID / クローバー・クラブ / ロミオとシンデレラ / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / moon / 初音ミクの消失 / 右肩の蝶 / 炉心融解 / Just Be Friends / ワールズエンド・ダンスホール / from Y to Y / サイハテ / ファインダー / SPiCa / 愛言葉 / StargazeR / ハジメテノオト
+- [ ] **初音ミクライブパーティー 2011** · [1](https://vocadb.net/SongList/Details/1) → [3953](https://vocadb.net/SongList/Details/3953) · 行数 27 → 39（+12） · 正片/安可 25/2 → 39/0（安可 -2） · 共有 21 / 仅左 6 / 仅右 18 · LCS 0.26 · 未合并 · 可能不是同一套节目
+      - 仅左：恋色病棟 / 初音ミクの激唱（LONG VERSION） / 私の時間 / 右肩の蝶 / Fire◎Flower 2011 / みくみくにしてあげる♪【してやんよ】
+      - 仅右：Ievan Polkka / トリノコシティ / キャットフード / 崩壊歌姫 -disruptive diva- / 白い雪のプリンセスは / ワールズエンド・ダンスホール / No Logic / Japanese Ninja No.1 / trick and treat / 悪ノ娘 / 悪ノ召使 / 炉心融解 / リンリンシグナル / SPICE！ / Fire◎Flower / Packaged / マージナル / 初音ミクの激唱
+- [ ] **初音ミクライブパーティー 2011** · [12](https://vocadb.net/SongList/Details/12) → [84](https://vocadb.net/SongList/Details/84) · 行数 26 → 24（-2） · 正片/安可 26/0 → 21/3（安可 +3） · 共有 1 / 仅左 25 / 仅右 23 · LCS 0.04 · 未合并 · 可能不是同一套节目
+      - 仅左：星のカケラ / こっち向いて Baby / 二息歩行 / アルビノ / え？あぁ、そう。 / ローリンガール / 結ンデ開イテ羅刹ト骸 / いろは唄 / 悪ノ娘 / 悪ノ召使 / Fire◎Flower / メランコリック / 初めての恋が終わる時 / 初音ミクの激唱 / RIP=RELEASE / ルカルカ★ナイトフィーバー / 私の時間 / ＊ハロー、プラネット。 / 歌に形はないけれど / Yellow / タイムマシン / ARiA / メルト / カラフル×メロディ / Starduster
+      - 仅右：Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / 恋スルVOC@LOID / クローバー・クラブ / ロミオとシンデレラ / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / moon / 初音ミクの消失 / 右肩の蝶 / 炉心融解 / Just Be Friends / ワールズエンド・ダンスホール / from Y to Y / サイハテ / ファインダー / SPiCa / 愛言葉 / StargazeR / ハジメテノオト
+- [ ] **初音ミクライブパーティー 2011** · [12](https://vocadb.net/SongList/Details/12) → [3953](https://vocadb.net/SongList/Details/3953) · 行数 26 → 39（+13） · 正片/安可 26/0 → 39/0（安可 0） · 共有 23 / 仅左 3 / 仅右 16 · LCS 0.36 · 未合并 · 可能不是同一套节目
+      - 仅左：星のカケラ / 私の時間 / Starduster
+      - 仅右：Ievan Polkka / トリノコシティ / キャットフード / 崩壊歌姫 -disruptive diva- / 白い雪のプリンセスは / ワールズエンド・ダンスホール / ダブルラリアット / No Logic / Japanese Ninja No.1 / trick and treat / 炉心融解 / ココロ / リンリンシグナル / SPICE！ / Packaged / マージナル
+- [ ] **初音ミクライブパーティー 2011** · [84](https://vocadb.net/SongList/Details/84) → [3953](https://vocadb.net/SongList/Details/3953) · 行数 24 → 39（+15） · 正片/安可 21/3 → 39/0（安可 -3） · 共有 3 / 仅左 21 / 仅右 36 · LCS 0.05 · 未合并 · 可能不是同一套节目
+      - 仅左：Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / 恋スルVOC@LOID / クローバー・クラブ / ロミオとシンデレラ / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / moon / 初音ミクの消失 / 右肩の蝶 / Just Be Friends / from Y to Y / サイハテ / ファインダー / SPiCa / 愛言葉 / StargazeR / ハジメテノオト
+      - 仅右：Ievan Polkka / こっち向いて Baby / 二息歩行 / アルビノ / え？あぁ、そう。 / トリノコシティ / キャットフード / 崩壊歌姫 -disruptive diva- / 白い雪のプリンセスは / ダブルラリアット / No Logic / RIP=RELEASE / Japanese Ninja No.1 / ルカルカ★ナイトフィーバー / 結ンデ開イテ羅刹ト骸 / ローリンガール / trick and treat / 悪ノ娘 / 悪ノ召使 / いろは唄 / ココロ / メランコリック / リンリンシグナル / SPICE！ / Fire◎Flower / Packaged / ＊ハロー、プラネット。 / マージナル / 初音ミクの激唱 / 歌に形はないけれど / Yellow / タイムマシン / ARiA / カラフル×メロディ / メルト / 初めての恋が終わる時
+- [ ] **初音ミクライブパーティー 2012** · [31](https://vocadb.net/SongList/Details/31) → [217](https://vocadb.net/SongList/Details/217) · 行数 25 → 33（+8） · 正片/安可 25/0 → 33/0（安可 0） · 共有 20 / 仅左 5 / 仅右 13 · LCS 0.33 · 未合并 · 可能不是同一套节目
+      - 仅左：ロミオとシンデレラ / trick and treat / 右肩の蝶 / トリノコシティ / Tell Your World
+      - 仅右：星のカケラ / 二息歩行 / アルビノ / え？あぁ、そう。 / マージナル / ＊ハロー、プラネット。 / 結ンデ開イテ羅刹ト骸 / いろは唄 / 悪ノ娘 / 悪ノ召使 / Pane dhiria / タイムマシン / ARiA
+- [ ] **初音ミクライブパーティー 2013** · [82](https://vocadb.net/SongList/Details/82) → [3954](https://vocadb.net/SongList/Details/3954) · 行数 26 → 39（+13） · 正片/安可 26/0 → 39/0（安可 0） · 共有 26 / 仅左 0 / 仅右 13 · LCS 0.38 · 未合并 · 可能不是同一套节目
+      - 仅右：秘密警察 / マージナル / 二息歩行 / え？あぁ、そう。 / ＊ハロー、プラネット。 / いろは唄 / アルビノ / RIP=RELEASE / みくみくにしてあげる♪【してやんよ】 / 歌に形はないけれど / タイムマシン / ARiA / Starduster
+
+## 相邻系列年度对比
+
+- **初音ミク「マジカルミライ」 2014** · [114](https://vocadb.net/SongList/Details/114) → [214](https://vocadb.net/SongList/Details/214) · 行数 24 → 25（+1） · 正片/安可 22/2 → 22/3（安可 +1） · 共有 20 / 仅左 4 / 仅右 5 · LCS 0.32 · 未合并 · 可能不是同一套节目
+      - 仅左：どうぶつ占い / Leia / アンハッピーリフレイン / 1/6 -out of the gravity-
+      - 仅右：カゲロウデイズ / 心臓デモクラシー / アカツキアライヴァル / ワンダーランドと羊の歌 / EARTH DAY
+- **初音ミク「マジカルミライ」 2015** · [214](https://vocadb.net/SongList/Details/214) → [3985](https://vocadb.net/SongList/Details/3985) · 行数 25 → 27（+2） · 正片/安可 22/3 → 24/3（安可 0） · 共有 9 / 仅左 16 / 仅右 18 · LCS 0.15 · 未合并 · 可能不是同一套节目
+      - 仅左：カゲロウデイズ / 心臓デモクラシー / ありふれたせかいせいふく / スキキライ / からくりピエロ / Weekender Girl / FREELY TOMORROW / ピアノ×フォルテ×スキャンダル / erase or zero / Hello, Worker / アカツキアライヴァル / ワンダーランドと羊の歌 / 東京テディベア / Last Night, Good Night (Re:Dialed) / EARTH DAY / ゆめゆめ
+      - 仅右：ラズベリー＊モンスター / はじめまして地球人さん / 独りんぼエンヴィー / 恋愛裁判 / 聖槍爆裂ボーイ / ロストワンの号哭 / リモコン / Nostalogic (MEIKO-SAN mix) / スノーマン / エンヴィキャットウォーク / アンハッピーリフレイン / ロミオとシンデレラ / 愛Dee / Just Be Friends / Packaged / ワールドイズマイン / Hand in Hand / ハジメテノオト
+- **初音ミク「マジカルミライ」 2016** · [3985](https://vocadb.net/SongList/Details/3985) → [6652](https://vocadb.net/SongList/Details/6652) · 行数 27 → 26（-1） · 正片/安可 24/3 → 23/3（安可 0） · 共有 8 / 仅左 19 / 仅右 18 · LCS 0.15 · 未合并 · 可能不是同一套节目
+      - 仅左：Tell Your World / はじめまして地球人さん / 恋愛裁判 / 聖槍爆裂ボーイ / ロストワンの号哭 / スノーマン / エンヴィキャットウォーク / 深海少女 / Sweet Devil / 二次元ドリームフィーバー / キャットフード / アンハッピーリフレイン / ロミオとシンデレラ / glow / Just Be Friends / Packaged / ワールドイズマイン / ODDS&ENDS / ハジメテノオト
+      - 仅右：39みゅーじっく! / ゴーストルール / ヒビカセ / Strangers / すろぉもぉしょん / タイムマシン / Hello, Worker / どりーみんチュチュ / ドクター＝ファンクビート / どうぶつ占い / Calc. / ウミユリ海底譚 / テレカクシ思春期 / スイートマジック / Baby Maniacs -Eight Mix- / ray / Satisfaction / なりすましゲンガー
+- **初音ミク「マジカルミライ」 2017** · [6652](https://vocadb.net/SongList/Details/6652) → [6915](https://vocadb.net/SongList/Details/6915) · 行数 26 → 35（+9） · 正片/安可 23/3 → 30/5（安可 +2） · 共有 9 / 仅左 17 / 仅右 26 · LCS 0.14 · 未合并 · 可能不是同一套节目
+      - 仅左：ゴーストルール / Strangers / すろぉもぉしょん / 独りんぼエンヴィー / タイムマシン / Hello, Worker / 愛Dee / Nostalogic (MEIKO-SAN mix) / どうぶつ占い / Calc. / ウミユリ海底譚 / テレカクシ思春期 / Baby Maniacs -Eight Mix- / ラズベリー＊モンスター / 39 / ray / Satisfaction
+      - 仅右：みんなみくみくにしてあげる♪  / ストリーミングハート / エイリアンエイリアン / Singularity / ツギハギスタッカート / 脱法ロック / 忘却心中 / Birthday / サイハテ / えれくとりっく・えんじぇぅ / 千本桜 / メランコリック / Fire◎Flower / 右肩の蝶 / ココロ / 孤独の果て / いーあるふぁんくらぶ / ダブルラリアット / ルカルカ★ナイトフィーバー / Nyanyanyanyanyanyanya! / 気まぐれメルシィ / TODAY THE FUTURE / メルト / 砂の惑星 / DECORATOR / ハジメテノオト
+- **初音ミク「マジカルミライ」 2018** · [6915](https://vocadb.net/SongList/Details/6915) → [7852](https://vocadb.net/SongList/Details/7852) · 行数 35 → 33（-2） · 正片/安可 30/5 → 29/4（安可 -1） · 共有 8 / 仅左 27 / 仅右 25 · LCS 0.17 · 未合并 · 可能不是同一套节目
+      - 仅左：みんなみくみくにしてあげる♪  / ストリーミングハート / エイリアンエイリアン / Singularity / ヒビカセ / ツギハギスタッカート / スイートマジック / 脱法ロック / ドクター＝ファンクビート / 忘却心中 / どりーみんチュチュ / Birthday / サイハテ / えれくとりっく・えんじぇぅ / 千本桜 / メランコリック / Fire◎Flower / 右肩の蝶 / ココロ / 孤独の果て / ダブルラリアット / ルカルカ★ナイトフィーバー / Nyanyanyanyanyanyanya! / 気まぐれメルシィ / なりすましゲンガー / DECORATOR / ハジメテノオト
+      - 仅右：ビバハピ / METEOR / アンノウン・マザーグース / ワールドイズマイン / Sweet Devil / キャットフード / magnet / アカツキアライヴァル / 1/6 -out of the gravity- / 愛言葉 / あったかいと / Nostalogic (MEIKO-SAN mix) / on the rocks / No Logic / ドリームレス・ドリームス / 劣等上等 / ロキ / ジェミニ / 8HIT / ボーカロイドたちがただ叫ぶだけ / リバースユニバース / ODDS&ENDS / 39 / Tell Your World / グリーンライツ・セレナーデ
+- **初音ミク「マジカルミライ」 2019** · [7852](https://vocadb.net/SongList/Details/7852) → [8101](https://vocadb.net/SongList/Details/8101) · 行数 33 → 34（+1） · 正片/安可 29/4 → 29/5（安可 +1） · 共有 6 / 仅左 27 / 仅右 28 · LCS 0.12 · 未合并 · 可能不是同一套节目
+      - 仅左：ビバハピ / METEOR / ワールドイズマイン / Sweet Devil / キャットフード / magnet / アカツキアライヴァル / 1/6 -out of the gravity- / 愛言葉 / あったかいと / Nostalogic (MEIKO-SAN mix) / on the rocks / No Logic / ドリームレス・ドリームス / ジェミニ / 8HIT / リモコン / いーあるふぁんくらぶ / ボーカロイドたちがただ叫ぶだけ / リバースユニバース / TODAY THE FUTURE / shake it！ / メルト / ODDS&ENDS / 39 / 39みゅーじっく! / Tell Your World
+      - 仅右：テオ / すきなことだけでいいです / 愛の詩 / 快晴 / 深海シティアンダーグラウンド / メインキャラクター / ロミオとシンデレラ / からくりピエロ / Catch the Wave / どうぶつ占い / Baby Maniacs -Eight Mix- / キレキャリオン / ある計画は今も密かに / ラムネイドブルーの憧憬 / Never Die / 星屑ユートピア / ルカルカ★ナイトフィーバー / Just Be Friends / どりーみんチュチュ / それがあなたの幸せとしても / Jump for Joy / 大江戸ジュリアナイト / ぶれないアイで / ヒバナ / 僕が夢を捨てて大人になるまで / ワールズエンド・ダンスホール / ローリンガール / ブレス・ユア・ブレス
+- **初音ミク「マジカルミライ」 2020** · [8101](https://vocadb.net/SongList/Details/8101) → [9131](https://vocadb.net/SongList/Details/9131) · 行数 34 → 21（-13） · 正片/安可 29/5 → 21/0（安可 -5） · 共有 2 / 仅左 32 / 仅右 19 · LCS 0.06 · 未合并 · 可能不是同一套节目
+      - 仅左：テオ / すきなことだけでいいです / 愛の詩 / 快晴 / 深海シティアンダーグラウンド / メインキャラクター / 劣等上等 / ロキ / ロミオとシンデレラ / からくりピエロ / 砂の惑星 / Catch the Wave / どうぶつ占い / Baby Maniacs -Eight Mix- / キレキャリオン / ある計画は今も密かに / ラムネイドブルーの憧憬 / Never Die / 星屑ユートピア / ルカルカ★ナイトフィーバー / Just Be Friends / どりーみんチュチュ / それがあなたの幸せとしても / Jump for Joy / 大江戸ジュリアナイト / ぶれないアイで / ヒバナ / グリーンライツ・セレナーデ / 僕が夢を捨てて大人になるまで / ワールズエンド・ダンスホール / ローリンガール / ブレス・ユア・ブレス
+      - 仅右：太陽系デスコ / ハイパーリアリティショウ / YY / シャボン / Gimme×Gimme / みかぼし / まるいうなばら / Nostalogic (MEIKO-SAN mix) / Change me / Amazing Dolce / きみとぼくのレゾナンス / 完全性コンプレックス / 秘密警察 / 初音ミクの激唱 / キミペディア / セカイ / 39みゅーじっく! / 命に嫌われている。 / 愛されなくても君がいる
+- **初音ミク「マジカルミライ」 2021** · [9131](https://vocadb.net/SongList/Details/9131) → [9909](https://vocadb.net/SongList/Details/9909) · 行数 21 → 34（+13） · 正片/安可 21/0 → 31/3（安可 +3） · 共有 4 / 仅左 17 / 仅右 30 · LCS 0.09 · 未合并 · 可能不是同一套节目
+      - 仅左：太陽系デスコ / ハイパーリアリティショウ / YY / シャボン / Gimme×Gimme / Nostalogic (MEIKO-SAN mix) / Change me / Amazing Dolce / きみとぼくのレゾナンス / 完全性コンプレックス / 秘密警察 / アンノウン・マザーグース / 初音ミクの激唱 / キミペディア / セカイ / 39みゅーじっく! / 命に嫌われている。
+      - 仅右：ダーリンダンス / 脳内革命ガール / テレキャスタービーボーイ (long ver.) / テルミーアンサー / Parades / 恋色病棟 / 千本桜 / ヒビカセ / 星空クロノグラフ / ダブルラリアット / First Note / ドクター＝ファンクビート / Pane dhiria / スノーマン / 千年の独奏歌 / あったかいと / サンドリヨン 10th Anniversary / erase or zero / on the rocks / レイニースノードロップ / ある計画は今も密かに / 二息歩行 / Singularity / METEOR / インタビュア / ロミオとシンデレラ / ワールドイズマイン / リモコン / Tell Your World / 初音天地開闢神話
+- **初音ミク「マジカルミライ」 2022** · [9909](https://vocadb.net/SongList/Details/9909) → [10556](https://vocadb.net/SongList/Details/10556) · 行数 34 → 37（+3） · 正片/安可 31/3 → 37/0（安可 -3） · 共有 5 / 仅左 29 / 仅右 32 · LCS 0.11 · 未合并 · 可能不是同一套节目
+      - 仅左：ダーリンダンス / 脳内革命ガール / テレキャスタービーボーイ (long ver.) / テルミーアンサー / Parades / 恋色病棟 / 千本桜 / ヒビカセ / 星空クロノグラフ / ダブルラリアット / First Note / みかぼし / Pane dhiria / スノーマン / 千年の独奏歌 / あったかいと / サンドリヨン 10th Anniversary / erase or zero / レイニースノードロップ / まるいうなばら / ある計画は今も密かに / 二息歩行 / Singularity / METEOR / インタビュア / ロミオとシンデレラ / ワールドイズマイン / リモコン / Tell Your World
+      - 仅右：ネクストネスト (Magical Mirai 10th edit) / ヴァンパイア / ブレス・ユア・ブレス / おこちゃま戦争 / すーぱーぬこになれんかった / 私の恋はヘルファイア / FLASH / #心がどっか寂しいんだ / 天才ロック / 砂の惑星 / 39みゅーじっく! / shake it！ / Amazing Dolce / どりーみんチュチュ / Jump for Joy / 大江戸ジュリアナイト / 愛Dee / なりすましゲンガー / Someday'z Coming / Loading Memories / グリーンライツ・セレナーデ / 39 / アンノウン・マザーグース / みんなみくみくにしてあげる♪  / ODDS&ENDS / メルト / ハジメテノオト / 歌に形はないけれど / 星のカケラ（piano ver.） / フューチャー・イヴ / DECORATOR / Blessing
+- **初音ミク「マジカルミライ」 2023** · [10556](https://vocadb.net/SongList/Details/10556) → [13440](https://vocadb.net/SongList/Details/13440) · 行数 37 → 39（+2） · 正片/安可 37/0 → 39/0（安可 0） · 共有 7 / 仅左 30 / 仅右 32 · LCS 0.10 · 未合并 · 可能不是同一套节目
+      - 仅左：ヴァンパイア / おこちゃま戦争 / すーぱーぬこになれんかった / 私の恋はヘルファイア / FLASH / #心がどっか寂しいんだ / 天才ロック / 砂の惑星 / shake it！ / Amazing Dolce / どりーみんチュチュ / Jump for Joy / 大江戸ジュリアナイト / ドクター＝ファンクビート / on the rocks / 愛Dee / なりすましゲンガー / Someday'z Coming / Loading Memories / 39 / アンノウン・マザーグース / みんなみくみくにしてあげる♪  / ODDS&ENDS / メルト / ハジメテノオト / 歌に形はないけれど / 星のカケラ（piano ver.） / フューチャー・イヴ / DECORATOR / Blessing
+      - 仅右：カルチャ / 神っぽいな / ローリンガール / ゴーストルール / 初音ミクの消失 / GEDO / ヘッジホッグ / スキキライ / 8HIT / いいねってYEAH! / レッドランドマーカー / きみとぼくのレゾナンス / ラムネイドブルーの憧憬 / 星空クロノグラフ / king妃jack躍 / 二次元ドリームフィーバー / Weekender Girl / ツギハギスタッカート / 抜錨 / Never Die / Hello, Worker / 星屑ユートピア / スノーマン / レイニースノードロップ / あったかいと / 敗走 / erase or zero / drop pop candy / フェレス / ブループラネット / Birthday Song for ミク / HERO
+- **初音ミク「マジカルミライ」 2024** · [13440](https://vocadb.net/SongList/Details/13440) → [17933](https://vocadb.net/SongList/Details/17933) · 行数 39 → 32（-7） · 正片/安可 39/0 → 32/0（安可 0） · 共有 3 / 仅左 36 / 仅右 29 · LCS 0.03 · 未合并 · 可能不是同一套节目
+      - 仅左：カルチャ / 神っぽいな / ローリンガール / ゴーストルール / 初音ミクの消失 / GEDO / ヘッジホッグ / スキキライ / 8HIT / いいねってYEAH! / レッドランドマーカー / きみとぼくのレゾナンス / ラムネイドブルーの憧憬 / 星空クロノグラフ / king妃jack躍 / 二次元ドリームフィーバー / Weekender Girl / ツギハギスタッカート / 抜錨 / Never Die / Hello, Worker / 星屑ユートピア / スノーマン / レイニースノードロップ / あったかいと / 敗走 / erase or zero / drop pop candy / フェレス / 39みゅーじっく! / ネクストネスト (Magical Mirai 10th edit) / 初音天地開闢神話 / 愛されなくても君がいる / Hand in Hand / ブループラネット / Birthday Song for ミク
+      - 仅右：ブリキノダンス / 混沌ブギ / 愛の詩 / すきなことだけでいいです / フューチャー・イヴ / SUPERHERO / Call!! / TYQOON / REALITY / 新人類 / 流星のパルス / 踊 / lost and found / letter song / 陽だまりのセツナ / アンハッピーリフレイン / すろぉもぉしょん / サイハテ / 快晴 / Calc. / 僕が夢を捨てて大人になるまで / 命に嫌われている。 / Satisfaction / テオ / ノヴァ / 初めての恋が終わる時 / アンテナ39 / ボルテッカー / Hand in Hand
+- **初音ミク「マジカルミライ」 2025** · [17933](https://vocadb.net/SongList/Details/17933) → [20912](https://vocadb.net/SongList/Details/20912) · 行数 32 → 33（+1） · 正片/安可 32/0 → 33/0（安可 0） · 共有 2 / 仅左 30 / 仅右 31 · LCS 0.06 · 未合并 · 可能不是同一套节目
+      - 仅左：ブリキノダンス / 混沌ブギ / 愛の詩 / すきなことだけでいいです / HERO / フューチャー・イヴ / SUPERHERO / Call!! / TYQOON / REALITY / 新人類 / 流星のパルス / 踊 / lost and found / letter song / 陽だまりのセツナ / アンハッピーリフレイン / すろぉもぉしょん / サイハテ / 快晴 / Calc. / 僕が夢を捨てて大人になるまで / 命に嫌われている。 / Satisfaction / テオ / グリーンライツ・セレナーデ / ブレス・ユア・ブレス / ノヴァ / 初めての恋が終わる時 / ボルテッカー
+      - 仅右：ヒアソビ / 初音天地開闢神話 / こちら、幸福安心委員会です。 / MAGA MAGA / 星屑ユートピア / 抜錨 / ラヴィ / 少女A / キミペディア / ジェミニ / 1/6 -out of the gravity- / 独りんぼエンヴィー / 太陽系デスコ / はじめまして地球人さん / ヴァニッシュ / みかぼし / ドクター＝ファンクビート / げんてん / 夜舞うシルエット / 星空クロノグラフ / Flyway / メテオ / Last Night, Good Night / Starduster / METEOR / StargazeR / 黙ってロックをやれって言ってんの！ (niconico ver.) / ブループラネット / ストリートライト / Blessing / ラストラス
+- **初音ミク「マジカルミライ」 2026** · [20912](https://vocadb.net/SongList/Details/20912) → [27886](https://vocadb.net/SongList/Details/27886) · 行数 33 → 33（0） · 正片/安可 33/0 → 33/0（安可 0） · 共有 2 / 仅左 31 / 仅右 31 · LCS 0.03 · 未合并 · 可能不是同一套节目
+      - 仅左：ヒアソビ / アンテナ39 / 初音天地開闢神話 / こちら、幸福安心委員会です。 / MAGA MAGA / 星屑ユートピア / 抜錨 / ラヴィ / 少女A / キミペディア / ジェミニ / 1/6 -out of the gravity- / 独りんぼエンヴィー / 太陽系デスコ / はじめまして地球人さん / ヴァニッシュ / みかぼし / ドクター＝ファンクビート / げんてん / 夜舞うシルエット / 星空クロノグラフ / Flyway / メテオ / Last Night, Good Night / Starduster / METEOR / StargazeR / 黙ってロックをやれって言ってんの！ (niconico ver.) / ブループラネット / ストリートライト / Blessing
+      - 仅右：ドーピングダンス / ジェヘナ / 気まぐれメルシィ / アンハッピーリフレイン / バッドシャーク / 青炎 / あったかいと / FLASH / サロメ / ヒビカセ / ヴァンパイア / ウミユリ海底譚 / カゲロウデイズ / 快晴 / HELLO, NEW WORLD! / vivid / 陽だまりのセツナ / 死にたくない。 / Amazing Dolce / 泥中に咲く / 積乱雲グラフィティ / エル・タンゴ・エゴイスタ / フェレス / 天樂 -双響- / 39みゅーじっく! / HERO / ブレス・ユア・ブレス / ハジメテノオト / 空に免じて / Over Flow(er) / こたえて
+- **MIKU EXPO 2015** · [221](https://vocadb.net/SongList/Details/221) → [2868](https://vocadb.net/SongList/Details/2868) · 行数 27 → 27（0） · 正片/安可 23/4 → 24/3（安可 -1） · 共有 8 / 仅左 19 / 仅右 19 · LCS 0.26 · 未合并 · 可能不是同一套节目
+      - 仅左：千本桜 / こっち向いて Baby / 恋色病棟 / カラフル×メロディ / メランコリック / ココロ / Glass Wall / トリノコシティ / 結ンデ開イテ羅刹ト骸 / 白い雪のプリンセスは / ピアノ×フォルテ×スキャンダル / ぽっぴっぽー / Parades / Just be Friends / ルカルカ★ナイトフィーバー / Yellow / メルト / みくみくにしてあげる♪【してやんよ】 / Starduster
+      - 仅右：二次元ドリームフィーバー / 裏表ラバーズ / ありふれたせかいせいふく / 東京テディベア / 炉心融解 / 紡唄 -つむぎうた- / Weekender Girl / ワールズエンド・ダンスホール / アカツキアライヴァル / Change me / 深海少女 / Last Night, Good Night / Just Be Friends / キャットフード / 初音ミクの激唱 / ODDS&ENDS / 月西江 / 39 / 星のカケラ（piano ver.）
+- **MIKU EXPO 2016** · [2868](https://vocadb.net/SongList/Details/2868) → [6571](https://vocadb.net/SongList/Details/6571) · 行数 27 → 26（-1） · 正片/安可 24/3 → 26/0（安可 -3） · 共有 16 / 仅左 11 / 仅右 10 · LCS 0.33 · 未合并 · 可能不是同一套节目
+      - 仅左：二次元ドリームフィーバー / ありふれたせかいせいふく / 炉心融解 / Fire◎Flower / 紡唄 -つむぎうた- / ロミオとシンデレラ / アカツキアライヴァル / Pane dhiria / キャットフード / ODDS&ENDS / 月西江
+      - 仅右：初音ミクの消失 / アンハッピーリフレイン / magnet / Glass Wall / スノーマン / リモコン / 恋は戦争 / Ten Thousand Stars / 積乱雲グラフィティ / Blue Star
+- **MIKU EXPO 2017** · [6571](https://vocadb.net/SongList/Details/6571) → [7404](https://vocadb.net/SongList/Details/7404) · 行数 26 → 27（+1） · 正片/安可 26/0 → 23/4（安可 +4） · 共有 11 / 仅左 15 / 仅右 16 · LCS 0.26 · 未合并 · 可能不是同一套节目
+      - 仅左：初音ミクの消失 / 裏表ラバーズ / ワールズエンド・ダンスホール / magnet / 深海少女 / スノーマン / Change me / 恋は戦争 / Last Night, Good Night / Ten Thousand Stars / 秘密警察 / 積乱雲グラフィティ / Blue Star / Sharing The World / 星のカケラ（piano ver.）
+      - 仅右：千本桜 / ラズベリー＊モンスター / ゴーストルール / ヒビカセ / ドクター＝ファンクビート / 忘却心中 / Chentaku / エイリアンエイリアン / Venus di Ujung Jari / 8HIT / いーあるふぁんくらぶ / ルカルカ★ナイトフィーバー / 気まぐれメルシィ / メルト / Satisfaction / 歌に形はないけれど
+- **MIKU EXPO 2018** · [7404](https://vocadb.net/SongList/Details/7404) → [7758](https://vocadb.net/SongList/Details/7758) · 行数 27 → 32（+5） · 正片/安可 23/4 → 32/0（安可 -4） · 共有 15 / 仅左 12 / 仅右 17 · LCS 0.28 · 未合并 · 可能不是同一套节目
+      - 仅左：Weekender Girl / Glass Wall / 右肩の蝶 / 東京テディベア / Chentaku / エイリアンエイリアン / アンハッピーリフレイン / Venus di Ujung Jari / いーあるふぁんくらぶ / 初音ミクの激唱 / 39 / 歌に形はないけれど
+      - 仅右：みくみくにしてあげる♪【してやんよ】 / アゲアゲアゲイン / 炉心融解 / 脱法ロック / glow / Through The Night / ロミオとシンデレラ / エンヴィキャットウォーク / Can't Make a Song!! / ダブルラリアット / ジェミニ / Nyanyanyanyanyanyanya! / 桜ノ雨 / Decade / 砂の惑星 / ミク / Sharing The World [ SPANISH VER ]
+- **MIKU EXPO 2019** · [7758](https://vocadb.net/SongList/Details/7758) → [8103](https://vocadb.net/SongList/Details/8103) · 行数 32 → 25（-7） · 正片/安可 32/0 → 25/0（安可 0） · 共有 5 / 仅左 27 / 仅右 20 · LCS 0.16 · 未合并 · 可能不是同一套节目
+      - 仅左：みくみくにしてあげる♪【してやんよ】 / 千本桜 / ゴーストルール / ラズベリー＊モンスター / アゲアゲアゲイン / 炉心融解 / ドクター＝ファンクビート / 忘却心中 / glow / Through The Night / ロミオとシンデレラ / エンヴィキャットウォーク / Can't Make a Song!! / ダブルラリアット / Just Be Friends / 8HIT / リモコン / ジェミニ / Nyanyanyanyanyanyanya! / Satisfaction / 気まぐれメルシィ / ヒビカセ / 桜ノ雨 / 砂の惑星 / ミク / Sharing The World [ SPANISH VER ] / メルト
+      - 仅右：みんなみくみくにしてあげる♪  / ビバハピ / アンノウン・マザーグース / キレキャリオン / Sharing The World / Pane dhiria / Nostalogic (MEIKO-SAN mix) / スイートマジック / 8HIT -V4X ver.- / 劣等上等 / Cybernetic / Yellow / ドリームレス・ドリームス / Hello, Worker / Never Die / Miku / Blue Star / ODDS&ENDS / ラッキー☆オーブ / 魔法みたいなミュージック！
+- **MIKU EXPO 2020** · [8103](https://vocadb.net/SongList/Details/8103) → [8631](https://vocadb.net/SongList/Details/8631) · 行数 25 → 25（0） · 正片/安可 25/0 → 25/0（安可 0） · 共有 12 / 仅左 13 / 仅右 13 · LCS 0.20 · 未合并 · 可能不是同一套节目
+      - 仅左：みんなみくみくにしてあげる♪  / ビバハピ / アンノウン・マザーグース / キレキャリオン / Pane dhiria / Nostalogic (MEIKO-SAN mix) / 8HIT -V4X ver.- / Cybernetic / Yellow / ドリームレス・ドリームス / ルカルカ★ナイトフィーバー / Hello, Worker / Never Die
+      - 仅右：テオ / ラズベリー＊モンスター / 8HIT / あったかいと / ラムネイドブルーの憧憬 / ハイパーリアリティショウ / MikuFiesta / No Logic / それがあなたの幸せとしても / Jump for Joy / ローリンガール / ヒバナ / 大江戸ジュリアナイト
+- **MIKU EXPO 2021** · [8631](https://vocadb.net/SongList/Details/8631) → [9596](https://vocadb.net/SongList/Details/9596) · 行数 25 → 16（-9） · 正片/安可 25/0 → 16/0（安可 0） · 共有 3 / 仅左 22 / 仅右 13 · LCS 0.08 · 未合并 · 可能不是同一套节目
+      - 仅左：ラズベリー＊モンスター / スイートマジック / 脱法ロック / 8HIT / あったかいと / ラムネイドブルーの憧憬 / ハイパーリアリティショウ / Miku / MikuFiesta / No Logic / それがあなたの幸せとしても / Jump for Joy / ローリンガール / ヒバナ / 大江戸ジュリアナイト / Decade / Blue Star / 魔法みたいなミュージック！ / ODDS&ENDS / Tell Your World / Sharing The World / 劣等上等
+      - 仅右：エイリアンエイリアン / Drag the ground / 無頼ック自己ライザー / アングレイデイズ / 幽霊東京 / Thousand Little Voices / Highway Lover / からくりピエロ / ロミオとシンデレラ / 不適切淑女 / Reload Words / すきなことだけでいいです / Highlight
+- **MIKU EXPO 2022** · [9596](https://vocadb.net/SongList/Details/9596) → [10387](https://vocadb.net/SongList/Details/10387) · 行数 16 → 18（+2） · 正片/安可 16/0 → 18/0（安可 0） · 共有 8 / 仅左 8 / 仅右 9 · LCS 0.29 · 未合并 · 可能不是同一套节目
+      - 仅左：ワールドイズマイン / エイリアンエイリアン / Drag the ground / 幽霊東京 / からくりピエロ / ロミオとシンデレラ / テオ / すきなことだけでいいです
+      - 仅右：Sharing The World / Glass Wall / Ten Thousand Stars / Blue Star / いーあるふぁんくらぶ / Venus di Ujung Jari / 魔法みたいなミュージック！ / Decade / Miku
+- **MIKU EXPO 2023** · [10387](https://vocadb.net/SongList/Details/10387) → [14426](https://vocadb.net/SongList/Details/14426) · 行数 18 → 14（-4） · 正片/安可 18/0 → 14/0（安可 0） · 共有 0 / 仅左 17 / 仅右 14 · LCS 0.00 · 未合并 · 可能不是同一套节目
+      - 仅左：Sharing The World / Glass Wall / Ten Thousand Stars / Blue Star / いーあるふぁんくらぶ / Venus di Ujung Jari / 魔法みたいなミュージック！ / ラッキー☆オーブ / Decade / Miku / 無頼ック自己ライザー / アングレイデイズ / 不適切淑女 / Reload Words / Highway Lover / Highlight / Thousand Little Voices
+      - 仅右：ナイフ、ナイフ、ナイフ / Acceleration (Breeze Remix) / フロイライン＝ビブリォチカ / リテラシー / Midnight Surf / １＋１ / ワンダーラスト / vivid / Karma / エゴロック(long ver.) / しんでしまうとはなさけない！ / Plaything / Tell Your World / imaginary love story
+- **MIKU EXPO 2024** · [14426](https://vocadb.net/SongList/Details/14426) → [16544](https://vocadb.net/SongList/Details/16544) · 行数 14 → 30（+16） · 正片/安可 14/0 → 30/0（安可 0） · 共有 6 / 仅左 8 / 仅右 24 · LCS 0.13 · 未合并 · 可能不是同一套节目
+      - 仅左：ナイフ、ナイフ、ナイフ / Acceleration (Breeze Remix) / Midnight Surf / １＋１ / ワンダーラスト / Karma / エゴロック(long ver.) / しんでしまうとはなさけない！
+      - 仅右：Miku / ヴァンパイア / アンノウン・マザーグース / 天才ロック / GEDO / おこちゃま戦争 / on the rocks / M@GICAL☆CURE! LOVE ♥ SHOT! / Blue Star / Decade / Sharing The World / Sharing The World [ SPANISH VER ] / Ten Thousand Stars / Can't Make a Song!! / MikuFiesta / Thousand Little Voices / 魔法みたいなミュージック！ / それがあなたの幸せとしても / Gimme×Gimme / ハイパーリアリティショウ / ワールドイズマイン / ラッキー☆オーブ / Intergalactic Bound / Highlight
+- **MIKU EXPO 2025** · [16544](https://vocadb.net/SongList/Details/16544) → [22929](https://vocadb.net/SongList/Details/22929) · 行数 30 → 28（-2） · 正片/安可 30/0 → 28/0（安可 0） · 共有 5 / 仅左 25 / 仅右 23 · LCS 0.17 · 未合并 · 可能不是同一套节目
+      - 仅左：Miku / アンノウン・マザーグース / 天才ロック / GEDO / おこちゃま戦争 / フロイライン＝ビブリォチカ / Blue Star / Decade / Sharing The World / Sharing The World [ SPANISH VER ] / Ten Thousand Stars / Can't Make a Song!! / MikuFiesta / Plaything / Thousand Little Voices / 魔法みたいなミュージック！ / それがあなたの幸せとしても / vivid / Gimme×Gimme / ハイパーリアリティショウ / ワールドイズマイン / ラッキー☆オーブ / Tell Your World / imaginary love story / Highlight
+      - 仅右：Artifact / カルチャ / 太陽系デスコ / ダーリンダンス / スイートマジック / テレキャスタービーボーイ (long ver.) / 劣等上等 / ロキ / 神っぽいな / ナイフ、ナイフ、ナイフ / エンヴィキャットウォーク / 深海少女 / レッドランドマーカー / Midnight Surf / ツギハギスタッカート / ダブルラリアット / 愛Dee / Satisfaction / shake it！ / 39 / ローリンガール / DECORATOR / メルト
+- **MIKU EXPO 2026** · [22929](https://vocadb.net/SongList/Details/22929) → [26423](https://vocadb.net/SongList/Details/26423) · 行数 28 → 34（+6） · 正片/安可 28/0 → 34/0（安可 0） · 共有 13 / 仅左 15 / 仅右 21 · LCS 0.29 · 未合并 · 可能不是同一套节目
+      - 仅左：ヴァンパイア / テレキャスタービーボーイ (long ver.) / ナイフ、ナイフ、ナイフ / エンヴィキャットウォーク / 深海少女 / レッドランドマーカー / リテラシー / on the rocks / Midnight Surf / ダブルラリアット / 愛Dee / Satisfaction / Intergalactic Bound / ローリンガール / メルト
+      - 仅右：テオ / 気まぐれメルシィ / 二次元ドリームフィーバー / ラズベリー＊モンスター / ヒアソビ / ワールズエンド・ダンスホール / TYQOON / 8HIT / すーぱーぬこになれんかった / Amazing Dolce / Caged Flower / 恋は戦争 / Room for a Fantasy / Someday'z Coming / Never Die / ワンダーラスト / drop pop candy / 大江戸ジュリアナイト / Catch the Wave / CONNECT:COMMUNE / ODDS&ENDS
+- **MIKU WITH YOU 2018** · [7384](https://vocadb.net/SongList/Details/7384) → [7986](https://vocadb.net/SongList/Details/7986) · 行数 29 → 32（+3） · 正片/安可 25/4 → 29/3（安可 -1） · 共有 6 / 仅左 23 / 仅右 26 · LCS 0.09 · 未合并 · 可能不是同一套节目
+      - 仅左：ゴーストルール / エイリアンエイリアン / Strangers / すろぉもぉしょん / 恋愛裁判 / 你好 / 脱法ロック / メランコリック / リモコン / ドクター＝ファンクビート / 忘却心中 / サイハテ / えれくとりっく・えんじぇぅ / Shining Star / 桜ノ雨 / どりーみんチュチュ / ルカルカ★ナイトフィーバー / ラズベリー＊モンスター / 初音ミクの激唱 / 虽然歌声无形 / いーあるふぁんくらぶ / ハジメテノオト / メルト
+      - 仅右：みんなみくみくにしてあげる♪  / ビバハピ / ストリーミングハート / ヒビカセ / アンノウン・マザーグース / 越过海岸线 / glow / あったかいと / Nostalogic (MEIKO-SAN mix) / 独りんぼエンヴィー / タイムマシン / 初音ミクの消失 / 裏表ラバーズ / 白い雪のプリンセスは / 二次元ドリームフィーバー / ロミオとシンデレラ / ゆめゆめ / No Logic / それがあなたの幸せとしても / ロキ / 8HIT / 劣等上等 / ジェミニ / letter song / Pick Me Up / ODDS&ENDS
+- **MIKU WITH YOU 2019** · [7986](https://vocadb.net/SongList/Details/7986) → [9359](https://vocadb.net/SongList/Details/9359) · 行数 32 → 29（-3） · 正片/安可 29/3 → 26/3（安可 0） · 共有 7 / 仅左 25 / 仅右 22 · LCS 0.09 · 未合并 · 可能不是同一套节目
+      - 仅左：みんなみくみくにしてあげる♪  / ビバハピ / ストリーミングハート / ヒビカセ / アンノウン・マザーグース / glow / あったかいと / Nostalogic (MEIKO-SAN mix) / 独りんぼエンヴィー / からくりピエロ / タイムマシン / 初音ミクの消失 / 裏表ラバーズ / 白い雪のプリンセスは / 二次元ドリームフィーバー / ロミオとシンデレラ / ゆめゆめ / No Logic / ロキ / 8HIT / ジェミニ / Satisfaction / 気まぐれメルシィ / letter song / ODDS&ENDS
+      - 仅右：ヒバナ / ぶれないアイで / キレキャリオン / ローリンガール / アンハッピーリフレイン / 深海少女 / ツギハギスタッカート / すーぱーぬこになれんかった / 深海シティアンダーグラウンド / メインキャラクター / ラムネイドブルーの憧憬 / Never Die / 星屑ユートピア / ダブルラリアット / Just Be Friends / Jump for Joy / COME BACK / 砂の惑星 / 大江戸ジュリアナイト / メルト / テオ / 愛の詩
+- **MIKU WITH YOU 2020** · [9359](https://vocadb.net/SongList/Details/9359) → [9192](https://vocadb.net/SongList/Details/9192) · 行数 29 → 18（-11） · 正片/安可 26/3 → 18/0（安可 -3） · 共有 6 / 仅左 23 / 仅右 12 · LCS 0.10 · 未合并 · 可能不是同一套节目
+      - 仅左：ヒバナ / ぶれないアイで / キレキャリオン / ローリンガール / アンハッピーリフレイン / 深海少女 / ツギハギスタッカート / すーぱーぬこになれんかった / 深海シティアンダーグラウンド / メインキャラクター / ラムネイドブルーの憧憬 / Never Die / 星屑ユートピア / ダブルラリアット / Just Be Friends / それがあなたの幸せとしても / Jump for Joy / 越过海岸线 / 初嵐 / 大江戸ジュリアナイト / メルト / テオ / 愛の詩
+      - 仅右：Sweet Devil / FREELY TOMORROW / きみとぼくのレゾナンス / Amazing Dolce / Gimme×Gimme / ルカルカ★ナイトフィーバー / みかぼし / Calc. / 踏步、出发 / shake it！ / ぽかぽかの星 / Hand in Hand
+- **MIKU WITH YOU 2021** · [9192](https://vocadb.net/SongList/Details/9192) → [10011](https://vocadb.net/SongList/Details/10011) · 行数 18 → 17（-1） · 正片/安可 18/0 → 17/0（安可 0） · 共有 4 / 仅左 14 / 仅右 13 · LCS 0.11 · 未合并 · 可能不是同一套节目
+      - 仅左：Tell Your World / Sweet Devil / 砂の惑星 / FREELY TOMORROW / きみとぼくのレゾナンス / Amazing Dolce / Gimme×Gimme / 劣等上等 / ルカルカ★ナイトフィーバー / みかぼし / Calc. / shake it！ / ぽかぽかの星 / ワールドイズマイン
+      - 仅右：ゴーストルール / 太陽系デスコ / ワールズエンド・ダンスホール / インタビュア / シャボン / すろぉもぉしょん / 星空クロノグラフ / レイニースノードロップ / ドクター＝ファンクビート / ロキ / DECORATOR / ハジメテノオト / My Stage With You
+- **MIKU WITH YOU 2024** · [10011](https://vocadb.net/SongList/Details/10011) → [17590](https://vocadb.net/SongList/Details/17590) · 行数 17 → 28（+11） · 正片/安可 17/0 → 28/0（安可 0） · 共有 5 / 仅左 12 / 仅右 23 · LCS 0.07 · 未合并 · 可能不是同一套节目
+      - 仅左：ゴーストルール / ワールズエンド・ダンスホール / インタビュア / シャボン / すろぉもぉしょん / 星空クロノグラフ / レイニースノードロップ / ドクター＝ファンクビート / ロキ / DECORATOR / Hand in Hand / ハジメテノオト
+      - 仅右：ワールドイズマイン / ダーリンダンス / Yellow / ANIMAL / 天才ロック / タイムマシン / キレキャリオン / 跨时空日记 / 月西江 / レッドランドマーカー / 抜錨 / FLASH / 神っぽいな / 積乱雲グラフィティ / ロミオとシンデレラ / アンノウン・マザーグース / ローリンガール / ODDS&ENDS / ツギハギスタッカート / いいねってYEAH! / ヴァンパイア / Tell Your World / 梦色星球
+- **MIKU WITH YOU 2025** · [17590](https://vocadb.net/SongList/Details/17590) → [23552](https://vocadb.net/SongList/Details/23552) · 行数 28 → 26（-2） · 正片/安可 28/0 → 26/0（安可 0） · 共有 8 / 仅左 20 / 仅右 18 · LCS 0.18 · 未合并 · 可能不是同一套节目
+      - 仅左：ワールドイズマイン / ダーリンダンス / Yellow / ANIMAL / 天才ロック / タイムマシン / キレキャリオン / レッドランドマーカー / 抜錨 / FLASH / 神っぽいな / 積乱雲グラフィティ / アンノウン・マザーグース / ローリンガール / ODDS&ENDS / ツギハギスタッカート / いいねってYEAH! / 太陽系デスコ / ヴァンパイア / Tell Your World
+      - 仅右：Mag1c / Baby Maniacs -Eight Mix- / ハイパーリアリティショウ / リモコン / ワールズエンド・ダンスホール / 番凩 / ドクター＝ファンクビート / どりーみんチュチュ / 快晴 / 星のカケラ（piano ver.） / ウミユリ海底譚 / 僕が夢を捨てて大人になるまで / Satisfaction / 39 / ブループラネット / メルト / ポケットのモンスター / Blessing
+- **MIKU WITH YOU 2026** · [23552](https://vocadb.net/SongList/Details/23552) → [29163](https://vocadb.net/SongList/Details/29163) · 行数 26 → 27（+1） · 正片/安可 26/0 → 27/0（安可 0） · 共有 5 / 仅左 21 / 仅右 22 · LCS 0.07 · 未合并 · 可能不是同一套节目
+      - 仅左：Baby Maniacs -Eight Mix- / COME BACK / ハイパーリアリティショウ / リモコン / ワールズエンド・ダンスホール / 番凩 / ドクター＝ファンクビート / どりーみんチュチュ / 跨时空日记 / 快晴 / 星のカケラ（piano ver.） / ウミユリ海底譚 / 僕が夢を捨てて大人になるまで / ロミオとシンデレラ / 月西江 / Satisfaction / 39 / ブループラネット / メルト / ポケットのモンスター / Blessing
+      - 仅右：ローリンガール / ダーリンダンス / 神っぽいな / StargazeR / カルチャ / ヴァンパイア / 夜舞うシルエット / 新人類 / テレキャスタービーボーイ (long ver.) / みかぼし / ダブルラリアット / 让我们拥抱哭泣 / REALITY / キミペディア / 愛Dee / Packaged / アイ / ワールドイズマイン / 彩虹游乐园 / 歌に形はないけれど / みんなみくみくにしてあげる♪  / DECORATOR
+- **SNOW MIKU LIVE! 2018** · [3951](https://vocadb.net/SongList/Details/3951) → [7339](https://vocadb.net/SongList/Details/7339) · 行数 27 → 29（+2） · 正片/安可 25/2 → 26/3（安可 +1） · 共有 5 / 仅左 22 / 仅右 24 · LCS 0.14 · 未合并 · 可能不是同一套节目
+      - 仅左：Sharing The World / 千本桜 / みくみくにしてあげる♪【してやんよ】 / 恋色病棟 / Fire◎Flower / 右肩の蝶 / メランコリック / ココロ / Glass Wall / Parades / ピアノ×フォルテ×スキャンダル / Pane dhiria / ロミオとシンデレラ / ぽっぴっぽー / Venus di Ujung Jari / Just be Friends / ルカルカ★ナイトフィーバー / 秘密警察 / 初音ミクの激唱 / ワールドイズマイン / メルト / 星のカケラ（piano ver.）
+      - 仅右：気まぐれメルシィ / ゴーストルール / 裏表ラバーズ / 脱法ロック / スイートマジック / スノーマン / celluloid / 深海少女 / 結ンデ開イテ羅刹ト骸 / トリノコシティ / ゆめゆめ / 忘却心中 / Leia / アカツキアライヴァル / ジェミニ / カラフル×メロディ / リモコン / 愛の詩 / ローリンガール / ODDS&ENDS / 歌に形はないけれど / letter song / 好き！雪！本気マジック / 四角い地球を丸くする
+- **SNOW MIKU LIVE! 2019** · [7339](https://vocadb.net/SongList/Details/7339) → [8099](https://vocadb.net/SongList/Details/8099) · 行数 29 → 32（+3） · 正片/安可 26/3 → 29/3（安可 0） · 共有 10 / 仅左 19 / 仅右 22 · LCS 0.22 · 未合并 · 可能不是同一套节目
+      - 仅左：気まぐれメルシィ / こっち向いて Baby / ゴーストルール / 裏表ラバーズ / 脱法ロック / celluloid / 深海少女 / 結ンデ開イテ羅刹ト骸 / トリノコシティ / ゆめゆめ / 忘却心中 / アカツキアライヴァル / ジェミニ / カラフル×メロディ / リモコン / 白い雪のプリンセスは / Tell Your World / 歌に形はないけれど / letter song
+      - 仅右：テオ / こちら、幸福安心委員会です。 / ステラ / 炉心融解 / 右肩の蝶 / Fire◎Flower / 劣等上等 / ピアノ×フォルテ×スキャンダル / Pane dhiria / Packaged / アンノウン・マザーグース / なりすましゲンガー / Birthday / No Logic / Hello, Worker / それがあなたの幸せとしても / Nyanyanyanyanyanyanya! / Satisfaction / ワールドイズマイン / 雪がとける前に / スターナイトスノウ / アイ
+- **初音ミクライブパーティー 2011** · [3952](https://vocadb.net/SongList/Details/3952) → [1](https://vocadb.net/SongList/Details/1) · 行数 40 → 27（-13） · 正片/安可 40/0 → 25/2（安可 +2） · 共有 4 / 仅左 35 / 仅右 23 · LCS 0.08 · 未合并 · 可能不是同一套节目
+      - 仅左：ハジメテノオト / Project Diva desu. / ワールドイズマイン / えれくとりっく・えんじぇぅ / サウンド / 恋スルVOC@LOID / Dear cocoa girls / StargazeR / The secret garden / ミラクルペイント / Innocence / ハト / みくみく菌にご注意♪ / サヨナラ・グッバイ / ロミオとシンデレラ / Dear / 裏表ラバーズ / パズル / VOiCE / 1/6 -out of the gravity- / 星屑ユートピア / Just Be Friends / magnet / Alice / あなたの歌姫 (full ver.) / moon / 初音ミクの消失 / 炉心融解 / 右肩の蝶 / Promise / from Y to Y / サイハテ / ストロボナイツ / SPiCa / 愛言葉
+      - 仅右：初めての恋が終わる時 / ローリンガール / 二息歩行 / アルビノ / 恋色病棟 / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / RIP=RELEASE / ルカルカ★ナイトフィーバー / 私の時間 / ＊ハロー、プラネット。 / こっち向いて Baby / Yellow / カラフル×メロディ / メランコリック / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA / みくみくにしてあげる♪【してやんよ】 / 歌に形はないけれど
+- **初音ミクライブパーティー 2012** · [1](https://vocadb.net/SongList/Details/1) → [31](https://vocadb.net/SongList/Details/31) · 行数 27 → 25（-2） · 正片/安可 25/2 → 25/0（安可 -2） · 共有 16 / 仅左 11 / 仅右 9 · LCS 0.22 · 未合并 · 可能不是同一套节目
+      - 仅左：二息歩行 / アルビノ / え？あぁ、そう。 / 結ンデ開イテ羅刹ト骸 / 初音ミクの激唱（LONG VERSION） / ＊ハロー、プラネット。 / 右肩の蝶 / Fire◎Flower 2011 / いろは唄 / タイムマシン / ARiA
+      - 仅右：ロミオとシンデレラ / trick and treat / 右肩の蝶 / Fire◎Flower / トリノコシティ / 初音ミクの激唱 / 白い雪のプリンセスは / Tell Your World / Starduster
+- **初音ミクライブパーティー 2013** · [31](https://vocadb.net/SongList/Details/31) → [82](https://vocadb.net/SongList/Details/82) · 行数 25 → 26（+1） · 正片/安可 25/0 → 26/0（安可 0） · 共有 20 / 仅左 5 / 仅右 6 · LCS 0.46 · 未合并 · 可能不是同一套节目
+      - 仅左：みくみくにしてあげる♪【してやんよ】 / trick and treat / RIP=RELEASE / 歌に形はないけれど / Starduster
+      - 仅右：千本桜 / 結ンデ開イテ羅刹ト骸 / ピアノ×フォルテ×スキャンダル / Pane dhiria / 千年の独奏歌 / letter song
+- **初音ミク×鼓童 2018** · [7024](https://vocadb.net/SongList/Details/7024) → [8961](https://vocadb.net/SongList/Details/8961) · 行数 19 → 21（+2） · 正片/安可 19/0 → 21/0（安可 0） · 共有 8 / 仅左 11 / 仅右 13 · LCS 0.24 · 未合并 · 可能不是同一套节目
+      - 仅左：初音ミクの消失 / エイリアンエイリアン / からくりピエロ / 裏表ラバーズ / 峰の風 / 積乱雲グラフィティ / 39 / celluloid / ゴーストルール / ロミオとシンデレラ / 紅一葉
+      - 仅右：みんなみくみくにしてあげる♪  / ラズベリー＊モンスター / ヒビカセ / ビバハピ / ロキ / 南部牛追歌 / 独りんぼエンヴィー / 結ンデ開イテ羅刹ト骸 / ルカルカ★ナイトフィーバー / 8HIT / ハジメテノオト / Satisfaction / メルト
+- **初音ミク×鼓童 2023** · [8961](https://vocadb.net/SongList/Details/8961) → [13030](https://vocadb.net/SongList/Details/13030) · 行数 21 → 20（-1） · 正片/安可 21/0 → 20/0（安可 0） · 共有 5 / 仅左 16 / 仅右 15 · LCS 0.19 · 未合并 · 可能不是同一套节目
+      - 仅左：みんなみくみくにしてあげる♪  / ラズベリー＊モンスター / ヒビカセ / ビバハピ / ロキ / 南部牛追歌 / 独りんぼエンヴィー / 結ンデ開イテ羅刹ト骸 / ワールズエンド・ダンスホール / ルカルカ★ナイトフィーバー / 初音ミクの激唱 / 8HIT / ハジメテノオト / Satisfaction / 桜ノ雨 / メルト
+      - 仅右：NEPPUU〜熱風〜 / Sweet Devil / ヒバナ / 太陽系デスコ / いのちもやしてたたけよ / 祭りだヘイカモン / どりーみんチュチュ / 大江戸ジュリアナイト / Amazing Dolce / glow / 僕が夢を捨てて大人になるまで / 劣等上等 / グリーンライツ・セレナーデ / Blessing / Hand in Hand
+- **初音ミクシンフォニー 2017** · [1000019737 · 专辑曲目](https://vocadb.net/Al/19737) → [1000030961 · 专辑曲目](https://vocadb.net/Al/30961) · 行数 18 → 15（-3） · 正片/安可 18/0 → 15/0（安可 0） · 共有 5 / 仅左 13 / 仅右 10 · LCS 0.17 · 未合并 · 可能不是同一套节目
+      - 仅左：【2007年「初音ミク」楽曲ヒストリー】 (Medley) / ロミオとシンデレラ / 裏表ラバーズ / 結ンデ開イテ羅刹ト骸 / ryo(supercell)メドレー (Medley) / Starduster / 炉心融解 / ココロ / 悪ノ娘 / 悪ノ召使 / ロストワンの号哭 / FREELY TOMORROW / 【ボカロP ピックアップコーナー】 (Medley) / 【最新楽曲メドレー】 (Medley) / ぽっぴっぽー / Tell Your World / Call
+      - 仅右：炉心融解～ココロ～悪ノ娘～悪ノ召使～ロストワンの号哭 / 四季折の羽 / Fire◎Flower / ゴーストルール / みくみくにしてあげる♪【してやんよ】～Ievan Polkka～Nyan Cat～子猫のパヤパヤ / アンドロメダアンドロメダ / 歌に形はないけれど / Connecting / 脱げばいいってモンじゃない!～ぽっぴっぽー～ルカルカ★ナイトフィーバー / 桜ノ雨
+- **初音ミクシンフォニー 2018** · [1000030961 · 专辑曲目](https://vocadb.net/Al/30961) → [1000026491 · 专辑曲目](https://vocadb.net/Al/26491) · 行数 15 → 16（+1） · 正片/安可 15/0 → 16/0（安可 0） · 共有 3 / 仅左 12 / 仅右 13 · LCS 0.19 · 未合并 · 可能不是同一套节目
+      - 仅左：未来序曲 / 千本桜 / 炉心融解～ココロ～悪ノ娘～悪ノ召使～ロストワンの号哭 / メルト / ゴーストルール / みくみくにしてあげる♪【してやんよ】～Ievan Polkka～Nyan Cat～子猫のパヤパヤ / アンドロメダアンドロメダ / 歌に形はないけれど / Connecting / 脱げばいいってモンじゃない!～ぽっぴっぽー～ルカルカ★ナイトフィーバー / ハジメテノオト / 桜ノ雨
+      - 仅右：39 / Just Be Friends / メモリ / ロキ / 耳のあるロボットの唄 / ハッピーシンセサイザ / メルティランドナイトメア / 好き！雪！本気マジック / 星のカケラ / ガールズフレンドシップ / 卑怯戦隊うろたんだー / ray / たいせつなこと
+- **初音ミクシンフォニー 2019** · [1000026491 · 专辑曲目](https://vocadb.net/Al/26491) → [1000027432 · 专辑曲目](https://vocadb.net/Al/27432) · 行数 16 → 21（+5） · 正片/安可 16/0 → 21/0（安可 0） · 共有 7 / 仅左 9 / 仅右 14 · LCS 0.29 · 未合并 · 可能不是同一套节目
+      - 仅左：初音ミクの消失 / Just Be Friends / 四季折の羽 / Fire◎Flower / 耳のあるロボットの唄 / メルティランドナイトメア / 好き！雪！本気マジック / ガールズフレンドシップ / ray
+      - 仅右：1/6 -out of the gravity- / ワールズエンド・ダンスホール / ねぇ、どろどろさん / 自作曲でMEIKOをロリ調教してみた / on the rocks / ピアノ×フォルテ×スキャンダル / Catch the Wave / ODDS&ENDS / 罪の名前 / Bad ∞ End ∞ Night / カンタレラ / サンドリヨン / SPiCa / 蛹になった君に
+- **初音ミクシンフォニー 2020** · [1000027432 · 专辑曲目](https://vocadb.net/Al/27432) → [1000028945 · 专辑曲目](https://vocadb.net/Al/28945) · 行数 21 → 17（-4） · 正片/安可 21/0 → 17/0（安可 0） · 共有 1 / 仅左 20 / 仅右 16 · LCS 0.05 · 未合并 · 可能不是同一套节目
+      - 仅左：1/6 -out of the gravity- / 39 / ワールズエンド・ダンスホール / メモリ / ロキ / ねぇ、どろどろさん / 自作曲でMEIKOをロリ調教してみた / on the rocks / ピアノ×フォルテ×スキャンダル / ハッピーシンセサイザ / Catch the Wave / ODDS&ENDS / 罪の名前 / Bad ∞ End ∞ Night / 星のカケラ / たいせつなこと / カンタレラ / サンドリヨン / 卑怯戦隊うろたんだー / 蛹になった君に
+      - 仅右：舞台 / メルト / 白い雪のプリンセスは / 深海少女 / メランコリック / 劣等上等 / Alice in Musicland / ドクター＝ファンクビート / No Logic / 初音ミクの消失 / ワーワーワールド / 依存香炉 / ハジメテノオト / glow / ブラック★ロックシューター / Last Night, Good Night
+- **初音ミクシンフォニー 2021** · [1000028945 · 专辑曲目](https://vocadb.net/Al/28945) → [1000030905 · 专辑曲目](https://vocadb.net/Al/30905) · 行数 17 → 17（0） · 正片/安可 17/0 → 17/0（安可 0） · 共有 2 / 仅左 15 / 仅右 15 · LCS 0.12 · 未合并 · 可能不是同一套节目
+      - 仅左：舞台 / メルト / 白い雪のプリンセスは / 深海少女 / メランコリック / 劣等上等 / Alice in Musicland / No Logic / 初音ミクの消失 / ワーワーワールド / 依存香炉 / ハジメテノオト / SPiCa / glow / ブラック★ロックシューター
+      - 仅右：カンタレラ / サンドリヨン / ワールドイズマイン / 千本桜 / 上弦の月 / リモコン / ワールズエンド・ダンスホール / タイムマシン / Reboot / あったかいと / ピアノ×フォルテ×スキャンダル / ニジイロストーリーズ / シネマ / トンデモワンダーズ / 怪人 (ライブ)
+- **初音ミクシンフォニー 2022** · [1000030905 · 专辑曲目](https://vocadb.net/Al/30905) → [1000037020 · 专辑曲目](https://vocadb.net/Al/37020) · 行数 17 → 14（-3） · 正片/安可 17/0 → 14/0（安可 0） · 共有 3 / 仅左 14 / 仅右 11 · LCS 0.12 · 未合并 · 可能不是同一套节目
+      - 仅左：カンタレラ / サンドリヨン / ワールドイズマイン / 千本桜 / ワールズエンド・ダンスホール / Reboot / あったかいと / ドクター＝ファンクビート / ピアノ×フォルテ×スキャンダル / ニジイロストーリーズ / シネマ / トンデモワンダーズ / Last Night, Good Night / 怪人 (ライブ)
+      - 仅右：ヴァンパイア / ねぇねぇねぇ。 / 帝国少女 / shake it！ / それがあなたの幸せとしても / ODDS&ENDS / ビターチョコデコレーション / 青を焚べて / 大江戸ジュリアナイト / Fire◎Flower / SPiCa
+- **初音ミクシンフォニー 2023** · [1000037020 · 专辑曲目](https://vocadb.net/Al/37020) → [1000040398 · 专辑曲目](https://vocadb.net/Al/40398) · 行数 14 → 25（+11） · 正片/安可 14/0 → 25/0（安可 0） · 共有 1 / 仅左 13 / 仅右 24 · LCS 0.04 · 未合并 · 可能不是同一套节目
+      - 仅左：ヴァンパイア / ねぇねぇねぇ。 / 帝国少女 / リモコン / それがあなたの幸せとしても / ODDS&ENDS / ビターチョコデコレーション / 上弦の月 / タイムマシン / 青を焚べて / 大江戸ジュリアナイト / Fire◎Flower / SPiCa
+      - 仅右：ダーリンダンス / 初音ミクの消失 / 初音ミクの激唱（LONG VERSION） / 転生林檎 / 天樂 / 抜錨 / FLASH / 黄昏を生きる / みくみくにしてあげる♪【してやんよ】 / 私の時間 / Starduster / 七つの罪と罰 / ヴェノマニア公の狂気 / 悪食娘コンチータ / 悪ノ娘 / 悪ノ召使 / 眠らせ姫からの贈り物 / 円尾坂の仕立屋 / 悪徳のジャッジメント / ネメシスの銃口 / Packaged / 星のカケラ / 39 / ブループラネット
+- **初音ミクシンフォニー 2024** · [1000040398 · 专辑曲目](https://vocadb.net/Al/40398) → [1000045255 · 专辑曲目](https://vocadb.net/Al/45255) · 行数 25 → 22（-3） · 正片/安可 25/0 → 22/0（安可 0） · 共有 0 / 仅左 25 / 仅右 22 · LCS 0.00 · 未合并 · 可能不是同一套节目
+      - 仅左：ダーリンダンス / 初音ミクの消失 / 初音ミクの激唱（LONG VERSION） / 転生林檎 / 天樂 / shake it！ / 抜錨 / FLASH / 黄昏を生きる / みくみくにしてあげる♪【してやんよ】 / 私の時間 / Starduster / 七つの罪と罰 / ヴェノマニア公の狂気 / 悪食娘コンチータ / 悪ノ娘 / 悪ノ召使 / 眠らせ姫からの贈り物 / 円尾坂の仕立屋 / 悪徳のジャッジメント / ネメシスの銃口 / Packaged / 星のカケラ / 39 / ブループラネット
+      - 仅右：ヒバナ / ワールズエンド・ダンスホール / ルカルカ★ナイトフィーバー / メモリ / メランコリック / 脱法ロック / ツギハギスタッカート / レッドランドマーカー / 君を捜す空 / 光と影の楽園 / 巡る世界のレクイエム / Leia / 星屑ユートピア / Yellow / DECORATOR / Catch the Wave / カンタレラ / サンドリヨン / Genesis / letter song / ReAct / ヴィーナス（short）
+- **初音ミクシンフォニー 2025** · [1000045255 · 专辑曲目](https://vocadb.net/Al/45255) → [1000052449 · 专辑曲目](https://vocadb.net/Al/52449) · 行数 22 → 31（+9） · 正片/安可 22/0 → 31/0（安可 0） · 共有 4 / 仅左 18 / 仅右 26 · LCS 0.10 · 未合并 · 可能不是同一套节目
+      - 仅左：ヒバナ / ルカルカ★ナイトフィーバー / メランコリック / 脱法ロック / ツギハギスタッカート / レッドランドマーカー / 君を捜す空 / 光と影の楽園 / 巡る世界のレクイエム / Leia / 星屑ユートピア / Yellow / DECORATOR / Catch the Wave / カンタレラ / サンドリヨン / Genesis / letter song
+      - 仅右：Blessing / 愛して愛して愛して / ACUTE / 右肩の蝶 / 番凩 / Dear / 裏表ラバーズ / ローリンガール / アンハッピーリフレイン / アンノウン・マザーグース / Hand in Hand / メズマライザー / オーバーライド / ぽっぴっぽー / 未来序曲 / ガールズフレンドシップ / たいせつなこと / ピアノ×フォルテ×スキャンダル / 舞台 / 怪人 (ライブ) / 青を焚べて / 悪ノ娘 / 悪ノ召使 / 39 / プレイオン / メルト
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 2** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 3** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 4** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜 5** · [12457](https://vocadb.net/SongList/Details/12457) → [12457](https://vocadb.net/SongList/Details/12457) · 行数 36 → 36（0） · 正片/安可 36/0 → 36/0（安可 0） · 共有 36 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 2** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 3** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 4** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 5** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 6** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同
+- **初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～ 7** · [19957](https://vocadb.net/SongList/Details/19957) → [19957](https://vocadb.net/SongList/Details/19957) · 行数 37 → 37（0） · 正片/安可 37/0 → 37/0（安可 0） · 共有 37 / 仅左 0 / 仅右 0 · LCS 1.00 · 未合并 · 完全相同

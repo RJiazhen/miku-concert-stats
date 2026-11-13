@@ -1,0 +1,53 @@
+{
+  "name": "miku-concert-stats",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit && nuxt typecheck",
+    "dev": "tsx scripts/dev.ts",
+    "build": "nuxt build",
+    "prebuild": "tsx scripts/build-catalog.ts",
+    "build:catalog": "tsx scripts/build-catalog.ts",
+    "build:api": "tsx scripts/build-api.ts",
+    "collect": "tsx scripts/vocadb/collect.ts",
+    "collect:albums": "tsx scripts/vocadb/album-setlists.ts",
+    "collect:vocalists": "tsx scripts/vocadb/vocalists.ts",
+    "collect:producers": "tsx scripts/vocadb/producers.ts",
+    "report:setlist": "tsx scripts/setlist-diff-report.ts",
+    "report:setlist-review": "tsx scripts/setlist-review-report.ts",
+    "report:confirmation": "uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py",
+    "derive:setlists": "tsx scripts/derive-performance-setlists.ts",
+    "locations": "tsx scripts/show-locations.ts",
+    "report:producers": "tsx scripts/producer-conflict-report.ts",
+    "report:names": "tsx scripts/name-coverage-report.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@iconify-json/lucide": "^1.2.150",
+    "@iconify-json/tabler": "^1.2.43",
+    "@nuxt/kit": "^4.6.4",
+    "@nuxt/ui": "^4.12.0",
+    "@nuxtjs/i18n": "^10.6.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.7.2",
+    "better-sqlite3": "^12.4.1",
+    "eslint": "^9.37.0",
+    "nuxt": "^4.6.4",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vite-plus": "^1.5.0",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.3.13",
+    "wrangler": "^4.149.0"
+  },
+  "packageManager": "pnpm@12.11.2",
+  "dependencies": {
+    "@tanstack/charts": "^1.5.0",
+    "jose": "^6.2.17",
+    "sql.js": "^1.14.2"
+  }
+}

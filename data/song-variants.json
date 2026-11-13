@@ -1,0 +1,97 @@
+{
+  "2000000028": {
+    "canonical": 1320,
+    "kind": "remix",
+    "note": "ミクFES '09（夏）的 future retro remix（kz），同一场里先演 remix 再演原曲"
+  },
+  "69073": {
+    "canonical": 1360,
+    "kind": "cover",
+    "note": "同曲同演出者"
+  },
+  "1949": {
+    "canonical": 1952,
+    "kind": "voicebank",
+    "note": "鏡音レン版，原曲为鏡音リン版"
+  },
+  "328076": {
+    "canonical": 2241,
+    "kind": "cover",
+    "note": "piano ver. 翻唱"
+  },
+  "22926": {
+    "canonical": 2443,
+    "kind": "remaster",
+    "note": "Re:Dialed 版本"
+  },
+  "275708": {
+    "canonical": 2716,
+    "kind": "remaster",
+    "note": "10th Anniversary Edition"
+  },
+  "8215": {
+    "canonical": 2927,
+    "kind": "remix",
+    "note": "LONG VERSION"
+  },
+  "9034": {
+    "canonical": 9035,
+    "kind": "remaster",
+    "note": "Remaster 条目，MEIKO Append 声库"
+  },
+  "203234": {
+    "canonical": 9210,
+    "kind": "voicebank",
+    "note": "V4X 声库重调版"
+  },
+  "237976": {
+    "canonical": 10882,
+    "kind": "remaster",
+    "note": "VocaDB 重复条目"
+  },
+  "244538": {
+    "canonical": 26010,
+    "kind": "remaster",
+    "note": "巡音ルカ V4X 重录"
+  },
+  "66752": {
+    "canonical": 66126,
+    "kind": "cover",
+    "note": "英文翻唱条目"
+  },
+  "182370": {
+    "canonical": 66126,
+    "kind": "language",
+    "note": "西班牙语版本"
+  },
+  "680530": {
+    "canonical": 89726,
+    "kind": "cover",
+    "note": "现场翻唱"
+  },
+  "269364": {
+    "canonical": 185363,
+    "kind": "cover",
+    "note": "鏡音レン加入的翻唱"
+  },
+  "247035": {
+    "canonical": 1061,
+    "kind": "remix",
+    "note": "-revive- 版本"
+  },
+  "3383": {
+    "canonical": 6387,
+    "kind": "remaster",
+    "note": "Fire◎Flower 2011"
+  },
+  "16943": {
+    "canonical": 1355,
+    "kind": "remaster",
+    "note": "みんなみくみくにしてあげる♪"
+  },
+  "326239": {
+    "canonical": 277408,
+    "kind": "language",
+    "note": "中文版（虽然歌声无形）"
+  }
+}

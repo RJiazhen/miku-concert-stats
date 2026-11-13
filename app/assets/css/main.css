@@ -1,0 +1,138 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  /* Hatsune Miku teal (#39C5BB) and the official-site magenta (#E12885). */
+  --color-miku-50: #eafbf9;
+  --color-miku-100: #cbf5f1;
+  --color-miku-200: #9deae5;
+  --color-miku-300: #66d9d2;
+  --color-miku-400: #39c5bb;
+  --color-miku-500: #22a8a0;
+  --color-miku-600: #178781;
+  --color-miku-700: #156b68;
+  --color-miku-800: #165554;
+  --color-miku-900: #164746;
+  --color-miku-950: #062b2b;
+
+  --color-magenta-50: #fef1f7;
+  --color-magenta-100: #fee5f1;
+  --color-magenta-200: #ffcae4;
+  --color-magenta-300: #ff9fce;
+  --color-magenta-400: #fd64ae;
+  --color-magenta-500: #f73c92;
+  --color-magenta-600: #e12885;
+  --color-magenta-700: #c3136b;
+  --color-magenta-800: #a11358;
+  --color-magenta-900: #86154e;
+  --color-magenta-950: #510527;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Page body keeps its 72rem column. The header rail is body + the timeline chart-rail gutter
+     (w-36 = 9rem plus mr-4 = 1rem) on both sides, so its inner content lines up with that rail's
+     left edge and mirrors the same overhang on the right.
+     `rail` is the viewport where the timeline's chart rail still fits in the left gutter. */
+  --container-body: 72rem;
+  --container-chrome: 92rem;
+  --breakpoint-rail: 91rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark body {
+  background-color: #05070d;
+  color: var(--color-neutral-100);
+}
+
+/* Select and menu popups are teleported to <body> and Reka writes `z-index: auto` inline, so a
+   floating panel that carries a z-index of its own can end up above its own dropdowns (or under
+   unrelated ones). Pin every popup wrapper above the floating panels' `z-60` layer; the panels
+   are raised above the header, footer, and buttons so nothing in the page can cover them. */
+[data-reka-popper-content-wrapper] {
+  z-index: 70 !important;
+}
+
+/* Radial glows are painted on a fixed layer so page content keeps full contrast. */
+.stage-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70rem 40rem at 12% -10%, color-mix(in oklab, var(--color-miku-400) 22%, transparent), transparent 70%),
+    radial-gradient(55rem 34rem at 92% 4%, color-mix(in oklab, var(--color-magenta-500) 18%, transparent), transparent 68%),
+    radial-gradient(60rem 40rem at 50% 110%, color-mix(in oklab, var(--color-miku-500) 12%, transparent), transparent 70%);
+}
+
+:root:not(.dark) .stage-glow {
+  background:
+    radial-gradient(70rem 40rem at 12% -10%, color-mix(in oklab, var(--color-miku-300) 32%, transparent), transparent 70%),
+    radial-gradient(55rem 34rem at 92% 4%, color-mix(in oklab, var(--color-magenta-300) 24%, transparent), transparent 68%);
+}
+
+/* Hairline grid that hints at a stage floor without competing with data. */
+.stage-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, currentColor 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, currentColor 8%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(70% 55% at 50% 0%, black, transparent 75%);
+}
+
+.glass-header {
+  background-color: color-mix(in oklab, var(--ui-bg) 78%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  border-bottom: 1px solid color-mix(in oklab, var(--ui-border) 70%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Ranking tables: a thin vertical scrollbar that stays invisible until the table is hovered or focused. */
+.ranking-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.ranking-scroll:hover,
+.ranking-scroll:focus-within {
+  scrollbar-color: color-mix(in oklab, currentColor 28%, transparent) transparent;
+}
+
+.ranking-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.ranking-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: transparent;
+}
+
+.ranking-scroll:hover::-webkit-scrollbar-thumb,
+.ranking-scroll:focus-within::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklab, currentColor 28%, transparent);
+}

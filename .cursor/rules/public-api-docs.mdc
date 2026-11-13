@@ -1,0 +1,23 @@
+# 公开 API：接口说明、端点子说明与 skill 同时更新
+
+`/api/v1` 是站外 AI agent 的公开契约。新增、改名、改参数或删除端点时，要在同一次提交里把接口说明和 skill 说明一起改掉，不能只提交路由代码。
+
+## 必须同步的四处
+
+1. `scripts/build-api.ts` 的 `index.json`：在 `endpoints` 里加/改路径示例（`/api/v1/index.json` 就是这份自述）。
+2. `skills/query-concert-stats/endpoints/<name>.md`：**一个端点（或一组同族端点）一份子说明**，带自己的 frontmatter `name` / `description`，正文写请求、参数与默认值、返回字段、怎么据此作答、常见错误。新增端点就要新建一份，不要塞回 `SKILL.md`。
+3. `skills/query-concert-stats/SKILL.md`：门面只放「什么时候用这个 skill」、措辞规则、计数口径、端点表（指向子说明）、Workflows 索引与回答清单。改端点时只在端点表补一行或改一行，细节进子说明。
+4. `docs/architecture.md` 的「公开只读 JSON API」与 skill 两节：端点职责、构建产物、数据来源、子说明布局。
+
+`pnpm build:catalog` 只会重新生成 `public/api` 与 `server/assets/api`，不会更新任何说明文字，所以这几处必须手写。
+
+## 子说明的写法
+
+- 只写这个端点额外要知道的：参数、默认值、字段含义、口径差异、常见错误。措辞规则与 场次 / 演出 的定义留在门面，不要复制。
+- 每份控制在「读一遍就能用」的长度；字段说明用列表，返回示例用 `json` 代码块并标注「字段随数据更新变化」。
+- 子说明由 `/skill/endpoints/<name>.md` 对外提供，路径必须匹配 `^endpoints/[a-z-]+\.md$`；新文件用纯小写连字符名。
+- 写清默认值与口径差异。同一个参数在不同端点默认不同时必须点名（`includeBroadcast`：`rank` 默认不计配信，`timeline` 默认计入）。
+- 外部 agent 读不到源码，只有这些说明；不要写「见代码」「见实现」。
+- 新增端点优先复用 `shared/` 里已有的聚合，不要在 Worker 里另写一套统计。
+- 用测试固定「页面与 API 同数」（参考 `tests/timeline-api.test.ts`），口径改动时先让测试失败再改实现。
+- 端点需要预处理数据时，产物放在 `server/assets/` 下并由 `scripts/build-api.ts` 生成，不要把 SQLite 打成 Worker 资源。
