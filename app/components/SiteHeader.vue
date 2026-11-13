@@ -314,10 +314,16 @@ onBeforeUnmount(() => {
       <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 lg:gap-3">
         <!-- Input from `xl`; below that the same search stays available as its icon button. -->
         <SiteSearch />
-        <!-- Below lg the AI prompt, theme, and GitHub buttons live in the menu panel; language stays on the row. -->
+        <!-- Below lg the AI prompt, theme, GitHub, and X buttons live in the menu panel; language stays on the row. -->
         <div class="hidden lg:block">
           <AiPromptButton />
         </div>
+        <!-- Groups AI from language on lg+; hidden with the AI button below lg. -->
+        <USeparator
+          orientation="vertical"
+          decorative
+          class="hidden h-4 lg:block"
+        />
         <!--
           Icon-only language trigger sits left of the theme button. Hover opens on fine pointers;
           touch keeps click-to-open. No focus-open: Reka restores focus to the trigger on close,
@@ -371,6 +377,12 @@ onBeforeUnmount(() => {
             </div>
           </template>
         </UPopover>
+        <!-- Separates language from theme / social icons (and from the menu button below lg). -->
+        <USeparator
+          orientation="vertical"
+          decorative
+          class="h-4"
+        />
         <div class="hidden lg:block">
           <UColorModeButton color="neutral" variant="ghost" size="sm" />
         </div>
@@ -385,6 +397,20 @@ onBeforeUnmount(() => {
               variant="ghost"
               size="sm"
               :aria-label="t('nav.githubNewWindow')"
+            />
+          </UTooltip>
+        </div>
+        <div class="hidden lg:block">
+          <UTooltip :text="t('nav.x')">
+            <UButton
+              to="https://x.com/JasonRuanrjz"
+              target="_blank"
+              rel="noopener noreferrer"
+              icon="i-tabler:brand-x"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :aria-label="t('nav.xNewWindow')"
             />
           </UTooltip>
         </div>
@@ -443,7 +469,7 @@ onBeforeUnmount(() => {
               />
             </label>
           </div>
-          <!-- AI prompt on its own full-width row, then the GitHub icon centred below. -->
+          <!-- AI prompt on its own full-width row, then GitHub + X icons centred below. -->
           <div class="mt-1 flex flex-col gap-0.5 border-t border-default pt-1">
             <UButton
               icon="i-tabler:ai"
@@ -455,7 +481,7 @@ onBeforeUnmount(() => {
               @click="copyAiPrompt"
             />
           </div>
-          <div class="mt-1 flex items-center justify-center border-t border-default pt-1.5">
+          <div class="mt-1 flex items-center justify-center gap-1 border-t border-default pt-1.5">
             <UTooltip :text="t('nav.github')">
               <UButton
                 to="https://github.com/RJiazhen/miku-concert-stats"
@@ -466,6 +492,18 @@ onBeforeUnmount(() => {
                 variant="ghost"
                 size="md"
                 :aria-label="t('nav.githubNewWindow')"
+              />
+            </UTooltip>
+            <UTooltip :text="t('nav.x')">
+              <UButton
+                to="https://x.com/JasonRuanrjz"
+                target="_blank"
+                rel="noopener noreferrer"
+                icon="i-tabler:brand-x"
+                color="neutral"
+                variant="ghost"
+                size="md"
+                :aria-label="t('nav.xNewWindow')"
               />
             </UTooltip>
           </div>

@@ -318,6 +318,18 @@ export default {
     ja: 'GitHub リポジトリ（新しいウィンドウで開く）',
     en: 'GitHub repository (opens in a new window)',
   },
+  'nav.x': {
+    zh: 'X',
+    'zh-Hant': 'X',
+    ja: 'X',
+    en: 'X',
+  },
+  'nav.xNewWindow': {
+    zh: 'X（在新窗口打开）',
+    'zh-Hant': 'X（在新視窗開啟）',
+    ja: 'X（新しいウィンドウで開く）',
+    en: 'X (opens in a new window)',
+  },
   'nav.language': {
     zh: '语言',
     'zh-Hant': '語言',
