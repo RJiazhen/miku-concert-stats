@@ -145,28 +145,24 @@ const closeMenu = (): void => {
   menuOpen.value = false
 }
 
-/** Closes every open menu, used by the Escape key. */
-const closeMenus = (event: KeyboardEvent): void => {
-  if (event.key !== 'Escape') return
-  menuOpen.value = false
-  moreOpen.value = false
-  languageOpen.value = false
-}
-
 /** Wide-screen query; crossing it closes the compact panel, which no longer exists there. */
 const WIDE_SCREEN_QUERY = '(min-width: 64rem)'
 
+/** True at `lg` and up, where the language control is a popover instead of a sheet. */
+const isWideScreen = ref(false)
+
 let wideQuery: MediaQueryList | null = null
 
-/** Closes the compact panel as soon as the wide navigation takes over. */
+/** Syncs the wide-screen flag and closes the compact nav when the wide row takes over. */
 const syncWideScreen = (): void => {
-  if (wideQuery?.matches !== true) return
-  menuOpen.value = false
+  isWideScreen.value = wideQuery?.matches === true
+  if (isWideScreen.value) menuOpen.value = false
 }
 
 /** Starts listening for the wide-screen breakpoint. */
 const startWideTracking = (): void => {
   wideQuery = window.matchMedia(WIDE_SCREEN_QUERY)
+  isWideScreen.value = wideQuery.matches
   wideQuery.addEventListener('change', syncWideScreen)
 }
 
@@ -176,11 +172,50 @@ const stopWideTracking = (): void => {
   wideQuery = null
 }
 
-/** Keeps the page behind the open panel from scrolling, and restores it on close. */
-const syncBodyScroll = (open: boolean): void => {
-  document.body.style.overflow = open ? 'hidden' : ''
+/**
+ * Opens or closes the compact language sheet. Closes the nav panel first so the two
+ * fullscreen sheets never stack.
+ */
+const toggleLanguageSheet = (): void => {
+  menuOpen.value = false
+  languageOpen.value = !languageOpen.value
 }
-watch(menuOpen, syncBodyScroll)
+
+/** Opens the compact nav panel and closes the language sheet if it was open. */
+const toggleMenu = (): void => {
+  languageOpen.value = false
+  menuOpen.value = !menuOpen.value
+}
+
+/**
+ * Drives the desktop language popover only while the wide header is active, so the
+ * portaled panel never appears over the compact fullscreen sheet.
+ */
+const desktopLanguageOpen = computed({
+  get: () => isWideScreen.value && languageOpen.value,
+  set: (next: boolean) => {
+    if (!isWideScreen.value) return
+    languageOpen.value = next
+  },
+})
+
+/** Closes every open menu, used by the Escape key. */
+const closeMenus = (event: KeyboardEvent): void => {
+  if (event.key !== 'Escape') return
+  menuOpen.value = false
+  moreOpen.value = false
+  languageOpen.value = false
+}
+
+/**
+ * Keeps the page behind an open compact sheet from scrolling. The desktop language
+ * popover does not need a lock; only the nav panel and the language sheet do.
+ */
+const syncBodyScroll = (): void => {
+  const languageSheet = languageOpen.value && !isWideScreen.value
+  document.body.style.overflow = menuOpen.value || languageSheet ? 'hidden' : ''
+}
+watch([menuOpen, languageOpen, isWideScreen], syncBodyScroll)
 
 onMounted(() => {
   startWideTracking()
@@ -191,7 +226,7 @@ onUnmounted(() => {
   stopWideTracking()
   stopHoverOpenTracking()
   window.removeEventListener('keydown', closeMenus)
-  syncBodyScroll(false)
+  document.body.style.overflow = ''
 })
 
 /** Whether the dark theme is active; used for the appearance row's switch. */
@@ -325,58 +360,71 @@ onBeforeUnmount(() => {
           class="hidden h-4 lg:block"
         />
         <!--
-          Icon-only language trigger sits left of the theme button. Hover opens on fine pointers;
-          touch keeps click-to-open. No focus-open: Reka restores focus to the trigger on close,
-          which would reopen the panel after a choice.
+          Wide screens: icon-only language trigger with a hover/click popover. No focus-open:
+          Reka restores focus to the trigger on close, which would reopen the panel after a choice.
         -->
-        <UPopover
-          v-model:open="languageOpen"
-          :content="{ align: 'end', sideOffset: 8, collisionPadding: 8 }"
-        >
-          <UButton
-            icon="i-lucide-languages"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :aria-label="t('nav.language')"
-            aria-haspopup="menu"
-            :aria-expanded="languageOpen"
-            @mouseenter="openLanguage"
-            @mouseleave="closeLanguageSoon"
-          />
-          <template #content>
-            <div
-              class="flex w-52 flex-col gap-1 p-1.5"
+        <div class="hidden lg:block">
+          <UPopover
+            v-model:open="desktopLanguageOpen"
+            :content="{ align: 'end', sideOffset: 8, collisionPadding: 8 }"
+          >
+            <UButton
+              icon="i-lucide-languages"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :aria-label="t('nav.language')"
+              aria-haspopup="menu"
+              :aria-expanded="desktopLanguageOpen"
               @mouseenter="openLanguage"
               @mouseleave="closeLanguageSoon"
-            >
-              <UButton
-                v-for="item in languageItems"
-                :key="item.value"
-                color="neutral"
-                :variant="item.value === locale ? 'soft' : 'ghost'"
-                size="sm"
-                class="justify-between"
-                :label="item.label"
-                :trailing-icon="item.value === locale ? 'i-lucide-check' : undefined"
-                @click="pickLanguage(item.value)"
-              />
-              <div class="mt-1 flex items-center justify-between gap-3 border-t border-default px-2 pt-2 pb-1">
-                <span
-                  class="text-xs whitespace-nowrap"
-                  :class="originalTitleDisabled ? 'text-dimmed' : 'text-muted'"
-                >{{ t('nav.showOriginalTitle') }}</span>
-                <USwitch
-                  :model-value="originalTitleShown"
-                  :disabled="originalTitleDisabled"
+            />
+            <template #content>
+              <div
+                class="flex w-52 flex-col gap-1 p-1.5"
+                @mouseenter="openLanguage"
+                @mouseleave="closeLanguageSoon"
+              >
+                <UButton
+                  v-for="item in languageItems"
+                  :key="item.value"
+                  color="neutral"
+                  :variant="item.value === locale ? 'soft' : 'ghost'"
                   size="sm"
-                  :aria-label="t('nav.showOriginalTitle')"
-                  @update:model-value="toggleOriginalTitle"
+                  class="justify-between"
+                  :label="item.label"
+                  :trailing-icon="item.value === locale ? 'i-lucide-check' : undefined"
+                  @click="pickLanguage(item.value)"
                 />
+                <div class="mt-1 flex items-center justify-between gap-3 border-t border-default px-2 pt-2 pb-1">
+                  <span
+                    class="text-xs whitespace-nowrap"
+                    :class="originalTitleDisabled ? 'text-dimmed' : 'text-muted'"
+                  >{{ t('nav.showOriginalTitle') }}</span>
+                  <USwitch
+                    :model-value="originalTitleShown"
+                    :disabled="originalTitleDisabled"
+                    size="sm"
+                    :aria-label="t('nav.showOriginalTitle')"
+                    @update:model-value="toggleOriginalTitle"
+                  />
+                </div>
               </div>
-            </div>
-          </template>
-        </UPopover>
+            </template>
+          </UPopover>
+        </div>
+        <!-- Below lg: same trigger opens a fullscreen language sheet (sibling of the header). -->
+        <UButton
+          icon="i-lucide-languages"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          class="lg:hidden"
+          :aria-label="t('nav.language')"
+          aria-haspopup="dialog"
+          :aria-expanded="languageOpen"
+          @click="toggleLanguageSheet"
+        />
         <!-- Separates language from theme / social icons (and from the menu button below lg). -->
         <USeparator
           orientation="vertical"
@@ -424,11 +472,49 @@ onBeforeUnmount(() => {
           :aria-label="t('nav.open')"
           aria-haspopup="dialog"
           :aria-expanded="menuOpen"
-          @click="menuOpen = !menuOpen"
+          @click="toggleMenu"
         />
       </div>
     </div>
   </header>
+
+  <!-- Below lg: language choices fill the viewport under the header, same stacking as the nav panel. -->
+  <div
+    v-if="languageOpen"
+    class="fixed inset-0 z-30 bg-default lg:hidden"
+    role="dialog"
+    aria-modal="true"
+    :aria-label="t('nav.language')"
+  >
+    <div class="mx-auto h-full max-w-chrome overflow-y-auto px-4 pt-16 pb-6 sm:px-6">
+      <div class="flex flex-col gap-0.5">
+        <UButton
+          v-for="item in languageItems"
+          :key="item.value"
+          color="neutral"
+          :variant="item.value === locale ? 'soft' : 'ghost'"
+          size="md"
+          class="justify-between"
+          :label="item.label"
+          :trailing-icon="item.value === locale ? 'i-lucide-check' : undefined"
+          @click="pickLanguage(item.value)"
+        />
+        <div class="mt-1 flex items-center justify-between gap-3 border-t border-default px-2.5 pt-3 pb-1">
+          <span
+            class="text-sm whitespace-nowrap"
+            :class="originalTitleDisabled ? 'text-dimmed' : 'text-muted'"
+          >{{ t('nav.showOriginalTitle') }}</span>
+          <USwitch
+            :model-value="originalTitleShown"
+            :disabled="originalTitleDisabled"
+            size="sm"
+            :aria-label="t('nav.showOriginalTitle')"
+            @update:model-value="toggleOriginalTitle"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Below lg the panel and the header together fill the viewport: the sheet covers even the
        header area, so no page content shows through its translucent background. It is a sibling
