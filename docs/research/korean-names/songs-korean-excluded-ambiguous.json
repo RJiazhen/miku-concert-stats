@@ -1,0 +1,60 @@
+{
+  "count": 1,
+  "items": [
+    {
+      "catalog_id": 8241,
+      "original_title": "番凩",
+      "original_title_ja": "番凩",
+      "original_title_en": "Pair of Wintry Winds",
+      "vocadb_default_name": "番凩",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "츠가이코가라시",
+          "name_id": null
+        },
+        {
+          "language": "Unspecified",
+          "value": "한 쌍의 소슬바람",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "츠가이코가라시",
+        "한 쌍의 소슬바람"
+      ],
+      "ambiguous_multiple_hangul": true,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/8241",
+      "api_url": "https://vocadb.net/api/songs/8241?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:52 CST",
+      "cache_file": "0e4c8112fe21150169efa3885fcd99373701c1f9bef97757e0b26b1262f83f9d.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "番凩",
+        "Tsugai Kogarashi",
+        "Pair of Wintry Winds",
+        "Wintry Winds",
+        "Paired Wintry Wind",
+        "츠가이코가라시",
+        "TSUGAIKOGARASHI",
+        "한 쌍의 소슬바람"
+      ],
+      "exclusion_reason": "Two distinct Hangul aliases on the same VocaDB entry (츠가이코가라시 vs 한 쌍의 소슬바람); no single verified display title. Excluded per ambiguous-alias rule.",
+      "live_verified": true,
+      "live_verified_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+      "live_api_url": "https://vocadb.net/api/songs/8241?fields=Names&lang=Default"
+    }
+  ]
+}

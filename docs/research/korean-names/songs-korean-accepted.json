@@ -1,0 +1,2850 @@
+{
+  "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+  "reliability": "vocadb-community-alias",
+  "official": false,
+  "count": 51,
+  "denominator_vocadb_songs": 563,
+  "denominator_all_catalog_songs": 590,
+  "inspectable_names_subset": 147,
+  "items": [
+    {
+      "catalog_id": 20,
+      "original_title": "ワールズエンド・ダンスホール",
+      "original_title_ja": "ワールズエンド・ダンスホール",
+      "original_title_en": "World's End Dancehall",
+      "vocadb_default_name": "ワールズエンド・ダンスホール",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "월즈 엔드 댄스홀",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "월즈 엔드 댄스홀"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/20",
+      "api_url": "https://vocadb.net/api/songs/20?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "b05c3cd18267c8277c639b70d352bc73d7060f9fedd060608a7e93a858e0b9e7.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ワールズエンド・ダンスホール",
+        "World's End Dancehall",
+        "世末舞厅",
+        "世界末日舞厅",
+        "월즈 엔드 댄스홀"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "월즈 엔드 댄스홀",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": true
+      },
+      "live_verified_at": "2026-11-14T12:46:47.809154+08:00",
+      "live_hangul_values": [
+        "월즈 엔드 댄스홀"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1032,
+      "original_title": "ロミオとシンデレラ",
+      "original_title_ja": "ロミオとシンデレラ",
+      "original_title_en": "Romeo and Cinderella",
+      "vocadb_default_name": "ロミオとシンデレラ",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "로미오와 신데렐라",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "로미오와 신데렐라"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1032",
+      "api_url": "https://vocadb.net/api/songs/1032?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "be2d89514eb7d1983cdab78e5283c0e3dcbbd4789a19ff5d81fa69eeaef0fbe1.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ロミオとシンデレラ",
+        "Romeo to Cinderella",
+        "Romeo and Cinderella",
+        "Romeo & Cinderella",
+        "로미오와 신데렐라",
+        "ロミシン"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "로미오와 신데렐라",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": true
+      },
+      "live_verified_at": "2026-11-14T12:46:48.315751+08:00",
+      "live_hangul_values": [
+        "로미오와 신데렐라"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1047,
+      "original_title": "星屑ユートピア",
+      "original_title_ja": "星屑ユートピア",
+      "original_title_en": "Stardust Utopia",
+      "vocadb_default_name": "星屑ユートピア",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "별가루 유토피아",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "별가루 유토피아"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1047",
+      "api_url": "https://vocadb.net/api/songs/1047?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "3e099207b537432aa9b23e6e574b5f140808205eda3a7a7a7bbb5d2bcf1bcf20.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "星屑ユートピア",
+        "Stardust Utopia",
+        "Hoshikuzu Utopia",
+        "별가루 유토피아"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "별가루 유토피아",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:48.816420+08:00",
+      "live_hangul_values": [
+        "별가루 유토피아"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1354,
+      "original_title": "タイムマシン",
+      "original_title_ja": "タイムマシン",
+      "original_title_en": "Time Machine",
+      "vocadb_default_name": "タイムマシン",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "타임머신",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "타임머신"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1354",
+      "api_url": "https://vocadb.net/api/songs/1354?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "8196ae3742c4f7bacf6ab1a0966663815784c39a0085e9ad7f1c744d19c63213.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "タイムマシン",
+        "Time Machine",
+        "타임머신",
+        "時光機"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "타임머신",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:49.308214+08:00",
+      "live_hangul_values": [
+        "타임머신"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1500,
+      "original_title": "アンハッピーリフレイン",
+      "original_title_ja": "アンハッピーリフレイン",
+      "original_title_en": "Unhappy Refrain",
+      "vocadb_default_name": "アンハッピーリフレイン",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "언해피 리프레인",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "언해피 리프레인"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1500",
+      "api_url": "https://vocadb.net/api/songs/1500?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:52 CST",
+      "cache_file": "a836d664c113107afbd5a7f427f79359d5348e55236658c107e1c96a9094b1d0.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "アンハッピーリフレイン",
+        "Unhappy Refrain",
+        "언해피 리프레인"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "언해피 리프레인",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:49.809872+08:00",
+      "live_hangul_values": [
+        "언해피 리프레인"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1501,
+      "original_title": "ローリンガール",
+      "original_title_ja": "ローリンガール",
+      "original_title_en": "Rollin' Girl",
+      "vocadb_default_name": "ローリンガール",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "롤링 걸",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "롤링 걸"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1501",
+      "api_url": "https://vocadb.net/api/songs/1501?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:52 CST",
+      "cache_file": "2b52ef2cccba52c70bdcc9a5ac905283f70203b8f563ec26afcce824886a3ca2.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ローリンガール",
+        "Rollin' Girl",
+        "Rolling Girl",
+        "翻滚少女",
+        "롤링 걸"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "롤링 걸",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:50.303296+08:00",
+      "live_hangul_values": [
+        "롤링 걸"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1508,
+      "original_title": "裏表ラバーズ",
+      "original_title_ja": "裏表ラバーズ",
+      "original_title_en": "Two-Sided Lovers",
+      "vocadb_default_name": "裏表ラバーズ",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "겉과 속의 러버즈",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "겉과 속의 러버즈"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1508",
+      "api_url": "https://vocadb.net/api/songs/1508?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "c61c6861b321ba0eef54cb39ce733f0a3c2f4427026ed44e5819d57e53b393a0.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "裏表ラバーズ",
+        "Uraomote Lovers",
+        "Two-Sided Lovers",
+        "Two-Faced Lovers",
+        "里表情人",
+        "Love & Lovers",
+        "겉과 속의 러버즈",
+        "Ura-Omote Lovers"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "겉과 속의 러버즈",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": true
+      },
+      "live_verified_at": "2026-11-14T12:46:50.811786+08:00",
+      "live_hangul_values": [
+        "겉과 속의 러버즈"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1598,
+      "original_title": "悪徳のジャッジメント",
+      "original_title_ja": "悪徳のジャッジメント",
+      "original_title_en": "Judgement of Corruption",
+      "vocadb_default_name": "悪徳のジャッジメント",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "악덕의 저지먼트",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "악덕의 저지먼트"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1598",
+      "api_url": "https://vocadb.net/api/songs/1598?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "28769e0a2da69c61cd84ab805dea4a6739eecea5ff6c8aa54d23b278e7d58740.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "悪徳のジャッジメント",
+        "Judgement of Corruption",
+        "Akutoku no Judgement",
+        "Mammon's Court",
+        "Akutoku no Judgment",
+        "Judgment of Corruption",
+        "악덕의 저지먼트",
+        "恶德的法官"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "악덕의 저지먼트",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:51.317058+08:00",
+      "live_hangul_values": [
+        "악덕의 저지먼트"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 1612,
+      "original_title": "眠らせ姫からの贈り物",
+      "original_title_ja": "眠らせ姫からの贈り物",
+      "original_title_en": "Gift from the Princess who Brought Sleep",
+      "vocadb_default_name": "眠らせ姫からの贈り物",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "잠재우는 공주로부터의 선물",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "잠재우는 공주로부터의 선물"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/1612",
+      "api_url": "https://vocadb.net/api/songs/1612?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "d2674d1db0b0b2a043e3e9e943efaf0c824f5b3b369b2b46cb976674d97283c4.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "眠らせ姫からの贈り物",
+        "Gift from the Princess who Brought Sleep",
+        "Nemurase Hime kara no Okurimono",
+        "Belphegor's Gift",
+        "Gift from Princess Sandman",
+        "잠재우는 공주로부터의 선물"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "잠재우는 공주로부터의 선물",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:51.829631+08:00",
+      "live_hangul_values": [
+        "잠재우는 공주로부터의 선물"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 2322,
+      "original_title": "歌に形はないけれど",
+      "original_title_ja": "歌に形はないけれど",
+      "original_title_en": "Though My Song Has No Form",
+      "vocadb_default_name": "歌に形はないけれど",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "노래에 형태는 없지만",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "노래에 형태는 없지만"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/2322",
+      "api_url": "https://vocadb.net/api/songs/2322?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "0697128abc7907e546e3681475b4d16045e55d26a0f6d790d2f17de7e8bf40e4.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "歌に形はないけれど",
+        "Uta ni Katachi wa Nai Keredo",
+        "Though My Song Has No Form",
+        "Though A Song Is Formless",
+        "Although Songs Have No Form",
+        "Though My Song Has No Shape",
+        "노래에 형태는 없지만"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "노래에 형태는 없지만",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:52.326836+08:00",
+      "live_hangul_values": [
+        "노래에 형태는 없지만"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 2808,
+      "original_title": "円尾坂の仕立屋",
+      "original_title_ja": "円尾坂の仕立屋",
+      "original_title_en": "The Tailor of Enbizaka",
+      "vocadb_default_name": "円尾坂の仕立屋",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "엔비자카의 재봉사",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "엔비자카의 재봉사"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/2808",
+      "api_url": "https://vocadb.net/api/songs/2808?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "221e509ef3cde3eca042632e262641b42e8a5161a18e0c91d410e4ce8f6e8d83.json",
+      "all_names_languages": [
+        "Romaji",
+        "English",
+        "Japanese",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "Enbizaka no Shitateya",
+        "The Tailor of Enbizaka",
+        "円尾坂の仕立屋",
+        "Leviathan slope",
+        "The Tailor Shop on Enbizaka",
+        "The Tailor Shop at Enbizaka",
+        "圆尾坂的裁缝店",
+        "엔비자카의 재봉사"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "엔비자카의 재봉사",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:52.838525+08:00",
+      "live_hangul_values": [
+        "엔비자카의 재봉사"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 3019,
+      "original_title": "愛言葉",
+      "original_title_ja": "愛言葉",
+      "original_title_en": "Love Words",
+      "vocadb_default_name": "愛言葉",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "사랑의 말",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "사랑의 말"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/3019",
+      "api_url": "https://vocadb.net/api/songs/3019?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "48b3456b499d6db9df48a80cf66d7cf0ffa3d5ee814c318ee3526e521c970058.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "愛言葉",
+        "Ai Kotoba",
+        "Love Words",
+        "사랑의 말"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "사랑의 말",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:53.339556+08:00",
+      "live_hangul_values": [
+        "사랑의 말"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 3269,
+      "original_title": "天樂",
+      "original_title_ja": "天樂",
+      "original_title_en": "Music of Heaven",
+      "vocadb_default_name": "天樂",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "천악",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "천악"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/3269",
+      "api_url": "https://vocadb.net/api/songs/3269?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "28a6fa595563c720679a3c192f141e40685551bbba7f1f076f91fcc64e0907de.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "天樂",
+        "Tengaku",
+        "Music of Heaven",
+        "Music of Heavens",
+        "천악"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "천악",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:53.840805+08:00",
+      "live_hangul_values": [
+        "천악"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 3312,
+      "original_title": "白い雪のプリンセスは",
+      "original_title_ja": "白い雪のプリンセスは",
+      "original_title_en": "The Snow White Princess is",
+      "vocadb_default_name": "白い雪のプリンセスは",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "하얀 눈의 프린세스는",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "하얀 눈의 프린세스는"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/3312",
+      "api_url": "https://vocadb.net/api/songs/3312?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "8f8e08ce35455b8a6e86c78a804e08de2cf60dbcee705686798a043792cd9447.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "白い雪のプリンセスは",
+        "Shiroi Yuki no Princess wa",
+        "The Snow White Princess is",
+        "White Snow Princess",
+        "The Snow White Princess is...",
+        "하얀 눈의 프린세스는"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "하얀 눈의 프린세스는",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:54.352033+08:00",
+      "live_hangul_values": [
+        "하얀 눈의 프린세스는"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 3387,
+      "original_title": "リモコン",
+      "original_title_ja": "リモコン",
+      "original_title_en": "Remote Control",
+      "vocadb_default_name": "リモコン",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "리모컨",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "리모컨"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/3387",
+      "api_url": "https://vocadb.net/api/songs/3387?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "d83607566ceb8369174dea83676d9af3e57c7fa08492e9ed97ea8cf05d7b29e5.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified",
+        "Romaji",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "リモコン",
+        "Remote Control",
+        "Remote Controller",
+        "RemoCon",
+        "Rimokon",
+        "리모컨",
+        "遥控器"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "리모컨",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": true
+      },
+      "live_verified_at": "2026-11-14T12:46:54.851085+08:00",
+      "live_hangul_values": [
+        "리모컨"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 4129,
+      "original_title": "メランコリック",
+      "original_title_ja": "メランコリック",
+      "original_title_en": "Melancholic",
+      "vocadb_default_name": "メランコリック",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "멜랑콜릭",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "멜랑콜릭"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/4129",
+      "api_url": "https://vocadb.net/api/songs/4129?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "6ecc038e93a7f71c895875b81b890768dd6ef9afdc04ed283b19c16d7d051f2a.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "メランコリック",
+        "Melancholic",
+        "멜랑콜릭"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "멜랑콜릭",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:55.342624+08:00",
+      "live_hangul_values": [
+        "멜랑콜릭"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 7238,
+      "original_title": "サンドリヨン",
+      "original_title_ja": "サンドリヨン",
+      "original_title_en": "Cendrillon",
+      "vocadb_default_name": "サンドリヨン",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "상드리용",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "상드리용"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/7238",
+      "api_url": "https://vocadb.net/api/songs/7238?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "09554444764276daa8f7030e5de92ad6723514e65b4c8003ffc37e18d2e36284.json",
+      "all_names_languages": [
+        "Japanese",
+        "Unspecified",
+        "Romaji",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "サンドリヨン",
+        "Золушка",
+        "Cendrillon",
+        "상드리용"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "상드리용",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:55.854544+08:00",
+      "live_hangul_values": [
+        "상드리용"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 8215,
+      "original_title": "初音ミクの激唱（LONG VERSION）",
+      "original_title_ja": "初音ミクの激唱（LONG VERSION）",
+      "original_title_en": "The Intense Voice of Hatsune Miku (LONG VERSION)",
+      "vocadb_default_name": "初音ミクの激唱（LONG VERSION）",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "하츠네 미쿠의 격창 (LONG VERSION)",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "하츠네 미쿠의 격창 (LONG VERSION)"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/8215",
+      "api_url": "https://vocadb.net/api/songs/8215?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "94b1d76f9e7bf4a040f513d6ab3ced9bb01e83ac02a40711cc30ba9f60be92f2.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "初音ミクの激唱（LONG VERSION）",
+        "Hatsune Miku no Gekishou (LONG VERSION)",
+        "The Intense Voice of Hatsune Miku (LONG VERSION)",
+        "The Intense Singing of Hatsune Miku (LONG VERSION)",
+        "The Singing Passion of Hatsune Miku (LONG VERSION)",
+        "하츠네 미쿠의 격창 (LONG VERSION)"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "하츠네 미쿠의 격창 (LONG VERSION)",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:56.363688+08:00",
+      "live_hangul_values": [
+        "하츠네 미쿠의 격창 (LONG VERSION)"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 8735,
+      "original_title": "深海少女",
+      "original_title_ja": "深海少女",
+      "original_title_en": "Deep Sea Girl",
+      "vocadb_default_name": "深海少女",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "심해소녀",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "심해소녀"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/8735",
+      "api_url": "https://vocadb.net/api/songs/8735?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "ae20c12b31718c716a1c5f6892de35c98e9240bfec260193494ebd2dc494d461.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "深海少女",
+        "Shinkai Shoujo",
+        "Deep Sea Girl",
+        "Deep-Sea Girl",
+        "深海少女 -deep sea girl-",
+        "심해소녀"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "심해소녀",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:56.857833+08:00",
+      "live_hangul_values": [
+        "심해소녀"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 9035,
+      "original_title": "ピアノ×フォルテ×スキャンダル",
+      "original_title_ja": "ピアノ×フォルテ×スキャンダル",
+      "original_title_en": "Piano×Forte×Scandal",
+      "vocadb_default_name": "ピアノ×フォルテ×スキャンダル",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "피아노×포르테×스캔들",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "피아노×포르테×스캔들"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/9035",
+      "api_url": "https://vocadb.net/api/songs/9035?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "864845a89fd024e725c50f9026f43b9532b62d4255eae99097dda02dd5a3f6f8.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ピアノ×フォルテ×スキャンダル",
+        "Piano×Forte×Scandal",
+        "Piano x Forte x Scandal",
+        "피아노×포르테×스캔들"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "피아노×포르테×스캔들",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:57.349013+08:00",
+      "live_hangul_values": [
+        "피아노×포르테×스캔들"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 10951,
+      "original_title": "ハジメテノオト",
+      "original_title_ja": "ハジメテノオト",
+      "original_title_en": "The First Sound",
+      "vocadb_default_name": "ハジメテノオト",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "첫 소리",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "첫 소리"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/10951",
+      "api_url": "https://vocadb.net/api/songs/10951?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "3b6e62f8d32bc5f197062d6e5fa5622b1211f6f72db241aa971862bc2507d245.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ハジメテノオト",
+        "The First Sound",
+        "Hajimete no Oto",
+        "The First Melody",
+        "First Tone",
+        "First Sound",
+        "첫 소리",
+        "O primeiro som",
+        "最初的聲音",
+        "初めての音"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "첫 소리",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:57.846402+08:00",
+      "live_hangul_values": [
+        "첫 소리"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 16459,
+      "original_title": "耳のあるロボットの唄",
+      "original_title_ja": "耳のあるロボットの唄",
+      "original_title_en": "Song of the Eared Robot",
+      "vocadb_default_name": "耳のあるロボットの唄",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "귀가 있는 로봇의 노래",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "귀가 있는 로봇의 노래"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/16459",
+      "api_url": "https://vocadb.net/api/songs/16459?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "9948450b8de1bdb84fe3fe37ad2085fc202700c9966992033be2c0065b19900c.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "耳のあるロボットの唄",
+        "Mimi no Aru Robot no Uta",
+        "Song of the Eared Robot",
+        "귀가 있는 로봇의 노래"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "귀가 있는 로봇의 노래",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:58.383596+08:00",
+      "live_hangul_values": [
+        "귀가 있는 로봇의 노래"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 22869,
+      "original_title": "上弦の月",
+      "original_title_ja": "上弦の月",
+      "original_title_en": "Crescent Moon",
+      "vocadb_default_name": "上弦の月",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "상현달",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "상현달"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/22869",
+      "api_url": "https://vocadb.net/api/songs/22869?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "ed8cac9d428d1d8c69ae7b3b3192bb4e7dc9197b2c859c7c905f5470c0f2cdc8.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "上弦の月",
+        "Jougen no Tsuki",
+        "Crescent Moon",
+        "상현달"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "상현달",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:58.875513+08:00",
+      "live_hangul_values": [
+        "상현달"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 26010,
+      "original_title": "それがあなたの幸せとしても",
+      "original_title_ja": "それがあなたの幸せとしても",
+      "original_title_en": "Even If It's Your Happiness",
+      "vocadb_default_name": "それがあなたの幸せとしても",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "그것이 당신의 행복이라 할지라도",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "그것이 당신의 행복이라 할지라도"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/26010",
+      "api_url": "https://vocadb.net/api/songs/26010?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "e0e41953e5385d4899aba5b81e983bcc042e128d10ccee0f3de13149269e378c.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "それがあなたの幸せとしても",
+        "Sore ga Anata no Shiawase to Shite mo",
+        "Even If It's Your Happiness",
+        "Even If It's the Happiness of You",
+        "Even If You Assume That It is Your Happiness",
+        "그것이 당신의 행복이라 할지라도"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "그것이 당신의 행복이라 할지라도",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:59.367514+08:00",
+      "live_hangul_values": [
+        "그것이 당신의 행복이라 할지라도"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 58632,
+      "original_title": "ツギハギスタッカート",
+      "original_title_ja": "ツギハギスタッカート",
+      "original_title_en": "Patchwork Staccato",
+      "vocadb_default_name": "ツギハギスタッカート",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "누덕누덕 스타카토",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "누덕누덕 스타카토"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/58632",
+      "api_url": "https://vocadb.net/api/songs/58632?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "c36df6994b1c722bbfaf416ffeb8dc4ecc61119685c22e700637096011307d5d.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ツギハギスタッカート",
+        "Tsugihagi Staccato",
+        "Patchwork Staccato",
+        "누덕누덕 스타카토",
+        "拼凑的断音"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "누덕누덕 스타카토",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:46:59.854158+08:00",
+      "live_hangul_values": [
+        "누덕누덕 스타카토"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 62774,
+      "original_title": "ネメシスの銃口",
+      "original_title_ja": "ネメシスの銃口",
+      "original_title_en": "Muzzle of Nemesis",
+      "vocadb_default_name": "ネメシスの銃口",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "네메시스의 총구",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "네메시스의 총구"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/62774",
+      "api_url": "https://vocadb.net/api/songs/62774?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "4f239c404578be6e747bb6ff2050545d4e80a1e76ea21d6e603543a640afd794.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ネメシスの銃口",
+        "Nemesis no Juukou",
+        "Muzzle of Nemesis",
+        "Satan's Revenge",
+        "네메시스의 총구"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "네메시스의 총구",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:00.374537+08:00",
+      "live_hangul_values": [
+        "네메시스의 총구"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 90017,
+      "original_title": "ドクター＝ファンクビート",
+      "original_title_ja": "ドクター＝ファンクビート",
+      "original_title_en": "Doctor=Funk Beat",
+      "vocadb_default_name": "ドクター＝ファンクビート",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "닥터=펑크 비트",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "닥터=펑크 비트"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/90017",
+      "api_url": "https://vocadb.net/api/songs/90017?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "0529365d9d45199bc2ab73596525aaccac8881cab595588938a92cad0776ee48.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ドクター＝ファンクビート",
+        "Doctor=Funk Beat",
+        "닥터=펑크 비트"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "닥터=펑크 비트",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:00.870797+08:00",
+      "live_hangul_values": [
+        "닥터=펑크 비트"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 90781,
+      "original_title": "アンドロメダアンドロメダ",
+      "original_title_ja": "アンドロメダアンドロメダ",
+      "original_title_en": "Andromeda Andromeda",
+      "vocadb_default_name": "アンドロメダアンドロメダ",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "안드로메다 안드로메다",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "안드로메다 안드로메다"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/90781",
+      "api_url": "https://vocadb.net/api/songs/90781?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "2d7cf14d55891e92c608af8cc923b8c71f42a6842c1dac43d9a414a195be2c23.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "アンドロメダアンドロメダ",
+        "Andromeda Andromeda",
+        "안드로메다 안드로메다"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "안드로메다 안드로메다",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:01.364217+08:00",
+      "live_hangul_values": [
+        "안드로메다 안드로메다"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 107188,
+      "original_title": "あったかいと",
+      "original_title_ja": "あったかいと",
+      "original_title_en": "Warm Kaito",
+      "vocadb_default_name": "あったかいと",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "따뜻하니까",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "따뜻하니까"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/107188",
+      "api_url": "https://vocadb.net/api/songs/107188?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "42b2130cc9ff31e81aa3ce7a79f733bb7c407facc9e0d2d94ae886387a98020e.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "あったかいと",
+        "Attakaito",
+        "Warm Kaito",
+        "따뜻하니까"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "따뜻하니까",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:01.861810+08:00",
+      "live_hangul_values": [
+        "따뜻하니까"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 112085,
+      "original_title": "ゴーストルール",
+      "original_title_ja": "ゴーストルール",
+      "original_title_en": "Ghost Rule",
+      "vocadb_default_name": "ゴーストルール",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "고스트 룰",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "고스트 룰"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/112085",
+      "api_url": "https://vocadb.net/api/songs/112085?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "94f3a2c55995c9fc39d3d622426ef997b22c63b4a7a10ebc79776bc85a0845bf.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ゴーストルール",
+        "Ghost Rule",
+        "幽灵法则",
+        "고스트 룰"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "고스트 룰",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:02.356344+08:00",
+      "live_hangul_values": [
+        "고스트 룰"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 127169,
+      "original_title": "脱法ロック",
+      "original_title_ja": "脱法ロック",
+      "original_title_en": "Law-evading Rock",
+      "vocadb_default_name": "脱法ロック",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "탈법 록",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "탈법 록"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/127169",
+      "api_url": "https://vocadb.net/api/songs/127169?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "bc1a4230612d677b55cb1388d2db779687a63a0532054f6a20d4e8a19fddc025.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "脱法ロック",
+        "Law-evading Rock",
+        "Dappou Rock",
+        "Dappo Rock, Rebellion Rock",
+        "탈법 록"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "탈법 록",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:02.858193+08:00",
+      "live_hangul_values": [
+        "탈법 록"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 150952,
+      "original_title": "帝国少女",
+      "original_title_ja": "帝国少女",
+      "original_title_en": "Imperial Girl",
+      "vocadb_default_name": "帝国少女",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "제국소녀",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "제국소녀"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/150952",
+      "api_url": "https://vocadb.net/api/songs/150952?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "59abe54e15608eebdf5c83e7dfbb75e396fd18ebfa7f9ca7d9a19c10fa2166ca.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "帝国少女",
+        "Teikoku Shoujo",
+        "Imperial Girl",
+        "제국소녀"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "제국소녀",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:03.413565+08:00",
+      "live_hangul_values": [
+        "제국소녀"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 164074,
+      "original_title": "ヒバナ",
+      "original_title_ja": "ヒバナ",
+      "original_title_en": "SPARKS",
+      "vocadb_default_name": "ヒバナ",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "불꽃",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "불꽃"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/164074",
+      "api_url": "https://vocadb.net/api/songs/164074?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "bd7190818129bd7ebd7c3f17417e01e8f7263de6b2ef7688983083477ccec139.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ヒバナ",
+        "HIBANA",
+        "SPARKS",
+        "火花",
+        "Hibana",
+        "불꽃"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "불꽃",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:03.914052+08:00",
+      "live_hangul_values": [
+        "불꽃"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 173702,
+      "original_title": "抜錨",
+      "original_title_ja": "抜錨",
+      "original_title_en": "weigh anchor",
+      "vocadb_default_name": "抜錨",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "발묘",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "발묘"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/173702",
+      "api_url": "https://vocadb.net/api/songs/173702?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "1f605987c057e0b129ae9d0f887f1d997049e0e920f8aac619407c6e0ceb17be.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "抜錨",
+        "Batsubyou",
+        "weigh anchor",
+        "Setting Sail",
+        "Anchor",
+        "발묘"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "발묘",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:04.428827+08:00",
+      "live_hangul_values": [
+        "발묘"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 212802,
+      "original_title": "ねぇ、どろどろさん",
+      "original_title_ja": "ねぇ、どろどろさん",
+      "original_title_en": "Hey, Muddy-San",
+      "vocadb_default_name": "ねぇ、どろどろさん",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "저기, 질척질척씨",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "저기, 질척질척씨"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/212802",
+      "api_url": "https://vocadb.net/api/songs/212802?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "e7f79f96ab760aae8f3accb7d5555739bce9d05a9c212a4b5a69edd9ce362504.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ねぇ、どろどろさん",
+        "Nee, Dorodoro-san",
+        "Hey, Muddy-San",
+        "Mrs.DoRoDoRo",
+        "저기, 질척질척씨"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "저기, 질척질척씨",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:04.936053+08:00",
+      "live_hangul_values": [
+        "저기, 질척질척씨"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 232494,
+      "original_title": "アトラクトライト",
+      "original_title_ja": "アトラクトライト",
+      "original_title_en": "Attract Light",
+      "vocadb_default_name": "アトラクトライト",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "어트랙트 라이트",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "어트랙트 라이트"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/232494",
+      "api_url": "https://vocadb.net/api/songs/232494?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "7cb5244bae4fd38e6a835a17500de14e7c6ffc5855c6cd9513e806c0bcbeae90.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "アトラクトライト",
+        "Attract Light",
+        "어트랙트 라이트"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "어트랙트 라이트",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:05.446562+08:00",
+      "live_hangul_values": [
+        "어트랙트 라이트"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 290577,
+      "original_title": "ワーワーワールド",
+      "original_title_ja": "ワーワーワールド",
+      "original_title_en": "Wah Wah World",
+      "vocadb_default_name": "ワーワーワールド",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "와와월드",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "와와월드"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/290577",
+      "api_url": "https://vocadb.net/api/songs/290577?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "0e669b810a7665293758eb0eb3d4706f08b261d771702bf0b359ac4656b53dc5.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ワーワーワールド",
+        "Wah Wah World",
+        "와와월드"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "와와월드",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:05.943303+08:00",
+      "live_hangul_values": [
+        "와와월드"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 293286,
+      "original_title": "ダーリンダンス",
+      "original_title_ja": "ダーリンダンス",
+      "original_title_en": "Darling Dance",
+      "vocadb_default_name": "ダーリンダンス",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "달링 댄스",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "달링 댄스"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/293286",
+      "api_url": "https://vocadb.net/api/songs/293286?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "2935327e23035085ec2a5d9c9dc639a3242404cb6f6292eccb593c1130857686.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ダーリンダンス",
+        "Darling Dance",
+        "달링 댄스"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "달링 댄스",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:06.438473+08:00",
+      "live_hangul_values": [
+        "달링 댄스"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 295872,
+      "original_title": "初音ミクの消失",
+      "original_title_ja": "初音ミクの消失",
+      "original_title_en": "The Disappearance of Hatsune Miku",
+      "vocadb_default_name": "初音ミクの消失",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "하츠네 미쿠의 소실",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "하츠네 미쿠의 소실"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/295872",
+      "api_url": "https://vocadb.net/api/songs/295872?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "25b6265494e6236b46ef6d59a90cfcb6e52b26d10c347e904b0fb52dfc87be44.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "初音ミクの消失",
+        "Hatsune Miku no Shoushitsu",
+        "The Disappearance of Hatsune Miku",
+        "Hatsune Miku no Syoushitsu",
+        "하츠네 미쿠의 소실"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "하츠네 미쿠의 소실",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:06.940690+08:00",
+      "live_hangul_values": [
+        "하츠네 미쿠의 소실"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 300419,
+      "original_title": "依存香炉",
+      "original_title_ja": "依存香炉",
+      "original_title_en": "Addiction",
+      "vocadb_default_name": "依存香炉",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "의존향로",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "의존향로"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/300419",
+      "api_url": "https://vocadb.net/api/songs/300419?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "980792c97fe56aceabde69f8bb9bbe5252e4151c5d06d539dba229ecd1503f70.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "依存香炉",
+        "Addiction",
+        "Izon Kouro",
+        "의존향로"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "의존향로",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:07.456617+08:00",
+      "live_hangul_values": [
+        "의존향로"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 307658,
+      "original_title": "ニジイロストーリーズ",
+      "original_title_ja": "ニジイロストーリーズ",
+      "original_title_en": "Rainbow-Colored Stories",
+      "vocadb_default_name": "ニジイロストーリーズ",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "무지갯빛 스토리즈",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "무지갯빛 스토리즈"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/307658",
+      "api_url": "https://vocadb.net/api/songs/307658?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "3bb53845ce7a493c204a7886ad261a4c5b04e4d4a1ada53bc411ee8546af7b64.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ニジイロストーリーズ",
+        "Nijiiro Stories",
+        "Rainbow-Colored Stories",
+        "무지갯빛 스토리즈"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "무지갯빛 스토리즈",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:07.946386+08:00",
+      "live_hangul_values": [
+        "무지갯빛 스토리즈"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 321205,
+      "original_title": "ヴァンパイア",
+      "original_title_ja": "ヴァンパイア",
+      "original_title_en": "The Vampire",
+      "vocadb_default_name": "ヴァンパイア",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "뱀파이어",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "뱀파이어"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/321205",
+      "api_url": "https://vocadb.net/api/songs/321205?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "b9fbf566223191554a6aecdecdd49449a238bd66056b3348496116569929b0f5.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ヴァンパイア",
+        "The Vampire",
+        "Vampire",
+        "뱀파이어"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "뱀파이어",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:08.445608+08:00",
+      "live_hangul_values": [
+        "뱀파이어"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 333025,
+      "original_title": "シネマ",
+      "original_title_ja": "シネマ",
+      "original_title_en": "Cinema",
+      "vocadb_default_name": "シネマ",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "시네마",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "시네마"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/333025",
+      "api_url": "https://vocadb.net/api/songs/333025?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "b9000e26ac8241a0f2a19cae3d912b6d11a7eba8d2dd79291407715ba0b8756b.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "シネマ",
+        "Cinema",
+        "시네마"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "시네마",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:08.942726+08:00",
+      "live_hangul_values": [
+        "시네마"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 335986,
+      "original_title": "ねぇねぇねぇ。",
+      "original_title_ja": "ねぇねぇねぇ。",
+      "original_title_en": "Hey Hey Hey.",
+      "vocadb_default_name": "ねぇねぇねぇ。",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "있잖아 있잖아 있잖아.",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "있잖아 있잖아 있잖아."
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/335986",
+      "api_url": "https://vocadb.net/api/songs/335986?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "94e66af7eb46fd1c68bce5a103b697dbd8b60e4810f6bddd854fd7d3b5f23483.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ねぇねぇねぇ。",
+        "Hey Hey Hey.",
+        "Nee Nee Nee.",
+        "呐呐呐。",
+        "있잖아 있잖아 있잖아."
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "있잖아 있잖아 있잖아.",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:09.441954+08:00",
+      "live_hangul_values": [
+        "있잖아 있잖아 있잖아."
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 340035,
+      "original_title": "トンデモワンダーズ",
+      "original_title_ja": "トンデモワンダーズ",
+      "original_title_en": "Unthinkable Wonders",
+      "vocadb_default_name": "トンデモワンダーズ",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "톤데모 원더즈",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "톤데모 원더즈"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/340035",
+      "api_url": "https://vocadb.net/api/songs/340035?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "38f2a09e6f177e3be6ef6f31fad9bf1d3fbcebe5c42e8b7e638249014eab1194.json",
+      "all_names_languages": [
+        "Japanese",
+        "Romaji",
+        "Unspecified",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "トンデモワンダーズ",
+        "TONDEMO-WONDERZ",
+        "Tondemo Wonderz",
+        "Unthinkable Wonders",
+        "톤데모 원더즈"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "톤데모 원더즈",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:09.939719+08:00",
+      "live_hangul_values": [
+        "톤데모 원더즈"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 411304,
+      "original_title": "転生林檎",
+      "original_title_ja": "転生林檎",
+      "original_title_en": "Reincarnation Apple",
+      "vocadb_default_name": "転生林檎",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "환생사과",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "환생사과"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/411304",
+      "api_url": "https://vocadb.net/api/songs/411304?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "a0526705edfaf1c09c7f2a41c5879c448afc74e61313df9541b82d5a3e4746e4.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Romaji",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "転生林檎",
+        "Reincarnation Apple",
+        "Tensei Ringo",
+        "​轉生蘋果",
+        "환생사과"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "환생사과",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:10.433152+08:00",
+      "live_hangul_values": [
+        "환생사과"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 450680,
+      "original_title": "レッドランドマーカー",
+      "original_title_ja": "レッドランドマーカー",
+      "original_title_en": "Red Land Marker",
+      "vocadb_default_name": "レッドランドマーカー",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "레드 랜드 마커",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "레드 랜드 마커"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/450680",
+      "api_url": "https://vocadb.net/api/songs/450680?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "349df33e91c35be7e40f981ecafd43ac827b79829292542570c09b59cf100097.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "レッドランドマーカー",
+        "Red Land Marker",
+        "레드 랜드 마커"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "레드 랜드 마커",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:10.937346+08:00",
+      "live_hangul_values": [
+        "레드 랜드 마커"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 525396,
+      "original_title": "ブループラネット",
+      "original_title_ja": "ブループラネット",
+      "original_title_en": "Blue Planet",
+      "vocadb_default_name": "ブループラネット",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "블루 플래닛",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "블루 플래닛"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/525396",
+      "api_url": "https://vocadb.net/api/songs/525396?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "4d173d3b7a47a589ff606c4bae0fc9eb6bd3eaec8572ab5620c447dd0398e4f1.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ブループラネット",
+        "Blue Planet",
+        "블루 플래닛"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "블루 플래닛",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:11.437088+08:00",
+      "live_hangul_values": [
+        "블루 플래닛"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 557307,
+      "original_title": "オーバーライド",
+      "original_title_ja": "オーバーライド",
+      "original_title_en": "Override",
+      "vocadb_default_name": "オーバーライド",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "오버라이드",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "오버라이드"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/557307",
+      "api_url": "https://vocadb.net/api/songs/557307?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:52 CST",
+      "cache_file": "b3612220a86dcac30ca0ca28b52c45f4de17d0f7b3f59b8b90c2a172f01a8c03.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "オーバーライド",
+        "Override",
+        "오버라이드"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "오버라이드",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:11.926940+08:00",
+      "live_hangul_values": [
+        "오버라이드"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 610187,
+      "original_title": "メズマライザー",
+      "original_title_ja": "メズマライザー",
+      "original_title_en": "Mesmerizer",
+      "vocadb_default_name": "メズマライザー",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "메스머라이저",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "메스머라이저"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/610187",
+      "api_url": "https://vocadb.net/api/songs/610187?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:52 CST",
+      "cache_file": "3e183e0f585652901feeafa15cda4a3a61918ad3d555cd2149090b0ff200412a.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "メズマライザー",
+        "Mesmerizer",
+        "Mesmeriser",
+        "메스머라이저",
+        "Mesmerizador",
+        "ผู้​ส​ะ​ก​ด​จิ​ต",
+        "فاتن"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "메스머라이저",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:12.419524+08:00",
+      "live_hangul_values": [
+        "메스머라이저"
+      ],
+      "live_verified": true
+    },
+    {
+      "catalog_id": 630477,
+      "original_title": "ヴィーナス（short）",
+      "original_title_ja": "ヴィーナス（short）",
+      "original_title_en": "Venus (short)",
+      "vocadb_default_name": "ヴィーナス（short）",
+      "vocadb_default_name_language": "Japanese",
+      "korean_names": [
+        {
+          "language": "Unspecified",
+          "value": "비너스 (short)",
+          "name_id": null
+        }
+      ],
+      "unique_korean_values": [
+        "비너스 (short)"
+      ],
+      "ambiguous_multiple_hangul": false,
+      "source": "vocadb-community-alias",
+      "source_field": "names[].value where language=Unspecified and Hangul present",
+      "source_url": "https://vocadb.net/S/630477",
+      "api_url": "https://vocadb.net/api/songs/630477?fields=Names&lang=Default",
+      "cache_accessed_at_asia_shanghai": "2026-11-07 22:51 CST",
+      "cache_file": "bb48c0c80bc5ad07cded192fe74cd72384c87de8cf51022c39431a0cb4d8baa4.json",
+      "all_names_languages": [
+        "Japanese",
+        "English",
+        "Unspecified"
+      ],
+      "all_names_values": [
+        "ヴィーナス（short）",
+        "Venus (short)",
+        "비너스 (short)"
+      ],
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "recommended_title": "비너스 (short)",
+      "language_explicit": false,
+      "language_field": "Unspecified",
+      "alias_validation": {
+        "hangul_syllable_present": true,
+        "language_field": "Unspecified",
+        "distinct_hangul_count": 1,
+        "matched_catalog_song_id": true,
+        "live_sample_verified": false
+      },
+      "live_verified_at": "2026-11-14T12:47:12.919157+08:00",
+      "live_hangul_values": [
+        "비너스 (short)"
+      ],
+      "live_verified": true
+    }
+  ],
+  "all_accepted_live_verified": true
+}

@@ -14,18 +14,20 @@ export type NameView = {
 /** A catalog spelling to display name file for one language. */
 export type NameMap = Record<string, string>
 
-/** Chinese, Traditional Chinese, and English files beside each other, so one lookup serves them all. */
+/** Chinese, Traditional Chinese, English, and optional Korean files beside each other, so one lookup serves them all. */
 export type NameMaps = {
   zh: NameMap
   'zh-Hant': NameMap
   en: NameMap
+  ko: NameMap
 }
 
-/** Raw translation files, as read from `data/*.zh-CN.json`, `data/*.zh-Hant.json`, and `data/*.en.json`. */
+/** Raw translation files, as read from `data/*.zh-CN.json`, `data/*.zh-Hant.json`, `data/*.en.json`, and `data/*.ko.json`. */
 export type NameMapInput = {
   zh: unknown
   'zh-Hant'?: unknown
   en?: unknown
+  ko?: unknown
 }
 
 /**
@@ -62,12 +64,14 @@ export const parseNameMaps = (input: NameMapInput, what: string): NameMaps => {
     zh: parseNameMap(input.zh, what),
     'zh-Hant': parseNameMap(input['zh-Hant'] ?? {}, what),
     en: parseNameMap(input.en ?? {}, what),
+    ko: parseNameMap(input.ko ?? {}, what),
   }
 }
 
 /**
  * Translation of one catalog spelling in `locale`, or null when that language has no row.
  * Japanese is the catalog language, so it never takes a row from these files.
+ * Korean uses a sourced row when one exists and otherwise keeps the catalog spelling.
  */
 export const nameIn = (maps: NameMaps, key: string, locale: Locale): string | null => {
   if (locale === 'ja') return null
@@ -76,8 +80,8 @@ export const nameIn = (maps: NameMaps, key: string, locale: Locale): string | nu
 
 /**
  * Formats one name for the active language.
- * Japanese shows the catalog name alone; the Chinese variants and English show the translation
- * with the original underneath, unless the two are the same string.
+ * Japanese shows the catalog name alone; Chinese, English, and sourced Korean show the
+ * translation with the original underneath, unless the two are the same string.
  */
 export const formatLocalizedName = (
   original: string,

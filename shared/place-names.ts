@@ -54,7 +54,7 @@ const connectorPattern = (key: string): RegExp => {
 }
 
 /** Empty index so callers can skip localization without branching. */
-export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, 'zh-Hant': {}, en: {} }, entries: [] })
+export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, 'zh-Hant': {}, en: {}, ko: {} }, entries: [] })
 
 /**
  * Validates the place files and builds the matchers.
@@ -85,7 +85,7 @@ export const parsePlaceNames = (input: NameMapInput): PlaceNameIndex => {
  * normalizes the spelling (`10th Anniversary in Osaka`), and Japanese keeps the VocaDB text untouched.
  */
 export const localizePlaceNames = (text: string, index: PlaceNameIndex, locale: Locale): string => {
-  if (locale === 'ja' || text === '') return text
+  if (locale === 'ja' || locale === 'ko' || text === '') return text
   // Each replacement becomes a token so a shorter spelling cannot match inside a longer
   // translation that already happened (東京都 must stay 東京都, not collapse to 東京).
   const tokens: string[] = []

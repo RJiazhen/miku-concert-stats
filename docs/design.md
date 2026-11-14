@@ -231,7 +231,44 @@ flowchart LR
 
 Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目录，页面用 `~~/shared/*` 引用纯逻辑。页眉是毛玻璃吸顶条，公开导航为歌曲 / 制作人 / 时间线 / 系列 / 城市；`/raw` 改为仅开发环境可用的源数据浏览器（生产构建 `ignore`，不进导航）。排行用 `UTable` 与 TanStack 排序，筛选条件写入 URL query，刷新与分享都能复原。
 
-语言切换按钮在页眉顶栏最右侧，当前语言名显示在按钮文字区域（简体中文 / 繁體中文 / 日本語 / English），无需打开菜单即可看到当前语言。点击按钮弹出语言列表供选择，列表内第一项为当前语言，其余按 LOCALES 顺序排列。语言切换存储到 cookie，每个语言的「显示原文」开关位于语言列表底部的分隔带中，在日语模式下禁用（因为日语本就是原文）。
+语言切换按钮在页眉顶栏最右侧，当前语言名显示在按钮文字区域（简体中文 / 繁體中文 / 日本語 / 한국어 / English），无需打开菜单即可看到当前语言。点击按钮弹出语言列表供选择，列表内第一项为当前语言，其余按 LOCALES 顺序排列。语言切换存储到 cookie，每个语言的「显示原文」开关位于语言列表底部的分隔带中，在日语模式下禁用（因为日语本就是原文）。
+
+## Korean UI locale (issue #46)
+
+The site adds Korean (`ko`, self-name 한국어) as a fifth interface language. `LOCALES` order is `zh`, `zh-Hant`, `ja`, `ko`, `en`.
+
+This change covers UI copy only:
+
+- Every existing message key in `i18n/modules` includes a Korean string (full locale key coverage). Previous locales keep their existing strings and behavior.
+- The header language picker lists 한국어 with the same control as the other languages: the current language name is visible on the button, the menu lists the active language first, then the rest in `LOCALES` order.
+- The choice is stored in the existing cookie `miku-concert-stats-locale` under the current `@nuxtjs/i18n` `detectBrowserLanguage` settings. Routing stays `no_prefix`: there is no `/ko` path prefix and no locale query parameter.
+- A first visit with no cookie starts in Korean when the browser `Accept-Language` prefers Korean (`ko`, `ko-KR`, and other `ko-` tags). An existing cookie still wins over the browser language. Unsupported languages still start in Chinese (`zh`), the site's source language.
+- `<html lang>` is `ko`. Nuxt UI built-in strings use `@nuxt/ui`'s Korean locale.
+- The "show original title" switch stays enabled in Korean, because Korean is not the catalog original language. It stays disabled only in Japanese.
+
+Proper names and catalog titles are out of scope unless a reliable source already exists:
+
+- Do not invent Korean song titles, series names, place names, venue names, or character names.
+- Do not add unsourced `data/*ko*` name-translation files in this change.
+- When Korean has no sourced display name, keep the original catalog spelling (typically Japanese), the same fallback Japanese already uses. English and Chinese name files are not used as a stand-in for unsourced Korean.
+
+The UI-only change left catalog names unsourced. A later sourced batch, described below, adds checked Korean titles and character labels without inventing the rest.
+
+## Sourced Korean names (first batch)
+
+This pass adds sourced Korean display names for a subset of songs and characters. It does not invent names, and a name that was not inspected is not treated as “no Korean name exists.”
+
+Songs: 51 of 590 catalog songs (51 of 563 VocaDB-sourced songs) use a live-verified VocaDB community Hangul alias in `data/song-titles.ko.json`, with source `vocadb-community-alias`. These are community catalog names, not official translations. Official Korean song titles were not found in this pass. Song 8241 (番凩) is excluded because it has two distinct Hangul aliases. 416 VocaDB catalog songs were not inspected for `Names` in this batch; they keep the original catalog spelling until a later sourced pass. The 27 non-VocaDB songs were out of scope here.
+
+Characters: 7 of 22 catalog characters have a sourced Hangul label in `data/characters.ko.json`.
+
+- 初音ミク, 鏡音リン, and 鏡音レン: the Korean Google Play listing for Crypton’s official MIKUNAVI app (official-app-store evidence; authorship of that Korean text is not independently confirmed) plus agreeing VocaDB community aliases.
+- SeeU: official SBS A&T HISTORY page (`시유`).
+- 重音テト, 可不, and 星界: VocaDB community aliases only.
+
+巡音ルカ is unresolved (Play listing `메구린 루카` versus VocaDB `메구리네 루카`) and stays on the original catalog spelling. The other 14 characters also keep the original spelling. Variant product strings are not truncated into a character display name. Series, places, venues, and cities stay on the original-name fallback in Korean.
+
+Each accepted row records a source class, source URL, and — for VocaDB rows — API URL and name field, in `docs/research/korean-names/`, so an audit does not rely on an uncited bulk list. When Korean has no sourced row, the site still shows the original catalog spelling and does not borrow English or Chinese names.
 
 所有列表页的表格以曲目排行为基准：`TableSection` 提供标题、`UTable`、粘性表头、`ranking-scroll`、加载骨架与空状态，`SortableHeader` 提供统一下拉排序表头，页面不再各自决定外壳样式。角色一律用 `CharacterChips`（应援色描边与淡底色，超过 3 个折叠成 `+N` 气泡），制作人署名这类非角色标签用 `UBadge`；筛选标签用 `FilterField`（`UFormField`）。唯一的例外是 `/raw` 的「数据表」：列由目录表结构动态决定，保留手写表格，但沿用同样的外壳与空状态。详见 `docs/architecture.md` 的「共享 UI 组件」。
 

@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { useCookie, useHead, useI18n, useState } from '#imports'
-import { en as uiEn, ja as uiJa, zh_cn as uiZhCn, zh_tw as uiZhTw } from '@nuxt/ui/locale'
+import { en as uiEn, ja as uiJa, ko as uiKo, zh_cn as uiZhCn, zh_tw as uiZhTw } from '@nuxt/ui/locale'
 import type { Locale as UiLocale } from '@nuxt/ui'
 import {
   isLocale,
@@ -33,6 +33,7 @@ const originalTitleDefault = (): boolean => true
  */
 export const uiLocaleOf = (locale: Locale): UiLocale<unknown> => {
   if (locale === 'ja') return uiJa
+  if (locale === 'ko') return uiKo
   if (locale === 'en') return uiEn
   if (locale === 'zh-Hant') return uiZhTw
   return uiZhCn

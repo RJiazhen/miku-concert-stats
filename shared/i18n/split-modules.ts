@@ -65,7 +65,7 @@ export const loadMessageModules = (modulesDir?: string): Record<I18nModuleName, 
 }
 
 /**
- * Ensures every key in a module declares all four locales as strings.
+ * Ensures every key in a module declares all supported locales as strings.
  */
 const assertCompleteModule = (name: string, module: MessageModule): void => {
   for (const [key, entry] of Object.entries(module)) {

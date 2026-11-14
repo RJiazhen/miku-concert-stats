@@ -66,6 +66,7 @@ describe('city matching', () => {
     expect(cityLabel(index, '杜塞尔多夫', 'zh-Hant')).toBe('杜塞道夫')
     expect(cityLabel(index, '东京', 'en')).toBe('Tokyo')
     expect(cityLabel(index, '东京', 'ja')).toBe('东京')
+    expect(cityLabel(index, '东京', 'ko')).toBe('東京')
   })
 
   it('matches spellings from the suffix, name, and venue in that order', () => {
