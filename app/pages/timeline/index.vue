@@ -416,12 +416,12 @@ const showsYearPerformances = computed(() => {
     })
 })
 
-/** Character song counts of the picked year, most songs first. */
+/** Character song counts of the picked year, most songs first; zero counts stay out of the list. */
 const characterYearRows = computed(() => {
   const current = timeline.value
   if (current === null || characterYear.value === null) return []
   return current.characterSongByYear
-    .filter((row) => row.year === characterYear.value)
+    .filter((row) => row.year === characterYear.value && row.count > 0)
     .sort((left, right) => right.count - left.count || compareCharacters(left.name, right.name))
 })
 
@@ -436,11 +436,17 @@ const songsYearRow = computed(() => {
   return current.songByYear.find((row) => row.year === songsYear.value) ?? null
 })
 
-/** City coverage of the picked year. */
+/**
+ * City coverage of the picked year, or null when that year has no domestic / overseas / online /
+ * unknown-country 演出 (a gap year keeps year-selection but does not open an empty detail strip).
+ */
 const cityYearRow = computed(() => {
   const current = timeline.value
   if (current === null || cityYear.value === null) return null
-  return current.cityByYear.find((row) => row.year === cityYear.value) ?? null
+  const row = current.cityByYear.find((entry) => entry.year === cityYear.value)
+  if (row === undefined) return null
+  if (row.domestic + row.overseas + row.online + row.unknownCountry <= 0) return null
+  return row
 })
 
 /** Query keys and hash mirrored into the URL. */
@@ -980,7 +986,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             @select="selectSeriesSegment"
           />
           <template #footer>
-            <div v-if="showsYear !== null" class="mt-3 border-t border-default/60 pt-3">
+            <div v-if="showsYear !== null && showsYearPerformances.length > 0" class="mt-3 border-t border-default/60 pt-3">
               <p class="mb-2 text-xs text-muted">{{ t('timeline.yearShows', { year: showsYear, n: showsYearPerformances.length }) }}</p>
               <ul class="max-h-64 space-y-1 overflow-y-auto pr-1 text-xs">
                 <li v-for="row in showsYearPerformances" :key="row.id" class="flex flex-wrap items-baseline gap-x-2">
@@ -1016,7 +1022,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             @select="selectCharacterYear"
           />
           <template #footer>
-            <div v-if="characterYear !== null" class="mt-3 border-t border-default/60 pt-3">
+            <div v-if="characterYear !== null && characterYearRows.length > 0" class="mt-3 border-t border-default/60 pt-3">
               <p class="mb-2 text-xs text-muted">{{ t('timeline.yearCharacterSongs', { year: characterYear }) }}</p>
               <div class="flex flex-wrap gap-2">
                 <UBadge v-for="row in characterYearRows" :key="row.name" color="neutral" variant="subtle" size="sm">
