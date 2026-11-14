@@ -642,8 +642,7 @@ Workers Builds（Git 集成）的配置要求：
 - Build command `pnpm build`（Workers Builds 会先自动跑 `pnpm install --frozen-lockfile`）。
 - Deploy command `npx wrangler deploy`。`nuxt build` 生成 `.wrangler/deploy/config.json`，把根目录配置重定向到 `.output/server/wrangler.json`。不要加 `--cwd .output`：构建未产出 `.output` 时 wrangler 会报 `Missing file or directory`，而空的 Build command 正是导致 Builds 全部失败的原因。
 - 环境变量 `NODE_VERSION=22`。
-
-Previews（非 `main` 分支）的 Build command 相同，deploy command 是 `npx wrangler versions upload`，只上传版本不发布；它的 `NODE_VERSION=22` 与生产是两份独立配置。
+- 非 `main` 的 Preview：Build command 相同；Preview command 为 `npx wrangler preview`（不再使用 `npx wrangler versions upload`）。`NODE_VERSION=22` 与生产是两份独立配置。`wrangler.toml` 必须有 `previews` 块（可为空）；Preview 不继承生产绑定。在 Worker Previews 之前就接好 Builds 的账号，需在控制台 **Settings → Builds → Set up Worker Previews** 做一次性不可逆切换，并在 **Settings → Build → Branch control** 启用 **Enable Preview Builds**。细节与本地验证步骤见 [cloudflare.zh-CN.md](cloudflare.zh-CN.md) / [cloudflare.md](cloudflare.md)。
 
 `catalog.sqlite` 是构建产物，所以数据提交后需要再触发一次部署才会更新线上。
 

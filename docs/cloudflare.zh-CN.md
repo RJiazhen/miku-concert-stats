@@ -34,14 +34,59 @@ Self-hosted 应用至少包含：
 - `/admin/feedback`、`/admin/data`、`/admin/system`、`/admin/analytics`
 - 公开页眉不链到后台；Access 登录后直接输入 URL
 
-## 部署
+## 部署（生产）
 
 ```bash
 pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-Workers Builds 在 `main` 上通常执行 `pnpm build` 再 `npx wrangler deploy`，并设 `NODE_VERSION=22`。使用 `PAGEVIEWS` 前请在控制台启用 Analytics Engine（未启用时上传可能报 `code 10089`）。
+Workers Builds 在 `main` 上通常执行 `pnpm build` 再 `npx wrangler deploy`，并设 `NODE_VERSION=22`。使用 `PAGEVIEWS` 前请在控制台启用 Analytics Engine（未启用时上传可能报 `code 10089`）。开启 Preview 时**不要**改生产分支或生产 Deploy command。
+
+## 分支 Preview（Worker Previews）
+
+非 `main` 分支用 **Worker Previews**，不再用 `npx wrangler versions upload`。项目内 wrangler 需 `>= 4.135.0`（本仓库 `^4.149.0`）。
+
+### 仓库配置
+
+`wrangler.toml` 必须有 `previews` 块，可以为空：`previews = { }`。Preview **不会继承**生产绑定与变量。
+
+本仓库故意保持空块：除非维护者明确同意共享，否则不要把 preview 的 `FEEDBACK` KV / `PAGEVIEWS` 指到生产资源。没有 preview 安全绑定时，公开页仍可 SSR；反馈为 **503**，后台 / 分析不可用。以后若要隔离资源，写在 `previews` 下（如 `[[previews.kv_namespaces]]`），生产 id 只留在顶层。见 [Configuration](https://developers.cloudflare.com/workers/previews/configuration/)。
+
+### 本地 / CLI
+
+```bash
+pnpm build
+pnpm exec wrangler preview
+```
+
+`nuxt build` 会写 `.wrangler/deploy/config.json`，根目录 wrangler 会解析到 `.output`（与 Workers Builds 相同）。有该重定向时不要对 Builds / `wrangler preview` 再加 `--cwd .output`。成功时会打印稳定的 **Preview URL** 与当次的 **Unique Deployment URL**。
+
+### Workers Builds（控制台）
+
+保留 GitHub 应用 **cloudflare-workers-and-pages** / 检查名 **Workers Builds: miku-concert-stats**；除非证明该集成彻底坏掉，不要另开一套 CI 部署。
+
+| 项 | 值 |
+| --- | --- |
+| 生产分支 | `main` |
+| Build command | `pnpm build` |
+| Deploy command（生产） | `npx wrangler deploy` |
+| Preview command | `npx wrangler preview` |
+| `NODE_VERSION` | `22`（生产与 preview 各一份） |
+
+**开启 Preview Builds：** Worker → **Settings → Build → Branch control** → 勾选 **Enable Preview Builds**。
+
+**在 Worker Previews 之前就接好 Builds 的旧 Worker** 仍走旧的 `versions upload`，直到完成**一次性、不可逆**控制台切换：
+
+1. Worker → **Settings → Builds**
+2. **Set up Worker Previews** 横幅点 **Set up**
+3. 按需配置 Preview 变量 / 绑定（可与空 `previews` 一致，先不配）
+4. 确认 Preview command 为 `npx wrangler preview`
+5. 点 **Switch to Worker Previews**
+
+切换前，PR check 可能仍走旧路径，或立刻失败且无日志。切换后，非 `main` 推送会创建 / 更新 Preview；URL 在 Worker 的 **Previews** 区，以及 GitHub check / PR 评论（若提供方会发）。
+
+总览：[Worker Previews](https://developers.cloudflare.com/workers/previews/)。分支控制：[Build branches](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/)。
 
 ## 本地预期
 
