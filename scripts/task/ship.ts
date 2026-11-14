@@ -55,7 +55,7 @@ const waitForWorkersBuilds = async (
   while (Date.now() - started < timeoutMs) {
     const runs = listCheckRuns(sha)
     lastLines = runs.map((runRow) => `${runRow.name} | ${runRow.status} ${runRow.conclusion ?? '-'}`)
-    const workers = runs.filter((runRow) => runRow.name.includes('Workers Builds'))
+    const workers = runs.filter((runRow) => runRow.name.includes(WORKERS_BUILDS_NAME))
     if (workers.length > 0 && workers.every((runRow) => runRow.status === 'completed')) {
       const failed = workers.find((runRow) => runRow.conclusion !== 'success')
       return {
