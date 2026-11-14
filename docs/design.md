@@ -204,7 +204,7 @@ flowchart LR
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/stats.ts` 及对应 `tests/*`。
 2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
 3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、署名与空态。
-4. **发布自动化** — `wrangler.toml`（含可为空的 `previews`）、CI、每周工作流；README。生产用 `npx wrangler deploy`；非 `main` 分支 Preview 用 `npx wrangler preview`（旧文档里的 `versions upload` 已弃用）。运维细节见 [cloudflare.md](cloudflare.md)。
+4. **发布自动化** — `wrangler.toml`（含可为空的 `previews`）、CI、每周工作流；README。非 `main` 的 Worker Preview 需要顶层 `[previews]` 表（可为空，勿在 `[[...]]` 后写行内 `previews = { }`）；预览不继承生产 `FEEDBACK` / `PAGEVIEWS`。生产用 `npx wrangler deploy`；非 `main` 分支 Preview 用 `npx wrangler preview`（旧文档里的 `versions upload` 已弃用）。运维细节见 [cloudflare.md](cloudflare.md)。
 
 ## 版本合并
 
@@ -233,6 +233,8 @@ Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目�
 语言切换按钮在页眉顶栏最右侧，当前语言名显示在按钮文字区域（简体中文 / 繁體中文 / 日本語 / English），无需打开菜单即可看到当前语言。点击按钮弹出语言列表供选择，列表内第一项为当前语言，其余按 LOCALES 顺序排列。语言切换存储到 cookie，每个语言的「显示原文」开关位于语言列表底部的分隔带中，在日语模式下禁用（因为日语本就是原文）。
 
 所有列表页的表格以曲目排行为基准：`TableSection` 提供标题、`UTable`、粘性表头、`ranking-scroll`、加载骨架与空状态，`SortableHeader` 提供统一下拉排序表头，页面不再各自决定外壳样式。角色一律用 `CharacterChips`（应援色描边与淡底色，超过 3 个折叠成 `+N` 气泡），制作人署名这类非角色标签用 `UBadge`；筛选标签用 `FilterField`（`UFormField`）。唯一的例外是 `/raw` 的「数据表」：列由目录表结构动态决定，保留手写表格，但沿用同样的外壳与空状态。详见 `docs/architecture.md` 的「共享 UI 组件」。
+
+时间线的「场次 / 系列」、巡演城市迁移与角色曲目数年度变化三张柱图：悬停明细与点击展开的年份明细只列出该年有值的系列 / 分区 / 角色（以及对应的折线点）；数值为 0 或缺失的项不出现在明细里。年份选择、悬停提示本身与图上的合计（堆叠柱总高、轴刻度、页头汇总）保持不变，不因隐藏零项而改写计数口径。该行为由聚焦回归测试覆盖（`TimelineBarChart` 的 `hoverValues`，以及三图年份脚注的 `showsYearPerformances` / `characterYearRows` / `cityYearRow`）。
 
 ## 页眉搜索
 
