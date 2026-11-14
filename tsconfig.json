@@ -8,9 +8,17 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "allowImportingTsExtensions": true,
-    "types": ["node"],
-    "lib": ["ES2022", "DOM"]
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
   },
   "include": ["shared/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
-  "exclude": ["tests/timeline-hide-zero-year-details.test.ts"]
+  "exclude": [
+    "tests/timeline-bar-chart.test.ts",
+    "tests/timeline-hide-zero-year-details.test.ts"
+  ]
 }

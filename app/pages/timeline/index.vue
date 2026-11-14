@@ -728,14 +728,9 @@ const selectChartFromMenu = (key: string): void => {
   void goToChart(key)
 }
 
-/** Chart 1's click handler: a bar segment opens its series, empty band space toggles the year list. */
+/** Chart 1: a bar or the blank year band both toggle that year's show list. Never navigates. */
 const selectSeriesSegment = (payload: { year: number; key: string }): void => {
-  if (payload.key === '') {
-    showsYear.value = showsYear.value === payload.year ? null : payload.year
-    return
-  }
-  const id = Number(payload.key.replace('series:', ''))
-  if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
+  showsYear.value = showsYear.value === payload.year ? null : payload.year
 }
 
 /** Opens the series page behind a gantt strip. */
@@ -744,8 +739,8 @@ const selectSeriesSpan = (payload: { key: string }): void => {
   if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
 }
 
-/** Toggles the detail list of one year on chart 3. */
-const selectCharacterYear = (payload: { year: number }): void => {
+/** Chart 3: a bar, line point, or the blank year band both toggle that year's character list. */
+const selectCharacterYear = (payload: { year: number; key: string }): void => {
   characterYear.value = characterYear.value === payload.year ? null : payload.year
 }
 
@@ -754,8 +749,8 @@ const selectSongsYear = (payload: { year: number }): void => {
   songsYear.value = songsYear.value === payload.year ? null : payload.year
 }
 
-/** Toggles the coverage note of one year on chart 6. */
-const selectCityYear = (payload: { year: number }): void => {
+/** Chart 6: a bar, line point, or the blank year band both toggle that year's city note. */
+const selectCityYear = (payload: { year: number; key: string }): void => {
   cityYear.value = cityYear.value === payload.year ? null : payload.year
 }
 
@@ -981,6 +976,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             :bars="seriesChartBars"
             stacked
             :unit="t('timeline.unitShows')"
+            :selectable-bars="false"
             @select="selectSeriesSegment"
           />
           <template #footer>
@@ -1017,6 +1013,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             stacked
             :unit="t('timeline.unitSongs')"
             height="320"
+            :selectable-bars="false"
             @select="selectCharacterYear"
           />
           <template #footer>
@@ -1115,6 +1112,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             right-format="percent"
             :unit="t('timeline.unitPerformances')"
             :right-unit="t('timeline.overseasRatio')"
+            :selectable-bars="false"
             @select="selectCityYear"
           />
           <template #footer>
