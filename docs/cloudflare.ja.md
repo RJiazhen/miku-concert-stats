@@ -39,7 +39,7 @@ Workers Builds：`pnpm build` → `npx wrangler deploy`、`NODE_VERSION=22`。Pr
 
 非 `main` は **Worker Previews**（`npx wrangler preview`）。`npx wrangler versions upload` は使わない。`wrangler.toml` に空でもよい `[previews]` テーブルが必要（`[[...]]` 配列の直後にインライン `previews = { }` を書かない）。Preview は本番バインドを継承しない。このリポジトリは空のままにし、preview の `FEEDBACK` / `PAGEVIEWS` を本番に向けない。
 
-ローカルは `pnpm build` のあと `pnpm exec wrangler preview`。Workers Builds の既存 GitHub 連携を維持し、**Settings → Build → Branch control** で **Enable Preview Builds** をオン。旧 Worker は **Settings → Builds** の **Set up Worker Previews** で一度きりの切り替え（Preview command は `npx wrangler preview`）。詳細は [cloudflare.md](cloudflare.md)。
+メンテナー手動 Preview（現状の対応経路・PR レビュー用）：`pnpm build` のあと `pnpm exec wrangler preview`。ダッシュボードの **Set up Worker Previews** / **Enable Preview Builds** は**不要**。Workers Builds の自動 PR Preview コメントだけがそれらのスイッチを要し、一度きりで不可逆（承認なしではオンにしない）。詳細は [cloudflare.md](cloudflare.md)。
 
 ## ローカル
 

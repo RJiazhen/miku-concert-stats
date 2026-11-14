@@ -55,16 +55,18 @@ This repo keeps `previews` empty on purpose: do **not** point preview `FEEDBACK`
 
 To add isolated preview resources later, put them under the `previews` block (for example `[[previews.kv_namespaces]]`, `[[previews.analytics_engine_datasets]]`) and keep production ids only at the top level. See [Configuration](https://developers.cloudflare.com/workers/previews/configuration/).
 
-### Local / CLI
+### Owner-manual CLI (supported today)
+
+Manual non-production previews work **without** the dashboard **Set up Worker Previews** / **Enable Preview Builds** switch:
 
 ```bash
 pnpm build
 pnpm exec wrangler preview
 ```
 
-`nuxt build` writes `.wrangler/deploy/config.json` so root `wrangler` resolves to `.output` (same as Workers Builds). Do **not** pass `--cwd .output` for Builds or `wrangler preview` when that redirect exists. A successful run prints a stable **Preview URL** (latest for the branch) and a **Unique Deployment URL** (one deploy).
+Optional flags such as `--name`, `--tag`, and `--message` pin a stable preview name and a unique deploy tag. `nuxt build` writes `.wrangler/deploy/config.json` so root `wrangler` resolves to `.output` (same as Workers Builds). Do **not** pass `--cwd .output` for Builds or `wrangler preview` when that redirect exists. A successful run prints a stable **Preview URL** (latest for the branch name) and a **Unique Deployment URL** (one deploy). Review of this PR can use that manual URL; the irreversible dashboard migration is **not** required for a working owner preview.
 
-### Workers Builds (dashboard)
+### Workers Builds automatic PR previews (optional; not enabled)
 
 Keep the GitHub app **cloudflare-workers-and-pages** / check name **Workers Builds: miku-concert-stats**. Do not replace it with a new CI deploy path unless that integration is proven broken.
 
@@ -78,9 +80,11 @@ Recommended Builds settings (do not alter production deploy):
 | Preview command | `npx wrangler preview` |
 | `NODE_VERSION` | `22` (production and preview configs are separate) |
 
-**Enable Preview Builds:** Worker → **Settings → Build → Branch control** → enable **Enable Preview Builds**.
+Automatic Workers Builds PR preview comments still need dashboard **Preview Builds**. That path is separate from owner-manual `wrangler preview` above.
 
-**Existing Workers connected before Worker Previews** keep the old `versions upload` model until a **one-time, irreversible** dashboard switch:
+**Enable Preview Builds** (only when maintainers approve automatic PR previews): Worker → **Settings → Build → Branch control** → enable **Enable Preview Builds**.
+
+**Existing Workers connected before Worker Previews** keep the old `versions upload` model for Builds until a **one-time, irreversible** dashboard switch (do **not** flip this unless maintainers explicitly approve it):
 
 1. Worker → **Settings → Builds**
 2. In the **Set up Worker Previews** banner, select **Set up**
@@ -88,7 +92,7 @@ Recommended Builds settings (do not alter production deploy):
 4. Confirm Preview command is `npx wrangler preview`
 5. Select **Switch to Worker Previews**
 
-Until that switch is done, PR checks may still run the old preview path (or fail immediately with empty logs). After the switch, non-`main` pushes create/update Previews; find URLs under the Worker **Previews** section and in the GitHub check / PR comment when the provider posts them.
+Until that switch is done, automatic PR preview checks may still run the old preview path (or fail immediately with empty logs). After the switch, non-`main` pushes create/update Previews; find URLs under the Worker **Previews** section and in the GitHub check / PR comment when the provider posts them. Owner-manual `pnpm exec wrangler preview` continues to work either way.
 
 Official overview: [Worker Previews](https://developers.cloudflare.com/workers/previews/). Builds branch control: [Build branches](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/).
 

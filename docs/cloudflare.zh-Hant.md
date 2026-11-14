@@ -46,7 +46,7 @@ Workers Builds：`pnpm build` → `npx wrangler deploy`，`NODE_VERSION=22`。�
 
 非 `main` 使用 **Worker Previews**（`npx wrangler preview`），不再用 `npx wrangler versions upload`。`wrangler.toml` 需有可為空的 `[previews]` 表（勿在 `[[...]]` 陣列後寫行內 `previews = { }`）；Preview 不繼承生產綁定。本倉庫預設空塊，不把 preview `FEEDBACK` / `PAGEVIEWS` 指到生產資源。
 
-本機：`pnpm build` 後 `pnpm exec wrangler preview`。Workers Builds 保留現有 GitHub 整合；**Settings → Build → Branch control** 啟用 **Enable Preview Builds**；舊 Worker 需在 **Settings → Builds** 的 **Set up Worker Previews** 做一次性不可逆切換，Preview command 為 `npx wrangler preview`。詳見 [cloudflare.md](cloudflare.md)。
+維護者手動 Preview（目前支援、審 PR 用這條）：`pnpm build` 後 `pnpm exec wrangler preview`，**不需要**控制台 **Set up Worker Previews** / **Enable Preview Builds**。Workers Builds 自動 PR Preview 評論才要那些開關（一次性不可逆；未批准前不要開）。詳見 [cloudflare.md](cloudflare.md)。
 
 ## 本地預期
 
