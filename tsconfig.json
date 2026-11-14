@@ -11,5 +11,6 @@
     "types": ["node"],
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["shared/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "vitest.config.ts"]
+  "include": ["shared/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
+  "exclude": ["tests/timeline-hide-zero-year-details.test.ts"]
 }

@@ -351,23 +351,34 @@ type HoverValue = {
 }
 
 /**
- * Every value shown in the detail strip at the hovered year.
- * A key drawn as bars and a line prints one row with both numbers, each tagged with its axis unit.
+ * Every non-zero value shown in the detail strip at the hovered year.
+ * Zero or missing series are omitted so a sparse year only lists what contributed; a key drawn as
+ * bars and a line still prints one row with both numbers when either side is present.
  */
 const hoverValues = computed<HoverValue[]>(() => {
   const index = hovered.value
   if (index === null) return []
   const rows = new Map<string, { label: string; color: string; bar: string | null; line: string | null; detail: string | null }>()
-  /** Records one number under one series key, either as the bar or as the line value. */
-  const add = (series: TimelineSeries, part: 'bar' | 'line', text: string): void => {
+  /** Records one positive number under one series key, either as the bar or as the line value. */
+  const add = (series: TimelineSeries, part: 'bar' | 'line', value: number, text: string): void => {
+    if (!Number.isFinite(value) || value <= 0) return
     const row = rows.get(series.key) ?? { label: series.label, color: series.color, bar: null, line: null, detail: null }
     row[part] = text
     if (part === 'bar') row.detail = detailOf(series, index)
     rows.set(series.key, row)
   }
-  for (const series of props.bars) add(series, 'bar', formatBar(series.values[index] ?? 0))
-  for (const series of props.lines) add(series, 'line', String(series.values[index] ?? 0))
-  for (const series of props.rightLines) add(series, 'line', formatRight(series.values[index] ?? 0))
+  for (const series of props.bars) {
+    const value = series.values[index] ?? 0
+    add(series, 'bar', value, formatBar(value))
+  }
+  for (const series of props.lines) {
+    const value = series.values[index] ?? 0
+    add(series, 'line', value, String(value))
+  }
+  for (const series of props.rightLines) {
+    const value = series.values[index] ?? 0
+    add(series, 'line', value, formatRight(value))
+  }
   /** Joins the bar and line numbers of one row, skipping an axis without a unit label. */
   const valueOf = (row: { bar: string | null; line: string | null }): string => {
     const parts: string[] = []
