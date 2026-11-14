@@ -8,6 +8,7 @@ import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useVenueNames } from '~/composables/useVenueNames.ts'
 import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overview.ts'
+import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 
@@ -85,7 +86,8 @@ type PerformanceView = {
   label: string
   seriesId: number
   seriesLabel: string
-  dates: string | null
+  /** Calendar range, or a cancelled / undetermined status label when the catalog has no date. */
+  dates: string
   year: number | null
   /** Catalog venue spelling, used as the filter value. */
   venue: string | null
@@ -95,23 +97,27 @@ type PerformanceView = {
   hasSetlist: boolean
 }
 
-const performanceRows = computed<PerformanceView[]>(() =>
-  performanceOverview.value.map((row) => {
+const performanceRows = computed<PerformanceView[]>(() => {
+  const statuses = catalog.value?.performanceStatus ?? []
+  return performanceOverview.value.map((row) => {
     const series = seriesById.value.get(row.seriesId)
     return {
       id: row.id,
       label: localizePlace(localizePerformanceSeries(row.name, series?.name ?? '', row.seriesNumber)),
       seriesId: row.seriesId,
       seriesLabel: series === undefined ? t('series.seriesFallback', { id: row.seriesId }) : localizeSeries(series.name),
-      dates: row.dates,
+      // Overview leaves missing dates as null; fill the date slot with a status label instead of "—".
+      dates:
+        row.dates ??
+        performanceDateLabel(null, t, { status: performanceStatusOf(statuses, row.id) }),
       year: row.year,
       venue: row.venue,
       venueLabel: localizeVenue(row.venue),
       shows: row.shows,
       hasSetlist: row.hasSetlist,
     }
-  }),
-)
+  })
+})
 
 /** Selected series for the 演出 table; empty means 全部, matching the ranking and timeline filters. */
 const selectedSeries = ref<number[]>([])

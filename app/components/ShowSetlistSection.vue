@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { derivedItemsByShow, mergeShowSetlists, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
+import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import type { Catalog, PerformanceSetlistRow, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 
@@ -31,7 +32,9 @@ const itemsOf = (showKey: string): PerformanceShowSetlistItemRow[] =>
 
 /** Localized label of one 场次. */
 const showLabel = (row: PerformanceShowSetlistRow): string => {
-  const date = row.date ?? t('common.unknownDate')
+  const date = row.date ?? performanceDateLabel(null, t, {
+    status: performanceStatusOf(props.catalog.performanceStatus, props.performanceId),
+  })
   if (row.half === 'day') return `${date} ${t('common.dayShow')}`
   if (row.half === 'night') return `${date} ${t('common.nightShow')}`
   return date

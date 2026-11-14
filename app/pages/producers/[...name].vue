@@ -9,6 +9,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { buildProducerIndex, producerRoleLabel, rolesPresent, type ProducerRoleCounts } from '~~/shared/producers.ts'
 import { variantKindLabel } from '~~/shared/song-variants.ts'
 
@@ -300,7 +301,11 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
         :empty-description="t('producers.noAppearancesDesc')"
       >
         <template #date-cell="{ row }">
-          <span class="whitespace-nowrap font-mono text-muted">{{ cell(row.original.date) }}</span>
+          <span class="whitespace-nowrap font-mono text-muted">{{
+            performanceDateLabel(row.original.date, t, {
+              status: performanceStatusOf(catalog?.performanceStatus ?? [], row.original.performanceId),
+            })
+          }}</span>
         </template>
         <template #seriesLabel-cell="{ row }">
           <!-- Two lines on phones, where the hover tooltip is unreachable; one clipped line from `sm:`. -->

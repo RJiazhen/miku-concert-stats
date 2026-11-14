@@ -1,5 +1,6 @@
 import type { Translate } from './i18n/index.ts'
 import { performanceSchedules, type PerformanceShow } from './event-schedule.ts'
+import { performanceDateLabel, performanceStatusOf } from './performance-date-label.ts'
 import type { RotationReview } from './rotation.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from './types.ts'
 
@@ -14,17 +15,21 @@ export const catalogSchedules = (catalog: Catalog, t?: Translate): Map<number, P
     if (t) return t(half === 'day' ? 'common.dayShow' : 'common.nightShow')
     return half === 'day' ? '日场' : '夜场'
   }
-  const unknownDate = (): string => (t ? t('calendar.dateUnknown') : '日期未知')
+  /** Missing show date: cancelled only when the 演出 has a sourced cancellation row. */
+  const missingDate = (performanceId: number): string => {
+    const status = performanceStatusOf(catalog.performanceStatus, performanceId)
+    if (t) return performanceDateLabel(null, t, { status })
+    return status === 'cancelled' ? '已取消' : '尚未确定'
+  }
   for (const row of catalog.performanceShowSetlists) {
     const bucket = map.get(row.performance_id) ?? []
+    const dateText = row.date ?? missingDate(row.performance_id)
     bucket.push({
       key: row.show_key,
       performanceId: row.performance_id,
       date: row.date ?? '',
       half: row.half,
-      label: row.half === null
-        ? (row.date ?? unknownDate())
-        : `${row.date} ${halfLabel(row.half)}`,
+      label: row.half === null ? dateText : `${dateText} ${halfLabel(row.half)}`,
     })
     map.set(row.performance_id, bucket)
   }

@@ -26,6 +26,7 @@ import { fromVocaDB, isVocaloidSong } from '~~/shared/repertoire.ts'
 import {
   compareAppearances,
 } from '~~/shared/appearance-sort.ts'
+import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 
 const route = useRoute()
 const { catalog, error, pending, load } = useCatalog()
@@ -467,7 +468,11 @@ useHead({ title: computed(() => title.value?.primary ?? t('song.breadcrumb')) })
         :empty-description="t('song.noAppearancesDesc')"
       >
         <template #date-cell="{ row }">
-          <span class="font-mono text-muted">{{ row.original.date ?? '—' }}</span>
+          <span class="font-mono text-muted">{{
+            performanceDateLabel(row.original.date, t, {
+              status: performanceStatusOf(catalog?.performanceStatus ?? [], row.original.performanceId),
+            })
+          }}</span>
         </template>
         <template #seriesLabel-cell="{ row }">
           <NuxtLink

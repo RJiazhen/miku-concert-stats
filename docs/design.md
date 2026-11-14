@@ -298,6 +298,19 @@ Placement keeps the controls outside the export capture root so they do not appe
 
 Clicks, pointer-downs, and keyboard activation on the export control stop propagation so they cannot select a year, navigate, or toggle fullscreen. Accessible labels are provided in every current UI locale.
 
+## Blank concert date labels
+
+When a performance has a catalog `start_date`, the UI always prints that date (and the `end_date` range when it differs). Known dates are never replaced by a status word.
+
+When the date is missing, the date field shows only one of two labels, in every current UI locale:
+
+- **Cancelled** (`已取消` / `已取消` / `中止` / `Cancelled`) — only when `performance_status` has a hand-checked `cancelled` row with a source. The current catalog has 13 such performances: twelve MIKU EXPO 2020 North American stops (ids 2853–2861, 2878–2880) and 初音ミク×鼓童スペシャルライブ２０２０～結～ (2886), each sourced from the official cancellation announcement.
+- **Undetermined** (`尚未确定` / `尚未確定` / `未定` / `Date undetermined`) — any other missing date. This is not a cancellation. The current catalog has one such row: 初音ミクシンフォニー 2027 東京 (13210), a VocaDB Draft event with no date and no `performance_status` row.
+
+The date field never uses `尚未演出`, `这场演出尚未举行`, or any “not yet performed” wording. A dated future show that is marked `upcoming` (for example MIKU WITH YOU 2026 in Chengdu, 3000000001, on 2026-12-26) still shows its real date; the existing show-page status alert may still explain that the performance has not taken place yet.
+
+These labels appear in every user-facing date field: the show header, series lists, search hits, song and producer appearance tables, setlist show labels, and timeline year-detail lists when a date is absent. Sorting, year charts, and 场次 counts continue to treat a missing `start_date` as undated.
+
 ## 页眉社交链接
 
 页眉顶栏在语言与主题按钮之后、从左到右依次放 GitHub、X、哔哩哔哩三个外链图标：哔哩哔哩必须紧挨在现有 X 图标的右侧，链接固定为 `https://b23.tv/IITMbFk`，无障碍标签为「k9009's Bilibili profile」（各语言有对应文案）。图标用与 GitHub / X 相同的 tabler brand 图标包（`i-tabler:brand-bilibili`），按钮尺寸、颜色、`target="_blank"` 与 `rel="noopener noreferrer"` 与现有外链一致。窄屏菜单里 GitHub + X 那一行同样把哔哩哔哩放在 X 右侧。

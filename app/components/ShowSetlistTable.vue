@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { derivedItemSongIds, type ShowSetlistPrintItem, type ShowSetlistPrintRow } from '~~/shared/performance-setlists.ts'
+import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import type { Catalog, PerformanceShowSetlistItemRow, PerformanceShowSetlistRow } from '~~/shared/types.ts'
 import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
@@ -125,7 +126,11 @@ const monthDay = (date: string): string => `${Number(date.slice(5, 7))}/${Number
 /** Compact 场次 label for a cell, e.g. `8/11 日场`; the year is already on the page. */
 const shortShowLabel = (show: PerformanceShowSetlistRow): string => {
   const date = show.date
-  const label = date === null ? t('common.unknownDate') : monthDay(date)
+  const label = date === null
+    ? performanceDateLabel(null, t, {
+        status: performanceStatusOf(props.catalog.performanceStatus, show.performance_id),
+      })
+    : monthDay(date)
   if (show.half === 'day') return `${label} ${t('common.dayShow')}`
   if (show.half === 'night') return `${label} ${t('common.nightShow')}`
   return label

@@ -286,6 +286,18 @@ export default {
     ko: '날짜 미상',
     en: 'Date unknown',
   },
+  'common.dateCancelled': {
+    zh: '已取消',
+    'zh-Hant': '已取消',
+    ja: '中止',
+    en: 'Cancelled',
+  },
+  'common.dateUndetermined': {
+    zh: '尚未确定',
+    'zh-Hant': '尚未確定',
+    ja: '未定',
+    en: 'Date undetermined',
+  },
   'common.versions': {
     zh: '{n} 个版本',
     'zh-Hant': '{n} 個版本',

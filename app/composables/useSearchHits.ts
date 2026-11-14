@@ -7,6 +7,7 @@ import { useVenueNames } from './useVenueNames.ts'
 import { useSongTitle } from './useSongTitle.ts'
 import { useLocale } from './useLocale.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
+import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import {
   LOOKUP_LIMITS,
   localPerformanceMatches,
@@ -166,7 +167,10 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
   const performanceRows = (result: LookupResult<PerformanceLookupHit>): SearchRow[] =>
     result.items.map((hit) => {
       const venue = hit.venue === null ? '' : localizePlace(localizeVenue(hit.venue) ?? hit.venue)
-      const meta = [hit.startDate, venue].filter((part) => part !== null && part !== '').join(' · ')
+      const dateText = performanceDateLabel(hit.startDate, t, {
+        status: performanceStatusOf(catalog.value?.performanceStatus ?? [], hit.performanceId),
+      })
+      const meta = [dateText, venue].filter((part) => part !== null && part !== '').join(' · ')
       return {
         key: `performance:${hit.performanceId}`,
         to: `/shows/${hit.performanceId}`,

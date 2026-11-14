@@ -7,7 +7,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useVenueNames } from '~/composables/useVenueNames.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
-import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
+import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
 import type { PerformanceRow } from '~~/shared/types.ts'
 
@@ -64,7 +64,10 @@ const entries = computed(() =>
   performances.value.map((performance) => ({
     performance,
     label: performanceLabel(performance),
-    dates: performanceHeaderFacts(performance).dates,
+    dates: performanceDateLabel(performance.start_date, t, {
+      endDate: performance.end_date,
+      status: performanceStatusOf(catalog.value?.performanceStatus ?? [], performance.id),
+    }),
     venue: localizeVenue(performance.venue_name),
     showCount: showCounts.value.get(performance.id) ?? 0,
     hasSetlist: setlistIds.value.has(performance.id),
@@ -126,7 +129,7 @@ useHead({ title: computed(() => seriesView.value.primary) })
                 {{ entry.label }}
               </NuxtLink>
               <p class="text-xs text-muted">
-                {{ entry.dates ?? t('common.unknownDate') }}
+                {{ entry.dates }}
                 <template v-if="entry.venue">· {{ entry.venue }}</template>
                 {{ t('series.showCountLine', { n: entry.showCount }) }}
                 <template v-if="!entry.hasSetlist">{{ t('series.noSetlistLine') }}</template>

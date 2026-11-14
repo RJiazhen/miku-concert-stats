@@ -7,6 +7,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { albumIdFromSongListId, albumSetlistSources } from '~~/shared/album-setlists.ts'
 import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
 import { catalogSchedules } from '~~/shared/performance-setlists.ts'
+import { performanceDateLabel } from '~~/shared/performance-date-label.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useVenueNames } from '~/composables/useVenueNames.ts'
@@ -145,9 +146,16 @@ const breadcrumb = computed(() => {
 
 /** One-line facts under the title: date, city, venue, and start time, joined only when present. */
 const headerLine = computed(() => {
+  const current = performance.value
   const facts = headerFacts.value
+  const dateText = current
+    ? performanceDateLabel(current.start_date, t, {
+        endDate: current.end_date,
+        status: statusNote.value?.status,
+      })
+    : t('common.dateUndetermined')
   const parts = [
-    facts?.dates ?? t('common.unknownDate'),
+    dateText,
     cityName.value,
     facts?.venue,
     facts?.showtime ? t('show.showtime', { time: facts.showtime }) : null,
