@@ -204,7 +204,7 @@ flowchart LR
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/stats.ts` 及对应 `tests/*`。
 2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
 3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、署名与空态。
-4. **发布自动化** — `wrangler.toml`（含可为空的 `previews`）、CI、每周工作流；README。非 `main` 的 Worker Preview 需要顶层 `[previews]` 表（可为空，勿在 `[[...]]` 后写行内 `previews = { }`）；预览不继承生产 `FEEDBACK` / `PAGEVIEWS`。生产部署命令不变。
+4. **发布自动化** — `wrangler.toml`（含可为空的 `previews`）、CI、每周工作流；README。非 `main` 的 Worker Preview 需要顶层 `[previews]` 表（可为空，勿在 `[[...]]` 后写行内 `previews = { }`）；预览不继承生产 `FEEDBACK` / `PAGEVIEWS`。生产用 `npx wrangler deploy`；非 `main` 分支 Preview 用 `npx wrangler preview`（旧文档里的 `versions upload` 已弃用）。运维细节见 [cloudflare.md](cloudflare.md)。
 
 ## 版本合并
 

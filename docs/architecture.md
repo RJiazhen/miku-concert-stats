@@ -51,7 +51,7 @@ flowchart LR
 | Deploy Worker | Yes |
 | Feedback KV / Access admin / Analytics Engine | Yes |
 
-See [local-development.md](local-development.md) and [cloudflare.md](cloudflare.md).
+See [local-development.md](local-development.md) and [cloudflare.md](cloudflare.md) (production deploy plus Worker Previews / `wrangler preview`).
 
 ## Deeper references
 

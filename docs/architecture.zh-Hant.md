@@ -51,7 +51,7 @@ flowchart LR
 | 部署 Worker | 是 |
 | 回饋 KV / Access 後台 / Analytics Engine | 是 |
 
-見 [local-development.zh-Hant.md](local-development.zh-Hant.md) 與 [cloudflare.zh-Hant.md](cloudflare.zh-Hant.md)。
+見 [local-development.zh-Hant.md](local-development.zh-Hant.md) 與 [cloudflare.zh-Hant.md](cloudflare.zh-Hant.md)（生產部署與 Worker Previews / `wrangler preview`）。
 
 ## 更深的文件
 
