@@ -59,4 +59,4 @@ See [local-development.md](local-development.md) and [cloudflare.md](cloudflare.
 
 ## Maintainer workflow (optional)
 
-This repo often develops in git worktrees under `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`. Contributors can use any normal clone/branch workflow. Parallel `vp dev` ports are local-only: record them under the gitignored `tmp/dev-ports.md` beside `main` (see `/continue`), never in committed docs.
+This repo often develops in git worktrees under `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`. Contributors can use any normal clone/branch workflow. Parallel task setup and local preview servers are handled by `/continue` (local-only; not committed docs).
