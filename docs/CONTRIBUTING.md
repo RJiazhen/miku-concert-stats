@@ -1,7 +1,5 @@
 # Contributing
 
-**English** | [简体中文](CONTRIBUTING.zh-CN.md) | [繁體中文](CONTRIBUTING.zh-Hant.md) | [日本語](CONTRIBUTING.ja.md)
-
 Thanks for helping with Hatsune Miku Concert Setlist Stats.
 
 ## Prerequisites
@@ -43,7 +41,7 @@ Committed SQL under `data/increments/` is enough to build the catalog. `vp run c
 | [local-development.md](local-development.md) | Local commands, expected gaps, optional data scripts |
 | [architecture.md](architecture.md) | Modules and data flow |
 | [cloudflare.md](cloudflare.md) | Deploy, KV, Access, analytics (maintainer) |
-| [data-pipeline.zh-CN.md](data-pipeline.zh-CN.md) | Detailed curation rules (Simplified Chinese) |
+| [data-pipeline.md](data-pipeline.md) | Detailed curation rules and file formats |
 
 ## Tests
 

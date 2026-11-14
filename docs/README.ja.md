@@ -65,7 +65,7 @@
 
 ## 貢献する
 
-開発と貢献の案内は [CONTRIBUTING.ja.md](CONTRIBUTING.ja.md)。
+開発と貢献の案内は [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## ライセンス
 

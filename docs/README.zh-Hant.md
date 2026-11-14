@@ -65,7 +65,7 @@
 
 ## 參與貢獻
 
-開發與貢獻說明見 [CONTRIBUTING.zh-Hant.md](CONTRIBUTING.zh-Hant.md)。
+開發與貢獻說明見 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 授權
 

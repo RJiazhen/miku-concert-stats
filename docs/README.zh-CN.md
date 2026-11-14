@@ -65,7 +65,7 @@
 
 ## 参与贡献
 
-开发与贡献说明见 [CONTRIBUTING.zh-CN.md](CONTRIBUTING.zh-CN.md)。
+开发与贡献说明见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 许可
 

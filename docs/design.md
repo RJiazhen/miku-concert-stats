@@ -71,7 +71,8 @@
 
 修改：
 
-- `README.md`：运行方式与 VocaDB 署名
+- `README.md`：运行方式与 VocaDB 署名。根目录 README 与 `docs/README.zh-CN.md` / `docs/README.zh-Hant.md` / `docs/README.ja.md` 继续作为面向访客的多语言入口，予以保留。
+- 除此以外的仓库文档（`docs/` 下的架构、本地开发、Cloudflare、贡献指南、数据管道等）只维护英文正文。原先的 `*.zh-CN.md` / `*.zh-Hant.md` / `*.ja.md` 平行译本不再保留；译本里独有的必要说明并入对应英文稿后再删除平行文件。站内 UI 文案与 `data/` 中的歌曲/地点/角色译名不受影响。
 
 只读参考：
 
