@@ -251,6 +251,23 @@ Proper names and catalog titles are out of scope unless a reliable source alread
 - Do not add unsourced `data/*ko*` name-translation files in this change.
 - When Korean has no sourced display name, keep the original catalog spelling (typically Japanese), the same fallback Japanese already uses. English and Chinese name files are not used as a stand-in for unsourced Korean.
 
+The UI-only change left catalog names unsourced. A later sourced batch, described below, adds checked Korean titles and character labels without inventing the rest.
+
+## Sourced Korean names (first batch)
+
+This pass adds sourced Korean display names for a subset of songs and characters. It does not invent names, and a name that was not inspected is not treated as “no Korean name exists.”
+
+Songs: 51 of 590 catalog songs (51 of 563 VocaDB-sourced songs) use a live-verified VocaDB community Hangul alias in `data/song-titles.ko.json`, with source `vocadb-community-alias`. These are community catalog names, not official translations. Official Korean song titles were not found in this pass. Song 8241 (番凩) is excluded because it has two distinct Hangul aliases. 416 VocaDB catalog songs were not inspected for `Names` in this batch; they keep the original catalog spelling until a later sourced pass. The 27 non-VocaDB songs were out of scope here.
+
+Characters: 7 of 22 catalog characters have a sourced Hangul label in `data/characters.ko.json`.
+
+- 初音ミク, 鏡音リン, and 鏡音レン: the Korean Google Play listing for Crypton’s official MIKUNAVI app (official-app-store evidence; authorship of that Korean text is not independently confirmed) plus agreeing VocaDB community aliases.
+- SeeU: official SBS A&T HISTORY page (`시유`).
+- 重音テト, 可不, and 星界: VocaDB community aliases only.
+
+巡音ルカ is unresolved (Play listing `메구린 루카` versus VocaDB `메구리네 루카`) and stays on the original catalog spelling. The other 14 characters also keep the original spelling. Variant product strings are not truncated into a character display name. Series, places, venues, and cities stay on the original-name fallback in Korean.
+
+Each accepted row records a source class, source URL, and — for VocaDB rows — API URL and name field, in `docs/research/korean-names/`, so an audit does not rely on an uncited bulk list. When Korean has no sourced row, the site still shows the original catalog spelling and does not borrow English or Chinese names.
 
 所有列表页的表格以曲目排行为基准：`TableSection` 提供标题、`UTable`、粘性表头、`ranking-scroll`、加载骨架与空状态，`SortableHeader` 提供统一下拉排序表头，页面不再各自决定外壳样式。角色一律用 `CharacterChips`（应援色描边与淡底色，超过 3 个折叠成 `+N` 气泡），制作人署名这类非角色标签用 `UBadge`；筛选标签用 `FilterField`（`UFormField`）。唯一的例外是 `/raw` 的「数据表」：列由目录表结构动态决定，保留手写表格，但沿用同样的外壳与空状态。详见 `docs/architecture.md` 的「共享 UI 组件」。
 
