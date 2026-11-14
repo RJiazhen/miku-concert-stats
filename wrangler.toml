@@ -27,3 +27,10 @@ dataset = "miku_pageviews"
 # here. Set them in the Cloudflare dashboard (Worker → Settings → Variables /
 # Secrets) so deploys do not publish account fingerprints in git and do not
 # overwrite dashboard values with "". See docs/cloudflare.md.
+
+# Worker Previews (non-main branches / `pnpm exec wrangler preview`).
+# Required by wrangler >= 4.135.0; may be empty. Previews do NOT inherit
+# production bindings — leave empty so FEEDBACK / PAGEVIEWS stay off preview
+# unless maintainers add preview-safe resources under this block.
+# See docs/cloudflare.md.
+previews = { }

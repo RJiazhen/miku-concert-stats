@@ -51,7 +51,7 @@ flowchart LR
 | Worker デプロイ | はい |
 | フィードバック KV / Access 管理 / Analytics Engine | はい |
 
-[local-development.ja.md](local-development.ja.md) と [cloudflare.ja.md](cloudflare.ja.md) を参照。
+[local-development.ja.md](local-development.ja.md) と [cloudflare.ja.md](cloudflare.ja.md)（本番デプロイと Worker Previews / `wrangler preview`）を参照。
 
 ## 詳細ドキュメント
 

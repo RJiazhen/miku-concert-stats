@@ -51,7 +51,7 @@ flowchart LR
 | 部署 Worker | 是 |
 | 反馈 KV / Access 后台 / Analytics Engine | 是 |
 
-见 [local-development.zh-CN.md](local-development.zh-CN.md) 与 [cloudflare.zh-CN.md](cloudflare.zh-CN.md)。
+见 [local-development.zh-CN.md](local-development.zh-CN.md) 与 [cloudflare.zh-CN.md](cloudflare.zh-CN.md)（生产部署与 Worker Previews / `wrangler preview`）。
 
 ## 更深的文档
 
