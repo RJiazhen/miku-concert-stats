@@ -33,14 +33,20 @@ Self-hosted 應用至少包含：
 - `/admin` → `/admin/feedback`
 - `/admin/feedback`、`/admin/data`、`/admin/system`、`/admin/analytics`
 
-## 部署
+## 部署（生產）
 
 ```bash
 pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-Workers Builds：`pnpm build` → `npx wrangler deploy`，`NODE_VERSION=22`。
+Workers Builds：`pnpm build` → `npx wrangler deploy`，`NODE_VERSION=22`。開啟 Preview 時不要改生產分支或生產 Deploy command。
+
+## 分支 Preview（Worker Previews）
+
+非 `main` 使用 **Worker Previews**（`npx wrangler preview`），不再用 `npx wrangler versions upload`。`wrangler.toml` 需有可為空的 `[previews]` 表（勿在 `[[...]]` 陣列後寫行內 `previews = { }`）；Preview 不繼承生產綁定。本倉庫預設空塊，不把 preview `FEEDBACK` / `PAGEVIEWS` 指到生產資源。
+
+維護者手動 Preview（目前支援、審 PR 用這條）：`pnpm build` 後 `pnpm exec wrangler preview`，**不需要**控制台 **Set up Worker Previews** / **Enable Preview Builds**。Workers Builds 自動 PR Preview 評論才要那些開關（一次性不可逆；未批准前不要開）。詳見 [cloudflare.md](cloudflare.md)。
 
 ## 本地預期
 

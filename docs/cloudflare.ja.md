@@ -26,12 +26,20 @@ Access なし → 管理 API は **401**。KV なし → 公開フィードバ�
 
 `/api/feedback*` は使わない。
 
-## デプロイ
+## デプロイ（本番）
 
 ```bash
 pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
+
+Workers Builds：`pnpm build` → `npx wrangler deploy`、`NODE_VERSION=22`。Preview を有効にするとき本番ブランチや本番 Deploy command は変えない。
+
+## ブランチ Preview（Worker Previews）
+
+非 `main` は **Worker Previews**（`npx wrangler preview`）。`npx wrangler versions upload` は使わない。`wrangler.toml` に空でもよい `[previews]` テーブルが必要（`[[...]]` 配列の直後にインライン `previews = { }` を書かない）。Preview は本番バインドを継承しない。このリポジトリは空のままにし、preview の `FEEDBACK` / `PAGEVIEWS` を本番に向けない。
+
+メンテナー手動 Preview（現状の対応経路・PR レビュー用）：`pnpm build` のあと `pnpm exec wrangler preview`。ダッシュボードの **Set up Worker Previews** / **Enable Preview Builds** は**不要**。Workers Builds の自動 PR Preview コメントだけがそれらのスイッチを要し、一度きりで不可逆（承認なしではオンにしない）。詳細は [cloudflare.md](cloudflare.md)。
 
 ## ローカル
 

@@ -15,6 +15,11 @@ import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
 import { buildProducerIndex } from '~~/shared/producers.ts'
 import { emptySongVariantIndex } from '~~/shared/song-variants.ts'
 import { buildTimeline, type NewSongBaseline, type TimelineCount } from '~~/shared/timeline.ts'
+import {
+  cityYearDetail,
+  performancesOfYear,
+  positiveCharacterYearRows,
+} from '~~/shared/timeline-year-details.ts'
 import { availablePerformanceYears, normalizeYearRange } from '~~/shared/year-range.ts'
 
 /** One chart series passed to the SVG components. */
@@ -403,26 +408,22 @@ const cityYear = ref<number | null>(null)
 /** 演出 of the picked year, with their names and links. */
 const showsYearPerformances = computed(() => {
   const current = timeline.value
-  if (current === null || showsYear.value === null) return []
+  if (current === null) return []
   const byId = new Map((catalog.value?.performances ?? []).map((row) => [row.id, row]))
-  return current.performances
-    .filter((row) => row.year === showsYear.value)
-    .flatMap((row) => {
-      const performance = byId.get(row.id)
-      if (performance === undefined) return []
-      const series = seriesById.value.get(performance.series_id)
-      const label = localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number))
-      return [{ ...row, label }]
-    })
+  return performancesOfYear(current.performances, showsYear.value).flatMap((row) => {
+    const performance = byId.get(row.id)
+    if (performance === undefined) return []
+    const series = seriesById.value.get(performance.series_id)
+    const label = localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number))
+    return [{ ...row, label }]
+  })
 })
 
-/** Character song counts of the picked year, most songs first. */
+/** Character song counts of the picked year, most songs first; zero counts stay out of the list. */
 const characterYearRows = computed(() => {
   const current = timeline.value
-  if (current === null || characterYear.value === null) return []
-  return current.characterSongByYear
-    .filter((row) => row.year === characterYear.value)
-    .sort((left, right) => right.count - left.count || compareCharacters(left.name, right.name))
+  if (current === null) return []
+  return positiveCharacterYearRows(current.characterSongByYear, characterYear.value, compareCharacters)
 })
 
 /** Song count text: whole numbers stay whole, split chorus counts keep at most two decimals. */
@@ -436,11 +437,14 @@ const songsYearRow = computed(() => {
   return current.songByYear.find((row) => row.year === songsYear.value) ?? null
 })
 
-/** City coverage of the picked year. */
+/**
+ * City coverage of the picked year, or null when that year has no domestic / overseas / online /
+ * unknown-country 演出 (a gap year keeps year-selection but does not open an empty detail strip).
+ */
 const cityYearRow = computed(() => {
   const current = timeline.value
-  if (current === null || cityYear.value === null) return null
-  return current.cityByYear.find((row) => row.year === cityYear.value) ?? null
+  if (current === null) return null
+  return cityYearDetail(current.cityByYear, cityYear.value)
 })
 
 /** Query keys and hash mirrored into the URL. */
@@ -724,14 +728,9 @@ const selectChartFromMenu = (key: string): void => {
   void goToChart(key)
 }
 
-/** Chart 1's click handler: a bar segment opens its series, empty band space toggles the year list. */
+/** Chart 1: a bar or the blank year band both toggle that year's show list. Never navigates. */
 const selectSeriesSegment = (payload: { year: number; key: string }): void => {
-  if (payload.key === '') {
-    showsYear.value = showsYear.value === payload.year ? null : payload.year
-    return
-  }
-  const id = Number(payload.key.replace('series:', ''))
-  if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
+  showsYear.value = showsYear.value === payload.year ? null : payload.year
 }
 
 /** Opens the series page behind a gantt strip. */
@@ -740,8 +739,8 @@ const selectSeriesSpan = (payload: { key: string }): void => {
   if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
 }
 
-/** Toggles the detail list of one year on chart 3. */
-const selectCharacterYear = (payload: { year: number }): void => {
+/** Chart 3: a bar, line point, or the blank year band both toggle that year's character list. */
+const selectCharacterYear = (payload: { year: number; key: string }): void => {
   characterYear.value = characterYear.value === payload.year ? null : payload.year
 }
 
@@ -750,8 +749,8 @@ const selectSongsYear = (payload: { year: number }): void => {
   songsYear.value = songsYear.value === payload.year ? null : payload.year
 }
 
-/** Toggles the coverage note of one year on chart 6. */
-const selectCityYear = (payload: { year: number }): void => {
+/** Chart 6: a bar, line point, or the blank year band both toggle that year's city note. */
+const selectCityYear = (payload: { year: number; key: string }): void => {
   cityYear.value = cityYear.value === payload.year ? null : payload.year
 }
 
@@ -977,10 +976,11 @@ useHead({ title: computed(() => t('timeline.title')) })
             :bars="seriesChartBars"
             stacked
             :unit="t('timeline.unitShows')"
+            :selectable-bars="false"
             @select="selectSeriesSegment"
           />
           <template #footer>
-            <div v-if="showsYear !== null" class="mt-3 border-t border-default/60 pt-3">
+            <div v-if="showsYear !== null && showsYearPerformances.length > 0" class="mt-3 border-t border-default/60 pt-3">
               <p class="mb-2 text-xs text-muted">{{ t('timeline.yearShows', { year: showsYear, n: showsYearPerformances.length }) }}</p>
               <ul class="max-h-64 space-y-1 overflow-y-auto pr-1 text-xs">
                 <li v-for="row in showsYearPerformances" :key="row.id" class="flex flex-wrap items-baseline gap-x-2">
@@ -1013,10 +1013,11 @@ useHead({ title: computed(() => t('timeline.title')) })
             stacked
             :unit="t('timeline.unitSongs')"
             height="320"
+            :selectable-bars="false"
             @select="selectCharacterYear"
           />
           <template #footer>
-            <div v-if="characterYear !== null" class="mt-3 border-t border-default/60 pt-3">
+            <div v-if="characterYear !== null && characterYearRows.length > 0" class="mt-3 border-t border-default/60 pt-3">
               <p class="mb-2 text-xs text-muted">{{ t('timeline.yearCharacterSongs', { year: characterYear }) }}</p>
               <div class="flex flex-wrap gap-2">
                 <UBadge v-for="row in characterYearRows" :key="row.name" color="neutral" variant="subtle" size="sm">
@@ -1111,6 +1112,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             right-format="percent"
             :unit="t('timeline.unitPerformances')"
             :right-unit="t('timeline.overseasRatio')"
+            :selectable-bars="false"
             @select="selectCityYear"
           />
           <template #footer>
