@@ -24,7 +24,7 @@ git -C "$MAIN" worktree add \
 - 目录名与分支名一致：`.../miku-concert-stats.worktrees/<branch>`。
 - 分支从 `origin/main` 拉出，不要复用已经合并过的旧分支。
 - 把新目录加进旁边的 `miku-concert-stats.code-workspace` 的 `folders`（`name` 与 `path` 都用分支名）。
-- 开发服务器端口按工作树分配，挑一个没被占用的，并记录到 `docs/architecture.md` 的端口清单。
+- 开发服务器端口按工作树分配，挑一个没被占用的，并写入 gitignore 目录 `$MAIN/tmp/dev-ports.md`（格式：`<branch> 用 <port>`）。不要写进 `docs/` 或其他会被提交的文件。
 
 ## 2. 开发与提交
 
