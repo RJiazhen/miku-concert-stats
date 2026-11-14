@@ -205,7 +205,7 @@ flowchart LR
 1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/stats.ts` 及对应 `tests/*`。
 2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
 3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、署名与空态。
-4. **发布自动化** — `wrangler.toml`（含可为空的 `previews`）、CI、每周工作流；README。非 `main` 的 Worker Preview 需要顶层 `[previews]` 表（可为空，勿在 `[[...]]` 后写行内 `previews = { }`）；预览不继承生产 `FEEDBACK` / `PAGEVIEWS`。生产部署命令不变。
+4. **发布自动化** — `wrangler.toml`（含可为空的 `previews`）、CI、每周工作流；README。非 `main` 的 Worker Preview 需要顶层 `[previews]` 表（可为空，勿在 `[[...]]` 后写行内 `previews = { }`）；预览不继承生产 `FEEDBACK` / `PAGEVIEWS`。生产用 `npx wrangler deploy`；非 `main` 分支 Preview 用 `npx wrangler preview`（旧文档里的 `versions upload` 已弃用）。运维细节见 [cloudflare.md](cloudflare.md)。
 
 ## 版本合并
 
@@ -235,6 +235,15 @@ Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目�
 
 所有列表页的表格以曲目排行为基准：`TableSection` 提供标题、`UTable`、粘性表头、`ranking-scroll`、加载骨架与空状态，`SortableHeader` 提供统一下拉排序表头，页面不再各自决定外壳样式。角色一律用 `CharacterChips`（应援色描边与淡底色，超过 3 个折叠成 `+N` 气泡），制作人署名这类非角色标签用 `UBadge`；筛选标签用 `FilterField`（`UFormField`）。唯一的例外是 `/raw` 的「数据表」：列由目录表结构动态决定，保留手写表格，但沿用同样的外壳与空状态。详见 `docs/architecture.md` 的「共享 UI 组件」。
 
+时间线页面的「场次 / 系列」堆叠柱图只按年份展开演出列表：点击柱段与点击柱上方或柱间空白相同，都切换该年在图下方的明细；柱段本身不跳转系列详情，也不保留点击选中态或选中变色。巡演城市迁移与角色曲目数年度变化两张柱图同样如此：点击柱段或折线点与点击空白年份带相同，只切换年份明细，不承担点击导航或选中变色；悬停与触摸提示、年份筛选器保留。系列详情通过页面顶部的系列筛选器或 `/series` 入口进入；甘特图仍保持系列跨度浏览。
+
+时间线的「场次 / 系列」、巡演城市迁移与角色曲目数年度变化三张柱图：悬停明细与点击展开的年份明细只列出该年有值的系列 / 分区 / 角色（以及对应的折线点）；数值为 0 或缺失的项不出现在明细里。年份选择、悬停提示本身与图上的合计（堆叠柱总高、轴刻度、页头汇总）保持不变，不因隐藏零项而改写计数口径。该行为由聚焦回归测试覆盖（`TimelineBarChart` 的 `hoverValues`，以及三图年份脚注的 `showsYearPerformances` / `characterYearRows` / `cityYearRow`）。
+
+## 页眉社交链接
+
+页眉顶栏在语言与主题按钮之后、从左到右依次放 GitHub、X、哔哩哔哩三个外链图标：哔哩哔哩必须紧挨在现有 X 图标的右侧，链接固定为 `https://b23.tv/IITMbFk`，无障碍标签为「k9009's Bilibili profile」（各语言有对应文案）。图标用与 GitHub / X 相同的 tabler brand 图标包（`i-tabler:brand-bilibili`），按钮尺寸、颜色、`target="_blank"` 与 `rel="noopener noreferrer"` 与现有外链一致。窄屏菜单里 GitHub + X 那一行同样把哔哩哔哩放在 X 右侧。
+
 ## 页眉搜索
+
 
 搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层依次列系列（`localSeriesMatches`，链到 `/series/{id}`）、演出（`localPerformanceMatches`，名字、日期与场馆，链到 `/shows/{id}`）、地点（`localPlaceMatches`，场馆名与演出数，链到 `/series?place={场馆}`）、制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`）；中文译名同样参与匹配。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。

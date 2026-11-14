@@ -199,6 +199,8 @@ These translation JSON files are **user-facing localization**, not parallel repo
 
 Local install and `pnpm dev` / `vp dev` are described in [local-development.md](local-development.md). `pnpm test`, `pnpm lint`, and `pnpm typecheck` do not need Cloudflare. `pnpm build` plus a production deploy does.
 
+Production deploy is `npx wrangler deploy`. Non-`main` Worker Previews use `npx wrangler preview` (the old `versions upload` path is deprecated). `wrangler.toml` must include a `previews` block, which may be empty; previews do not inherit production bindings. A maintainer can publish a non-production URL with `pnpm exec wrangler preview` without the dashboard **Set up Worker Previews** / **Enable Preview Builds** switch. Those switches are only for automatic Workers Builds PR preview comments and are a one-time irreversible migration — do not enable them without approval. Details are in [cloudflare.md](cloudflare.md).
+
 ### GitHub Actions
 
 `.github/workflows/ci.yml` runs lint, typecheck, tests, and catalog checks on pull requests and on pushes to `main`. `.github/workflows/weekly-collect.yml` is the scheduled VocaDB collect.

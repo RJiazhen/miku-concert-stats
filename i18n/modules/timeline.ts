@@ -55,10 +55,10 @@ export default {
     en: '{label} · {first}–{last} · {n} performances',
   },
   'chart.hoverHint': {
-    zh: '悬停查看某年明细 · 点击柱或点打开该年列表',
-    'zh-Hant': '懸停檢視某年明細 · 點選柱或點開啟該年列表',
-    ja: 'カーソルを合わせると年の内訳、棒や点をクリックするとその年の一覧が開きます',
-    en: 'Hover for a year’s details · click a bar or point to open that year’s list',
+    zh: '悬停查看某年明细 · 点击柱间空白打开该年列表',
+    'zh-Hant': '懸停檢視某年明細 · 點選柱間空白開啟該年列表',
+    ja: 'カーソルを合わせると年の内訳、棒の間の空白をクリックするとその年の一覧が開きます',
+    en: 'Hover for a year’s details · click the gap between bars to open that year’s list',
   },
   'chart.hoverYear': {
     zh: '{year} 年 · {label}：{value}',
@@ -397,10 +397,10 @@ export default {
     en: 'latest',
   },
   'timeline.modeByShowNote': {
-    zh: '默认堆叠前 5 个系列，其余并入「其他」；日场 / 夜场由场次说明中已核实的昼夜证据拆分。点击柱段进入系列页，点击柱间空白展开该年演出列表。',
-    'zh-Hant': '預設堆疊前 5 個系列，其餘併入「其他」；日場 / 夜場由場次說明中已核實的晝夜證據拆分。點選柱段進入系列頁，點選柱間空白展開該年演出列表。',
-    ja: '既定では上位 5 シリーズを積み上げ、残りは「その他」にまとめます。昼公演 / 夜公演はセットリスト注記で確認できた昼夜の根拠で分けます。棒をクリックするとシリーズページへ、棒の間の空白をクリックするとその年の公演一覧が開きます。',
-    en: 'By default the top five series are stacked and the rest fold into “Other”; day and night shows are split where the setlist notes prove both happened. Click a bar to open its series page, or the gap between bars to list that year’s performances.',
+    zh: '默认堆叠前 5 个系列，其余并入「其他」；日场 / 夜场由场次说明中已核实的昼夜证据拆分。点击柱间空白展开该年演出列表。',
+    'zh-Hant': '預設堆疊前 5 個系列，其餘併入「其他」；日場 / 夜場由場次說明中已核實的晝夜證據拆分。點選柱間空白展開該年演出列表。',
+    ja: '既定では上位 5 シリーズを積み上げ、残りは「その他」にまとめます。昼公演 / 夜公演はセットリスト注記で確認できた昼夜の根拠で分けます。棒の間の空白をクリックするとその年の公演一覧が開きます。',
+    en: 'By default the top five series are stacked and the rest fold into “Other”; day and night shows are split where the setlist notes prove both happened. Click the gap between bars to list that year’s performances.',
   },
   'timeline.online': {
     zh: '线上',
