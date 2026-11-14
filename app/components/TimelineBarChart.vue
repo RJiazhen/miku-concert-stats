@@ -46,6 +46,8 @@ const props = withDefaults(defineProps<{
   rightFormat?: TimelineRightFormat
   height?: number
   emptyText?: string
+  /** When false, bar segments and line points are not clickable and do not look like buttons; band clicks still emit select. */
+  selectableBars?: boolean
 }>(), {
   span: 0,
   bars: () => [],
@@ -57,10 +59,11 @@ const props = withDefaults(defineProps<{
   rightFormat: 'number',
   height: 260,
   emptyText: undefined,
+  selectableBars: true,
 })
 
 const emit = defineEmits<{
-  /** A bar or point was activated; the parent decides where to go. */
+  /** A year band, or (when selectableBars) a bar or point, was activated; the parent decides what to do. */
   select: [payload: { year: number; key: string }]
 }>()
 
@@ -515,12 +518,12 @@ const selectYear = (year: number, key: string): void => {
         <g
           v-for="rect in barRects"
           :key="rect.key"
-          class="cursor-pointer outline-none"
-          role="button"
-          tabindex="0"
-          :aria-label="t('chart.ariaBar', { year: years[rect.index], label: rect.label, value: formatBar(rect.value) }) + (rect.detail === null ? '' : ` · ${rect.detail}`)"
-          @click="selectYear(years[rect.index] ?? 0, rect.seriesKey)"
-          @keydown.enter.prevent="selectYear(years[rect.index] ?? 0, rect.seriesKey)"
+          :class="props.selectableBars ? 'cursor-pointer outline-none' : 'outline-none'"
+          :role="props.selectableBars ? 'button' : undefined"
+          :tabindex="props.selectableBars ? 0 : undefined"
+          :aria-label="props.selectableBars ? t('chart.ariaBar', { year: years[rect.index], label: rect.label, value: formatBar(rect.value) }) + (rect.detail === null ? '' : ` · ${rect.detail}`) : undefined"
+          @click="props.selectableBars ? selectYear(years[rect.index] ?? 0, rect.seriesKey) : undefined"
+          @keydown.enter.prevent="props.selectableBars ? selectYear(years[rect.index] ?? 0, rect.seriesKey) : undefined"
           @focus="hovered = rect.index"
           @mouseenter="hovered = rect.index"
         >
@@ -545,12 +548,12 @@ const selectYear = (year: number, key: string): void => {
         <g
           v-for="point in [...leftPoints, ...rightPoints]"
           :key="`point:${point.key}`"
-          class="cursor-pointer outline-none"
-          role="button"
-          tabindex="0"
-          :aria-label="t('chart.ariaPoint', { year: years[point.index], label: point.label, value: point.value })"
-          @click="selectYear(years[point.index] ?? 0, point.seriesKey)"
-          @keydown.enter.prevent="selectYear(years[point.index] ?? 0, point.seriesKey)"
+          :class="props.selectableBars ? 'cursor-pointer outline-none' : 'outline-none'"
+          :role="props.selectableBars ? 'button' : undefined"
+          :tabindex="props.selectableBars ? 0 : undefined"
+          :aria-label="props.selectableBars ? t('chart.ariaPoint', { year: years[point.index], label: point.label, value: point.value }) : undefined"
+          @click="props.selectableBars ? selectYear(years[point.index] ?? 0, point.seriesKey) : undefined"
+          @keydown.enter.prevent="props.selectableBars ? selectYear(years[point.index] ?? 0, point.seriesKey) : undefined"
           @focus="hovered = point.index"
           @mouseenter="hovered = point.index"
         >

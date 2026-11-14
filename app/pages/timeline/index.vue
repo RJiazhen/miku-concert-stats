@@ -724,14 +724,11 @@ const selectChartFromMenu = (key: string): void => {
   void goToChart(key)
 }
 
-/** Chart 1's click handler: a bar segment opens its series, empty band space toggles the year list. */
+/** Chart 1's click handler: only the band background toggles the year list; bar segments are not clickable. */
 const selectSeriesSegment = (payload: { year: number; key: string }): void => {
   if (payload.key === '') {
     showsYear.value = showsYear.value === payload.year ? null : payload.year
-    return
   }
-  const id = Number(payload.key.replace('series:', ''))
-  if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
 }
 
 /** Opens the series page behind a gantt strip. */
@@ -740,9 +737,11 @@ const selectSeriesSpan = (payload: { key: string }): void => {
   if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
 }
 
-/** Toggles the detail list of one year on chart 3. */
-const selectCharacterYear = (payload: { year: number }): void => {
-  characterYear.value = characterYear.value === payload.year ? null : payload.year
+/** Chart 3: only the band background toggles the year list; bar segments are not clickable. */
+const selectCharacterYear = (payload: { year: number; key: string }): void => {
+  if (payload.key === '') {
+    characterYear.value = characterYear.value === payload.year ? null : payload.year
+  }
 }
 
 /** Toggles the detail list of one year on chart 4. */
@@ -750,9 +749,11 @@ const selectSongsYear = (payload: { year: number }): void => {
   songsYear.value = songsYear.value === payload.year ? null : payload.year
 }
 
-/** Toggles the coverage note of one year on chart 6. */
-const selectCityYear = (payload: { year: number }): void => {
-  cityYear.value = cityYear.value === payload.year ? null : payload.year
+/** Chart 6: only the band background toggles the year note; bar segments are not clickable. */
+const selectCityYear = (payload: { year: number; key: string }): void => {
+  if (payload.key === '') {
+    cityYear.value = cityYear.value === payload.year ? null : payload.year
+  }
 }
 
 /** Note printed on the character chart; the share lines are only explained while they are drawn. */
@@ -977,6 +978,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             :bars="seriesChartBars"
             stacked
             :unit="t('timeline.unitShows')"
+            :selectable-bars="false"
             @select="selectSeriesSegment"
           />
           <template #footer>
@@ -1013,6 +1015,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             stacked
             :unit="t('timeline.unitSongs')"
             height="320"
+            :selectable-bars="false"
             @select="selectCharacterYear"
           />
           <template #footer>
@@ -1111,6 +1114,7 @@ useHead({ title: computed(() => t('timeline.title')) })
             right-format="percent"
             :unit="t('timeline.unitPerformances')"
             :right-unit="t('timeline.overseasRatio')"
+            :selectable-bars="false"
             @select="selectCityYear"
           />
           <template #footer>
