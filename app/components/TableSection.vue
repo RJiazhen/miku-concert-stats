@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends object">
-import { computed } from 'vue'
+import { computed, toRef } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
+import { useRankingScrollHandoff } from '~/composables/useRankingScrollHandoff.ts'
 import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 
@@ -53,6 +54,7 @@ const { t } = useLocale()
 const sorting = defineModel<Sorting>('sorting', { default: () => [] })
 
 const { tableAnchor, tableStyle } = useRankingTableHeight()
+useRankingScrollHandoff(tableAnchor, toRef(props, 'fill'))
 
 /** Whether the heading row has anything to print. */
 const hasHeader = computed(() => props.title !== '' || props.count !== null)
