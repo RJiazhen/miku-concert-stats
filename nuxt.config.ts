@@ -28,8 +28,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-10-06',
   // `@nuxt/cli` 4.0.1 crashes in `#syncAllowedHosts` when `devServer.host`
   // resolves to the schema's fallback object instead of a string, so name it.
-  // Default port 3939; parallel worktrees pass `--port` (3940, 3941, …) via `/continue`.
-  // If the chosen port is busy, Nuxt picks the next free one and prints it on `Local:`.
   devServer: {
     host: '127.0.0.1',
     port: 3939,

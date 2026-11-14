@@ -124,48 +124,30 @@ git -C "$WORKTREE" commit -m "<一句话说明这次改了什么>"
 
 - 不要在回合结束、汇报后、或 Start → Develop 之间把它杀掉。
 - 不要为了「确认显示」反复起停（见 `ui-style-review`）；热更新会吃到后续改动。
-- 每轮汇报前用 `lsof -nP -iTCP:"$PORT" -sTCP:LISTEN`（或对 `http://127.0.0.1:$PORT/` 的 `curl`）确认仍在听；死了再按下面步骤拉起，不要把已死的地址交给用户。
-
-**分配端口**：端口只登记在 gitignore 的 `$MAIN/tmp/dev-ports.md`（不要写进 `docs/architecture.md` 或任何会被提交的文件）。`nuxt.config.ts` 的默认开发端口是 `3939`。先看该文件里这个分支有没有记录，有就沿用；否则从 `3939` 起**依次 +1**，取比已登记端口都大的下一个（第一个任务 `3939`，第二个 `3940`，…）：
-
-```bash
-PORTS_FILE="$MAIN/tmp/dev-ports.md"
-mkdir -p "$MAIN/tmp"
-touch "$PORTS_FILE"
-PORT=$(rg -o "$BRANCH 用 ([0-9]+)" -r '$1' "$PORTS_FILE" 2>/dev/null | head -n1)
-if [ -z "$PORT" ]; then
-  LAST=$(rg -o '用 ([0-9]+)' -r '$1' "$PORTS_FILE" 2>/dev/null | sort -n | tail -n1)
-  if [ -z "$LAST" ] || [ "$LAST" -lt 3939 ]; then
-    PORT=3939
-  else
-    PORT=$((LAST + 1))
-  fi
-  printf '%s 用 %s\n' "$BRANCH" "$PORT" >> "$PORTS_FILE"
-fi
-```
+- 每轮汇报前确认本任务登记的端口仍在响应；死了再按下面步骤拉起，不要把已死的地址交给用户。
 
 **启动（必须常驻，禁止随 agent shell 一起死）**：
 
-不要用「一次性 Shell 里的 `nohup … &` 然后该 Shell 立刻退出」——Cursor 会收掉那个进程组，端口看起来起过、下一轮已经没了。用下面两种之一：
+不要预扫、不要手工挑选空闲端口。直接起服务：`nuxt.config.ts` 默认从 `3939` 开始，端口被占用时 Nuxt 会自动换下一个。不要用「一次性 Shell 里的 `nohup … &` 然后该 Shell 立刻退出」——Cursor 会收掉那个进程组。用下面两种之一：
 
-1. **优先**：Shell 工具以 `block_until_ms: 0` 在任务 worktree 里起**常驻后台任务**（工作目录 = `$WORKTREE`），命令不要带多余的 `--`：
+1. **优先**：Shell 工具以 `block_until_ms: 0` 在任务 worktree 里起**常驻后台任务**（工作目录 = `$WORKTREE`）：
 
 ```bash
-env NUXT_IGNORE_LOCK=1 vp run dev --port "$PORT"
+env NUXT_IGNORE_LOCK=1 vp run dev
 ```
 
-（`vp dev --port "$PORT"` 也可以；**禁止** `vp run dev -- --port …`，多出来的 `--` 会让 Nuxt 忽略端口并落到默认/错误值。）
+（`vp dev` 也可以；**禁止** `vp run dev -- --port …` 这种带多余 `--` 的写法。）
 
-2. **备选**（没有常驻 Shell 时）：`screen` 会话，名称带上分支，避免和其他任务撞名：
+2. **备选**（没有常驻 Shell 时）：`screen` 会话，名称带上分支：
 
 ```bash
 screen -dmS "miku-$BRANCH" zsh -lc \
-  "cd \"$WORKTREE\" && env NUXT_IGNORE_LOCK=1 vp run dev --port $PORT >> tmp/dev-server.log 2>&1"
+  "cd \"$WORKTREE\" && env NUXT_IGNORE_LOCK=1 vp run dev >> tmp/dev-server.log 2>&1"
 ```
 
-**以 Nuxt 实际绑定的端口为准**：目标端口被占用时 Nuxt 会自动换下一个，并在日志里打印 `➜ Local: http://127.0.0.1:<actual>/`（或 `Ready … → http://127.0.0.1:<actual>/`）。启动后从常驻 Shell 终端输出或 `tmp/dev-server.log` 里解析出这个 `<actual>`；若与登记的 `$PORT` 不同，把 `$PORTS_FILE` 里本分支那一行改成实际端口，之后的 `curl` / 汇报 / Ship 清理都用实际端口。不要把「请求的端口」或参数没传上时的错误端口报给用户。
+**读出实际端口并登记**：启动后从常驻 Shell 终端输出或 `tmp/dev-server.log` 解析 `➜ Local: http://127.0.0.1:<port>/`（或 `Ready … → http://127.0.0.1:<port>/`）。把该端口写入 gitignore 的 `$MAIN/tmp/dev-ports.md`（格式：`<branch> 用 <port>`；已有本分支行则改写，不要追加重复行）。之后的 `curl`、汇报地址、Ship 清理都只用这个实际端口。不要把端口策略写进 `docs/` 或其它会提交的文件。
 
-用一小段有界轮询确认**实际端口**在听且有响应（`lsof` + `curl`，期望 200/302/304，最多约 60 秒）。起不来就读终端输出或日志，不要反复乱杀重来。
+用一小段有界轮询确认该端口有响应（`curl`，期望 200/302/304，最多约 60 秒）。起不来就读终端输出或日志，不要反复乱杀重来。
 
 ### 6. 汇报并停止
 
@@ -176,7 +158,7 @@ screen -dmS "miku-$BRANCH" zsh -lc \
 1. 按用户本轮的新要求改代码；只在**本任务的** worktree 里改动，不碰别的任务 worktree 与分支。
 2. 需要时跑 `pnpm test`（口径见 testing rule）。
 3. 改完按 Start 第 4 步提交到任务分支（有 `permissions.push` 就 push，否则只本地提交）。
-4. 先确认本任务端口仍在听；没在跑才用 `$MAIN/tmp/dev-ports.md` 里的端口按 Start 第 5 步重新拉起。不要顺手重启已在跑的服务器。
+4. 先确认 `$MAIN/tmp/dev-ports.md` 里本分支的实际端口仍在响应；没在跑才按 Start 第 5 步重新拉起（再读日志登记新端口）。不要顺手重启已在跑的服务器。
 5. 汇报同样的信息并停止，等用户验收。本轮不合并、不开 PR、不停开发服务器。
 
 一个 worktree 只做一个任务：本轮需求与已有改动无关时，说明情况并按 Start 新建 worktree，不要在同一分支上混做；也不要接着别人的 worktree 继续改。

@@ -9,8 +9,7 @@ Use **[Vite+](https://viteplus.dev/) (`vp`)** for day-to-day work: `vp install`,
 ```bash
 vp install
 vp test
-vp dev                 # rebuilds catalog, then nuxt dev (default port 3939)
-vp run dev --port 3940 # parallel worktree; Nuxt bumps if the port is busy
+vp dev                 # rebuilds catalog, then nuxt dev
 ```
 
 

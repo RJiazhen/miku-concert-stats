@@ -9,7 +9,7 @@ alwaysApply: true
 
 ## 1. 新建
 
-`/continue` 第一次调用会自动完成本节：建 worktree、从 `origin/main` 拉分支、登记 workspace、挑端口。手工建时照下面的命令。
+`/continue` 第一次调用会自动完成本节：建 worktree、从 `origin/main` 拉分支、登记 workspace、起开发服务器。手工建时照下面的命令。
 
 ```bash
 MAIN="$HOME/projects/full-stack/miku-concert-stats.worktrees/main"
@@ -24,8 +24,7 @@ git -C "$MAIN" worktree add \
 - 目录名与分支名一致：`.../miku-concert-stats.worktrees/<branch>`。
 - 分支从 `origin/main` 拉出，不要复用已经合并过的旧分支。
 - 把新目录加进旁边的 `miku-concert-stats.code-workspace` 的 `folders`（`name` 与 `path` 都用分支名）。
-- 开发服务器端口从 `3939` 起按工作树依次递增（`3939`、`3940`、`3941`…），写入 gitignore 目录 `$MAIN/tmp/dev-ports.md`（格式：`<branch> 用 <port>`）。不要写进 `docs/` 或其他会被提交的文件。Nuxt 在端口被占用时会自动换下一个；以启动日志里的 `Local:` 为准并回写登记。
-- 每个任务只跑自己的那一个开发服务器；从交付验收起一直保持运行，直到 `/continue` Ship 清理成功，或用户明确要求关掉。不要在回合结束或改完代码后顺手停掉。启动方式见 `.cursor/skills/continue/SKILL.md`（常驻后台 Shell 或 `screen`，不要用会随 agent shell 退出而死去的 `nohup … &`）。
+- 每个任务只跑自己的那一个开发服务器；从交付验收起一直保持运行，直到 `/continue` Ship 清理成功，或用户明确要求关掉。不要在回合结束或改完代码后顺手停掉。启动方式与端口登记见 `.cursor/skills/continue/SKILL.md`（常驻后台 Shell 或 `screen`，不要用会随 agent shell 退出而死去的 `nohup … &`）。
 
 ## 2. 开发与提交
 
