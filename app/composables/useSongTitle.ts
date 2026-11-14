@@ -4,6 +4,7 @@ import { useSongAliases } from './useSongAliases.ts'
 import { useSongLookup } from './useSongLookup.ts'
 import rawTitles from '~~/data/song-titles.zh-CN.json'
 import rawHantTitles from '~~/data/song-titles.zh-Hant.json'
+import rawKoTitles from '~~/data/song-titles.ko.json'
 import {
   formatSongTitle,
   matchSongTitle,
@@ -17,11 +18,12 @@ import {
 
 const titles = parseSongTitles(rawTitles)
 const hantTitles = parseSongTitles(rawHantTitles)
+const koTitles = parseSongTitles(rawKoTitles)
 
 /**
  * Song titles in the active language.
  * Japanese shows the Japanese title alone (plus the catalog name in gray when an alias replaced
- * it); the Chinese variants and English show the translated title over the Japanese original.
+ * it); Chinese, English, and sourced Korean show the translated title over the Japanese original.
  */
 export const useSongTitle = () => {
   const { locale, showOriginalTitle } = useLocale()
@@ -34,10 +36,14 @@ export const useSongTitle = () => {
   /** Checked Traditional Chinese entry, falling back to the Simplified row when it has none. */
   const hantEntry = (songId: number): SongTitleEntry | null => songTitleFor(hantTitles, songId) ?? chineseEntry(songId)
 
+  /** Checked Korean entry; missing ids stay on the original catalog title. */
+  const koreanEntry = (songId: number): SongTitleEntry | null => songTitleFor(koTitles, songId)
+
   /** Title shown in the active language, or null when neither the catalog nor a file has one. */
   const translationFor = (songId: number): string | null => {
     if (locale.value === 'zh') return chineseEntry(songId)?.title ?? null
     if (locale.value === 'zh-Hant') return hantEntry(songId)?.title ?? null
+    if (locale.value === 'ko') return koreanEntry(songId)?.title ?? null
     if (locale.value === 'en') {
       const nameEn = songById(songId)?.name_en ?? ''
       return nameEn.trim() === '' ? null : nameEn
@@ -52,6 +58,7 @@ export const useSongTitle = () => {
       ...aliasTitles(songId),
       ...songTitleSpellings(titles, songId),
       ...songTitleSpellings(hantTitles, songId),
+      ...songTitleSpellings(koTitles, songId),
       ...(nameEn === '' ? [] : [nameEn]),
     ]
   }
@@ -69,6 +76,7 @@ export const useSongTitle = () => {
       nameEn: song?.name_en ?? null,
       zhTitle: chineseEntry(songId)?.title ?? null,
       hantTitle: hantEntry(songId)?.title ?? null,
+      koTitle: koreanEntry(songId)?.title ?? null,
     }, { showOriginalTitle: showOriginalTitle.value })
   }
 
@@ -85,6 +93,7 @@ export const useSongTitle = () => {
       nameEn: song?.name_en ?? null,
       zhTitle: chineseEntry(songId)?.title ?? null,
       hantTitle: hantEntry(songId)?.title ?? null,
+      koTitle: koreanEntry(songId)?.title ?? null,
     }, { showOriginalTitle: showOriginalTitle.value })
   }
 

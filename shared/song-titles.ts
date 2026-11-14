@@ -35,6 +35,8 @@ export type SongTitleSources = {
   zhTitle?: string | null
   /** Traditional Chinese title even when another language shows, so a Traditional search hit can be explained. */
   hantTitle?: string | null
+  /** Korean title even when another language shows, so a Korean search hit can be explained. */
+  koTitle?: string | null
 }
 
 /** Primary title, the Japanese names printed in gray, and the other names of the active language. */
@@ -176,8 +178,8 @@ export type SongTitleOptions = {
  * Formats a song title for the active language.
  * Japanese shows the Japanese title alone, and adds the catalog name in gray when an alias has
  * replaced it (song 404329 reads `ナイフ、ナイフ、ナイフ` over the emoji default `🔪、🔪、🔪`).
- * Chinese and English show the translation over the Japanese original, unless the reader turned
- * the original-name switch off.
+ * Chinese, English, and sourced Korean show the translation over the Japanese original, unless
+ * the reader turned the original-name switch off.
  */
 export const formatSongTitle = (
   locale: Locale,
@@ -247,6 +249,7 @@ export const matchSongTitle = (
       sources.catalogName,
       sources.zhTitle,
       sources.hantTitle,
+      sources.koTitle,
       ...(sources.zhAliases ?? []),
       ...(sources.hantAliases ?? []),
       ...(sources.originalAliases ?? []),

@@ -1,7 +1,7 @@
 import type { Locale } from './i18n/index.ts'
 import { nameIn, parseNameMaps, type NameMapInput, type NameMaps } from './name-map.ts'
 
-/** Canonical (Japanese) character name to its checked Chinese and English names. */
+/** Canonical (Japanese) character name to its checked Chinese, English, and Korean names. */
 export type CharacterNameFile = NameMaps
 
 /**
@@ -28,6 +28,7 @@ export const characterSortLocale = (locale: Locale): string => {
   if (locale === 'en') return 'en'
   if (locale === 'zh') return 'zh-CN'
   if (locale === 'zh-Hant') return 'zh-Hant'
+  if (locale === 'ko') return 'ko'
   return 'ja'
 }
 

@@ -54,7 +54,7 @@ const connectorPattern = (key: string): RegExp => {
 }
 
 /** Empty index so callers can skip localization without branching. */
-export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, 'zh-Hant': {}, en: {} }, entries: [] })
+export const emptyPlaceNameIndex = (): PlaceNameIndex => ({ names: { zh: {}, 'zh-Hant': {}, en: {}, ko: {} }, entries: [] })
 
 /**
  * Validates the place files and builds the matchers.
