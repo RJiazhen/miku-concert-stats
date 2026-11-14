@@ -290,12 +290,14 @@ export default {
     zh: '已取消',
     'zh-Hant': '已取消',
     ja: '中止',
+    ko: '취소',
     en: 'Cancelled',
   },
   'common.dateUndetermined': {
     zh: '尚未确定',
     'zh-Hant': '尚未確定',
     ja: '未定',
+    ko: '미정',
     en: 'Date undetermined',
   },
   'common.versions': {
