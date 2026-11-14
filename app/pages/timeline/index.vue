@@ -15,6 +15,11 @@ import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
 import { buildProducerIndex } from '~~/shared/producers.ts'
 import { emptySongVariantIndex } from '~~/shared/song-variants.ts'
 import { buildTimeline, type NewSongBaseline, type TimelineCount } from '~~/shared/timeline.ts'
+import {
+  cityYearDetail,
+  performancesOfYear,
+  positiveCharacterYearRows,
+} from '~~/shared/timeline-year-details.ts'
 import { availablePerformanceYears, normalizeYearRange } from '~~/shared/year-range.ts'
 
 /** One chart series passed to the SVG components. */
@@ -403,26 +408,22 @@ const cityYear = ref<number | null>(null)
 /** 演出 of the picked year, with their names and links. */
 const showsYearPerformances = computed(() => {
   const current = timeline.value
-  if (current === null || showsYear.value === null) return []
+  if (current === null) return []
   const byId = new Map((catalog.value?.performances ?? []).map((row) => [row.id, row]))
-  return current.performances
-    .filter((row) => row.year === showsYear.value)
-    .flatMap((row) => {
-      const performance = byId.get(row.id)
-      if (performance === undefined) return []
-      const series = seriesById.value.get(performance.series_id)
-      const label = localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number))
-      return [{ ...row, label }]
-    })
+  return performancesOfYear(current.performances, showsYear.value).flatMap((row) => {
+    const performance = byId.get(row.id)
+    if (performance === undefined) return []
+    const series = seriesById.value.get(performance.series_id)
+    const label = localizePlace(localizePerformanceSeries(performance.name, series?.name ?? '', performance.series_number))
+    return [{ ...row, label }]
+  })
 })
 
 /** Character song counts of the picked year, most songs first; zero counts stay out of the list. */
 const characterYearRows = computed(() => {
   const current = timeline.value
-  if (current === null || characterYear.value === null) return []
-  return current.characterSongByYear
-    .filter((row) => row.year === characterYear.value && row.count > 0)
-    .sort((left, right) => right.count - left.count || compareCharacters(left.name, right.name))
+  if (current === null) return []
+  return positiveCharacterYearRows(current.characterSongByYear, characterYear.value, compareCharacters)
 })
 
 /** Song count text: whole numbers stay whole, split chorus counts keep at most two decimals. */
@@ -442,11 +443,8 @@ const songsYearRow = computed(() => {
  */
 const cityYearRow = computed(() => {
   const current = timeline.value
-  if (current === null || cityYear.value === null) return null
-  const row = current.cityByYear.find((entry) => entry.year === cityYear.value)
-  if (row === undefined) return null
-  if (row.domestic + row.overseas + row.online + row.unknownCountry <= 0) return null
-  return row
+  if (current === null) return null
+  return cityYearDetail(current.cityByYear, cityYear.value)
 })
 
 /** Query keys and hash mirrored into the URL. */
