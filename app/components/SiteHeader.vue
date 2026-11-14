@@ -2,6 +2,7 @@
 import { LOCALES, localeSelfName, type Locale } from '~~/shared/i18n/index.ts'
 import { useAiPrompt } from '~/composables/useAiPrompt.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+import { headerSocialLinks } from '~~/shared/header-social.ts'
 
 const { t, locale, setLocale, showOriginalTitle } = useLocale()
 const { copyPrompt: writePrompt } = useAiPrompt()
@@ -434,31 +435,21 @@ onBeforeUnmount(() => {
         <div class="hidden lg:block">
           <UColorModeButton color="neutral" variant="ghost" size="sm" />
         </div>
-        <div class="hidden lg:block">
-          <UTooltip :text="t('nav.github')">
+        <div
+          v-for="link in headerSocialLinks"
+          :key="link.key"
+          class="hidden lg:block"
+        >
+          <UTooltip :text="t(link.tooltipKey)">
             <UButton
-              to="https://github.com/RJiazhen/miku-concert-stats"
+              :to="link.href"
               target="_blank"
               rel="noopener noreferrer"
-              icon="i-tabler:brand-github"
+              :icon="link.icon"
               color="neutral"
               variant="ghost"
               size="sm"
-              :aria-label="t('nav.githubNewWindow')"
-            />
-          </UTooltip>
-        </div>
-        <div class="hidden lg:block">
-          <UTooltip :text="t('nav.x')">
-            <UButton
-              to="https://x.com/JasonRuanrjz"
-              target="_blank"
-              rel="noopener noreferrer"
-              icon="i-tabler:brand-x"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              :aria-label="t('nav.xNewWindow')"
+              :aria-label="t(link.ariaKey)"
             />
           </UTooltip>
         </div>
@@ -555,7 +546,7 @@ onBeforeUnmount(() => {
               />
             </label>
           </div>
-          <!-- AI prompt on its own full-width row, then GitHub + X icons centred below. -->
+          <!-- AI prompt on its own full-width row, then GitHub, X, and Bilibili icons centred below. -->
           <div class="mt-1 flex flex-col gap-0.5 border-t border-default pt-1">
             <UButton
               icon="i-tabler:ai"
@@ -568,28 +559,20 @@ onBeforeUnmount(() => {
             />
           </div>
           <div class="mt-1 flex items-center justify-center gap-1 border-t border-default pt-1.5">
-            <UTooltip :text="t('nav.github')">
+            <UTooltip
+              v-for="link in headerSocialLinks"
+              :key="link.key"
+              :text="t(link.tooltipKey)"
+            >
               <UButton
-                to="https://github.com/RJiazhen/miku-concert-stats"
+                :to="link.href"
                 target="_blank"
                 rel="noopener noreferrer"
-                icon="i-tabler:brand-github"
+                :icon="link.icon"
                 color="neutral"
                 variant="ghost"
                 size="md"
-                :aria-label="t('nav.githubNewWindow')"
-              />
-            </UTooltip>
-            <UTooltip :text="t('nav.x')">
-              <UButton
-                to="https://x.com/JasonRuanrjz"
-                target="_blank"
-                rel="noopener noreferrer"
-                icon="i-tabler:brand-x"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                :aria-label="t('nav.xNewWindow')"
+                :aria-label="t(link.ariaKey)"
               />
             </UTooltip>
           </div>
