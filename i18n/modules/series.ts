@@ -70,7 +70,8 @@ export default {
     zh: '总览',
     'zh-Hant': '總覽',
     ja: '一覧',
-    en: 'performances',
+    // Leading space: desktop joins heading1+heading2 without a break (`<br class="sm:hidden">`).
+    en: ' performances',
   },
   'series.indexTitle': {
     zh: '系列与演出总览',

@@ -34,7 +34,8 @@ export default {
     zh: '排名',
     'zh-Hant': '排名',
     ja: 'ランキング',
-    en: 'ranking',
+    // Leading space: desktop joins heading1+heading2 without a break (`<br class="sm:hidden">`).
+    en: ' ranking',
   },
   'cities.note': {
     zh: '「场次」按演出日计数，日场 / 夜场分别计数',
