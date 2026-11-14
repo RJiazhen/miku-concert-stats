@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useElementWidth } from '~/composables/useElementWidth.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+import { chartDrawingWidth, chartLayoutKey, chartOverflowClass } from '~~/shared/chart-layout.ts'
 
 /** One gantt row: a continuous span of years plus a clickable key. */
 export type TimelineGanttRow = {
@@ -44,6 +45,8 @@ const MARGIN = { top: 8, right: 20, bottom: 28, left: 128 }
 
 /** Column width the drawing stretches to, so a wide page has no dead space on the right. */
 const { widthAnchor, elementWidth } = useElementWidth()
+const layout = inject(chartLayoutKey, null)
+const fitToContainer = computed(() => layout?.value.fitToContainer === true)
 
 /** Index of the row under the cursor or keyboard focus. */
 const hovered = ref<string | null>(null)
@@ -52,7 +55,14 @@ const hovered = ref<string | null>(null)
 const slots = computed(() => Math.max(props.years.length, props.span))
 
 /** Drawing width of the band scale: 42 units per year, stretched to fill the column when wider. */
-const width = computed(() => Math.max(MIN_WIDTH, slots.value * 42 + MARGIN.left + MARGIN.right, elementWidth.value))
+const width = computed(() =>
+  chartDrawingWidth({
+    fitToContainer: fitToContainer.value,
+    elementWidth: elementWidth.value,
+    minWidth: MIN_WIDTH,
+    slotPixels: slots.value * 42 + MARGIN.left + MARGIN.right,
+  }),
+)
 const plotWidth = computed(() => width.value - MARGIN.left - MARGIN.right)
 const band = computed(() => plotWidth.value / Math.max(1, props.years.length))
 const chartHeight = computed(() => (props.height > 0 ? props.height : MARGIN.top + Math.max(1, props.rows.length) * ROW_HEIGHT + MARGIN.bottom))
@@ -103,7 +113,7 @@ const hoveredRow = computed(() => props.rows.find((row) => row.key === hovered.v
     </div>
 
     <p v-if="rows.length === 0 || years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText ?? t('chart.noData') }}</p>
-    <div v-else ref="widthAnchor" class="-mx-1 overflow-x-auto px-1">
+    <div v-else ref="widthAnchor" :class="chartOverflowClass(fitToContainer)">
       <svg
         :width="width"
         :height="chartHeight"

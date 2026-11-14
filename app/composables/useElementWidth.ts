@@ -9,6 +9,8 @@ type ElementWidth = {
   widthAnchor: Ref<WidthTarget>
   /** Measured content width in CSS pixels; `0` until the first client-side measurement. */
   elementWidth: Ref<number>
+  /** Measured content height in CSS pixels; `0` until the first client-side measurement. */
+  elementHeight: Ref<number>
 }
 
 /** Resolves the element a template ref points at, unwrapping component instances via `$el`. */
@@ -31,6 +33,7 @@ const resolveTarget = (target: WidthTarget): HTMLElement | null => {
 export const useElementWidth = (): ElementWidth => {
   const widthAnchor = ref<WidthTarget>(null)
   const elementWidth = ref(0)
+  const elementHeight = ref(0)
   let observer: ResizeObserver | null = null
 
   /** Reads the anchor's content width, excluding its horizontal padding. */
@@ -39,7 +42,9 @@ export const useElementWidth = (): ElementWidth => {
     if (anchor === null) return
     const style = getComputedStyle(anchor)
     const padding = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight)
+    const vertical = Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom)
     elementWidth.value = Math.max(0, Math.floor(anchor.clientWidth - padding))
+    elementHeight.value = Math.max(0, Math.floor(anchor.clientHeight - vertical))
   }
 
   /** Observes the current anchor; called on mount and whenever the template ref rebinds. */
@@ -48,6 +53,7 @@ export const useElementWidth = (): ElementWidth => {
     const anchor = resolveTarget(widthAnchor.value)
     if (anchor === null) {
       elementWidth.value = 0
+      elementHeight.value = 0
       return
     }
     observer = new ResizeObserver(measure)
@@ -75,5 +81,5 @@ export const useElementWidth = (): ElementWidth => {
   }
   onUnmounted(stopTracking)
 
-  return { widthAnchor, elementWidth }
+  return { widthAnchor, elementWidth, elementHeight }
 }

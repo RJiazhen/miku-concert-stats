@@ -239,6 +239,28 @@ Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目�
 
 时间线的「场次 / 系列」、巡演城市迁移与角色曲目数年度变化三张柱图：悬停明细与点击展开的年份明细只列出该年有值的系列 / 分区 / 角色（以及对应的折线点）；数值为 0 或缺失的项不出现在明细里。年份选择、悬停提示本身与图上的合计（堆叠柱总高、轴刻度、页头汇总）保持不变，不因隐藏零项而改写计数口径。该行为由聚焦回归测试覆盖（`TimelineBarChart` 的 `hoverValues`，以及三图年份脚注的 `showsYearPerformances` / `characterYearRows` / `cityYearRow`）。
 
+## Mobile chart fullscreen (issue #49)
+
+On a narrow viewport, the timeline charts (stacked shows/series, character songs, new/returning songs, touring cities, and the series-activity gantt) can require horizontal scrolling, because the drawing uses a 720px minimum width.
+
+A dedicated, touch-safe ghost (borderless) button on the chart card — not a tap on a bar, line point, or gantt strip — opens that chart in a viewport-filling dialog. The dialog shows only the chart plotting area. The in-card title, explanatory note, filter or action controls, and year-details footer stay on the page card and are not repeated in fullscreen. Download and close controls sit as a borderless overlay in the plot stage's top-right corner (always visible on narrow viewports and in fullscreen; hover/focus on desktop), outside the export capture root. The legend/hint row keeps right clearance equal to the chrome width so labels wrap instead of sitting under the buttons, and the stage keeps left padding so the series legend does not meet the viewport edge. The plot is fitted to the remaining space so it does not need horizontal scrolling. Vertical scrolling may remain for a tall gantt.
+
+On a compact portrait viewport, opening fullscreen first requests browser fullscreen on the dialog (required by many engines before orientation can lock), then calls the Screen Orientation API to lock landscape. The plot fills whatever viewport the browser reports after that; there is no CSS rotate fallback. Desktop-wide or already-landscape viewports skip both requests and simply fill the remaining space. Locks and browser fullscreen are released when the dialog closes. Browsers that reject the APIs (including typical iOS Safari tabs) keep the current orientation and still show a fitted portrait fullscreen plot with the same top-right chrome.
+
+Existing bar, point, and gantt-strip click behavior is unchanged on this base: this change does not add or remove series navigation or selected-bar recoloring. Escape, the close control, and returning the card to the page exit fullscreen. The page behind does not scroll while the dialog is open.
+
+## Chart JPEG export (issue #50)
+
+Each timeline chart card has a control that downloads that chart as a real JPEG (`image/jpeg`), not a PNG or a screenshot of the page. The file uses a solid background taken from the card surface (falling back to the active light/dark canvas) so transparent SVG areas do not become black, and title/legend ink uses the theme's highlighted text rather than muted gray. Series colors that are stored as CSS variables are resolved through computed style before painting so swatches and bars keep their on-screen hues. The download includes the plot and, when present, the in-card title and legend. The JPEG uses the chart's full natural drawing bounds (the SVG width, viewBox, and any overflowed scroll width), not only the slice visible in a narrow card, so later years and series that sit in horizontal overflow still appear. User-selected filters are preserved in the drawing and appended to the `.jpg` filename when any filter chips are active. Existing bar, point, gantt-strip, year-band, hover, and fullscreen behavior is unchanged.
+
+Placement keeps the controls outside the export capture root so they do not appear in the JPEG:
+
+- On a desktop-width card, download and fullscreen sit as a ghost overlay at the top-right of the chart area and are shown when the card is hovered or a control is focused.
+- On a narrow viewport, the same overlay stays visible at all times.
+- In the fullscreen dialog, download and close sit as the same always-visible top-right overlay on the padded plot stage.
+
+Clicks, pointer-downs, and keyboard activation on the export control stop propagation so they cannot select a year, navigate, or toggle fullscreen. Accessible labels are provided in every current UI locale.
+
 ## 页眉社交链接
 
 页眉顶栏在语言与主题按钮之后、从左到右依次放 GitHub、X、哔哩哔哩三个外链图标：哔哩哔哩必须紧挨在现有 X 图标的右侧，链接固定为 `https://b23.tv/IITMbFk`，无障碍标签为「k9009's Bilibili profile」（各语言有对应文案）。图标用与 GitHub / X 相同的 tabler brand 图标包（`i-tabler:brand-bilibili`），按钮尺寸、颜色、`target="_blank"` 与 `rel="noopener noreferrer"` 与现有外链一致。窄屏菜单里 GitHub + X 那一行同样把哔哩哔哩放在 X 右侧。

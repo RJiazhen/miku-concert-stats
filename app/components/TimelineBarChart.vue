@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useElementWidth } from '~/composables/useElementWidth.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+import { chartDrawingWidth, chartLayoutKey, chartOverflowClass } from '~~/shared/chart-layout.ts'
 
 /** One series drawn as bars or as a line; `values` is aligned with `years`. */
 export type TimelineSeries = {
@@ -78,7 +79,9 @@ const MIN_WIDTH = 720
 const MARGIN = { top: 16, right: 56, bottom: 32, left: 48 }
 
 /** Column width the drawing stretches to, so a wide page has no dead space on the right. */
-const { widthAnchor, elementWidth } = useElementWidth()
+const { widthAnchor, elementWidth, elementHeight } = useElementWidth()
+const layout = inject(chartLayoutKey, null)
+const fitToContainer = computed(() => layout?.value.fitToContainer === true)
 
 /** Index of the year under the cursor or keyboard focus. */
 const hovered = ref<number | null>(null)
@@ -87,9 +90,21 @@ const hovered = ref<number | null>(null)
 const slots = computed(() => Math.max(props.years.length, props.span))
 
 /** Drawing width of the band scale: 42 units per year, stretched to fill the column when wider. */
-const width = computed(() => Math.max(MIN_WIDTH, slots.value * 42 + MARGIN.left + MARGIN.right, elementWidth.value))
+const width = computed(() =>
+  chartDrawingWidth({
+    fitToContainer: fitToContainer.value,
+    elementWidth: elementWidth.value,
+    minWidth: MIN_WIDTH,
+    slotPixels: slots.value * 42 + MARGIN.left + MARGIN.right,
+  }),
+)
 const plotWidth = computed(() => width.value - MARGIN.left - MARGIN.right)
-const plotHeight = computed(() => props.height - MARGIN.top - MARGIN.bottom)
+/** In a fitted fullscreen layout the SVG fills the remaining container height. */
+const height = computed(() => {
+  if (fitToContainer.value && elementHeight.value > 0) return elementHeight.value
+  return props.height
+})
+const plotHeight = computed(() => Math.max(1, height.value - MARGIN.top - MARGIN.bottom))
 const band = computed(() => plotWidth.value / Math.max(1, props.years.length))
 
 /** One axis: its top value and the tick values drawn along it. */
@@ -438,11 +453,16 @@ const selectBarOrPoint = (year: number, seriesKey: string, event?: Event): void 
 </script>
 
 <template>
-  <div>
-    <div v-if="legend.length > 0" class="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+  <div :class="fitToContainer ? 'flex h-full min-h-0 flex-col' : ''">
+    <div
+      v-if="legend.length > 0"
+      data-chart-export="legend"
+      class="mb-1 flex min-h-11 flex-wrap content-center items-center gap-x-3 gap-y-1 text-xs text-muted"
+    >
       <span
         v-for="item in legend"
         :key="item.key"
+        data-chart-export-item
         class="inline-flex items-center gap-1.5"
         :class="item.detail === null ? '' : 'cursor-help'"
         :title="item.detail ?? undefined"
@@ -453,8 +473,8 @@ const selectBarOrPoint = (year: number, seriesKey: string, event?: Event): void 
         @blur="blurLegend"
       >
         <span class="inline-flex items-center gap-0.5">
-          <span v-if="item.bar" class="inline-block size-2.5 rounded-sm" :style="{ backgroundColor: item.color }" />
-          <span v-if="item.line" class="inline-block h-0.5 w-3 rounded-full" :style="{ backgroundColor: item.color }" />
+          <span v-if="item.bar" data-chart-export-swatch class="inline-block size-2.5 rounded-sm" :style="{ backgroundColor: item.color }" />
+          <span v-if="item.line" data-chart-export-swatch class="inline-block h-0.5 w-3 rounded-full" :style="{ backgroundColor: item.color }" />
         </span>
         {{ item.label }}
       </span>
@@ -482,7 +502,11 @@ const selectBarOrPoint = (year: number, seriesKey: string, event?: Event): void 
     </div>
 
     <p v-if="years.length === 0" class="py-10 text-center text-sm text-muted">{{ emptyText ?? t('chart.noData') }}</p>
-    <div v-else ref="widthAnchor" class="-mx-1 overflow-x-auto px-1">
+    <div
+      v-else
+      ref="widthAnchor"
+      :class="[chartOverflowClass(fitToContainer), fitToContainer ? 'min-h-0 min-w-0 flex-1' : '']"
+    >
       <svg
         :width="width"
         :height="height"

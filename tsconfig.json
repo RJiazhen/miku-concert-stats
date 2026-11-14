@@ -19,6 +19,9 @@
   "include": ["shared/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
   "exclude": [
     "tests/timeline-bar-chart.test.ts",
-    "tests/timeline-hide-zero-year-details.test.ts"
+    "tests/timeline-hide-zero-year-details.test.ts",
+    "tests/timeline-chart-card.test.ts",
+    "tests/timeline-chart-fit-width.test.ts",
+    "tests/timeline-chart-export.test.ts"
   ]
 }

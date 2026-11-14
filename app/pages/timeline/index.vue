@@ -577,6 +577,16 @@ const chips = computed<Chip[]>(() => {
 /** Count of active conditions, shown on the reset button. */
 const activeCount = computed(() => chips.value.length)
 
+/** Filter labels shared by every chart JPEG filename. */
+const exportFilterLabels = computed(() => chips.value.map((chip) => chip.label))
+
+/** Shows-chart filename also records an active series-focus selection. */
+const showsExportFilters = computed(() => {
+  const labels = [...exportFilterLabels.value]
+  for (const id of seriesFocus.value) labels.push(seriesLabel(id))
+  return labels
+})
+
 /** Removes one condition from its chip. */
 const removeChip = (key: string): void => {
   if (key === 'broadcast') {
@@ -954,6 +964,7 @@ useHead({ title: computed(() => t('timeline.title')) })
         <TimelineChartCard
           :title="t('timeline.chartShows')"
           :note="t('timeline.modeByShowNote')"
+          :export-filters="showsExportFilters"
         >
           <template #actions>
             <FilterField :label="t('timeline.seriesFocus')">
@@ -998,6 +1009,7 @@ useHead({ title: computed(() => t('timeline.title')) })
         <TimelineChartCard
           :title="t('timeline.characterTitle')"
           :note="characterNote"
+          :export-filters="exportFilterLabels"
         >
           <template #actions>
             <USwitch v-model="splitChorusSongs" :label="t('timeline.characterRuleSplit')" size="sm" />
@@ -1033,6 +1045,7 @@ useHead({ title: computed(() => t('timeline.title')) })
         <TimelineChartCard
           :title="t('timeline.newSongsTitle')"
           :note="newSongNote"
+          :export-filters="exportFilterLabels"
         >
           <template #actions>
             <UFieldGroup size="sm">
@@ -1087,6 +1100,7 @@ useHead({ title: computed(() => t('timeline.title')) })
         <TimelineChartCard
           :title="t('timeline.seriesSpansTitle')"
           :note="t('timeline.seriesSpansNote')"
+          :export-filters="exportFilterLabels"
         >
           <TimelineGantt
             :years="timeline.years"
@@ -1101,6 +1115,7 @@ useHead({ title: computed(() => t('timeline.title')) })
         <TimelineChartCard
           :title="t('timeline.citiesTitle')"
           :note="t('timeline.citiesNote', { unknownCountry: unknownCountryTotal, unknownCityPerformances: timeline.unknownCityPerformances, unknownCityShows: timeline.unknownCityShows })"
+          :export-filters="exportFilterLabels"
         >
           <TimelineBarChart
             :years="timeline.years"

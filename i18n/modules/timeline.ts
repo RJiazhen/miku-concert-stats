@@ -72,6 +72,30 @@ export default {
     ja: '現在の絞り込みではデータがありません。',
     en: 'No data under the current filters.',
   },
+  'chart.fullscreenClose': {
+    zh: '退出全屏',
+    'zh-Hant': '退出全螢幕',
+    ja: '全画面を閉じる',
+    en: 'Exit fullscreen',
+  },
+  'chart.fullscreenDialog': {
+    zh: '图表全屏',
+    'zh-Hant': '圖表全螢幕',
+    ja: 'グラフの全画面',
+    en: 'Chart fullscreen',
+  },
+  'chart.fullscreenOpen': {
+    zh: '全屏查看图表',
+    'zh-Hant': '全螢幕檢視圖表',
+    ja: 'グラフを全画面で表示',
+    en: 'Open chart fullscreen',
+  },
+  'chart.downloadJpeg': {
+    zh: '下载 JPEG 图片',
+    'zh-Hant': '下載 JPEG 圖片',
+    ja: 'JPEG画像をダウンロード',
+    en: 'Download chart as JPEG',
+  },
   'chart.value': {
     zh: '数值',
     'zh-Hant': '數值',
