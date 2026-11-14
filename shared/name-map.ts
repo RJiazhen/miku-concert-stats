@@ -68,9 +68,10 @@ export const parseNameMaps = (input: NameMapInput, what: string): NameMaps => {
 /**
  * Translation of one catalog spelling in `locale`, or null when that language has no row.
  * Japanese is the catalog language, so it never takes a row from these files.
+ * Korean has no sourced name files yet, so it also keeps the catalog spelling.
  */
 export const nameIn = (maps: NameMaps, key: string, locale: Locale): string | null => {
-  if (locale === 'ja') return null
+  if (locale === 'ja' || locale === 'ko') return null
   return maps[locale][key] ?? null
 }
 

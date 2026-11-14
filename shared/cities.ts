@@ -27,6 +27,11 @@ export type CityIndex = {
   englishNames: ReadonlyMap<string, string>
   /** Chinese city key to the Traditional Chinese name shown while the site language is Traditional Chinese. */
   hantNames: ReadonlyMap<string, string>
+  /**
+   * Chinese city key to a catalog spelling shown in Korean, which has no sourced city names yet.
+   * A Japanese or other CJK catalog spelling is preferred over a Latin one.
+   */
+  catalogNames: ReadonlyMap<string, string>
 }
 
 /** City named by a performance label, with the spelling exactly as the catalog writes it. */
@@ -122,6 +127,8 @@ export const buildCityIndex = (places: PlaceNameIndex): CityIndex => {
   const englishNames = new Map<string, string>()
   /** Chinese city key to the Traditional Chinese label; the first spelling with a translation wins. */
   const hantNames = new Map<string, string>()
+  /** Chinese city key to a catalog spelling for locales without a sourced name file. */
+  const catalogNames = new Map<string, string>()
 
   /** Records one spelling when no other city already owns it, and claims the English label. */
   const add = (city: string, spelling: string): void => {
@@ -132,6 +139,9 @@ export const buildCityIndex = (places: PlaceNameIndex): CityIndex => {
       if (translated !== undefined) englishNames.set(city, translated)
       else if (LATIN.test(text)) englishNames.set(city, titleCase(text))
     }
+    const current = catalogNames.get(city)
+    if (current === undefined) catalogNames.set(city, text)
+    else if (LATIN.test(current) && !LATIN.test(text)) catalogNames.set(city, text)
     const folded = text.toLowerCase()
     if (claimed.has(folded)) return
     claimed.set(folded, { city, text })
@@ -153,18 +163,20 @@ export const buildCityIndex = (places: PlaceNameIndex): CityIndex => {
   const spellings = [...claimed.values()]
     .sort((left, right) => right.text.length - left.text.length)
     .map(({ text, city }) => ({ city, pattern: cityPattern(text) }))
-  return { spellings, englishNames, hantNames }
+  return { spellings, englishNames, hantNames, catalogNames }
 }
 
 /**
  * City name shown in the active language.
  * English uses the checked English name (or the Latin spelling); Traditional Chinese uses the
- * checked Traditional name; Simplified Chinese and Japanese keep the Chinese city key the ranking
+ * checked Traditional name; Korean uses a catalog spelling (preferring CJK) because it has no
+ * sourced city-name file; Simplified Chinese and Japanese keep the Chinese city key the ranking
  * groups by.
  */
 export const cityLabel = (index: CityIndex, city: string, locale: Locale): string => {
   if (locale === 'en') return index.englishNames.get(city) ?? city
   if (locale === 'zh-Hant') return index.hantNames.get(city) ?? city
+  if (locale === 'ko') return index.catalogNames.get(city) ?? city
   return city
 }
 

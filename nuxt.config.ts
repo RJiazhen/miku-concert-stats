@@ -51,6 +51,7 @@ export default defineNuxtConfig({
       { code: 'zh', language: 'zh-Hans', name: '简体中文', files: localeFiles('zh') },
       { code: 'zh-Hant', language: 'zh-Hant', name: '繁體中文', files: localeFiles('zh-Hant') },
       { code: 'ja', language: 'ja', name: '日本語', files: localeFiles('ja') },
+      { code: 'ko', language: 'ko', name: '한국어', files: localeFiles('ko') },
       { code: 'en', language: 'en', name: 'English', files: localeFiles('en') },
     ],
     detectBrowserLanguage: {

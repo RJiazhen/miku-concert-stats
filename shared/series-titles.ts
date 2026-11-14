@@ -79,7 +79,7 @@ export const localizeSeriesInName = (
   file: SeriesTitleFile,
   locale: Locale,
 ): string => {
-  if (locale === 'ja' || text === '') return text
+  if (locale === 'ja' || locale === 'ko' || text === '') return text
   const translation = seriesTitleFor(file, seriesName, locale)
   if (translation === null) return text
   for (const label of seriesLabels(seriesName, seriesNumber)) {
