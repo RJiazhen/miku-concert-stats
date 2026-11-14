@@ -70,7 +70,8 @@ export default {
     zh: '曲目统计',
     'zh-Hant': '曲目統計',
     ja: '楽曲統計',
-    en: 'song statistics',
+    // Leading space: desktop joins heading1+heading2 without a break (`<br class="sm:hidden">`).
+    en: ' song statistics',
   },
   'rank.medley': {
     zh: '计入串烧组成',

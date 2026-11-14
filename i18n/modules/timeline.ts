@@ -388,7 +388,8 @@ export default {
     zh: '时间线',
     'zh-Hant': '時間線',
     ja: 'タイムライン',
-    en: 'timeline',
+    // Leading space: desktop joins heading1+heading2 without a break (`<br class="sm:hidden">`).
+    en: ' timeline',
   },
   'timeline.latest': {
     zh: '最近',

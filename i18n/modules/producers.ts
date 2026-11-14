@@ -58,7 +58,8 @@ export default {
     zh: '排行榜',
     'zh-Hant': '排行榜',
     ja: 'ランキング',
-    en: 'ranking',
+    // Leading space: desktop joins heading1+heading2 without a break (`<br class="sm:hidden">`).
+    en: ' ranking',
   },
   'producers.includeLabels': {
     zh: '包含厂牌 / 团体（{n}）',
