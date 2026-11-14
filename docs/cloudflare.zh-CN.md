@@ -34,14 +34,63 @@ Self-hosted 应用至少包含：
 - `/admin/feedback`、`/admin/data`、`/admin/system`、`/admin/analytics`
 - 公开页眉不链到后台；Access 登录后直接输入 URL
 
-## 部署
+## 部署（生产）
 
 ```bash
 pnpm build
 pnpm exec wrangler --cwd .output deploy
 ```
 
-Workers Builds 在 `main` 上通常执行 `pnpm build` 再 `npx wrangler deploy`，并设 `NODE_VERSION=22`。使用 `PAGEVIEWS` 前请在控制台启用 Analytics Engine（未启用时上传可能报 `code 10089`）。
+Workers Builds 在 `main` 上通常执行 `pnpm build` 再 `npx wrangler deploy`，并设 `NODE_VERSION=22`。使用 `PAGEVIEWS` 前请在控制台启用 Analytics Engine（未启用时上传可能报 `code 10089`）。开启 Preview 时**不要**改生产分支或生产 Deploy command。
+
+## 分支 Preview（Worker Previews）
+
+非 `main` 分支用 **Worker Previews**，不再用 `npx wrangler versions upload`。项目内 wrangler 需 `>= 4.135.0`（本仓库 `^4.149.0`）。
+
+### 仓库配置
+
+`wrangler.toml` 必须有 `previews` 块，可以为空。请用 `[previews]` 表头（不要在 `[[kv_namespaces]]` / `[[analytics_engine_datasets]]` 后面写行内 `previews = { }`），否则 TOML 会把该键挂到上一个数组项，Nitro 生成的 `.output/server/wrangler.json` 就没有顶层 `previews`，`wrangler preview` 会失败。Preview **不会继承**生产绑定与变量。
+
+本仓库故意保持空块：除非维护者明确同意共享，否则不要把 preview 的 `FEEDBACK` KV / `PAGEVIEWS` 指到生产资源。没有 preview 安全绑定时，公开页仍可 SSR；反馈为 **503**，后台 / 分析不可用。以后若要隔离资源，写在 `previews` 下（如 `[[previews.kv_namespaces]]`），生产 id 只留在顶层。见 [Configuration](https://developers.cloudflare.com/workers/previews/configuration/)。
+
+### 维护者手动 CLI（当前支持路径）
+
+手动非生产 Preview **不需要**控制台里的 **Set up Worker Previews** / **Enable Preview Builds** 开关：
+
+```bash
+pnpm build
+pnpm exec wrangler preview
+```
+
+可用 `--name`、`--tag`、`--message` 固定稳定名与当次 tag。`nuxt build` 会写 `.wrangler/deploy/config.json`，根目录 wrangler 会解析到 `.output`（与 Workers Builds 相同）。有该重定向时不要对 Builds / `wrangler preview` 再加 `--cwd .output`。成功时会打印稳定的 **Preview URL** 与当次的 **Unique Deployment URL**。审阅本 PR 用这条手动 URL 即可；**不必**做不可逆的控制台迁移。
+
+### Workers Builds 自动 PR Preview（可选；尚未启用）
+
+保留 GitHub 应用 **cloudflare-workers-and-pages** / 检查名 **Workers Builds: miku-concert-stats**；除非证明该集成彻底坏掉，不要另开一套 CI 部署。
+
+| 项 | 值 |
+| --- | --- |
+| 生产分支 | `main` |
+| Build command | `pnpm build` |
+| Deploy command（生产） | `npx wrangler deploy` |
+| Preview command | `npx wrangler preview` |
+| `NODE_VERSION` | `22`（生产与 preview 各一份） |
+
+自动 Workers Builds 的 PR Preview 评论仍依赖控制台 **Preview Builds**，与上面的维护者手动 `wrangler preview` 是两条路。
+
+**开启 Preview Builds**（仅当维护者批准自动 PR Preview 时）：Worker → **Settings → Build → Branch control** → 勾选 **Enable Preview Builds**。
+
+**在 Worker Previews 之前就接好 Builds 的旧 Worker** 在 Builds 侧仍走旧的 `versions upload`，直到完成**一次性、不可逆**控制台切换（**未经维护者明确批准不要点**）：
+
+1. Worker → **Settings → Builds**
+2. **Set up Worker Previews** 横幅点 **Set up**
+3. 按需配置 Preview 变量 / 绑定（可与空 `previews` 一致，先不配）
+4. 确认 Preview command 为 `npx wrangler preview`
+5. 点 **Switch to Worker Previews**
+
+切换前，自动 PR Preview check 可能仍走旧路径，或立刻失败且无日志。切换后，非 `main` 推送会创建 / 更新 Preview；URL 在 Worker 的 **Previews** 区，以及 GitHub check / PR 评论（若提供方会发）。无论是否切换，维护者手动 `pnpm exec wrangler preview` 都可用。
+
+总览：[Worker Previews](https://developers.cloudflare.com/workers/previews/)。分支控制：[Build branches](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/)。
 
 ## 本地预期
 
