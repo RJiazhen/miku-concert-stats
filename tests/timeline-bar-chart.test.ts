@@ -39,18 +39,18 @@ describe('TimelineBarChart selectableBars', () => {
     }
   })
 
-  it('removes click navigation and button affordances when selectableBars is false', async () => {
+  it('removes button affordances when selectableBars is false, but bars stay clickable like the band', async () => {
     const wrapper = renderChart({ selectableBars: false })
     await wrapper.vm.$nextTick()
 
-    // No bar segment should carry button semantics or a pointer cursor.
     expect(wrapper.findAll('[role="button"]').length).toBe(0)
     const groups = wrapper.findAll('g')
     const titled = groups.filter((group) => group.find('title').exists())
     expect(titled.length).toBeGreaterThan(0)
     for (const group of titled) {
-      expect(group.classes()).not.toContain('cursor-pointer')
+      expect(group.classes()).toContain('cursor-pointer')
       expect(group.attributes('tabindex')).toBeUndefined()
+      expect(group.attributes('role')).toBeUndefined()
     }
   })
 
@@ -65,18 +65,21 @@ describe('TimelineBarChart selectableBars', () => {
     }
   })
 
-  it('does not emit select for bar segments when selectableBars is false', async () => {
-    const wrapper = renderChart({ selectableBars: false })
-    await wrapper.vm.$nextTick()
+  it('emits the same year-only select for a bar click and a blank-band click when selectableBars is false', async () => {
+    const expected = [[{ year: 2020, key: '' }]]
 
-    const groups = wrapper.findAll('g')
-    const titled = groups.filter((group) => group.find('title').exists())
-    expect(titled.length).toBeGreaterThan(0)
+    const bandChart = renderChart({ selectableBars: false })
+    await bandChart.vm.$nextTick()
+    await bandChart.find('rect[fill="transparent"]').trigger('click')
+    expect(bandChart.emitted('select')).toEqual(expected)
 
-    for (const group of titled) {
-      await group.trigger('click')
-    }
-    expect(wrapper.emitted('select')).toBeUndefined()
+    const barChart = renderChart({ selectableBars: false })
+    await barChart.vm.$nextTick()
+    const bar = barChart.findAll('g').find((item) => item.find('title').exists())
+    expect(bar).toBeTruthy()
+    await bar!.trigger('click')
+    expect(barChart.emitted('select')).toEqual(expected)
+    expect(barChart.emitted('select')).toHaveLength(1)
   })
 
   it('emits select with an empty key when the band background is clicked', async () => {
@@ -104,21 +107,36 @@ describe('TimelineBarChart selectableBars', () => {
     expect(titles[0]!.text().length).toBeGreaterThan(0)
   })
 
-  it('removes click navigation from line points when selectableBars is false', async () => {
+  it('emits the same year-only select for a line point as for the blank band when selectableBars is false', async () => {
     const wrapper = renderChart({
       selectableBars: false,
       lines: [{ key: 'line:total', label: 'Total', color: '#111111', values: [2, 3] }],
     })
     await wrapper.vm.$nextTick()
 
-    const points = wrapper.findAll('circle')
-    expect(points.length).toBeGreaterThan(0)
     const groups = wrapper.findAll('g').filter((group) => group.find('circle').exists())
+    expect(groups.length).toBeGreaterThan(0)
     for (const group of groups) {
-      expect(group.classes()).not.toContain('cursor-pointer')
+      expect(group.classes()).toContain('cursor-pointer')
       expect(group.attributes('role')).toBeUndefined()
-      await group.trigger('click')
+      expect(group.attributes('tabindex')).toBeUndefined()
     }
-    expect(wrapper.emitted('select')).toBeUndefined()
+    await groups[0]!.trigger('click')
+    expect(wrapper.emitted('select')).toEqual([[{ year: 2020, key: '' }]])
+    expect(wrapper.emitted('select')).toHaveLength(1)
+  })
+
+  it('does not apply a persistent selected color after a bar click', async () => {
+    const wrapper = renderChart({ selectableBars: false })
+    await wrapper.vm.$nextTick()
+    const bar = wrapper.findAll('g').find((item) => item.find('title').exists())
+    expect(bar).toBeTruthy()
+    const fillBefore = bar!.find('rect').attributes('fill')
+    expect(fillBefore).toBe('#39C5BB')
+    await bar!.trigger('click')
+    const fillAfter = bar!.find('rect').attributes('fill')
+    expect(fillAfter).toBe(fillBefore)
+    expect(bar!.classes().join(' ')).not.toMatch(/selected|active/)
+    expect(wrapper.findAll('.selected, [data-selected], [aria-selected="true"]').length).toBe(0)
   })
 })

@@ -724,11 +724,9 @@ const selectChartFromMenu = (key: string): void => {
   void goToChart(key)
 }
 
-/** Chart 1's click handler: only the band background toggles the year list; bar segments are not clickable. */
+/** Chart 1: a bar or the blank year band both toggle that year's show list. Never navigates. */
 const selectSeriesSegment = (payload: { year: number; key: string }): void => {
-  if (payload.key === '') {
-    showsYear.value = showsYear.value === payload.year ? null : payload.year
-  }
+  showsYear.value = showsYear.value === payload.year ? null : payload.year
 }
 
 /** Opens the series page behind a gantt strip. */
@@ -737,11 +735,9 @@ const selectSeriesSpan = (payload: { key: string }): void => {
   if (Number.isInteger(id) && id > 0) void navigateTo(`/series/${id}`)
 }
 
-/** Chart 3: only the band background toggles the year list; bar segments are not clickable. */
+/** Chart 3: a bar, line point, or the blank year band both toggle that year's character list. */
 const selectCharacterYear = (payload: { year: number; key: string }): void => {
-  if (payload.key === '') {
-    characterYear.value = characterYear.value === payload.year ? null : payload.year
-  }
+  characterYear.value = characterYear.value === payload.year ? null : payload.year
 }
 
 /** Toggles the detail list of one year on chart 4. */
@@ -749,11 +745,9 @@ const selectSongsYear = (payload: { year: number }): void => {
   songsYear.value = songsYear.value === payload.year ? null : payload.year
 }
 
-/** Chart 6: only the band background toggles the year note; bar segments are not clickable. */
+/** Chart 6: a bar, line point, or the blank year band both toggle that year's city note. */
 const selectCityYear = (payload: { year: number; key: string }): void => {
-  if (payload.key === '') {
-    cityYear.value = cityYear.value === payload.year ? null : payload.year
-  }
+  cityYear.value = cityYear.value === payload.year ? null : payload.year
 }
 
 /** Note printed on the character chart; the share lines are only explained while they are drawn. */
