@@ -25,21 +25,23 @@ git -C "$MAIN" worktree add \
 - 分支从 `origin/main` 拉出，不要复用已经合并过的旧分支。
 - 把新目录加进旁边的 `miku-concert-stats.code-workspace` 的 `folders`（`name` 与 `path` 都用分支名）。
 - 开发服务器端口按工作树分配，挑一个没被占用的，并写入 gitignore 目录 `$MAIN/tmp/dev-ports.md`（格式：`<branch> 用 <port>`）。不要写进 `docs/` 或其他会被提交的文件。
+- 每个任务只跑自己的那一个开发服务器；从交付验收起一直保持运行，直到 `/continue` Ship 清理成功，或用户明确要求关掉。不要在回合结束或改完代码后顺手停掉。启动方式见 `.cursor/skills/continue/SKILL.md`（常驻后台 Shell 或 `screen`，不要用会随 agent shell 退出而死去的 `nohup … &`）。
 
 ## 2. 开发与提交
 
-- 改动、`pnpm test`、`vp dev` 都在该 worktree 里进行。
+- 改动、`pnpm test`、`vp run dev` / `vp dev` 都在该 worktree 里进行。
 - 只 `git add` 本次任务涉及的具体路径，不要 `git add -A`。
 - 提交信息用简短的祈使句英文，不加任何 co-author trailer。
 
 ## 3. 收尾
 
-- 开发完成后用 `/continue` 起本地开发服务器（`vp dev`），把地址、改动与验收项交给用户检查；用户确认前不改 `main`、不合并、不开 PR。
+- 开发完成后用 `/continue` 起（或确认仍在跑）本地开发服务器，把地址、改动与验收项交给用户检查；用户确认前不改 `main`、不合并、不开 PR，也不停该任务的开发服务器。
 - 用户确认后再次执行 `/continue`：它把整条分支 squash 成一个提交合入 `main` 再 push，`main` 上不会留下逐条开发提交；没有该仓库合并权限时改为推送分支并开 PR，不碰 `main`。
-- 部署成功后由 `/continue` 收尾：先停掉开发服务器，再移除该 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录。部署失败时不要清理，留在原地继续修；手工合并时保留 worktree，等用户确认后再删。
+- 部署成功后由 `/continue` 收尾：先停掉**本任务**的开发服务器，再移除该 worktree、删除任务分支，并从 `miku-concert-stats.code-workspace` 去掉对应目录。部署失败时不要清理、不要停服务器，留在原地继续修；手工合并时保留 worktree，等用户确认后再删。
 
 ## 不要做
 
 - 不要 `git checkout main` 切换主检出，也不要在 `main` 检出里提交开发改动。
 - 不要在同一个 worktree 里并行做两个无关任务。
+- 不要在用户验收结束前关掉本任务的开发服务器，也不要去停别人任务的端口 / 进程。
 - 纯文档 / 规则 / skill 的文字修订不算开发任务，直接在 `main` 提交并 push 即可，不必单独开 worktree。

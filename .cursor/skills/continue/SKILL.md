@@ -120,6 +120,12 @@ git -C "$WORKTREE" commit -m "<一句话说明这次改了什么>"
 
 凡是改动用户可见行为（页面、组件、样式、筛选、UI 展示的数据）的任务，必须留一个开发服务器在跑，只跑通 `test` / `build` 不算完成。
 
+**存活期（硬性）**：本任务的开发服务器从首次交付起一直跑到 **Ship 清理成功**，或用户**明确说关掉 / 停掉开发服务器**。在此之前：
+
+- 不要在回合结束、汇报后、或 Start → Develop 之间把它杀掉。
+- 不要为了「确认显示」反复起停（见 `ui-style-review`）；热更新会吃到后续改动。
+- 每轮汇报前用 `lsof -nP -iTCP:"$PORT" -sTCP:LISTEN`（或对 `http://127.0.0.1:$PORT/` 的 `curl`）确认仍在听；死了再按下面步骤拉起，不要把已死的地址交给用户。
+
 **分配端口**：端口只登记在 gitignore 的 `$MAIN/tmp/dev-ports.md`（不要写进 `docs/architecture.md` 或任何会被提交的文件）。先看该文件里这个分支有没有记录，有就沿用；否则从 `3165` 起按奇数递增，挑第一个没有被监听、也没登记过的端口：
 
 ```bash
@@ -138,27 +144,38 @@ if [ -z "$PORT" ]; then
 fi
 ```
 
-**启动**（在任务 worktree 里，后台常驻）：
+**启动（必须常驻，禁止随 agent shell 一起死）**：
+
+不要用「一次性 Shell 里的 `nohup … &` 然后该 Shell 立刻退出」——Cursor 会收掉那个进程组，端口看起来起过、下一轮已经没了。用下面两种之一：
+
+1. **优先**：Shell 工具以 `block_until_ms: 0` 在任务 worktree 里起**常驻后台任务**（工作目录 = `$WORKTREE`），命令不要带多余的 `--`：
 
 ```bash
-cd "$WORKTREE"
-mkdir -p tmp
-nohup env NUXT_IGNORE_LOCK=1 vp dev --port "$PORT" > tmp/dev-server.log 2>&1 &
+env NUXT_IGNORE_LOCK=1 vp run dev --port "$PORT"
 ```
 
-用一小段有界轮询确认端口有响应（`curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/"`，最多约 60 秒）；起不来就读 `tmp/dev-server.log`，不要反复重启。服务器是热更新的，之后改代码不用重启。
+（`vp dev --port "$PORT"` 也可以；**禁止** `vp run dev -- --port …`，多出来的 `--` 会让 Nuxt 忽略端口并落到 3000。）
+
+2. **备选**（没有常驻 Shell 时）：`screen` 会话，名称带上分支，避免和其他任务撞名：
+
+```bash
+screen -dmS "miku-$BRANCH" zsh -lc \
+  "cd \"$WORKTREE\" && env NUXT_IGNORE_LOCK=1 vp run dev --port $PORT >> tmp/dev-server.log 2>&1"
+```
+
+用一小段有界轮询确认**登记的那个端口**在听且有响应（`lsof` + `curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/"`，期望 200/302/304，最多约 60 秒）。日志里若出现 `Local: …:3000` 或其它端口，说明参数没传上，先停掉再按上面命令重来，不要把错误端口报给用户。起不来就读终端输出或 `tmp/dev-server.log`，不要反复无杀重来。
 
 ### 6. 汇报并停止
 
-给出：worktree 路径、分支名（及是否已 push）、关联的 issue（`#N`，没有就写「未关联」）、改了什么、跑了哪些验证（或为什么没跑）、开发地址 `http://127.0.0.1:<port>/`、样式参数（如有）。说明「检查后回复 `1` 或再次执行 `/continue` 才合并上线；要改就直接说改哪里」。**本轮不合并、不开 PR、不关闭 issue**。
+给出：worktree 路径、分支名（及是否已 push）、关联的 issue（`#N`，没有就写「未关联」）、改了什么、跑了哪些验证（或为什么没跑）、开发地址 `http://127.0.0.1:<port>/`、样式参数（如有）。说明「检查后回复 `1` 或再次执行 `/continue` 才合并上线；要改就直接说改哪里」。**本轮不合并、不开 PR、不关闭 issue**；**也不要停开发服务器**。
 
 ## Phase：Develop（继续开发）
 
 1. 按用户本轮的新要求改代码；只在**本任务的** worktree 里改动，不碰别的任务 worktree 与分支。
 2. 需要时跑 `pnpm test`（口径见 testing rule）。
 3. 改完按 Start 第 4 步提交到任务分支（有 `permissions.push` 就 push，否则只本地提交）。
-4. 开发服务器没在跑就用 `$MAIN/tmp/dev-ports.md` 里这个分支的端口重新拉起（Start 第 5 步）。
-5. 汇报同样的信息并停止，等用户验收。本轮不合并、不开 PR。
+4. 先确认本任务端口仍在听；没在跑才用 `$MAIN/tmp/dev-ports.md` 里的端口按 Start 第 5 步重新拉起。不要顺手重启已在跑的服务器。
+5. 汇报同样的信息并停止，等用户验收。本轮不合并、不开 PR、不停开发服务器。
 
 一个 worktree 只做一个任务：本轮需求与已有改动无关时，说明情况并按 Start 新建 worktree，不要在同一分支上混做；也不要接着别人的 worktree 继续改。
 
@@ -264,7 +281,9 @@ gh issue close "$ISSUE" --repo RJiazhen/miku-concert-stats \
   然后在汇报里注明这一步是手工补的，并说明 `Closes` 为什么没生效。
 
 ```bash
+# Only now may this task's dev server stop — not earlier in Start/Develop.
 lsof -ti "tcp:$PORT" | while read -r pid; do kill "$pid"; done
+screen -S "miku-$BRANCH" -X quit 2>/dev/null || true
 # drop this branch's port line from the local registry (gitignored)
 if [ -f "$MAIN/tmp/dev-ports.md" ]; then
   tmp=$(mktemp)
@@ -278,12 +297,12 @@ git -C "$MAIN" push origin --delete "$BRANCH"   # 没 push 过的分支报错就
 git -C "$MAIN" worktree list
 ```
 
-- `$PORT` 查不到（这个任务没起开发服务器）时跳过第一行。
+- `$PORT` 查不到（这个任务没起开发服务器）时跳过杀进程与 `screen` 那两行。
 - 清空 workspace 文件 `folders` 里 `name` 与 `path` 都等于 `$BRANCH` 的那一项（该文件不在仓库里，直接编辑）。
 - `$WORKTREE` 不干净或 `worktree remove` 报 “contains modified or untracked files” 时停止，把文件列给用户，不要 `--force`，也不要先删再问。
 - 删分支前先核对 `git -C "$MAIN" rev-parse "$BRANCH"` 与刚刚合并的那次 commit 一致；不一致说明别的会话又往这条分支写了东西，停下汇报，不要 `-D`。
-- 部署失败时一律不清理，留在原 worktree 继续修。
-- 只清理本次任务自己的分支与 worktree，不顺手动别人的（包括同名的旧分支、别人的端口记录）。
+- 部署失败时一律不清理、不停本任务开发服务器，留在原 worktree 继续修。
+- 只清理本次任务自己的分支、worktree、端口与 `miku-$BRANCH` screen，不顺手动别人的。
 
 ### 5. 汇报
 
