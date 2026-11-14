@@ -20,7 +20,7 @@ vp test
 vp dev            # rebuilds catalog, then starts nuxt dev
 ```
 
-Open the printed local URL (default port 3000, or pass `--port`).
+Open the printed local URL (Nuxt starts at `3939` and takes the next free port if needed).
 
 ## What works without Cloudflare
 

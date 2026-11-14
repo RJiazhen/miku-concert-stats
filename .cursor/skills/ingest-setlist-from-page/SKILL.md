@@ -27,7 +27,7 @@ description: Reads a concert setlist from a URL, DOM path, CSS selector, or past
 - **只改上游**：`data/wiki-setlists.json`、`data/performance-setlists.json`、`data/increments/0008-*.sql`、`public/data/catalog.sqlite*` 都是生成物，手改会在下一次生成时被覆盖。
 - **有冲突先停**：只落 `tmp/`（已被 `.gitignore` 忽略）的对照 md，等用户确认后再写。
 - **收尾即提交**：lint / test / typecheck 通过后直接提交并 push 当前分支；提交信息用简短祈使句英文，不加任何 co-author 尾注。
-- **留服务器**：动了用户可见的数据就留一个 dev server（主工作树端口 3117），并把地址告诉用户。
+- **留服务器**：动了用户可见的数据就留一个 dev server（直接 `vp run dev`，读打印出的 `Local:` 地址，不要传 `--port`），并把该地址告诉用户。
 - **回复**：中文、结论先行、不复述工具过程。
 
 ## 1. 接住输入
@@ -196,10 +196,10 @@ SELECT COUNT(*) FROM performance_setlists ps
 - 起 dev server 并抽查 `/shows/<id>`（场次标题、逐曲表、note 横幅）与 `/series/<id>`：
 
 ```bash
-screen -dmS miku-dev zsh -lc 'cd <repo> && NUXT_IGNORE_LOCK=1 vp dev --port 3117 >> /tmp/miku-dev-3117.log 2>&1'
+screen -dmS miku-dev zsh -lc 'cd <repo> && NUXT_IGNORE_LOCK=1 vp run dev >> tmp/dev-server.log 2>&1'
 ```
 
-`vp dev` 与 `pnpm dev` 等价（都走 `scripts/dev.ts`），`vite.config.ts` 会把 Vite+ 的 Vite 进程交接给 `nuxt dev`；`screen` 比 `nohup` 可靠。
+从日志读 `Local: http://127.0.0.1:<port>/`。`vp run dev` / `vp dev` 与 `pnpm dev` 等价（都走 `scripts/dev.ts`）；`screen` 比 `nohup` 可靠。
 
 ## 8. 收尾
 

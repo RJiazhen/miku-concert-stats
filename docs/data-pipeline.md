@@ -55,7 +55,7 @@ The numeric prefix only decides run order. New manual data goes into the matchin
 
 ### Dev server `vite.config.ts` and `scripts/dev.ts`
 
-`pnpm dev` (`tsx scripts/dev.ts`) builds the catalog first, then starts Nuxt. Pick a free port with `--port` when several worktrees run at once.
+`pnpm dev` / `vp run dev` (`tsx scripts/dev.ts`) builds the catalog first, then starts Nuxt. `nuxt.config.ts` defaults to port `3939`; Nuxt picks the next free port when that one is taken. Read the printed `Local:` URL — do not pre-assign `--port`.
 
 ### Shared logic `shared/`
 
@@ -213,7 +213,7 @@ When a unit of work is done, commit it on the feature branch. Do not leave finis
 
 ### One worktree per development task
 
-See `.cursor/rules/git-worktree.mdc`. Create `~/projects/full-stack/miku-concert-stats.worktrees/<branch>` from `origin/main`, register the folder in `miku-concert-stats.code-workspace`, and pick a free `--port`. Record the port in [architecture.md](architecture.md). Do not develop on the `main` worktree.
+See `.cursor/rules/git-worktree.mdc` and `.cursor/skills/continue/SKILL.md`. Create `~/projects/full-stack/miku-concert-stats.worktrees/<branch>` from `origin/main` and register the folder in `miku-concert-stats.code-workspace`. Do not develop on the `main` worktree. Parallel local preview servers are started without a hand-picked port; report the URL Nuxt prints.
 
 ### Commit scope
 
@@ -221,9 +221,7 @@ See `.cursor/rules/git-worktree.mdc`. Create `~/projects/full-stack/miku-concert
 
 ### Local server for page work
 
-Start `pnpm dev --port <free>` (or `vp dev`) in that worktree and tell the reviewer the exact URL (for example `http://127.0.0.1:3131/`). The server hot-reloads; a hard refresh is needed only after `public/data/catalog.sqlite.gz` is rebuilt. If a Nuxt process is already using the same port, `NUXT_IGNORE_LOCK=1` can bypass a stale `.nuxt` lock.
-
-Historical worktree ports have been recorded in [architecture.md](architecture.md). New worktrees pick a free port and add a line there.
+Start `vp run dev` (or `pnpm dev`) in that worktree and tell the reviewer the printed local URL. The server hot-reloads; a hard refresh is needed only after `public/data/catalog.sqlite.gz` is rebuilt. If a Nuxt lock conflicts across worktrees, `NUXT_IGNORE_LOCK=1` can bypass a stale `.nuxt` lock.
 
 ### Leave visual style checks to the reviewer
 
