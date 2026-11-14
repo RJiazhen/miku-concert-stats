@@ -1,0 +1,563 @@
+{
+  "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+  "catalog_character_count": 22,
+  "recommended_count": 7,
+  "conflict_count": 1,
+  "no_verified_hangul_count": 14,
+  "items": [
+    {
+      "canonical_id": "初音ミク",
+      "recommended_korean_display": "하츠네 미쿠",
+      "reliability": "official-store-listing-plus-vocadb-community",
+      "official": true,
+      "keep_original_if_null": false,
+      "names": [
+        {
+          "value": "하츠네 미쿠",
+          "kind": "shared-by-store-listing-and-vocadb"
+        }
+      ],
+      "sources": [
+        {
+          "tier": "official-app-store-listing-authorship-unconfirmed",
+          "source_url": "https://play.google.com/store/apps/details?hl=ko&id=jp.co.crypton.mikunavi",
+          "also_see": "https://play.google.com/store/apps/details?hl=en&id=jp.co.crypton.mikunavi",
+          "source_field": "Google Play Korean store listing app description (hl=ko)",
+          "evidence": "Description uses “하츠네 미쿠” as the Piapro character name.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": true,
+          "official_caveat": "The listing is the official Crypton MIKUNAVI app on Google Play viewed in Korean (hl=ko), developer Crypton Future Media. It is not independently confirmed whether Crypton authored this Korean text or whether the store is rendering a localization of the English listing. Treat as official-app-store-listing evidence, not a Crypton style guide. English listing (hl=en) uses Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, MEIKO, and KAITO."
+        },
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/1",
+          "api_url": "https://vocadb.net/api/artists/1?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 1 names includes Unspecified alias “하츠네 미쿠”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Store listing and VocaDB community alias agree on 하츠네 미쿠."
+    },
+    {
+      "canonical_id": "鏡音リン",
+      "recommended_korean_display": "카가미네 린",
+      "reliability": "official-store-listing-plus-vocadb-community",
+      "official": true,
+      "keep_original_if_null": false,
+      "names": [
+        {
+          "value": "카가미네 린",
+          "kind": "shared-by-store-listing-and-vocadb"
+        }
+      ],
+      "sources": [
+        {
+          "tier": "official-app-store-listing-authorship-unconfirmed",
+          "source_url": "https://play.google.com/store/apps/details?hl=ko&id=jp.co.crypton.mikunavi",
+          "also_see": "https://play.google.com/store/apps/details?hl=en&id=jp.co.crypton.mikunavi",
+          "source_field": "Google Play Korean store listing app description (hl=ko)",
+          "evidence": "Description uses “카가미네 린”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": true,
+          "official_caveat": "The listing is the official Crypton MIKUNAVI app on Google Play viewed in Korean (hl=ko), developer Crypton Future Media. It is not independently confirmed whether Crypton authored this Korean text or whether the store is rendering a localization of the English listing. Treat as official-app-store-listing evidence, not a Crypton style guide. English listing (hl=en) uses Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, MEIKO, and KAITO."
+        },
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/14",
+          "api_url": "https://vocadb.net/api/artists/14?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 14 names includes Unspecified alias “카가미네 린”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Store listing and VocaDB community alias agree."
+    },
+    {
+      "canonical_id": "鏡音レン",
+      "recommended_korean_display": "카가미네 렌",
+      "reliability": "official-store-listing-plus-vocadb-community",
+      "official": true,
+      "keep_original_if_null": false,
+      "names": [
+        {
+          "value": "카가미네 렌",
+          "kind": "shared-by-store-listing-and-vocadb"
+        }
+      ],
+      "sources": [
+        {
+          "tier": "official-app-store-listing-authorship-unconfirmed",
+          "source_url": "https://play.google.com/store/apps/details?hl=ko&id=jp.co.crypton.mikunavi",
+          "also_see": "https://play.google.com/store/apps/details?hl=en&id=jp.co.crypton.mikunavi",
+          "source_field": "Google Play Korean store listing app description (hl=ko)",
+          "evidence": "Description uses “카가미네 렌”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": true,
+          "official_caveat": "The listing is the official Crypton MIKUNAVI app on Google Play viewed in Korean (hl=ko), developer Crypton Future Media. It is not independently confirmed whether Crypton authored this Korean text or whether the store is rendering a localization of the English listing. Treat as official-app-store-listing evidence, not a Crypton style guide. English listing (hl=en) uses Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, MEIKO, and KAITO."
+        },
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/15",
+          "api_url": "https://vocadb.net/api/artists/15?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 15 names includes Unspecified alias “카가미네 렌”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Store listing and VocaDB community alias agree."
+    },
+    {
+      "canonical_id": "巡音ルカ",
+      "recommended_korean_display": null,
+      "reliability": "conflict-store-listing-vs-vocadb",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [
+        {
+          "value": "메구린 루카",
+          "kind": "play-store-korean-listing",
+          "preferred_unresolved": true
+        },
+        {
+          "value": "메구리네 루카",
+          "kind": "vocadb-community-alias",
+          "preferred_unresolved": true
+        }
+      ],
+      "sources": [
+        {
+          "tier": "official-app-store-listing-authorship-unconfirmed",
+          "source_url": "https://play.google.com/store/apps/details?hl=ko&id=jp.co.crypton.mikunavi",
+          "also_see": "https://play.google.com/store/apps/details?hl=en&id=jp.co.crypton.mikunavi",
+          "source_field": "Google Play Korean store listing app description (hl=ko)",
+          "evidence": "Description uses “메구린 루카”, not “메구리네 루카”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": true,
+          "official_caveat": "The listing is the official Crypton MIKUNAVI app on Google Play viewed in Korean (hl=ko), developer Crypton Future Media. It is not independently confirmed whether Crypton authored this Korean text or whether the store is rendering a localization of the English listing. Treat as official-app-store-listing evidence, not a Crypton style guide. English listing (hl=en) uses Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, MEIKO, and KAITO."
+        },
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/2",
+          "api_url": "https://vocadb.net/api/artists/2?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 2 names includes Unspecified alias “메구리네 루카” only; no “메구린 루카”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Do not pick a single display form automatically. Official-store-listing form and VocaDB community form disagree. Leave unimplemented until the parent/user chooses, or record both as aliases without a primary."
+    },
+    {
+      "canonical_id": "MEIKO",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "official-app-store-listing-authorship-unconfirmed",
+          "source_url": "https://play.google.com/store/apps/details?hl=ko&id=jp.co.crypton.mikunavi",
+          "also_see": "https://play.google.com/store/apps/details?hl=en&id=jp.co.crypton.mikunavi",
+          "source_field": "Google Play Korean store listing app description (hl=ko)",
+          "evidence": "Korean listing keeps the Latin name MEIKO.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": true,
+          "official_caveat": "The listing is the official Crypton MIKUNAVI app on Google Play viewed in Korean (hl=ko), developer Crypton Future Media. It is not independently confirmed whether Crypton authored this Korean text or whether the store is rendering a localization of the English listing. Treat as official-app-store-listing evidence, not a Crypton style guide. English listing (hl=en) uses Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, MEIKO, and KAITO."
+        },
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/176",
+          "api_url": "https://vocadb.net/api/artists/176?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 176 names are メイコ (Japanese) and MEIKO (Romaji) only; no Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Do not invent 메이코. Keep canonical MEIKO."
+    },
+    {
+      "canonical_id": "KAITO",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "official-app-store-listing-authorship-unconfirmed",
+          "source_url": "https://play.google.com/store/apps/details?hl=ko&id=jp.co.crypton.mikunavi",
+          "also_see": "https://play.google.com/store/apps/details?hl=en&id=jp.co.crypton.mikunavi",
+          "source_field": "Google Play Korean store listing app description (hl=ko)",
+          "evidence": "Korean listing keeps the Latin name KAITO.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": true,
+          "official_caveat": "The listing is the official Crypton MIKUNAVI app on Google Play viewed in Korean (hl=ko), developer Crypton Future Media. It is not independently confirmed whether Crypton authored this Korean text or whether the store is rendering a localization of the English listing. Treat as official-app-store-listing evidence, not a Crypton style guide. English listing (hl=en) uses Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, MEIKO, and KAITO."
+        },
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/71",
+          "api_url": "https://vocadb.net/api/artists/71?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 71 names are カイト (Japanese) and KAITO (Romaji) only; no Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Do not invent 카이토. Keep canonical KAITO."
+    },
+    {
+      "canonical_id": "SeeU",
+      "recommended_korean_display": "시유",
+      "reliability": "official-rights-holder",
+      "official": true,
+      "keep_original_if_null": false,
+      "names": [
+        {
+          "value": "시유",
+          "kind": "official-plus-vocadb"
+        }
+      ],
+      "sources": [
+        {
+          "tier": "official-rights-holder",
+          "source_url": "https://www.sbsant.co.kr/history/",
+          "source_field": "SBS A&T official HISTORY page, 2010s timeline",
+          "evidence": "Page text: 보컬로이드 캐릭터 \"시유(SeeU)\" 탄생",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": true
+        },
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/193",
+          "api_url": "https://vocadb.net/api/artists/193?fields=Names&lang=Default",
+          "source_field": "names[].value; Hangul appears in the API language=Japanese (Non-English) field as “시유 (한국어)” and in related voicebank entries",
+          "evidence": "SeeU (Korean), artist id 193, names include “시유 (한국어)” (language=Japanese) and “シユ (韓国語)”. Catalog character key is SeeU; recommended display is 시유 without the voicebank qualifier.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "SBS A&T is the official Korean rights-holder page confirming 시유 as the Korean name alongside SeeU. Exact-name search for 'SeeU' alone is noisy; the Korean voicebank entry is artist id 193."
+    },
+    {
+      "canonical_id": "重音テト",
+      "recommended_korean_display": "카사네 테토",
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "keep_original_if_null": false,
+      "names": [
+        {
+          "value": "카사네 테토",
+          "kind": "vocadb-community-alias"
+        }
+      ],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/116",
+          "api_url": "https://vocadb.net/api/artists/116?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 116 names includes Unspecified alias “카사네 테토”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Community catalog only. No official Korean rights-holder page was verified in this pass."
+    },
+    {
+      "canonical_id": "可不",
+      "recommended_korean_display": "카후",
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "keep_original_if_null": false,
+      "names": [
+        {
+          "value": "카후",
+          "kind": "vocadb-community-alias"
+        }
+      ],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/83928",
+          "api_url": "https://vocadb.net/api/artists/83928?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 83928 names includes Unspecified alias “카후”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Community catalog only."
+    },
+    {
+      "canonical_id": "星界",
+      "recommended_korean_display": "세카이",
+      "reliability": "vocadb-community-alias",
+      "official": false,
+      "keep_original_if_null": false,
+      "names": [
+        {
+          "value": "세카이",
+          "kind": "vocadb-community-alias"
+        }
+      ],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/99953",
+          "api_url": "https://vocadb.net/api/artists/99953?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "Artist 99953 names includes Unspecified alias “세카이”.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "Community catalog only."
+    },
+    {
+      "canonical_id": "GUMI",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/3",
+          "api_url": "https://vocadb.net/api/artists/3?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 3 (Vocaloid) names: Megpoid, メグッポイド, GUMI, グ미. No Hangul. Do not invent 구미.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 3 (Vocaloid) names: Megpoid, メグッポイド, GUMI, グ미. No Hangul. Do not invent 구미."
+    },
+    {
+      "canonical_id": "IA",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/504",
+          "api_url": "https://vocadb.net/api/artists/504?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 504 names: IA, IA -ARIA ON THE PLANETES-, イア. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 504 names: IA, IA -ARIA ON THE PLANETES-, イア. No Hangul."
+    },
+    {
+      "canonical_id": "flower",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/21165",
+          "api_url": "https://vocadb.net/api/artists/21165?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 21165 (v flower) names: v flower, フラワ, ブイフラワ, flower. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 21165 (v flower) names: v flower, フラワ, ブイフラワ, flower. No Hangul."
+    },
+    {
+      "canonical_id": "MAYU",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/1766",
+          "api_url": "https://vocadb.net/api/artists/1766?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 1766 names: MAYU, マユ. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 1766 names: MAYU, マユ. No Hangul."
+    },
+    {
+      "canonical_id": "寒音ジミ",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/5704",
+          "api_url": "https://vocadb.net/api/artists/5704?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 5704 names: 寒音ジミ, Samune Zimi, 寒音ズィミ. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 5704 names: 寒音ジミ, Samune Zimi, 寒音ズィミ. No Hangul."
+    },
+    {
+      "canonical_id": "神威がくぽ",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/12",
+          "api_url": "https://vocadb.net/api/artists/12?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 12 names: 神威がくぽ, Kamui Gakupo, Gackpoid, がくっぽいど, Camui Gackpo. No Hangul. Do not invent 카무이 가쿠포.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 12 names: 神威がくぽ, Kamui Gakupo, Gackpoid, がくっぽいど, Camui Gackpo. No Hangul. Do not invent 카무이 가쿠포."
+    },
+    {
+      "canonical_id": "結月ゆかり",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/623",
+          "api_url": "https://vocadb.net/api/artists/623?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 623 names: 結月ゆかり, Yuzuki Yukari. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 623 names: 結月ゆかり, Yuzuki Yukari. No Hangul."
+    },
+    {
+      "canonical_id": "東北ずん子",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/16933",
+          "api_url": "https://vocadb.net/api/artists/16933?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artists 16933 and 98324 have Japanese/Romaji/English names only. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artists 16933 and 98324 have Japanese/Romaji/English names only. No Hangul."
+    },
+    {
+      "canonical_id": "音街ウナ",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar",
+          "api_url": "https://vocadb.net/api/artists?query=%E9%9F%B3%E8%A1%97%E3%82%A6%E3%83%8A&nameMatchMode=Auto&fields=Names&maxResults=10&lang=Default",
+          "source_field": "search results for 音街ウナ",
+          "evidence": "No clean character-level Hangul alias on a canonical main Vocaloid entry. Hangul appears only on variant product names (e.g. artist 147883 “오토마치 우나 SV”, 166384 “Synthesizer V 2 AI 오토마치 우나”, 170649 “오토마치 우나 (Unknown)”). Extracting 오토마치 우나 from those product strings would be researcher editing, so this character is left untranslated.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "No clean character-level Hangul alias on a canonical main Vocaloid entry. Hangul appears only on variant product names (e.g. artist 147883 “오토마치 우나 SV”, 166384 “Synthesizer V 2 AI 오토마치 우나”, 170649 “오토마치 우나 (Unknown)”). Extracting 오토마치 우나 from those product strings would be researcher editing, so this character is left untranslated."
+    },
+    {
+      "canonical_id": "猫村いろは",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/77",
+          "api_url": "https://vocadb.net/api/artists/77?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 77 names: 猫村いろは, Nekomura Iroha. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 77 names: 猫村いろは, Nekomura Iroha. No Hangul."
+    },
+    {
+      "canonical_id": "歌愛ユキ",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/191",
+          "api_url": "https://vocadb.net/api/artists/191?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 191 names: Kaai Yuki, 歌愛ユキ. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 191 names: Kaai Yuki, 歌愛ユキ. No Hangul."
+    },
+    {
+      "canonical_id": "galaco",
+      "recommended_korean_display": null,
+      "reliability": "no-verified-hangul",
+      "official": false,
+      "keep_original_if_null": true,
+      "names": [],
+      "sources": [
+        {
+          "tier": "vocadb-community",
+          "source_url": "https://vocadb.net/Ar/1777",
+          "api_url": "https://vocadb.net/api/artists/1777?fields=Names&lang=Default",
+          "source_field": "names[].value (language=Unspecified)",
+          "evidence": "VocaDB artist 1777 names: ギャラ子, galaco. No Hangul.",
+          "accessed_at": "2026-11-14 12:45 CST (Asia/Shanghai)",
+          "official": false
+        }
+      ],
+      "notes": "VocaDB artist 1777 names: ギャラ子, galaco. No Hangul."
+    }
+  ]
+}
