@@ -21,7 +21,8 @@
     "derive:setlists": "tsx scripts/derive-performance-setlists.ts",
     "locations": "tsx scripts/show-locations.ts",
     "report:producers": "tsx scripts/producer-conflict-report.ts",
-    "report:names": "tsx scripts/name-coverage-report.ts"
+    "report:names": "tsx scripts/name-coverage-report.ts",
+    "task": "tsx scripts/task.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -15,7 +15,9 @@ vp dev                 # rebuilds catalog, then nuxt dev
 
 `vp` comes from the `vite-plus` devDependency. The first bootstrap on a clean machine can use `pnpm install` once so `vp` is on `PATH` via `pnpm exec vp` / `node_modules/.bin`.
 
-If the Nuxt lock file conflicts in parallel worktrees, `NUXT_IGNORE_LOCK=1 vp dev` is fine for local use.
+If the Nuxt lock file conflicts in parallel worktrees, `NUXT_IGNORE_LOCK=1 vp run dev` is fine for local use. Nuxt starts at port `3939` and takes the next free port when needed — read the printed `Local:` URL (or `vp run task -- dev-url <branch>`).
+
+Maintainer parallel-task helpers: `vp run task -- status|start|dev-url|dev-stop|ship` (see `.cursor/skills/continue/SKILL.md`).
 
 ## Catalog build
 

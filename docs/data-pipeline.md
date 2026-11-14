@@ -213,7 +213,7 @@ When a unit of work is done, commit it on the feature branch. Do not leave finis
 
 ### One worktree per development task
 
-See `.cursor/rules/git-worktree.mdc` and `.cursor/skills/continue/SKILL.md`. Create `~/projects/full-stack/miku-concert-stats.worktrees/<branch>` from `origin/main` and register the folder in `miku-concert-stats.code-workspace`. Do not develop on the `main` worktree. Parallel local preview servers are started without a hand-picked port; report the URL Nuxt prints.
+See `.cursor/rules/git-worktree.mdc` and `.cursor/skills/continue/SKILL.md`. Prefer `vp run task -- start <branch>` (creates the worktree from `origin/main` and registers the workspace folder). Do not develop on the `main` worktree. Preview with `vp run dev` and `vp run task -- dev-url <branch>`.
 
 ### Commit scope
 
