@@ -59,14 +59,4 @@ See [local-development.md](local-development.md) and [cloudflare.md](cloudflare.
 
 ## Maintainer workflow (optional)
 
-This repo often develops in git worktrees under `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`. Contributors can use any normal clone/branch workflow. Port notes for parallel `vp dev` sessions may appear in older docs; pick a free port with `--port`.
-
-Active local ports: `dev-raw-browser` 用 `3127`；`header-x-link` 用 `3128`。
-`feat-timeline-disable-bar-nav` 用 `3129`。
-`feat-timeline-hide-zero-year-details` 用 `3130`。
-`fix-ai-prompt-language` 用 `3165`.
-`refactor-i18n-modules` 用 `3211`.
-`remove-cf-web-analytics-beacon` 用 `3167`.
-`fix-locale-menu-mobile-fullscreen` 用 `3169`.
-`feat-docs-english-only` 用 `3131`.
-`feat-header-bilibili-icon` 用 `3132`.
+This repo often develops in git worktrees under `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`. Contributors can use any normal clone/branch workflow. Parallel `vp dev` ports are local-only: record them under the gitignored `tmp/dev-ports.md` beside `main` (see `/continue`), never in committed docs.

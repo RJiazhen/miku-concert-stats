@@ -120,19 +120,22 @@ git -C "$WORKTREE" commit -m "<一句话说明这次改了什么>"
 
 凡是改动用户可见行为（页面、组件、样式、筛选、UI 展示的数据）的任务，必须留一个开发服务器在跑，只跑通 `test` / `build` 不算完成。
 
-**分配端口**：先看 `docs/architecture.md` 的端口清单里这个分支有没有记录，有就沿用；否则从 `3165` 起按奇数递增，挑第一个没有被监听、也没登记过的端口：
+**分配端口**：端口只登记在 gitignore 的 `$MAIN/tmp/dev-ports.md`（不要写进 `docs/architecture.md` 或任何会被提交的文件）。先看该文件里这个分支有没有记录，有就沿用；否则从 `3165` 起按奇数递增，挑第一个没有被监听、也没登记过的端口：
 
 ```bash
-for p in $(seq 3165 2 3299); do
-  lsof -nP -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1 || { echo "$p"; break; }
-done
-```
-
-把 `<branch> 用 <port>` 追加到 `docs/architecture.md` 的端口清单，并随任务分支一起提交：
-
-```bash
-git -C "$WORKTREE" add docs/architecture.md
-git -C "$WORKTREE" commit -m "Record the dev server port for <branch>"
+PORTS_FILE="$MAIN/tmp/dev-ports.md"
+mkdir -p "$MAIN/tmp"
+touch "$PORTS_FILE"
+PORT=$(rg -o "$BRANCH 用 ([0-9]+)" -r '$1' "$PORTS_FILE" 2>/dev/null | head -n1)
+if [ -z "$PORT" ]; then
+  for p in $(seq 3165 2 3299); do
+    lsof -nP -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1 && continue
+    rg -q "用 $p"'($|[^0-9])' "$PORTS_FILE" 2>/dev/null && continue
+    PORT=$p
+    break
+  done
+  printf '%s 用 %s\n' "$BRANCH" "$PORT" >> "$PORTS_FILE"
+fi
 ```
 
 **启动**（在任务 worktree 里，后台常驻）：
@@ -154,7 +157,7 @@ nohup env NUXT_IGNORE_LOCK=1 vp dev --port "$PORT" > tmp/dev-server.log 2>&1 &
 1. 按用户本轮的新要求改代码；只在**本任务的** worktree 里改动，不碰别的任务 worktree 与分支。
 2. 需要时跑 `pnpm test`（口径见 testing rule）。
 3. 改完按 Start 第 4 步提交到任务分支（有 `permissions.push` 就 push，否则只本地提交）。
-4. 开发服务器没在跑就用 `docs/architecture.md` 里这个分支的端口重新拉起（Start 第 5 步）。
+4. 开发服务器没在跑就用 `$MAIN/tmp/dev-ports.md` 里这个分支的端口重新拉起（Start 第 5 步）。
 5. 汇报同样的信息并停止，等用户验收。本轮不合并、不开 PR。
 
 一个 worktree 只做一个任务：本轮需求与已有改动无关时，说明情况并按 Start 新建 worktree，不要在同一分支上混做；也不要接着别人的 worktree 继续改。
@@ -168,7 +171,7 @@ nohup env NUXT_IGNORE_LOCK=1 vp dev --port "$PORT" > tmp/dev-server.log 2>&1 &
 ```bash
 WORKTREE="<本任务的 worktree>"
 BRANCH=$(git -C "$WORKTREE" branch --show-current)
-PORT=$(rg -o "$BRANCH 用 ([0-9]+)" -r '$1' "$WORKTREE/docs/architecture.md" 2>/dev/null | head -n1)
+PORT=$(rg -o "$BRANCH 用 ([0-9]+)" -r '$1' "$MAIN/tmp/dev-ports.md" 2>/dev/null | head -n1)
 ISSUE=$(cat "$WORKTREE/tmp/task-issue" 2>/dev/null | tr -dc '0-9')
 git -C "$WORKTREE" status --short
 git -C "$WORKTREE" log --oneline origin/main..HEAD
@@ -216,7 +219,6 @@ git -C "$MAIN" push origin main
 - 有 issue 时**必须**在提交信息正文里单独一行写 `Closes #N`（`Refs #N`、`(#N)` 都不关闭 issue）。squash 提交是本任务唯一落到 `main` 的提交，也是唯一能触发自动关闭的地方。
 - 输出 `Already up to date` 或 `status --short` 为空 → 没有可合并内容，说明并停止，不要提交空 commit。
 - 冲突时停下，把冲突文件列给用户，不要替用户取舍；要 `reset --hard` 前必须先征得同意。
-- 例外：冲突只在 `docs/architecture.md` 的端口清单这一段（多个分支都往同一段追加端口）时，保留双方条目后继续，不要回滚别人的端口。
 - `$MAIN` 不干净时不要 stash 别人的改动。
 
 ### 2b. 没有合并权限：推送分支并开 PR
@@ -263,6 +265,12 @@ gh issue close "$ISSUE" --repo RJiazhen/miku-concert-stats \
 
 ```bash
 lsof -ti "tcp:$PORT" | while read -r pid; do kill "$pid"; done
+# drop this branch's port line from the local registry (gitignored)
+if [ -f "$MAIN/tmp/dev-ports.md" ]; then
+  tmp=$(mktemp)
+  rg -v "^$BRANCH 用 " "$MAIN/tmp/dev-ports.md" > "$tmp" || true
+  mv "$tmp" "$MAIN/tmp/dev-ports.md"
+fi
 git -C "$WORKTREE" status --short          # 必须为空
 git -C "$MAIN" worktree remove "$WORKTREE"
 git -C "$MAIN" branch -D "$BRANCH"         # squash 合并必须用 -D
