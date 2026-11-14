@@ -304,8 +304,8 @@ When a performance has a catalog `start_date`, the UI always prints that date (a
 
 When the date is missing, the date field shows only one of two labels, in every current UI locale:
 
-- **Cancelled** (`已取消` / `已取消` / `中止` / `Cancelled`) — only when `performance_status` has a hand-checked `cancelled` row with a source. The current catalog has 13 such performances: twelve MIKU EXPO 2020 North American stops (ids 2853–2861, 2878–2880) and 初音ミク×鼓童スペシャルライブ２０２０～結～ (2886), each sourced from the official cancellation announcement.
-- **Undetermined** (`尚未确定` / `尚未確定` / `未定` / `Date undetermined`) — any other missing date. This is not a cancellation. The current catalog has one such row: 初音ミクシンフォニー 2027 東京 (13210), a VocaDB Draft event with no date and no `performance_status` row.
+- **Cancelled** (`已取消` / `已取消` / `中止` / `취소` / `Cancelled`) — only when `performance_status` has a hand-checked `cancelled` row with a source. The current catalog has 13 such performances: twelve MIKU EXPO 2020 North American stops (ids 2853–2861, 2878–2880) and 初音ミク×鼓童スペシャルライブ２０２０～結～ (2886), each sourced from the official cancellation announcement.
+- **Undetermined** (`尚未确定` / `尚未確定` / `未定` / `미정` / `Date undetermined`) — any other missing date. This is not a cancellation. The current catalog has one such row: 初音ミクシンフォニー 2027 東京 (13210), a VocaDB Draft event with no date and no `performance_status` row.
 
 The date field never uses `尚未演出`, `这场演出尚未举行`, or any “not yet performed” wording. A dated future show that is marked `upcoming` (for example MIKU WITH YOU 2026 in Chengdu, 3000000001, on 2026-12-26) still shows its real date; the existing show-page status alert may still explain that the performance has not taken place yet.
 
