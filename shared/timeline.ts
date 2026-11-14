@@ -106,6 +106,8 @@ export type TimelineCityYear = {
   domestic: number
   /** 演出 held outside Japan, by `country_code`. */
   overseas: number
+  /** Online-only 演出, marked by `country_code = 'ONLINE'`. */
+  online: number
   /** 演出 with no usable `country_code`. */
   unknownCountry: number
   /** overseas / (domestic + overseas); null when neither side has a 演出. */
@@ -298,9 +300,10 @@ export const timelineSetlists = (catalog: Catalog): ReadonlyMap<number, Performa
 const yearOf = (performance: PerformanceRow): number | null => performanceYear(performance.start_date)
 
 /** Country bucket of one 演出, read from `country_code`. */
-const countryBucket = (performance: PerformanceRow): 'domestic' | 'overseas' | 'unknown' => {
+const countryBucket = (performance: PerformanceRow): 'domestic' | 'overseas' | 'online' | 'unknown' => {
   const code = performance.country_code?.trim().toUpperCase()
   if (code === undefined || code === '') return 'unknown'
+  if (code === 'ONLINE') return 'online'
   return code === 'JP' ? 'domestic' : 'overseas'
 }
 
@@ -466,7 +469,7 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
   const playedSongsByYear = new Map<number, Set<number>>()
   const seriesSpans = new Map<number, TimelineSeriesSpan>()
   const citySpans = new Map<string, TimelineCitySpan>()
-  const cityYear = new Map<number, { cities: Set<string>; newCities: number; domestic: number; overseas: number; unknownCountry: number }>()
+  const cityYear = new Map<number, { cities: Set<string>; newCities: number; domestic: number; overseas: number; online: number; unknownCountry: number }>()
   const performances: TimelinePerformance[] = []
   let unknownCityPerformances = 0
   let unknownCityShows = 0
@@ -534,10 +537,11 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
     characterSongYear.set(year, yearSongs)
 
     if (cityIndex !== undefined) {
-      const bucket = cityYear.get(year) ?? { cities: new Set<string>(), newCities: 0, domestic: 0, overseas: 0, unknownCountry: 0 }
+      const bucket = cityYear.get(year) ?? { cities: new Set<string>(), newCities: 0, domestic: 0, overseas: 0, online: 0, unknownCountry: 0 }
       const country = countryBucket(candidate.performance)
       if (country === 'domestic') bucket.domestic += 1
       else if (country === 'overseas') bucket.overseas += 1
+      else if (country === 'online') bucket.online += 1
       else bucket.unknownCountry += 1
       if (candidate.city === null) {
         unknownCityPerformances += 1
@@ -620,7 +624,7 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
   const cityByYear = years.map((year): TimelineCityYear => {
     const bucket = cityYear.get(year)
     if (bucket === undefined) {
-      return { year, cities: 0, newCities: 0, domestic: 0, overseas: 0, unknownCountry: 0, overseasRatio: null }
+      return { year, cities: 0, newCities: 0, domestic: 0, overseas: 0, online: 0, unknownCountry: 0, overseasRatio: null }
     }
     const abroad = bucket.domestic + bucket.overseas
     return {
@@ -629,6 +633,7 @@ export const buildTimeline = (catalog: Catalog, options: TimelineOptions = {}): 
       newCities: bucket.newCities,
       domestic: bucket.domestic,
       overseas: bucket.overseas,
+      online: bucket.online,
       unknownCountry: bucket.unknownCountry,
       overseasRatio: abroad === 0 ? null : bucket.overseas / abroad,
     }

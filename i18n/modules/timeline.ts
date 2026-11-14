@@ -240,6 +240,12 @@ export default {
     ja: '、国不明 {n} 件',
     en: ', {n} with no country',
   },
+  'timeline.cityYearOnline': {
+    zh: '，{n} 个线上',
+    'zh-Hant': '，{n} 個線上',
+    ja: '、オンライン {n} 件',
+    en: ', {n} online',
+  },
   'timeline.closeMenu': {
     zh: '关闭筛选与图表',
     'zh-Hant': '關閉篩選與圖表',
@@ -395,6 +401,12 @@ export default {
     'zh-Hant': '預設堆疊前 5 個系列，其餘併入「其他」；日場 / 夜場由場次說明中已核實的晝夜證據拆分。點選柱段進入系列頁，點選柱間空白展開該年演出列表。',
     ja: '既定では上位 5 シリーズを積み上げ、残りは「その他」にまとめます。昼公演 / 夜公演はセットリスト注記で確認できた昼夜の根拠で分けます。棒をクリックするとシリーズページへ、棒の間の空白をクリックするとその年の公演一覧が開きます。',
     en: 'By default the top five series are stacked and the rest fold into “Other”; day and night shows are split where the setlist notes prove both happened. Click a bar to open its series page, or the gap between bars to list that year’s performances.',
+  },
+  'timeline.online': {
+    zh: '线上',
+    'zh-Hant': '線上',
+    ja: 'オンライン',
+    en: 'Online',
   },
   'timeline.newCities': {
     zh: '当年新城市',

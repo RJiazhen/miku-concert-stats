@@ -39,6 +39,10 @@
 
 **VocaDB 是同级参考源，不是标准。** `https://vocadb.net/api/`，JSON，自定义 User-Agent，请求间隔 ≥ 300ms，并缓存原始响应。数据库内容按 [VocaDB License](https://wiki.vocadb.net/docs/license) 为 CC BY，页面给出返回链接。取数顺序是「官网 → 萌娘百科 → 初音ミク Wiki → VocaDB」；`performances.id` / `series.id` / `songs.id` 尽量沿用 VocaDB 的 id，VocaDB 没有条目时用本地保留区间，VocaDB 与本项目不一致时保留已采集的数据，不改上游也不回改自己。只要本项目记录了某个演出的歌单，该演出就进入统计，不再要求上游歌单存在。代价是开演钟点多数缺失，日期精度停在「日」。
 
+## 线上演出标识
+
+无实体场馆的线上、直播、VR 演出不套用地理国家代码。这类演出在 `performances.country_code` 中记为 `ONLINE`（非 ISO 3166-1 alpha-2），与城市地理演出分开统计，在时间线的「城市迁移」图中显示为独立的「线上」柱段，不影响「日本国内」「海外」与真正的「国家未知」。当前清单由 `data/increments/0014-online-designation.sql` 维护；`pnpm collect` 会重写 `0001`，但 `0014` 在 `0001` 与 `0013` 之后运行，保证标识不会被覆盖。
+
 ## 模块与职责
 
 | 模块 | 职责 |

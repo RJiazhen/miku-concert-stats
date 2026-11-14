@@ -339,13 +339,14 @@ const songChartLines = computed<ChartSeries[]>(() => {
   }]
 })
 
-/** Chart 6 bars: 演出 in Japan, abroad, and with no country code, stacked to the full total. */
+/** Chart 6 bars: 演出 in Japan, abroad, online, and with no country code, stacked to the full total. */
 const cityChartBars = computed<ChartSeries[]>(() => {
   const current = timeline.value
   if (current === null) return []
   return [
     { key: 'domestic', label: t('timeline.domestic'), color: PALETTE[0], values: current.cityByYear.map((row) => row.domestic) },
     { key: 'overseas', label: t('timeline.overseas'), color: PALETTE[1], values: current.cityByYear.map((row) => row.overseas) },
+    { key: 'online', label: t('timeline.online'), color: PALETTE[5], values: current.cityByYear.map((row) => row.online) },
     { key: 'unknown-country', label: t('timeline.unknownCountry'), color: OTHER_COLOR, values: current.cityByYear.map((row) => row.unknownCountry) },
   ]
 })
@@ -1115,7 +1116,8 @@ useHead({ title: computed(() => t('timeline.title')) })
           <template #footer>
             <div v-if="cityYearRow" class="mt-3 border-t border-default/60 pt-3 text-xs text-muted">
               {{ t('timeline.cityYear', { year: cityYearRow.year, cities: cityYearRow.cities, newCities: cityYearRow.newCities, domestic: cityYearRow.domestic, overseas: cityYearRow.overseas })
-              }}<template v-if="cityYearRow.unknownCountry > 0">{{ t('timeline.cityYearUnknown', { n: cityYearRow.unknownCountry }) }}</template>。
+              }}<template v-if="cityYearRow.online > 0">{{ t('timeline.cityYearOnline', { n: cityYearRow.online }) }}</template
+              ><template v-if="cityYearRow.unknownCountry > 0">{{ t('timeline.cityYearUnknown', { n: cityYearRow.unknownCountry }) }}</template>。
             </div>
           </template>
         </TimelineChartCard>

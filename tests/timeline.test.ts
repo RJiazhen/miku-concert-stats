@@ -1,8 +1,11 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import Database from 'better-sqlite3'
 import { loadCatalog } from '../shared/catalog.ts'
 import { parseCharacterConfig, type CharacterRule } from '../shared/characters.ts'
+import { buildCityIndex } from '../shared/cities.ts'
 import { buildSeriesOverview } from '../shared/overview.ts'
+import { parsePlaceNames } from '../shared/place-names.ts'
 import { showCountsByPerformance } from '../shared/performance-setlists.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import { parseSongVariants } from '../shared/song-variants.ts'
@@ -18,6 +21,13 @@ import type {
   SqlRow,
 } from '../shared/types.ts'
 import { applyCatalogSql } from '../scripts/build-catalog.ts'
+
+/** City matcher built from the checked place list, used by committed-catalog timeline tests. */
+const testCityIndex = buildCityIndex(parsePlaceNames({
+  zh: JSON.parse(readFileSync('data/place-names.zh-CN.json', 'utf8')) as Record<string, string>,
+  'zh-Hant': JSON.parse(readFileSync('data/place-names.zh-Hant.json', 'utf8')) as Record<string, string>,
+  en: JSON.parse(readFileSync('data/place-names.en.json', 'utf8')) as Record<string, string>,
+}))
 
 /** Small catalog every fixture starts from. */
 const emptyCatalog = (): Catalog => ({
@@ -339,15 +349,21 @@ describe('timeline new-song baseline', () => {
 })
 
 describe('timeline against the committed catalog', () => {
-  it('matches the /series 场次 total and the catalog-wide dated 演出 count', () => {
+  /** Loads the committed catalog into memory for these tests. */
+  const loadCommittedCatalog = (): { catalog: Catalog; db: Database.Database } => {
     const db = new Database(':memory:')
+    applyCatalogSql(db)
+    const catalog = loadCatalog({
+      /** Reads the in-memory catalog built from committed SQL. */
+      all: (sql: string) => db.prepare(sql).all() as SqlRow[],
+    })
+    return { catalog, db }
+  }
+
+  it('matches the /series 场次 total and the catalog-wide dated 演出 count', () => {
+    const { catalog, db } = loadCommittedCatalog()
     try {
-      applyCatalogSql(db)
-      const catalog = loadCatalog({
-        /** Reads the in-memory catalog built from committed SQL. */
-        all: (sql: string) => db.prepare(sql).all() as SqlRow[],
-      })
-      const timeline = buildTimeline(catalog, { includeBroadcast: true })
+      const timeline = buildTimeline(catalog, { includeBroadcast: true, cityIndex: testCityIndex })
       const review = reviewRotations(catalog)
       const seriesRows = buildSeriesOverview(catalog.series, catalog.performances, showCountsByPerformance(catalog, review))
       const seriesShows = seriesRows.reduce((sum, row) => sum + row.shows, 0)
@@ -361,6 +377,67 @@ describe('timeline against the committed catalog', () => {
       for (let index = 1; index < timeline.years.length; index += 1) {
         expect(timeline.years[index]).toBe((timeline.years[index - 1] as number) + 1)
       }
+    } finally {
+      db.close()
+    }
+  })
+
+  it('counts the six known online performances as online, not unknown or overseas', () => {
+    const { catalog, db } = loadCommittedCatalog()
+    try {
+      const onlineIds = new Set([3000000006, 3224, 3000000007, 4114, 4490, 5751])
+      for (const performance of catalog.performances) {
+        if (onlineIds.has(performance.id)) {
+          expect(performance.country_code).toBe('ONLINE')
+        }
+      }
+
+      const timeline = buildTimeline(catalog, { includeBroadcast: true, cityIndex: testCityIndex })
+      const onlineByYear = new Map(timeline.cityByYear.map((row) => [row.year, row.online]))
+      expect(onlineByYear.get(2020)).toBe(1)
+      expect(onlineByYear.get(2021)).toBe(2)
+      expect(onlineByYear.get(2022)).toBe(2)
+      expect(onlineByYear.get(2023)).toBe(1)
+      expect(timeline.cityByYear.every((row) => row.unknownCountry === 0)).toBe(true)
+    } finally {
+      db.close()
+    }
+  })
+
+  it('keeps geographic country codes in their buckets', () => {
+    const { catalog, db } = loadCommittedCatalog()
+    try {
+      const timeline = buildTimeline(catalog, { includeBroadcast: true, cityIndex: testCityIndex })
+      const hasDomestic = timeline.cityByYear.some((row) => row.domestic > 0)
+      const hasOverseas = timeline.cityByYear.some((row) => row.overseas > 0)
+      expect(hasDomestic).toBe(true)
+      expect(hasOverseas).toBe(true)
+    } finally {
+      db.close()
+    }
+  })
+
+  it('still reports a genuine missing country_code as unknown', () => {
+    const current = yearlyCatalog()
+    current.performances.push(performance({ id: 100, series_id: 82, start_date: '2024-06-01', country_code: '' }))
+    const timeline = buildTimeline(current, { includeBroadcast: true, cityIndex: testCityIndex })
+    const yearRow = timeline.cityByYear.find((row) => row.year === 2024)
+    expect(yearRow?.unknownCountry).toBe(1)
+    expect(yearRow?.online).toBe(0)
+  })
+
+  it('drops broadcast-detected online performances from the broadcast-excluded view', () => {
+    const { catalog, db } = loadCommittedCatalog()
+    try {
+      const withBroadcast = buildTimeline(catalog, { includeBroadcast: true, cityIndex: testCityIndex })
+      const withoutBroadcast = buildTimeline(catalog, { includeBroadcast: false, cityIndex: testCityIndex })
+      const onlineTotal = (timeline: typeof withBroadcast) => timeline.cityByYear.reduce((sum, row) => sum + row.online, 0)
+
+      // All six are online; when broadcasts are excluded, five are dropped by role or name/VR match.
+      // 4490 (MIKU EXPO 2022 Rewind+) stays because role=show and its name does not hit the
+      // broadcast regex; it is still classified as online by its country_code.
+      expect(onlineTotal(withBroadcast)).toBe(6)
+      expect(onlineTotal(withoutBroadcast)).toBe(1)
     } finally {
       db.close()
     }
