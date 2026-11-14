@@ -238,6 +238,11 @@ Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目�
 
 时间线的「场次 / 系列」、巡演城市迁移与角色曲目数年度变化三张柱图：悬停明细与点击展开的年份明细只列出该年有值的系列 / 分区 / 角色（以及对应的折线点）；数值为 0 或缺失的项不出现在明细里。年份选择、悬停提示本身与图上的合计（堆叠柱总高、轴刻度、页头汇总）保持不变，不因隐藏零项而改写计数口径。该行为由聚焦回归测试覆盖（`TimelineBarChart` 的 `hoverValues`，以及三图年份脚注的 `showsYearPerformances` / `characterYearRows` / `cityYearRow`）。
 
+## 页眉社交链接
+
+页眉顶栏在语言与主题按钮之后、从左到右依次放 GitHub、X、哔哩哔哩三个外链图标：哔哩哔哩必须紧挨在现有 X 图标的右侧，链接固定为 `https://b23.tv/IITMbFk`，无障碍标签为「k9009's Bilibili profile」（各语言有对应文案）。图标用与 GitHub / X 相同的 tabler brand 图标包（`i-tabler:brand-bilibili`），按钮尺寸、颜色、`target="_blank"` 与 `rel="noopener noreferrer"` 与现有外链一致。窄屏菜单里 GitHub + X 那一行同样把哔哩哔哩放在 X 右侧。
+
 ## 页眉搜索
+
 
 搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层依次列系列（`localSeriesMatches`，链到 `/series/{id}`）、演出（`localPerformanceMatches`，名字、日期与场馆，链到 `/shows/{id}`）、地点（`localPlaceMatches`，场馆名与演出数，链到 `/series?place={场馆}`）、制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`）；中文译名同样参与匹配。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。

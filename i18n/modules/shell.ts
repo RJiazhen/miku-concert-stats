@@ -330,6 +330,18 @@ export default {
     ja: 'X（新しいウィンドウで開く）',
     en: 'X (opens in a new window)',
   },
+  'nav.bilibili': {
+    zh: '哔哩哔哩',
+    'zh-Hant': '嗶哩嗶哩',
+    ja: 'Bilibili',
+    en: 'Bilibili',
+  },
+  'nav.bilibiliProfile': {
+    zh: 'k9009 的哔哩哔哩主页',
+    'zh-Hant': 'k9009 的嗶哩嗶哩主頁',
+    ja: 'k9009 の Bilibili プロフィール',
+    en: "k9009's Bilibili profile",
+  },
   'nav.language': {
     zh: '语言',
     'zh-Hant': '語言',
