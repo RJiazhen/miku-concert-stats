@@ -1,7 +1,5 @@
 # Cloudflare deploy and maintainer ops
 
-**English** | [简体中文](cloudflare.zh-CN.md) | [繁體中文](cloudflare.zh-Hant.md) | [日本語](cloudflare.ja.md)
-
 This project hosts production on Cloudflare Workers. **Forks and local UI work do not need Access / analytics vars.** Prefer the Cloudflare dashboard for account-specific settings so git stays free of them.
 
 ## What lives where

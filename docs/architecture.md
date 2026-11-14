@@ -1,7 +1,5 @@
 # Architecture
 
-**English** | [简体中文](architecture.zh-CN.md) | [繁體中文](architecture.zh-Hant.md) | [日本語](architecture.ja.md)
-
 Hatsune Miku concert setlist stats: catalog in SQL, aggregation in the browser, Worker for SSR and a few APIs.
 
 There is **no D1 and no R2**. The catalog is a built SQLite file (`public/data/catalog.sqlite`). Search is local-only on that catalog (no on-demand VocaDB lookup from the Worker).
@@ -55,7 +53,7 @@ See [local-development.md](local-development.md) and [cloudflare.md](cloudflare.
 
 ## Deeper references
 
-- Curated data rules and file formats: [data-pipeline.zh-CN.md](data-pipeline.zh-CN.md) (Simplified Chinese)
+- Curated data rules and file formats: [data-pipeline.md](data-pipeline.md)
 - Known data issues: [data-issues.md](data-issues.md)
 - Historical design notes: [design.md](design.md)
 
@@ -68,3 +66,4 @@ Active local ports: `dev-raw-browser` 用 `3127`；`header-x-link` 用 `3128`。
 `refactor-i18n-modules` 用 `3211`.
 `remove-cf-web-analytics-beacon` 用 `3167`.
 `fix-locale-menu-mobile-fullscreen` 用 `3169`.
+`feat-docs-english-only` 用 `3131`.

@@ -1,7 +1,5 @@
 # Local development
 
-**English** | [简体中文](local-development.zh-CN.md) | [繁體中文](local-development.zh-Hant.md) | [日本語](local-development.ja.md)
-
 ## Tooling: prefer Vite+
 
 Use **[Vite+](https://viteplus.dev/) (`vp`)** for day-to-day work: `vp install`, `vp dev`, `vp test`, `vp lint`, and `vp build` / `vp run <script>`. pnpm remains the package manager (`packageManager` in `package.json`); Vite+ drives it. Reach for bare `pnpm <script>` only when you are not going through `vp`.
