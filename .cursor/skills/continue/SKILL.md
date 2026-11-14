@@ -126,7 +126,7 @@ git -C "$WORKTREE" commit -m "<一句话说明这次改了什么>"
 - 不要为了「确认显示」反复起停（见 `ui-style-review`）；热更新会吃到后续改动。
 - 每轮汇报前用 `lsof -nP -iTCP:"$PORT" -sTCP:LISTEN`（或对 `http://127.0.0.1:$PORT/` 的 `curl`）确认仍在听；死了再按下面步骤拉起，不要把已死的地址交给用户。
 
-**分配端口**：端口只登记在 gitignore 的 `$MAIN/tmp/dev-ports.md`（不要写进 `docs/architecture.md` 或任何会被提交的文件）。先看该文件里这个分支有没有记录，有就沿用；否则从 `3165` 起按奇数递增，挑第一个没有被监听、也没登记过的端口：
+**分配端口**：端口只登记在 gitignore 的 `$MAIN/tmp/dev-ports.md`（不要写进 `docs/architecture.md` 或任何会被提交的文件）。`nuxt.config.ts` 的默认开发端口是 `3939`。先看该文件里这个分支有没有记录，有就沿用；否则从 `3939` 起**依次 +1**，取比已登记端口都大的下一个（第一个任务 `3939`，第二个 `3940`，…）：
 
 ```bash
 PORTS_FILE="$MAIN/tmp/dev-ports.md"
@@ -134,12 +134,12 @@ mkdir -p "$MAIN/tmp"
 touch "$PORTS_FILE"
 PORT=$(rg -o "$BRANCH 用 ([0-9]+)" -r '$1' "$PORTS_FILE" 2>/dev/null | head -n1)
 if [ -z "$PORT" ]; then
-  for p in $(seq 3165 2 3299); do
-    lsof -nP -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1 && continue
-    rg -q "用 $p"'($|[^0-9])' "$PORTS_FILE" 2>/dev/null && continue
-    PORT=$p
-    break
-  done
+  LAST=$(rg -o '用 ([0-9]+)' -r '$1' "$PORTS_FILE" 2>/dev/null | sort -n | tail -n1)
+  if [ -z "$LAST" ] || [ "$LAST" -lt 3939 ]; then
+    PORT=3939
+  else
+    PORT=$((LAST + 1))
+  fi
   printf '%s 用 %s\n' "$BRANCH" "$PORT" >> "$PORTS_FILE"
 fi
 ```
@@ -154,7 +154,7 @@ fi
 env NUXT_IGNORE_LOCK=1 vp run dev --port "$PORT"
 ```
 
-（`vp dev --port "$PORT"` 也可以；**禁止** `vp run dev -- --port …`，多出来的 `--` 会让 Nuxt 忽略端口并落到 3000。）
+（`vp dev --port "$PORT"` 也可以；**禁止** `vp run dev -- --port …`，多出来的 `--` 会让 Nuxt 忽略端口并落到默认/错误值。）
 
 2. **备选**（没有常驻 Shell 时）：`screen` 会话，名称带上分支，避免和其他任务撞名：
 
@@ -163,7 +163,9 @@ screen -dmS "miku-$BRANCH" zsh -lc \
   "cd \"$WORKTREE\" && env NUXT_IGNORE_LOCK=1 vp run dev --port $PORT >> tmp/dev-server.log 2>&1"
 ```
 
-用一小段有界轮询确认**登记的那个端口**在听且有响应（`lsof` + `curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/"`，期望 200/302/304，最多约 60 秒）。日志里若出现 `Local: …:3000` 或其它端口，说明参数没传上，先停掉再按上面命令重来，不要把错误端口报给用户。起不来就读终端输出或 `tmp/dev-server.log`，不要反复无杀重来。
+**以 Nuxt 实际绑定的端口为准**：目标端口被占用时 Nuxt 会自动换下一个，并在日志里打印 `➜ Local: http://127.0.0.1:<actual>/`（或 `Ready … → http://127.0.0.1:<actual>/`）。启动后从常驻 Shell 终端输出或 `tmp/dev-server.log` 里解析出这个 `<actual>`；若与登记的 `$PORT` 不同，把 `$PORTS_FILE` 里本分支那一行改成实际端口，之后的 `curl` / 汇报 / Ship 清理都用实际端口。不要把「请求的端口」或参数没传上时的错误端口报给用户。
+
+用一小段有界轮询确认**实际端口**在听且有响应（`lsof` + `curl`，期望 200/302/304，最多约 60 秒）。起不来就读终端输出或日志，不要反复乱杀重来。
 
 ### 6. 汇报并停止
 

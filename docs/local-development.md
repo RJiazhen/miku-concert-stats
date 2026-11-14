@@ -9,9 +9,10 @@ Use **[Vite+](https://viteplus.dev/) (`vp`)** for day-to-day work: `vp install`,
 ```bash
 vp install
 vp test
-vp dev                 # rebuilds catalog, then nuxt dev
-vp dev --port 3165     # optional port
+vp dev                 # rebuilds catalog, then nuxt dev (default port 3939)
+vp run dev --port 3940 # parallel worktree; Nuxt bumps if the port is busy
 ```
+
 
 `vp` comes from the `vite-plus` devDependency. The first bootstrap on a clean machine can use `pnpm install` once so `vp` is on `PATH` via `pnpm exec vp` / `node_modules/.bin`.
 
