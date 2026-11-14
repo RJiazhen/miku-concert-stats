@@ -29,8 +29,10 @@ dataset = "miku_pageviews"
 # overwrite dashboard values with "". See docs/cloudflare.md.
 
 # Worker Previews (non-main branches / `pnpm exec wrangler preview`).
-# Required by wrangler >= 4.135.0; may be empty. Previews do NOT inherit
+# Required by wrangler >= 4.135.0; may be empty. Use a [previews] table
+# header (not `previews = { }` after [[...]] arrays) so TOML does not attach
+# the key to the previous array-of-tables entry. Previews do NOT inherit
 # production bindings — leave empty so FEEDBACK / PAGEVIEWS stay off preview
 # unless maintainers add preview-safe resources under this block.
 # See docs/cloudflare.md.
-previews = { }
+[previews]

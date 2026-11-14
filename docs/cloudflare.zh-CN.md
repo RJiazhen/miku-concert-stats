@@ -49,7 +49,7 @@ Workers Builds 在 `main` 上通常执行 `pnpm build` 再 `npx wrangler deploy`
 
 ### 仓库配置
 
-`wrangler.toml` 必须有 `previews` 块，可以为空：`previews = { }`。Preview **不会继承**生产绑定与变量。
+`wrangler.toml` 必须有 `previews` 块，可以为空。请用 `[previews]` 表头（不要在 `[[kv_namespaces]]` / `[[analytics_engine_datasets]]` 后面写行内 `previews = { }`），否则 TOML 会把该键挂到上一个数组项，Nitro 生成的 `.output/server/wrangler.json` 就没有顶层 `previews`，`wrangler preview` 会失败。Preview **不会继承**生产绑定与变量。
 
 本仓库故意保持空块：除非维护者明确同意共享，否则不要把 preview 的 `FEEDBACK` KV / `PAGEVIEWS` 指到生产资源。没有 preview 安全绑定时，公开页仍可 SSR；反馈为 **503**，后台 / 分析不可用。以后若要隔离资源，写在 `previews` 下（如 `[[previews.kv_namespaces]]`），生产 id 只留在顶层。见 [Configuration](https://developers.cloudflare.com/workers/previews/configuration/)。
 

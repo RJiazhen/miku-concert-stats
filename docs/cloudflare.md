@@ -49,7 +49,7 @@ Non-`main` branches use **Worker Previews**, not `npx wrangler versions upload`.
 
 ### Config in git
 
-`wrangler.toml` includes a required `previews` block. It may be empty (`previews = { }`). Previews **do not inherit** production bindings or vars.
+`wrangler.toml` includes a required `previews` block. It may be empty. Prefer a `[previews]` table header (not an inline `previews = { }` placed after `[[kv_namespaces]]` / `[[analytics_engine_datasets]]`), or TOML attaches the key to the previous array entry and Nitro’s generated `.output/server/wrangler.json` never gets a top-level `previews` — then `wrangler preview` fails. Previews **do not inherit** production bindings or vars.
 
 This repo keeps `previews` empty on purpose: do **not** point preview `FEEDBACK` KV or `PAGEVIEWS` at production resources unless maintainers explicitly choose to share them. Without preview-safe bindings, public pages still SSR; feedback returns **503** and admin/analytics stay unavailable (same as missing bindings in production).
 
