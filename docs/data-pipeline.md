@@ -203,7 +203,7 @@ Production deploy is `npx wrangler deploy`. Non-`main` Worker Previews use `npx 
 
 ### GitHub Actions
 
-`.github/workflows/ci.yml` runs lint, typecheck, tests, and catalog checks on pull requests and on pushes to `main`. `.github/workflows/weekly-collect.yml` is the scheduled VocaDB collect.
+`.github/workflows/ci.yml` runs lint, typecheck, tests, and catalog checks on pull requests and on pushes to `main`. There is no CI job that collects or commits VocaDB data; maintainers refresh the catalog locally with `pnpm collect` when needed.
 
 ## Collaboration conventions
 
