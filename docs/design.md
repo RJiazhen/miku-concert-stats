@@ -318,3 +318,28 @@ These labels appear in every user-facing date field: the show header, series lis
 
 
 搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层依次列系列（`localSeriesMatches`，链到 `/series/{id}`）、演出（`localPerformanceMatches`，名字、日期与场馆，链到 `/shows/{id}`）、地点（`localPlaceMatches`，场馆名与演出数，链到 `/series?place={场馆}`）、制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`）；中文译名同样参与匹配。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
+
+## MikuOnly schedule and metadata supplements (issue #66)
+
+This work adds only independently corroborated facts. The public MikuOnly dataset has no LICENSE, so its prose, images, and unverified setlists are not copied. Official pages outrank MikuOnly. `data/performance-setlists.json` remains the curated source of truth; `data/increments/0008-performance-setlists.sql` is regenerated with `pnpm derive:setlists` and is not hand-edited. Song IDs, existing programme order, and existing wiki setlist objects are preserved. Barcelona 2020 (performance 2790) stays without a curated setlist because four recording identities are still unresolved.
+
+Two counting rules must be reported separately, measured on a catalog rebuilt from committed increments:
+
+- **Derived show rows**: `performance_show_setlists` length. Research snapshots called this 447 on `d713f12`.
+- **Index / site-wide 场次**: `showCountsByPerformance` (derived schedules win; performances with no derived rows fall back to the note/date-range schedule). The homepage on the same base measured 456. The nine-show gap is a counting-semantics difference, not two databases.
+
+Predicted net effects after this batch (to be replaced by measured totals): Mexico 1924 stays three performed shows with corrected keys; Kodo 2947 gains the official 2017-03-05 evening show (+1 derived row) reusing the existing 22-song programme; five official day/night splits (2517, 2518, 4056, 2524, 2525) add five derived rows; together that is +6 derived show rows. WOWOW 2014 is metadata-only (new exact-name local series 900000007 and performance 3000000012, no setlist), so it should not add a derived show row, but the site-wide rule should count its one calendar date as one 场次.
+
+Schedule corrections, independently rechecked against current official pages:
+
+- 1924 MIKU EXPO 2016 Mexico City, El Plaza Condesa: official final tour page `.cont-mexico` lists June 4 day 2:30pm and night 8:30pm FINISHED, June 5 day 2:30pm FINISHED, June 5 night 8:30pm CANCEL. Keys must be `1924:2016-06-04:day`, `1924:2016-06-04:night`, `1924:2016-06-05:day`. `1924:2016-06-05:night` must not exist.
+- 2947 Hatsune Miku × Kodo 2017, NHK Hall: official Kodo announcement of 2017-01-10 adds March 5 19:00 to the existing March 4 19:00 and March 5 13:00. Keys gain `2947:2017-03-05:night`.
+- 2517 Magical Mirai 2014 Osaka (2014-08-30): official ticket page, INTEX Osaka Hall 5, START 12:30 / 17:00. Hall 4 exhibition hours are not concerts.
+- 2518 Magical Mirai 2014 Tokyo (2014-09-20): official ticket page, Tokyo Metropolitan Gymnasium main arena, START 13:00 / 18:00.
+- 4056 MikuPa Tokyo (2012-03-08): official SEGA announcement, START 14:00 / 19:00, distinct from the March 9 Thanksgiving finale already catalogued as 3000000011.
+- 2524 MikuPa Hong Kong (2012-10-02): official blog retrospective, KITEC Star Hall, 15:00 and 20:00.
+- 2525 MikuPa Taiwan (2012-10-06): Sony Music Taiwan announcement, Taipei Show (台北展演二館), 14:00 and 19:00.
+
+WOWOW 2014 metadata-only import follows the existing exact-name standalone series policy in `0005-manual-catalog.sql` (as with 夏の終わりの39祭り and the LAWSON anniversary). It is not filed as a MIKU EXPO stop, not as the 2014-11-22 television broadcast, and not in a generic “Other Official Events” bucket. Candidate local IDs 900000007 and 3000000012 were unused in current increments; VocaDB event and series searches for “WOWOW 2014” and “TOUCH WOWOW” returned no mapping, so those local IDs are used. Facts stored: name 初音ミク×TOUCH！WOWOW2014 スペシャルライブ, 2014-11-01, チームスマイル／豊洲PIT, Tokyo, JP, scheduled start 18:00 Asia/Tokyo, `time_precision` remains `day`. Four provenance links are recorded. No 8-song setlist or placeholder songs are imported.
+
+`build-setlist-curation.py` `add()` calls are updated so later generator runs do not restore the inverted Mexico schedule or the incomplete Kodo halves. The generator itself is not executed in this change, because it would rewrite unrelated `accessedAt` and setlist sources. JSON setlist objects are edited only by adding schedule fields and citations around the existing song lists.
