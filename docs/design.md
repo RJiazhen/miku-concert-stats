@@ -318,3 +318,21 @@ These labels appear in every user-facing date field: the show header, series lis
 
 
 搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层依次列系列（`localSeriesMatches`，链到 `/series/{id}`）、演出（`localPerformanceMatches`，名字、日期与场馆，链到 `/shows/{id}`）、地点（`localPlaceMatches`，场馆名与演出数，链到 `/series?place={场馆}`）、制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`）；中文译名同样参与匹配。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
+
+## Dedicated homepage (issue #60)
+
+The site root `/` is a dedicated landing page, separate from the song-appearance ranking that previously occupied `/`. The ranking remains available at `/rank`. The header logo stays on `/`; the Songs nav item and “view ranking” links point at `/rank`. Existing withdrawn-page redirects (`/catalog`, `/compare`, `/windows`, `/correlation`) still go to `/`, which is now the homepage.
+
+The first homepage ships without poster images or a visual carousel (deferred to [issue #67](https://github.com/RJiazhen/miku-concert-stats/issues/67)). Recent concerts are a text list: localized name, concert calendar date, venue when known, optional sourced status, and a link to `/shows/{id}`. Concert dates come from `performances.start_date` / `end_date` and are never labelled as data-update times.
+
+Site-wide statistics reuse the same counting rules as the series and performance indexes (`reviewRotations`, `showCountsByPerformance`, `setlistPerformanceIds`): series, 演出, 场次, songs, setlist coverage, cancelled rows, broadcast/online rows, and the concert calendar date range.
+
+The “recently updated statistics data” summary uses only catalog source metadata: `retrieved_at` on series, performances, songs, and song lists, and `accessed_at` on setlist sources and hand-checked performance status. Those timestamps are displayed as source retrieval or access times, not as concert dates.
+
+Related links are classified from actual catalog rows, with no invented URLs:
+
+- Official website: `performance_links` whose description clearly says Official Website or Official Webpage.
+- Website (official status unconfirmed): descriptions that start with `Website`. Other official-looking labels such as Official Blog or official highlight videos are not treated as official websites.
+- Bilibili concert recordings: only 演出-level links (`performance_links` or `performance_setlist_sources`) whose URL is a Bilibili `/video/` page. Song PVs in `videos`, profile or space pages, and opaque `b23.tv` short links (including the header Bilibili profile) are not listed as concert recordings. The current committed catalog has no such recording links; the homepage shows that empty state honestly.
+
+There is still no separate tour entity in the data model (see [issue #62](https://github.com/RJiazhen/miku-concert-stats/issues/62)). Official websites stay attached to individual 演出. The homepage also lists feature-module navigation to `/rank`, `/producers`, `/timeline`, `/series`, and `/cities`. Copy exists for every current UI locale (`zh`, `zh-Hant`, `ja`, `ko`, `en`).

@@ -3,6 +3,7 @@ import { basename, join } from 'node:path'
 import cities from '../../i18n/modules/cities.ts'
 import col from '../../i18n/modules/col.ts'
 import feedback from '../../i18n/modules/feedback.ts'
+import home from '../../i18n/modules/home.ts'
 import producers from '../../i18n/modules/producers.ts'
 import rank from '../../i18n/modules/rank.ts'
 import raw from '../../i18n/modules/raw.ts'
@@ -25,6 +26,7 @@ export type MessageModule = Record<string, LocalizedEntry>
 /** All feature modules keyed by basename. */
 const MODULES: Record<I18nModuleName, MessageModule> = {
   shell,
+  home,
   col,
   rank,
   song,

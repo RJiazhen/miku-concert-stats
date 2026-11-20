@@ -4,6 +4,7 @@
  */
 export const I18N_MODULE_NAMES = [
   'shell',
+  'home',
   'col',
   'rank',
   'song',

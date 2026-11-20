@@ -3,6 +3,7 @@ import { LOCALES, localeSelfName, type Locale } from '~~/shared/i18n/index.ts'
 import { useAiPrompt } from '~/composables/useAiPrompt.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { headerSocialLinks } from '~~/shared/header-social.ts'
+import { RANKING_PATH } from '~~/shared/homepage.ts'
 
 const { t, locale, setLocale, showOriginalTitle } = useLocale()
 const { copyPrompt: writePrompt } = useAiPrompt()
@@ -246,7 +247,7 @@ const setDark = (next: boolean): void => {
  * hover-opened "more" menu. The compact panel below `lg` still lists every entry.
  */
 const links = [
-  { key: 'nav.songs', to: '/', icon: 'i-lucide-music' },
+  { key: 'nav.songs', to: RANKING_PATH, icon: 'i-lucide-music' },
   { key: 'nav.producers', to: '/producers', icon: 'i-lucide-user-round' },
   { key: 'nav.timeline', to: '/timeline', icon: 'i-lucide-chart-line' },
   { key: 'nav.series', to: '/series', icon: 'i-lucide-layers' },

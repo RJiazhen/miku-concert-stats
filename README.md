@@ -38,6 +38,7 @@
 
 ## Features
 
+- **Homepage** — Site-wide totals, recent concerts, catalog source-update times, and links into each statistics module
 - **Song rankings** — See which songs appear most often across concerts, with filters for series, year, character, and producer
 - **Timeline** — Browse how shows and series unfold year by year and by city
 - **Producers** — Rank producers by how their songs show up on stage

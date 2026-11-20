@@ -7,6 +7,7 @@ import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import {
+import { RANKING_PATH } from '~~/shared/homepage.ts'
   buildProducerIndex,
   producerPath,
   rankProducers,
@@ -142,7 +143,7 @@ useHead({ title: computed(() => t('producers.indexTitle')) })
         <UBadge color="primary" variant="subtle" icon="i-lucide-user-round">{{ t('common.producers', { n: totals.producers }) }}</UBadge>
         <UBadge color="neutral" variant="subtle">{{ t('producers.creditedSongs', { n: totals.songs }) }}</UBadge>
         <UBadge color="neutral" variant="subtle">{{ t('producers.performedSongs', { n: totals.performed }) }}</UBadge>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('producers.viewRanking') }}</UButton>
+        <UButton :to="RANKING_PATH" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('producers.viewRanking') }}</UButton>
       </div>
     </section>
 
