@@ -162,6 +162,50 @@ def add(pid: int, *, day_night=(), no_show=(), single_show=(), halves=None, conf
 # Official ticket pages list the live shows per day; a day absent from that list is
 # exhibition-only and must not be counted as a 場次.
 add(
+    2517,
+    day_night=["2014-08-30"],
+    sources=[
+        official("2014/ticket_osaka.html", "マジカルミライ 2014 OSAKA チケット"),
+        {
+            "url": "https://mikuonly.com/lives/EVT-0121-D",
+            "title": "MikuOnly: Magical Mirai 2014 Osaka daytime",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep the existing 25-song programme",
+        },
+        {
+            "url": "https://mikuonly.com/lives/EVT-0121-N",
+            "title": "MikuOnly: Magical Mirai 2014 Osaka evening",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep the existing 25-song programme",
+        },
+    ],
+    note="官方票务页：2014-08-30 インテックス大阪 5号館 昼 START 12:30 + 夜 START 17:00；4号館展示不是演唱会",
+)
+add(
+    2518,
+    day_night=["2014-09-20"],
+    sources=[
+        official("2014/ticket_tokyo.html", "マジカルミライ 2014 TOKYO チケット"),
+        {
+            "url": "https://mikuonly.com/lives/EVT-0122-D",
+            "title": "MikuOnly: Magical Mirai 2014 Tokyo daytime",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep the existing 25-song programme",
+        },
+        {
+            "url": "https://mikuonly.com/lives/EVT-0122-N",
+            "title": "MikuOnly: Magical Mirai 2014 Tokyo evening",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep the existing 25-song programme",
+        },
+    ],
+    note="官方票务页：2014-09-20 东京体育馆 昼 START 13:00 + 夜 START 18:00",
+)
+add(
     2519,
     day_night=["2013-08-30"],
     sources=[
@@ -523,6 +567,87 @@ add(
     note="官方页：8/16、8/17 各一场，共 2 场。Fandom 只写 8/17，不采用",
 )
 
+# ---------------------------------------------------------------- ミクパ 2012 Tokyo / Hong Kong / Taiwan
+# Official sources list two concerts on a single calendar date that had been stored unsplit.
+add(
+    4056,
+    day_night=["2012-03-08"],
+    sources=[
+        official_page(
+            "https://info.miku.sega.jp/489",
+            "SEGA：ミクの日大感謝祭 開催概要",
+            "2012-03-08 ミクパ 昼 START 14:00 + 夜 START 19:00。3/9 感謝祭已单独登记为 3000000011",
+        ),
+        {
+            "url": "https://mikuonly.com/lives/EVT-0203-D",
+            "title": "MikuOnly: MikuPa 2012 Tokyo daytime",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep existing 33-song programme and id 1355",
+        },
+        {
+            "url": "https://mikuonly.com/lives/EVT-0203-N",
+            "title": "MikuOnly: MikuPa 2012 Tokyo evening",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep existing 33-song programme and id 1355",
+        },
+    ],
+    note="官方：2012-03-08 TOKYO DOME CITY HALL ミクパ昼 14:00 + 夜 19:00，共 2 场；与 3/9 感謝祭（3000000011）分开",
+)
+add(
+    2524,
+    day_night=["2012-10-02"],
+    sources=[
+        official_page(
+            "https://blog.piapro.net/2012/10/post-576.html",
+            "初音ミク公式ブログ：ミクパ香港公演レポート",
+            "KITEC Star Hall お昼15時と夜の20時からの2公演",
+        ),
+        {
+            "url": "https://mikuonly.com/lives/EVT-0205-HK-D",
+            "title": "MikuOnly: MikuPa 2012 Hong Kong daytime",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep existing 25-song programme",
+        },
+        {
+            "url": "https://mikuonly.com/lives/EVT-0205-HK-N",
+            "title": "MikuOnly: MikuPa 2012 Hong Kong evening",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep existing 25-song programme",
+        },
+    ],
+    note="官方回顾：2012-10-02 香港 KITEC Star Hall 15:00 + 20:00 两场",
+)
+add(
+    2525,
+    day_night=["2012-10-06"],
+    sources=[
+        official_page(
+            "https://sonymusic.com.tw/news/%e5%ae%87%e5%ae%99%e6%9c%80%e5%bc%b7%e8%99%9b%e6%93%ac%e5%81%b6%e5%83%8f%e5%88%9d%e9%9f%b3%e6%9c%aa%e4%be%8610%e6%9c%886%e6%97%a5%e4%be%86%e5%8f%b0%e9%96%8b%e5%94%b1/",
+            "Sony Music Taiwan：初音未來台灣演唱會公告",
+            "2012-10-06 下午兩點及晚上七點，台北展演二館 兩場",
+        ),
+        {
+            "url": "https://mikuonly.com/lives/EVT-0205-TW-D",
+            "title": "MikuOnly: MikuPa 2012 Taiwan daytime",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep existing 25-song programme",
+        },
+        {
+            "url": "https://mikuonly.com/lives/EVT-0205-TW-N",
+            "title": "MikuOnly: MikuPa 2012 Taiwan evening",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "Schedule corroboration only; keep existing 25-song programme",
+        },
+    ],
+    note="索尼音乐台湾公告：2012-10-06 台北展演二館 14:00 + 19:00 两场",
+)
+
 # ---------------------------------------------------------------- 感謝祭 / JAPAN LIVE TOUR
 # 2010 的 ミクの日感謝祭 逐曲表已在 TOUR_TABLES；这里只用它补日程（百科写明昼 + 夜 2 场），
 # 再补上 2011 的海外衍生公演、2012 的最终场以及 2023 THUNDERBOLT / 2025 BLOOMING 两轮日本巡演。
@@ -678,8 +803,35 @@ add(1930, day_night=["2016-04-30"], sources=expo2016_na,
     note="萌娘百科：旧金山 4/30 昼场 13:30 + 夜场 19:00 入场，共 2 场")
 add(1936, day_night=["2016-05-28"], sources=expo2016_na,
     note="萌娘百科：纽约 5/28 昼场 13:30 + 夜场 20:00 开演，共 2 场")
-add(1924, day_night=["2016-06-05"], single_show=["2016-06-04"], sources=expo2016_na,
-    note="萌娘百科：墨西哥城 6/4 只有 14:30 一场；6/5 有 14:30 与 20:30 两场，共 3 场")
+add(
+    1924,
+    day_night=["2016-06-04"],
+    single_show=["2016-06-05"],
+    halves={"2016-06-05": ["day"]},
+    sources=[
+        *expo2016_na,
+        official_page(
+            "https://mikuexpo.com/na2016/",
+            "MIKU EXPO 2016 NORTH AMERICA — final official schedule",
+            "Mexico City El Plaza Condesa: June 4 2:30pm/8:30pm FINISHED; June 5 2:30pm FINISHED, 8:30pm CANCEL",
+        ),
+        {
+            "url": "https://mikuonly.com/lives/EVT-0025-D",
+            "title": "MikuOnly: MIKU EXPO 2016 Mexico City June 4 daytime",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "June 4 day/night split; official page adjudicates cancellation",
+        },
+        {
+            "url": "https://mikuonly.com/lives/EVT-0025-N",
+            "title": "MikuOnly: MIKU EXPO 2016 Mexico City June 4 evening",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "June 4 night is a distinct scheduled show",
+        },
+    ],
+    note="官方最终日程：墨西哥城 6/4 昼 2:30pm + 夜 8:30pm 两场已举行；6/5 只有昼场 2:30pm，夜场 8:30pm CANCEL，共 3 场",
+)
 for pid, city in ((1859, "西雅图 4/23"), (1860, "蒙特雷 6/1"), (1931, "洛杉矶 5/6"), (1932, "达拉斯 5/14"),
                   (1933, "休斯敦 5/17"), (1934, "多伦多 5/20"), (1935, "芝加哥 5/25")):
     add(pid, single_show="all", sources=expo2016_na, note=f"萌娘百科：{city} 只有一场")
@@ -751,9 +903,26 @@ for pid in (7673, 7674, 7675):
 add(2422, day_night=["2019-02-09", "2019-02-10"],
     sources=[wiki(MOE_SNOW2019, "萌娘百科：SNOW MIKU LIVE! 2019", "2/9、2/10 各有昼场 13:00 入场与夜场")],
     note="萌娘百科：2/9、2/10 各有昼 + 夜两场，共 4 场")
-add(2947, halves={"2017-03-04": ["night"], "2017-03-05": ["day"]},
-    sources=[wiki(MOE_KODO, "萌娘百科：初音未来×鼓童特别演唱会", "3/4 开演 19:00；3/5 开演 13:00")],
-    note="萌娘百科：3/4 只有夜场 19:00，3/5 只有昼场 13:00，共 2 场")
+add(
+    2947,
+    halves={"2017-03-04": ["night"], "2017-03-05": ["day", "night"]},
+    sources=[
+        wiki(MOE_KODO, "萌娘百科：初音未来×鼓童特别演唱会", "3/4 开演 19:00；3/5 开演 13:00"),
+        official_page(
+            "https://www.kodo.or.jp/blog/news/20170110_11807.html",
+            "鼓童公式：追加公演决定",
+            "3/4 19:00；3/5 13:00 与追加的 19:00，NHKホール",
+        ),
+        {
+            "url": "https://mikuonly.com/lives/EVT-0214-20170305-N",
+            "title": "MikuOnly: Hatsune Miku × Kodo 2017, March 5 evening",
+            "accessedAt": "2026-11-21",
+            "confidence": "medium",
+            "note": "22-row programme aligns with the existing catalog programme; reuse existing song IDs",
+        },
+    ],
+    note="官方追加公演：3/4 夜场 19:00，3/5 昼场 13:00 + 夜场 19:00，共 3 场；沿用现有 22 曲节目单",
+)
 
 # ---------------------------------------------------------------- デコミク LIVE『Hello』（初音ミク Wiki）
 # VocaDB event 9401 不属于任何收录的系列，由 data/increments/0005-manual-catalog.sql 补进目录；
