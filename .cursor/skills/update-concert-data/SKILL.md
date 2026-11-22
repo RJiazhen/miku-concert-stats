@@ -44,6 +44,7 @@ disable-model-invocation: true
 | `data/increments/0009-wiki-songs.sql` | 两类「百科有、VocaDB 没有」的歌合在一个文件：Block 1 是 VocaDB 查到的歌，Block 2 是 `wiki-repertoire.json` 登记的本地曲目（带 `category`） | `fetch-wiki-songs.py` |
 | `data/wiki-repertoire.json` | catalog 和 VocaDB 都没有的曲目：类别、作曲者、备注、保留 id | **手改** |
 | `data/performance-setlists.json` | 每个演出的 `setlist` / `slots` / `sources` / `note` | `build-setlist-curation.py` |
+| `data/setlist-remarks.json` | 歌单备注列的译文。键是行上存的原文；缺的语言按 §6 降级 | 手改，见 §6「读者看到的备注」 |
 | `data/increments/0008-performance-setlists.sql` | 派生层（`performance_setlists` 等 4 张表） | `pnpm derive:setlists` |
 
 `0008` 和 `0009` 都是生成物：不要手改，改上游再重跑。
@@ -237,6 +238,37 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
 
 演出在 VocaDB 完全没有 songList 时，`performance_setlists.source_list_id` 会是 `NULL`、
 `source_kind='wiki'`，页面会自动去掉 VocaDB 链接 —— 不需要特殊处理。
+
+### 读者看到的备注
+
+针对某一首的情况说明写进该行的 `note`，显示在歌单的备注列。不要为这几首歌再写演出页页头（`pageNote`）。
+
+- 百科 `備考` 里本来就给读者看的短句（`初披露`、`オープニング`、`アンコール`）随逐曲表进 `songs[].note`。只用来选场次的片段（`Day 1`、城市名、`昼` / `夜`）不要当备注翻译：页面已经用「仅日场 / 仅 8/11」表示。单独一个 `※` 是脚注记号，换成正文，不要原样显示。
+- 需要我们补的一句（通常版歌词、谁主唱、曲名未定）写在 `build-setlist-curation.py` 的 `SONG_ROW_NOTES`：演出 id → 歌曲 id → 行上保存的原文。它盖掉该行已有的 `※`。
+- `pageNote` / `PAGE_NOTES` 只留给整场才能看懂、页面别处没有的说明，例如真实场次数被日场/夜场两层折算之后。开演钟点已经出现在场次标题里的，不要再写进页头。整场仍要留档的日程写进演出 `note`（确认报告用），那不是页头。
+
+新写的备注要能跟着界面语言走。译文放在 `data/setlist-remarks.json`，键就是行上那句原文：
+
+```json
+{
+  "通常版歌词": {
+    "zh-Hant": "通常版歌詞",
+    "ja": "通常版の歌詞",
+    "en": "Standard lyrics",
+    "ko": "통상판 가사"
+  }
+}
+```
+
+某一语言没有这条译文时按语言降级，不要拿另一种语言顶上，也不要回头翻译已经在库里的旧备注（`初披露`、`オープニング` 先保持原文）：
+
+| 当前语言 | 没有译文时 |
+| --- | --- |
+| 简体中文 | 用键本身 |
+| 繁体中文 | 先 `zh-Hant`，再 `zh`，再键本身 |
+| 日文、英文、韩文 | 只用自己的字段；没有就显示键上的原文 |
+
+和简体相同的写法不必再写一行。实现是 `shared/setlist-remarks.ts` 的 `localizeSetlistRemark`。
 
 ## 7. 验收
 
