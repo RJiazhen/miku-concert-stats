@@ -7,6 +7,8 @@ import {
   HOMEPAGE_FEATURE_MODULES,
   HOMEPAGE_STAT_TILE_HREFS,
   RANKING_PATH,
+  SERIES_INDEX_PATH,
+  SERIES_PAGE_HEADING_IDS,
   RECENT_CONCERT_LIMIT,
   buildRecentConcerts,
   buildRecentlyUpdatedSummary,
@@ -722,14 +724,27 @@ describe('homepage page markup', () => {
   })
 
   it('makes each statistic tile a keyboard-focusable in-site link to an existing view', () => {
+    expect(SERIES_INDEX_PATH).toBe('/series')
+    expect(SERIES_PAGE_HEADING_IDS).toEqual({
+      series: 'series',
+      performances: 'performances',
+    })
     expect(HOMEPAGE_STAT_TILE_HREFS).toEqual({
       songs: '/rank',
-      shows: '/timeline',
-      performances: '/series',
-      series: '/series',
+      shows: '/series',
+      performances: '/series#performances',
+      series: '/series#series',
     })
     expect(HOMEPAGE_STAT_TILE_HREFS.songs).toBe(RANKING_PATH)
+    expect(HOMEPAGE_STAT_TILE_HREFS.shows).toBe(SERIES_INDEX_PATH)
     expect(HOMEPAGE_STAT_TILE_HREFS.shows).not.toMatch(/^\/shows(?:\/|$)/)
+    expect(HOMEPAGE_STAT_TILE_HREFS.shows).not.toBe('/timeline')
+    expect(HOMEPAGE_STAT_TILE_HREFS.performances).toBe(
+      `${SERIES_INDEX_PATH}#${SERIES_PAGE_HEADING_IDS.performances}`,
+    )
+    expect(HOMEPAGE_STAT_TILE_HREFS.series).toBe(
+      `${SERIES_INDEX_PATH}#${SERIES_PAGE_HEADING_IDS.series}`,
+    )
     const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
     const template = source.slice(source.indexOf('<template>'))
     const statsStart = template.indexOf(":aria-label=\"t('home.statsTitle')\"")

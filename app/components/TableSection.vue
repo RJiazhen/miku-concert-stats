@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends object">
-import { computed, toRef } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, toRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import type { TableColumn } from '@nuxt/ui'
 import { useRankingScrollHandoff } from '~/composables/useRankingScrollHandoff.ts'
 import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
@@ -11,6 +12,12 @@ type Sorting = { id: string; desc: boolean }[]
 const props = withDefaults(defineProps<{
   /** Section heading; the header row is skipped when this and `count` are both empty. */
   title?: string
+  /**
+   * Optional fragment id on the visible section `h2`, so in-site links can
+   * scroll to this heading. When set, the heading also gets `scroll-mt-24`,
+   * the same sticky-header clearance as the timeline charts.
+   */
+  headingId?: string
   /** Text right after the title, usually a row count, e.g. `42 首`. */
   count?: string | number | null
   /** One-line explanation printed under the heading. */
@@ -55,16 +62,80 @@ const sorting = defineModel<Sorting>('sorting', { default: () => [] })
 
 const { tableAnchor, tableStyle } = useRankingTableHeight()
 useRankingScrollHandoff(tableAnchor, toRef(props, 'fill'))
+const route = useRoute()
 
 /** Whether the heading row has anything to print. */
 const hasHeader = computed(() => props.title !== '' || props.count !== null)
 
+/** Current fragment, including same-document hash changes that have not yet reached the router. */
+const currentHash = (): string => route.hash || window.location.hash
+
+/**
+ * Scrolls this heading into view when the URL hash matches its fragment id.
+ * Vue Router and native hash scrolling can ignore `scroll-margin` or animate
+ * with the page's smooth `scroll-behavior`, so the offset is applied here
+ * immediately using the heading's `scroll-mt-24` (the same sticky-header
+ * clearance as the timeline charts).
+ */
+const scrollToHeading = (): void => {
+  const id = props.headingId
+  if (!id || currentHash() !== `#${id}`) return
+  const heading = document.getElementById(id)
+  if (!heading) return
+  const margin = Number.parseFloat(getComputedStyle(heading).scrollMarginTop)
+  const clearance = Number.isFinite(margin) ? margin : 96
+  const top = window.scrollY + heading.getBoundingClientRect().top - clearance
+  const root = document.documentElement
+  const previousBehavior = root.style.scrollBehavior
+  root.style.scrollBehavior = 'auto'
+  window.scrollTo({ top: Math.max(0, top), behavior: 'auto' })
+  root.style.scrollBehavior = previousBehavior
+}
+
+/** Runs after layout and after Vue Router's own hash scroll. */
+const scheduleScrollToHeading = (): void => {
+  void nextTick(() => {
+    scrollToHeading()
+    requestAnimationFrame(() => {
+      scrollToHeading()
+      window.setTimeout(scrollToHeading, 50)
+      window.setTimeout(scrollToHeading, 200)
+    })
+  })
+}
+
+onMounted(() => {
+  scheduleScrollToHeading()
+  window.addEventListener('hashchange', scheduleScrollToHeading)
+  window.addEventListener('popstate', scheduleScrollToHeading)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', scheduleScrollToHeading)
+  window.removeEventListener('popstate', scheduleScrollToHeading)
+})
+
+watch(
+  () => [props.headingId, props.loading, route.hash] as const,
+  () => {
+    scheduleScrollToHeading()
+  },
+)
+
 </script>
 
 <template>
-  <section class="space-y-3">
+  <section
+    class="space-y-3"
+    :aria-labelledby="hasHeader && headingId ? headingId : undefined"
+  >
     <div v-if="hasHeader || $slots.actions" class="flex flex-wrap items-baseline justify-between gap-2">
-      <h2 v-if="hasHeader" class="text-lg font-semibold text-highlighted">
+      <h2
+        v-if="hasHeader"
+        :id="headingId || undefined"
+        class="text-lg font-semibold text-highlighted"
+        :class="headingId ? 'scroll-mt-24' : undefined"
+      >
         {{ title }}
         <!-- The row count only means something once the catalog is read, so it waits for the table. -->
         <span v-if="count !== null && !loading" class="ml-1 text-sm font-normal text-muted">{{ count }}</span>

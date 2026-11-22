@@ -11,7 +11,7 @@ import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overvie
 import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
-import { RANKING_PATH } from '~~/shared/homepage.ts'
+import { RANKING_PATH, SERIES_PAGE_HEADING_IDS } from '~~/shared/homepage.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
@@ -228,6 +228,7 @@ useHead({ title: computed(() => t('series.indexTitle')) })
     <template v-else>
       <TableSection
         v-if="catalog || pending"
+        :heading-id="SERIES_PAGE_HEADING_IDS.series"
         :title="t('series.tableTitle')"
         :note="t('series.note')"
         :fill="false"
@@ -264,6 +265,7 @@ useHead({ title: computed(() => t('series.indexTitle')) })
 
       <TableSection
         v-if="catalog || pending"
+        :heading-id="SERIES_PAGE_HEADING_IDS.performances"
         :title="t('series.performancesTitle')"
         :count="filteredPerformances.length !== performanceRows.length
           ? t('series.filteredCount', { shown: filteredPerformances.length, total: performanceRows.length })
