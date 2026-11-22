@@ -17521,6 +17521,73 @@
         ]
       }
     },
+    "3000000012": {
+      "note": "歌单 8 首，顺序来自两份互不依赖的同日观众记录；官方回顾证实开场 Sharing the World（日本演唱会初披露）并提到其后的 メルト、Yellow 与 秘密警察。主办公告只作日程证据，不是曲目顺序证据。Sharing The World 取 Expo 2014 原曲 66126（66752 是其 Cover）；Tell Your World 取正长版 8395（399060 是 61 秒 Google Chrome 广告原曲）。",
+      "sources": [
+        {
+          "url": "https://blog.piapro.net/2014/11/z1411081-1.html",
+          "title": "初音ミク公式ブログ：初音ミク×TOUCH！WOWOW2014 スペシャルライブ レポ",
+          "accessedAt": "2026-11-22",
+          "confidence": "high",
+          "note": "Official retrospective: concert held at Toyosu PIT; opening Sharing the world, first Japan-live performance of that English song; later mentions メルト, Yellow, and 秘密警察. Not a complete eight-song order by itself."
+        },
+        {
+          "url": "https://nat.hatenadiary.com/entry/20141101/p1",
+          "title": "日替わり NAT’s Champloo：初音ミク×TOUCH！WOWOW2014 スペシャルライブ",
+          "accessedAt": "2026-11-22",
+          "confidence": "medium",
+          "note": "Same-day attendee report with a complete eight-song setlist; also states an eight-song, about 30-minute live."
+        },
+        {
+          "url": "https://mikudoc.blogspot.com/2014/11/wowow_1.html",
+          "title": "mikudoc：行ってきた 初音ミク WOWOW スペシャルライブ",
+          "accessedAt": "2026-11-22",
+          "confidence": "medium",
+          "note": "Independent attendee report with the same complete eight-song order; about 35 minutes."
+        }
+      ],
+      "setlist": {
+        "source": "https://nat.hatenadiary.com/entry/20141101/p1",
+        "title": "日替わり NAT’s Champloo：初音ミク×TOUCH！WOWOW2014 スペシャルライブ（豊洲PIT）",
+        "accessedAt": "2026-11-22",
+        "confidence": "medium",
+        "label": "豊洲PIT",
+        "songs": [
+          {
+            "id": 66126,
+            "title": "Sharing The World"
+          },
+          {
+            "id": 1322,
+            "title": "メルト"
+          },
+          {
+            "id": 2905,
+            "title": "Yellow"
+          },
+          {
+            "id": 1141,
+            "title": "Parades"
+          },
+          {
+            "id": 50132,
+            "title": "Glass Wall"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          }
+        ]
+      }
+    },
     "4765": {
       "note": "歌单来自初音ミク Wiki 的逐曲表（名古屋），23 行；日程来源：2023-02-23 Zepp Nagoya 昼 + 夜 2 场，每场 23 首",
       "dayNight": [
@@ -20924,12 +20991,12 @@
       }
     },
     "1924": {
-      "note": "歌单来自初音ミク Wiki 的逐曲表（墨西哥城），27 行",
+      "note": "歌单来自初音ミク Wiki 的逐曲表（墨西哥城），27 行 | Schedule corrected against the final official 2016 tour page: June 4 has day and night shows (2:30pm / 8:30pm, both FINISHED); June 5 has only the daytime show (2:30pm FINISHED). June 5 night (8:30pm) is explicitly CANCEL and must not become a performed show.",
       "dayNight": [
-        "2016-06-05"
+        "2016-06-04"
       ],
       "singleShowDates": [
-        "2016-06-04"
+        "2016-06-05"
       ],
       "sources": [
         {
@@ -20938,6 +21005,13 @@
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；27 行"
+        },
+        {
+          "url": "https://mikuexpo.com/na2016/",
+          "title": "MIKU EXPO 2016 NORTH AMERICA — final official schedule",
+          "accessedAt": "2026-11-21",
+          "confidence": "high",
+          "note": "The .cont-mexico block lists Mexico City, El Plaza Condesa: June 4 Show 2:30pm / 8:30pm FINISHED; June 5 Show 2:30pm FINISHED and 8:30pm CANCEL."
         }
       ],
       "setlist": {
@@ -21062,7 +21136,13 @@
             "note": "双安可"
           }
         ]
-      }
+      },
+      "halves": {
+        "2016-06-05": [
+          "day"
+        ]
+      },
+      "pageNote": "June 4 had daytime and evening shows; June 5 had a daytime show only. The June 5 evening show was cancelled."
     },
     "1859": {
       "note": "歌单来自初音ミク Wiki 的逐曲表（西雅图），26 行",
@@ -30476,13 +30556,14 @@
       }
     },
     "2947": {
-      "note": "歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），22 行；其中 3 首不是 VOCALOID 歌曲（器乐曲、民谣・传统曲），按普通曲目登记、没有对应歌手",
+      "note": "歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），22 行；其中 3 首不是 VOCALOID 歌曲（器乐曲、民谣・传统曲），按普通曲目登记、没有对应歌手 | The official 2017-01-10 Kodo announcement adds the March 5 19:00 show. That page is schedule evidence only, not a programme source. The existing 22-song Hatsune Miku Wiki table for this concert has no per-show when values; it is an event-level programme already used for the other two shows. No independent half-specific setlist for the added evening show is recorded.",
       "halves": {
         "2017-03-04": [
           "night"
         ],
         "2017-03-05": [
-          "day"
+          "day",
+          "night"
         ]
       },
       "sources": [
@@ -30492,6 +30573,13 @@
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；22 行"
+        },
+        {
+          "url": "https://www.kodo.or.jp/blog/news/20170110_11807.html",
+          "title": "Kodo: additional Hatsune Miku × Kodo performance announced",
+          "accessedAt": "2026-11-21",
+          "confidence": "high",
+          "note": "March 4 19:00; March 5 13:00 and newly added 19:00 at NHK Hall. This source establishes the additional show, not a new programme identity."
         }
       ],
       "setlist": {
@@ -34806,9 +34894,19 @@
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；25 行"
+        },
+        {
+          "url": "https://magicalmirai.com/2014/ticket_osaka.html",
+          "title": "Magical Mirai 2014 Osaka official concert ticket page",
+          "accessedAt": "2026-11-21",
+          "confidence": "high",
+          "note": "INTEX Osaka Hall 5: daytime OPEN 11:30 / START 12:30; evening OPEN 16:00 / START 17:00. Hall 4 exhibition hours are not additional concerts."
         }
       ],
-      "note": "歌单来自初音ミク Wiki 的逐曲表（大阪），25 行"
+      "note": "歌单来自初音ミク Wiki 的逐曲表（大阪），25 行 | Official ticket page lists separately scheduled daytime and evening concerts on 2014-08-30 at INTEX Osaka Hall 5 (START 12:30 / 17:00). Exhibition Hall 4 is not a concert. Existing programme and song IDs are preserved.",
+      "dayNight": [
+        "2014-08-30"
+      ]
     },
     "2518": {
       "setlist": {
@@ -34935,9 +35033,19 @@
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；25 行"
+        },
+        {
+          "url": "https://magicalmirai.com/2014/ticket_tokyo.html",
+          "title": "Magical Mirai 2014 Tokyo official concert ticket page",
+          "accessedAt": "2026-11-21",
+          "confidence": "high",
+          "note": "Tokyo Metropolitan Gymnasium main arena: daytime OPEN 12:00 / START 13:00; evening OPEN 17:00 / START 18:00."
         }
       ],
-      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），25 行"
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），25 行 | Official ticket page lists separately scheduled daytime and evening concerts on 2014-09-20 at Tokyo Metropolitan Gymnasium (START 13:00 / 18:00). Existing programme and song IDs are preserved.",
+      "dayNight": [
+        "2014-09-20"
+      ]
     },
     "2523": {
       "setlist": {
@@ -35265,9 +35373,19 @@
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；25 行"
+        },
+        {
+          "url": "https://blog.piapro.net/2012/10/post-576.html",
+          "title": "Hatsune Miku Official Blog: Hong Kong MikuPa 2012 retrospective",
+          "accessedAt": "2026-11-21",
+          "confidence": "high",
+          "note": "Two shows held at KITEC Star Hall: 15:00 and 20:00."
         }
       ],
-      "note": "歌单来自初音ミク Wiki 的逐曲表（香港），25 行"
+      "note": "歌单来自初音ミク Wiki 的逐曲表（香港），25 行 | Official retrospective confirms two shows on 2012-10-02 at KITEC Star Hall (15:00 and 20:00). Existing programme and song IDs are preserved.",
+      "dayNight": [
+        "2012-10-02"
+      ]
     },
     "2525": {
       "setlist": {
@@ -35388,9 +35506,19 @@
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；25 行"
+        },
+        {
+          "url": "https://sonymusic.com.tw/news/%e5%ae%87%e5%ae%99%e6%9c%80%e5%bc%b7%e8%99%9b%e6%93%ac%e5%81%b6%e5%83%8f%e5%88%9d%e9%9f%b3%e6%9c%aa%e4%be%8610%e6%9c%886%e6%97%a5%e4%be%86%e5%8f%b0%e9%96%8b%e5%94%b1/",
+          "title": "Sony Music Taiwan: MikuPa 2012 Taiwan announcement",
+          "accessedAt": "2026-11-21",
+          "confidence": "high",
+          "note": "Two shows on 2012-10-06 at 14:00 and 19:00, Taipeishow (台北展演二館)."
         }
       ],
-      "note": "歌单来自初音ミク Wiki 的逐曲表（台北），25 行"
+      "note": "歌单来自初音ミク Wiki 的逐曲表（台北），25 行 | Sony Music Taiwan announcement lists two shows on 2012-10-06 at Taipei Show (台北展演二館), 14:00 and 19:00. Existing programme and song IDs are preserved.",
+      "dayNight": [
+        "2012-10-06"
+      ]
     },
     "2527": {
       "setlist": {
@@ -37864,9 +37992,19 @@
           "accessedAt": "2026-11-06",
           "confidence": "medium",
           "note": "逐曲表，含メドレー 拆分；33 行"
+        },
+        {
+          "url": "https://info.miku.sega.jp/489",
+          "title": "SEGA: Miku Day Thanksgiving 2012 official performance announcement",
+          "accessedAt": "2026-11-21",
+          "confidence": "high",
+          "note": "2012-03-08 MikuPa daytime OPEN 13:00 / START 14:00 and evening OPEN 18:00 / START 19:00 at TOKYO DOME CITY HALL. Do not confuse with the 2012-03-09 Thanksgiving finale (3000000011)."
         }
       ],
-      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），33 行"
+      "note": "歌单来自初音ミク Wiki 的逐曲表（东京），33 行 | Official SEGA announcement lists separately scheduled MikuPa daytime and evening concerts on 2012-03-08 (START 14:00 / 19:00). This is distinct from the 2012-03-09 Thanksgiving finale already catalogued as 3000000011. Existing programme and song IDs are preserved.",
+      "dayNight": [
+        "2012-03-08"
+      ]
     },
     "4058": {
       "setlist": {

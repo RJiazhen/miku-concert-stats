@@ -318,3 +318,52 @@ These labels appear in every user-facing date field: the show header, series lis
 
 
 搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层依次列系列（`localSeriesMatches`，链到 `/series/{id}`）、演出（`localPerformanceMatches`，名字、日期与场馆，链到 `/shows/{id}`）、地点（`localPlaceMatches`，场馆名与演出数，链到 `/series?place={场馆}`）、制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`）；中文译名同样参与匹配。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
+
+## Official schedule corrections and WOWOW 2014 metadata (issue #66)
+
+External comparison sites may be used only as a private research aid to notice missing or inverted facts. They are not recorded in this repository as sources, citations, or provenance links. Every kept change must stand on an official page or on a primary/independent source already used by the catalog (typically 初音ミク Wiki for programmes). Official schedule pages are not song-order proof.
+
+`data/performance-setlists.json` remains the curated source of truth; `data/increments/0008-performance-setlists.sql` is regenerated with `pnpm derive:setlists` and is not hand-edited. Existing song IDs and wiki setlist objects are preserved. Barcelona 2020 (performance 2790) stays without a curated setlist because four recording identities are still unresolved.
+
+Two counting rules must be reported separately, measured on a catalog rebuilt from committed increments:
+
+- **Derived show rows**: `performance_show_setlists` length. Research snapshots called this 447 on `d713f12`.
+- **Index / site-wide 场次**: `showCountsByPerformance` (derived schedules win; performances with no derived rows fall back to the note/date-range schedule). The homepage on the same base measured 456. The nine-show gap is a counting-semantics difference, not two databases.
+
+After the official schedule batch, measured totals were 453 derived show rows and 463 site-wide 场次 (the +6 derived rows plus WOWOW's one date-range fallback). After the WOWOW programme is derived, that concert gains one derived show row (453 → 454). It already counted as one site-wide 场次 by date-range fallback, so the site-wide total stays 463.
+
+Schedule sources (official / organizer pages) and programme sources (existing 初音ミク Wiki tables, which have no per-show `when` values and are therefore event-level shared programmes) are kept distinct:
+
+- 1924 MIKU EXPO 2016 Mexico City, El Plaza Condesa. Schedule: https://mikuexpo.com/na2016/ (`.cont-mexico`: June 4 day 2:30pm and night 8:30pm FINISHED; June 5 day 2:30pm FINISHED; June 5 night 8:30pm CANCEL). Programme: https://w.atwiki.jp/hmiku/pages/67134.html (27 songs). Keys: `1924:2016-06-04:day`, `1924:2016-06-04:night`, `1924:2016-06-05:day`. `1924:2016-06-05:night` must not exist.
+- 2947 Hatsune Miku × Kodo 2017, NHK Hall. Schedule: https://www.kodo.or.jp/blog/news/20170110_11807.html (March 4 19:00; March 5 13:00 and added 19:00). Programme: https://w.atwiki.jp/hmiku/pages/67219.html (existing 22-song event-level table). The official announcement establishes the added March 5 evening show only; it is not a programme source. No independent half-specific setlist for that added night is recorded in the catalog. The 22-song wiki table, already used for the other two shows of this concert and with empty `when` fields, is applied at event level. That is a documented remaining gap, not a claim of per-show verification. Keys gain `2947:2017-03-05:night`.
+- 2517 Magical Mirai 2014 Osaka (2014-08-30). Schedule: https://magicalmirai.com/2014/ticket_osaka.html (INTEX Osaka Hall 5, START 12:30 / 17:00; Hall 4 exhibition is not a concert). Programme: https://w.atwiki.jp/hmiku/pages/67113.html (25 songs).
+- 2518 Magical Mirai 2014 Tokyo (2014-09-20). Schedule: https://magicalmirai.com/2014/ticket_tokyo.html (Tokyo Metropolitan Gymnasium main arena, START 13:00 / 18:00). Programme: https://w.atwiki.jp/hmiku/pages/67113.html (25 songs).
+- 4056 MikuPa Tokyo (2012-03-08). Schedule: https://info.miku.sega.jp/489 (START 14:00 / 19:00), distinct from the March 9 Thanksgiving finale already catalogued as 3000000011. Programme: https://w.atwiki.jp/hmiku/pages/67152.html (33 songs).
+- 2524 MikuPa Hong Kong (2012-10-02). Schedule: https://blog.piapro.net/2012/10/post-576.html (KITEC Star Hall, 15:00 and 20:00). Programme: https://w.atwiki.jp/hmiku/pages/67153.html (25 songs).
+- 2525 MikuPa Taiwan (2012-10-06). Schedule: https://sonymusic.com.tw/news/%e5%ae%87%e5%ae%99%e6%9c%80%e5%bc%b7%e8%99%9b%e6%93%ac%e5%81%b6%e5%83%8f%e5%88%9d%e9%9f%b3%e6%9c%aa%e4%be%8610%e6%9c%886%e6%97%a5%e4%be%86%e5%8f%b0%e9%96%8b%e5%94%b1/ (Taipei Show / 台北展演二館, 14:00 and 19:00). Programme: https://w.atwiki.jp/hmiku/pages/67153.html (25 songs).
+
+WOWOW 2014 follows the existing exact-name standalone series policy in `0005-manual-catalog.sql`. It is not a MIKU EXPO stop, not the 2014-11-22 television broadcast, and not a generic “Other Official Events” bucket. Local IDs 900000007 and 3000000012 are used. Facts stored: name 初音ミク×TOUCH！WOWOW2014 スペシャルライブ, 2014-11-01, チームスマイル／豊洲PIT, Tokyo, JP, scheduled start 18:00 Asia/Tokyo, `time_precision` remains `day`. The derived show key is `3000000012:2014-11-01`.
+
+The organizer announcement https://prtimes.jp/main/html/rd/p/000002279.000001355.html is schedule and concert-identity evidence only. It is not song-order proof and is not cited as a programme source.
+
+Programme sources, rechecked 2026-11-22:
+
+- Official retrospective https://blog.piapro.net/2014/11/z1411081-1.html confirms the concert was held, names “Sharing the world” as the opening number and the first Japan-live performance of that all-English song, then mentions メルト and Yellow among the following popular numbers, and later 秘密警察. It does not publish a complete eight-song order by itself.
+- Two independent same-day attendee reports publish the same complete eight-song order: https://mikudoc.blogspot.com/2014/11/wowow_1.html and https://nat.hatenadiary.com/entry/20141101/p1. The reports also agree that this was a short approximately 30–35 minute, eight-song live.
+
+The imported order, with recording identities resolved from those title lists plus VocaDB original-version relationships and this catalog's existing Expo 2014 usage, is:
+
+1. Sharing The World — 66126 (VocaDB Original, BIGHEAD, 257 seconds). 66752 is a VocaDB Cover of 66126 (`originalVersionId` 66126; MJQ-P is credited as voicemanipulator; 247 seconds) and is already folded as a cover in `data/song-variants.json`. The official retrospective frames this Japan premiere as the Expo English song; the preceding MIKU EXPO 2014 Los Angeles and New York shows already record 66126 as the Expo 2014 theme.
+2. メルト — 1322
+3. Yellow — 2905
+4. Parades — 1141
+5. Glass Wall — 50132
+6. 秘密警察 — 373
+7. ワールドイズマイン — 1326
+8. Tell Your World — 8395 (the official full-length kz song, 257 seconds). 399060 is the 61-second Google Chrome commercial that VocaDB treats as the Original of 8395 (`songType` Remix, `originalVersionId` 399060). A 61-second commercial is not a plausible full programme closer in this 30–35 minute eight-song concert, and the attendee lists give no short-version or Google-credit qualifier.
+
+The curated setlist schema requires a numeric song `id` on every row; there is no existing supported path to store a title-only or deliberately unsigned recording identity, and this change does not invent one. No placeholder songs are added. Barcelona 2020 remains held.
+
+Show-page header source buttons must keep those roles visible without repeating a URL. The event button is `performances.source_url` (for this concert, the official Piapro retrospective). Setlist citations come from `performance_setlist_sources`. A derived `source_kind` of `wiki` only means the rows are a curated external programme, not that the first source is a Hatsune Miku Wiki page. The header must not fall back to `sources[0]` as a single "wiki" button: on this concert that would draw a second button for the same Piapro URL and hide the already-stored complete-order sources, including https://nat.hatenadiary.com/entry/20141101/p1. Each distinct URL is shown once. If a setlist-source URL is already the event source, it stays the event-source button (official partial corroboration) and is not repeated. Remaining programme URLs, including the NAT and mikudoc attendee reports, are shown as setlist-source buttons. Do not insert a second NAT row when the URL is already stored.
+
+`build-setlist-curation.py` `add()` calls keep the official schedule and wiki programme sources so a later generator run does not restore the inverted Mexico schedule or drop the added Kodo evening show.
