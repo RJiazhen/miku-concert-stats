@@ -38,6 +38,20 @@ export const RECENT_CONCERT_LIMIT = 4
 /** How many dated 演出 can contribute links to the related-links section. */
 export const RELATED_LINK_PERFORMANCE_LIMIT = 16
 
+/**
+ * Existing in-site destinations for the four homepage statistic tiles,
+ * in the same order the tiles are shown. Shows goes to `/timeline` because
+ * that is the site-wide 场次 view; there is no 场次 index, and `/shows/{id}`
+ * is a 演出 detail page. Performances and Series both go to `/series`,
+ * which already lists both tables.
+ */
+export const HOMEPAGE_STAT_TILE_HREFS = {
+  songs: RANKING_PATH,
+  shows: '/timeline',
+  performances: '/series',
+  series: '/series',
+} as const
+
 /** Feature modules the homepage offers as navigation, in header order. */
 export const HOMEPAGE_FEATURE_MODULES = [
   {
