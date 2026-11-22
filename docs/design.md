@@ -319,6 +319,41 @@ These labels appear in every user-facing date field: the show header, series lis
 
 搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层依次列系列（`localSeriesMatches`，链到 `/series/{id}`）、演出（`localPerformanceMatches`，名字、日期与场馆，链到 `/shows/{id}`）、地点（`localPlaceMatches`，场馆名与演出数，链到 `/series?place={场馆}`）、制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`）；中文译名同样参与匹配。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
 
+## Dedicated homepage (issue #60)
+
+The site root `/` is a dedicated landing page, separate from the song-appearance ranking that previously occupied `/`. The ranking remains available at `/rank`. The header logo stays on `/`; the Songs nav item and “view ranking” links point at `/rank`. Existing withdrawn-page redirects (`/catalog`, `/compare`, `/windows`, `/correlation`) still go to `/`, which is now the homepage.
+
+The first homepage ships without poster images or a visual carousel (deferred to [issue #67](https://github.com/RJiazhen/miku-concert-stats/issues/67)). Concert lists are text-only: localized name, concert calendar date, venue when known, optional sourced status, and a link to `/shows/{id}`. Concert dates come from `performances.start_date` / `end_date` and are never labelled as data-update times.
+
+The first content below the page heading is a compact numerical overview of four core catalog counts, in this document and visual order on every viewport: songs, 场次, 演出, and series. The tiles use short labels, icons, and values already computed by `buildSiteWideStats`. There is no visible Site-wide statistics section heading in any locale; the tiles stay in an accessible group named with that phrase for assistive technology. Setlist coverage, cancelled rows, broadcast/online rows, and the concert calendar date range remain available in that helper and in other page logic, but they are not shown as homepage tiles. The overview does not invent figures, and it does not include a descriptive paragraph.
+
+The homepage does not show a “recently updated statistics data” section. Catalog `retrieved_at` / `accessed_at` summaries stay out of the landing page. Section introductory paragraphs — eligibility rules, navigation explanations, and notes that posters will come later — are not rendered. Visible section titles remain for Recent, Upcoming, and the later feature modules; the statistics tiles have no visible section title, and the Related concert links section is not shown. Concise stat and concert labels, sourced concert status badges, empty states, and catalog-load errors remain, so uncertainty is not presented as confirmation.
+
+Recent concerts follow the statistics tiles and appear above Upcoming, in both the document and the visual reading order on every viewport. Recent lists at most four 演出 that have already started, newest `start_date` first. Concerts that have not started yet are listed in the Upcoming concerts section below it, soonest `start_date` first. A concert has started only from recorded catalog fields; the page never invents a start clock time, timezone, or `performance_status` value:
+
+- Undated, cancelled, and postponed 演出 are omitted from both lists.
+- When both `showtime_local` and `timezone` are present, the concert has started at or after that local start instant.
+- When a timezone is recorded without a clock time, the concert has started once `start_date` is on or before the current calendar date in that timezone.
+- When no timezone is recorded, dates stay day-precision and are compared with the current UTC calendar date. A date-only concert on that UTC date is treated as started, because a venue-local midnight is not recorded and must not be assumed.
+- A hand-checked `upcoming` status may still appear as a badge; it does not override the date or showtime comparison.
+
+The Recent section further keeps only 演出 that have a setlist. This uses the same `setlistPerformanceIds` rule as the series indexes and the homepage site-wide statistics: a VocaDB `song_list_id`, or a derived wiki or curated row in `performance_setlists`. Checking `song_list_id` alone would drop Wikipedia-only stops that have no VocaDB song list, and would also treat a bare `song_list_id` as a setlist even when that list has no songs. The setlist filter is applied before sorting and the four-item limit, so a newer already-started concert without a setlist does not occupy a slot. The Upcoming section does not require a setlist.
+
+The homepage main heading matches the site title (`common.appName`) in every current UI locale, for example 初音未来演唱会曲目统计 and Hatsune Miku Concert Statistics. The song ranking page at `/rank` uses the page title (曲目排行 / Song ranking), not the site title.
+
+Site-wide statistics reuse the same counting rules as the series and performance indexes (`reviewRotations`, `showCountsByPerformance`, `setlistPerformanceIds`). The compact overview displays only the four core counts from those totals, in the order songs, 场次, 演出, series.
+
+Related concert links are classified from actual catalog rows, with no invented URLs. The classification helper is kept for later use, even though the landing page does not render the section yet:
+
+- Official website: `performance_links` whose description clearly says Official Website or Official Webpage, or whose URL host is a confirmed official concert domain. The confirmed domains are `mikuexpo.com`, `snowmiku.com`, and `magicalmirai.com`. A match is only the exact parsed hostname or a legitimate subdomain of one of those registrable domains, compared case-insensitively after a trailing DNS dot is stripped. Substring lookalikes such as `notmikuexpo.com`, `evilmikuexpo.com`, or `mikuexpo.com.evil.test` never count, and a host is never inferred from the URL path.
+- Website (official status unconfirmed): descriptions that start with `Website` whose host is not one of those confirmed domains. Other official-looking labels such as Official Blog or official highlight videos are not treated as official websites. A description that already says Official Website or Official Webpage is not downgraded when the host is outside the confirmed list.
+
+The Related concert links section is temporarily hidden on the homepage in every locale: no cards, empty state, placeholder, or tour-grouped presentation is shown. Underlying catalog rows and helpers (`classifyPerformanceWebsiteLink`, `buildRelatedConcertLinks`, and the compact host label) stay in place. A later change will show these links grouped by tour; that work is deferred and is not implemented here. There is still no separate tour entity in the data model (see [issue #62](https://github.com/RJiazhen/miku-concert-stats/issues/62)). Official websites stay attached to individual 演出 until that later pass.
+
+Bilibili concert recordings stay classified in catalog helpers (`collectBilibiliRecordingLinks`, `isBilibiliConcertRecordingUrl`) with the existing rules: only 演出-level links (`performance_links` or `performance_setlist_sources`) whose URL is a Bilibili `/video/` page count; song PVs in `videos`, profile or space pages, and opaque `b23.tv` short links (including the header Bilibili profile) do not. The homepage does not list those recordings or show an empty recordings state. The header Bilibili profile icon is unchanged.
+
+The homepage also lists feature-module navigation to `/rank`, `/producers`, `/timeline`, `/series`, and `/cities`. Copy exists for every current UI locale (`zh`, `zh-Hant`, `ja`, `ko`, `en`).
+
 ## Official schedule corrections and WOWOW 2014 metadata (issue #66)
 
 External comparison sites may be used only as a private research aid to notice missing or inverted facts. They are not recorded in this repository as sources, citations, or provenance links. Every kept change must stand on an official page or on a primary/independent source already used by the catalog (typically 初音ミク Wiki for programmes). Official schedule pages are not song-order proof.

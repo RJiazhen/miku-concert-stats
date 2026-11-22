@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { producersOfSong, songProducerSql } from '../scripts/vocadb/producers.ts'
 import { localProducerMatches } from '../shared/lookup.ts'
@@ -431,3 +432,13 @@ describe('producer lookup', () => {
     })
   })
 })
+
+describe('producer ranking page source', () => {
+  it('keeps a valid RANKING_PATH import so /producers can compile', () => {
+    const source = readFileSync(new URL('../app/pages/producers/index.vue', import.meta.url), 'utf8')
+    expect(source).not.toMatch(/import \{\s*import /)
+    expect(source).toContain("import { RANKING_PATH } from '~~/shared/homepage.ts'")
+    expect(source).toContain("from '~~/shared/producers.ts'")
+  })
+})
+

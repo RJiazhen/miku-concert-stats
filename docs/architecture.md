@@ -19,7 +19,7 @@ There is **no D1 and no R2**. The catalog is a built SQLite file (`public/data/c
 | `scripts/vocadb/*`, derive/report scripts | Offline data pipeline |
 | `scripts/build-catalog.ts` / `build-api.ts` | Emit sqlite + `/api/v1` assets |
 | `shared/*` | Counting rules used by UI, API build, and tests |
-| `app/*` | Pages and UI; loads catalog client-side |
+| `app/*` | Pages and UI; loads catalog client-side. `/` is the landing page; song rankings live at `/rank`. |
 | `server/api/v1/*` | Dynamic filters over build-time JSON assets |
 | `server/api/feedback*`, `/admin*`, analytics | Maintainer ops (Cloudflare bindings) |
 | `/raw` + `server/api/dev/raw/*` | Dev-only source browser (ignored in production builds) |
@@ -44,7 +44,7 @@ flowchart LR
 
 | Feature | Needs CF? |
 | --- | --- |
-| Browse rankings / timeline / search | No |
+| Browse homepage / rankings / timeline / search | No |
 | `pnpm test` / catalog rebuild | No |
 | Deploy Worker | Yes |
 | Feedback KV / Access admin / Analytics Engine | Yes |
@@ -55,7 +55,7 @@ See [local-development.md](local-development.md) and [cloudflare.md](cloudflare.
 
 - Curated data rules and file formats: [data-pipeline.md](data-pipeline.md)
 - Known data issues: [data-issues.md](data-issues.md)
-- Historical design notes: [design.md](design.md)
+- Historical design notes: [design.md](design.md), including the dedicated homepage at `/` and the song ranking at `/rank`
 
 ## Maintainer workflow (optional)
 

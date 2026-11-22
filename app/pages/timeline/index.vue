@@ -21,6 +21,7 @@ import {
   positiveCharacterYearRows,
 } from '~~/shared/timeline-year-details.ts'
 import { availablePerformanceYears, normalizeYearRange } from '~~/shared/year-range.ts'
+import { RANKING_PATH } from '~~/shared/homepage.ts'
 
 /** One chart series passed to the SVG components. */
 type ChartSeries = {
@@ -902,7 +903,7 @@ useHead({ title: computed(() => t('timeline.title')) })
         </UBadge>
         <UBadge v-if="timeline" color="neutral" variant="subtle" icon="i-lucide-map-pin">{{ t('common.cities', { n: cityCount }) }}</UBadge>
         <UButton to="/series" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('timeline.seriesOverview') }}</UButton>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('timeline.viewRanking') }}</UButton>
+        <UButton :to="RANKING_PATH" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('timeline.viewRanking') }}</UButton>
       </div>
       <p v-if="timeline" class="mt-3 text-xs leading-relaxed text-muted">
         {{ exclusionNote }}

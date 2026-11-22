@@ -11,6 +11,7 @@ import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overvie
 import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
+import { RANKING_PATH } from '~~/shared/homepage.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
@@ -211,7 +212,7 @@ useHead({ title: computed(() => t('series.indexTitle')) })
         <UBadge color="primary" variant="subtle" icon="i-lucide-calendar-range">{{ t('common.performances', { n: totals.performances }) }}</UBadge>
         <UBadge color="primary" variant="subtle" icon="i-lucide-clock">{{ t('common.shows', { n: totals.shows }) }}</UBadge>
         <UBadge v-if="totals.years" color="neutral" variant="subtle">{{ totals.years }}</UBadge>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('series.viewRanking') }}</UButton>
+        <UButton :to="RANKING_PATH" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('series.viewRanking') }}</UButton>
       </div>
     </section>
 

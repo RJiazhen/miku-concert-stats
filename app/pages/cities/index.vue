@@ -8,6 +8,7 @@ import { useLocale } from '~/composables/useLocale.ts'
 import { buildCityIndex, cityLabel, rankCities } from '~~/shared/cities.ts'
 import { showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
+import { RANKING_PATH } from '~~/shared/homepage.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const { locale, t } = useLocale()
@@ -96,7 +97,7 @@ useHead({ title: computed(() => t('cities.title')) })
       </h1>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
         <UBadge color="primary" variant="subtle" icon="i-lucide-map-pin">{{ t('cities.sortBadge') }}</UBadge>
-        <UButton to="/" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('cities.viewRanking') }}</UButton>
+        <UButton :to="RANKING_PATH" color="neutral" variant="link" size="xs" trailing-icon="i-lucide-arrow-right">{{ t('cities.viewRanking') }}</UButton>
       </div>
     </section>
 
