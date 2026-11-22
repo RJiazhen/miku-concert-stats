@@ -187,14 +187,15 @@ describe('Official schedule corrections and WOWOW 2014 metadata (issue #66)', ()
         (sum, count) => sum + count,
         0,
       )
-      // Rebuilt from committed increments on this branch. Derived rows are the
-      // performance_show_setlists table; site-wide 场次 use showCountsByPerformance
-      // (derived schedules win, date-range fallback otherwise). On d713f12 these
-      // were 447 and 456. After the official schedule batch plus the WOWOW
-      // programme: +7 derived rows (the sixth official split/show plus WOWOW's
-      // one derived show). Site-wide 场次 stay at 463, because WOWOW already
-      // counted as one date-range fallback 场次 before the programme was derived.
-      expect(derivedShowRows).toBe(454)
+      // Rebuilt from committed increments on this branch after merging current
+      // main. Derived rows are the performance_show_setlists table; site-wide
+      // 场次 use showCountsByPerformance (derived schedules win, date-range
+      // fallback otherwise). On d713f12 these were 447 and 456. After the
+      // official schedule batch plus the WOWOW programme they were 454 and 463.
+      // Merging main's provisional 2026 Kodo programme adds two derived rows
+      // (11/20 night and 11/21 day). Site-wide 场次 stay at 463, because those
+      // two dates and WOWOW were already counted via date-range fallback.
+      expect(derivedShowRows).toBe(456)
       expect(siteWideShows).toBe(463)
       expect(catalog.series.some((row) => row.id === 900000007)).toBe(true)
       expect(catalog.performances.some((row) => row.id === 3000000012)).toBe(true)

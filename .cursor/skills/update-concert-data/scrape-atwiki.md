@@ -102,7 +102,7 @@ location.href = 'https://w.atwiki.jp/hmiku/pages/80099.html'
 `expo2024-au` `expo2025-asia` `expo2026-na` `expo2026-eu` `mwy2018` `mwy2019` `mwy2024` `mwy2026`
 `mm2018` `mm2021` `mm10th` `mm2023` `mm2024` `mm2025` `mm2026` `symphony2627`
 `mikufes2009` `mikufes2024` `matsuri39` `mikugan2013` `mikugan2013-tokyo` `galaxy2020` `galaxy2021`
-`lawson2026` `pokemiku-voltage2026` `decomiku2026`
+`lawson2026` `pokemiku-voltage2026` `decomiku2026` `kodo2026`
 
 新增的 9 个中，`matsuri39` 来自 `w.atwiki.jp/vocalive`，`mikugan2013` / `mikugan2013-tokyo` 来自
 Sanka Blog 与 初音ミクみく，`pokemiku-voltage2026` 来自 VOLTAGE Live 官方 after report；其余是 hmiku

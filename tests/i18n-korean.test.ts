@@ -8,6 +8,7 @@ import { localizeCharacterName, parseCharacterNames } from '../shared/character-
 import { localizeSeriesName, localizeSeriesInName, parseSeriesTitles } from '../shared/series-titles.ts'
 import { localizePlaceNames, parsePlaceNames } from '../shared/place-names.ts'
 import { localizeVenueName, parseVenueNames } from '../shared/venue-names.ts'
+import { localizeSetlistRemark, parseSetlistRemarks } from '../shared/setlist-remarks.ts'
 
 describe('Korean UI message coverage', () => {
   it('gives every message key a Korean string alongside the existing locales', () => {
@@ -36,6 +37,27 @@ describe('Korean UI message coverage', () => {
 })
 
 describe('Korean name fallback without unsourced translations', () => {
+  it('keeps a setlist remark in its stored text when that language has no row', () => {
+    const file = parseSetlistRemarks({
+      曲名未定: { en: 'Title unconfirmed', ko: '곡명 미정' },
+      通常版歌词: { zh: '通常版歌词', 'zh-Hant': '通常版歌詞', en: 'Standard lyrics' },
+      オープニング: { zh: '开场' },
+    })
+    expect(localizeSetlistRemark(file, '曲名未定', 'zh')).toBe('曲名未定')
+    expect(localizeSetlistRemark(file, '曲名未定', 'zh-Hant')).toBe('曲名未定')
+    expect(localizeSetlistRemark(file, '曲名未定', 'ja')).toBe('曲名未定')
+    expect(localizeSetlistRemark(file, '曲名未定', 'en')).toBe('Title unconfirmed')
+    expect(localizeSetlistRemark(file, '曲名未定', 'ko')).toBe('곡명 미정')
+    expect(localizeSetlistRemark(file, '通常版歌词', 'zh-Hant')).toBe('通常版歌詞')
+    expect(localizeSetlistRemark(file, '通常版歌词', 'ko')).toBe('通常版歌词')
+    expect(localizeSetlistRemark(file, 'オープニング', 'zh')).toBe('开场')
+    expect(localizeSetlistRemark(file, 'オープニング', 'zh-Hant')).toBe('开场')
+    expect(localizeSetlistRemark(file, 'オープニング', 'ja')).toBe('オープニング')
+    expect(localizeSetlistRemark(file, 'オープニング', 'en')).toBe('オープニング')
+    expect(localizeSetlistRemark(file, 'オープニング', 'ko')).toBe('オープニング')
+    expect(localizeSetlistRemark(file, '初披露', 'en')).toBe('初披露')
+  })
+
   it('keeps original catalog song titles in Korean', () => {
     const view = formatSongTitle('ko', {
       jaTitle: 'メルト',
