@@ -330,7 +330,7 @@ Two counting rules must be reported separately, measured on a catalog rebuilt fr
 - **Derived show rows**: `performance_show_setlists` length. Research snapshots called this 447 on `d713f12`.
 - **Index / site-wide 场次**: `showCountsByPerformance` (derived schedules win; performances with no derived rows fall back to the note/date-range schedule). The homepage on the same base measured 456. The nine-show gap is a counting-semantics difference, not two databases.
 
-After the official schedule batch, measured totals were 453 derived show rows and 463 site-wide 场次 (the +6 derived rows plus WOWOW's one date-range fallback).
+After the official schedule batch, measured totals were 453 derived show rows and 463 site-wide 场次 (the +6 derived rows plus WOWOW's one date-range fallback). After the WOWOW programme is derived, that concert gains one derived show row (453 → 454). It already counted as one site-wide 场次 by date-range fallback, so the site-wide total stays 463.
 
 Schedule sources (official / organizer pages) and programme sources (existing 初音ミク Wiki tables, which have no per-show `when` values and are therefore event-level shared programmes) are kept distinct:
 
@@ -342,6 +342,26 @@ Schedule sources (official / organizer pages) and programme sources (existing �
 - 2524 MikuPa Hong Kong (2012-10-02). Schedule: https://blog.piapro.net/2012/10/post-576.html (KITEC Star Hall, 15:00 and 20:00). Programme: https://w.atwiki.jp/hmiku/pages/67153.html (25 songs).
 - 2525 MikuPa Taiwan (2012-10-06). Schedule: https://sonymusic.com.tw/news/%e5%ae%87%e5%ae%99%e6%9c%80%e5%bc%b7%e8%99%9b%e6%93%ac%e5%81%b6%e5%83%8f%e5%88%9d%e9%9f%b3%e6%9c%aa%e4%be%8610%e6%9c%886%e6%97%a5%e4%be%86%e5%8f%b0%e9%96%8b%e5%94%b1/ (Taipei Show / 台北展演二館, 14:00 and 19:00). Programme: https://w.atwiki.jp/hmiku/pages/67153.html (25 songs).
 
-WOWOW 2014 is metadata only, following the existing exact-name standalone series policy in `0005-manual-catalog.sql`. It is not a MIKU EXPO stop, not the 2014-11-22 television broadcast, and not a generic “Other Official Events” bucket. Local IDs 900000007 and 3000000012 are used. Facts stored: name 初音ミク×TOUCH！WOWOW2014 スペシャルライブ, 2014-11-01, チームスマイル／豊洲PIT, Tokyo, JP, scheduled start 18:00 Asia/Tokyo, `time_precision` remains `day`. Provenance links: official retrospective https://blog.piapro.net/2014/11/z1411081-1.html; organizer announcement https://prtimes.jp/main/html/rd/p/000002279.000001355.html; attendee report https://mikudoc.blogspot.com/2014/11/wowow_1.html (an eight-song programme is mentioned there but is not imported, because recording-variant identities remain unresolved). No placeholder songs are added.
+WOWOW 2014 follows the existing exact-name standalone series policy in `0005-manual-catalog.sql`. It is not a MIKU EXPO stop, not the 2014-11-22 television broadcast, and not a generic “Other Official Events” bucket. Local IDs 900000007 and 3000000012 are used. Facts stored: name 初音ミク×TOUCH！WOWOW2014 スペシャルライブ, 2014-11-01, チームスマイル／豊洲PIT, Tokyo, JP, scheduled start 18:00 Asia/Tokyo, `time_precision` remains `day`. The derived show key is `3000000012:2014-11-01`.
+
+The organizer announcement https://prtimes.jp/main/html/rd/p/000002279.000001355.html is schedule and concert-identity evidence only. It is not song-order proof and is not cited as a programme source.
+
+Programme sources, rechecked 2026-11-22:
+
+- Official retrospective https://blog.piapro.net/2014/11/z1411081-1.html confirms the concert was held, names “Sharing the world” as the opening number and the first Japan-live performance of that all-English song, then mentions メルト and Yellow among the following popular numbers, and later 秘密警察. It does not publish a complete eight-song order by itself.
+- Two independent same-day attendee reports publish the same complete eight-song order: https://mikudoc.blogspot.com/2014/11/wowow_1.html and https://nat.hatenadiary.com/entry/20141101/p1. The reports also agree that this was a short approximately 30–35 minute, eight-song live.
+
+The imported order, with recording identities resolved from those title lists plus VocaDB original-version relationships and this catalog's existing Expo 2014 usage, is:
+
+1. Sharing The World — 66126 (VocaDB Original, BIGHEAD, 257 seconds). 66752 is a VocaDB Cover of 66126 (`originalVersionId` 66126; MJQ-P is credited as voicemanipulator; 247 seconds) and is already folded as a cover in `data/song-variants.json`. The official retrospective frames this Japan premiere as the Expo English song; the preceding MIKU EXPO 2014 Los Angeles and New York shows already record 66126 as the Expo 2014 theme.
+2. メルト — 1322
+3. Yellow — 2905
+4. Parades — 1141
+5. Glass Wall — 50132
+6. 秘密警察 — 373
+7. ワールドイズマイン — 1326
+8. Tell Your World — 8395 (the official full-length kz song, 257 seconds). 399060 is the 61-second Google Chrome commercial that VocaDB treats as the Original of 8395 (`songType` Remix, `originalVersionId` 399060). A 61-second commercial is not a plausible full programme closer in this 30–35 minute eight-song concert, and the attendee lists give no short-version or Google-credit qualifier.
+
+The curated setlist schema requires a numeric song `id` on every row; there is no existing supported path to store a title-only or deliberately unsigned recording identity, and this change does not invent one. No placeholder songs are added. Barcelona 2020 remains held.
 
 `build-setlist-curation.py` `add()` calls keep the official schedule and wiki programme sources so a later generator run does not restore the inverted Mexico schedule or drop the added Kodo evening show.
