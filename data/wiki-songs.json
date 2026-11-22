@@ -1065,6 +1065,15 @@
       "publishDate": "2018-08-05",
       "lengthSeconds": 153,
       "sourceUrl": "https://vocadb.net/S/199492"
+    },
+    "百鬼祭": {
+      "id": 281763,
+      "title": "百鬼祭",
+      "artistString": "Kanaria feat. 初音ミク V4X (Original)",
+      "songType": "Original",
+      "publishDate": "2020-05-10",
+      "lengthSeconds": 192,
+      "sourceUrl": "https://vocadb.net/S/281763"
     }
   }
 }

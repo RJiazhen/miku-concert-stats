@@ -160,6 +160,13 @@ export default {
     ko: '공연 출처',
     en: 'Event source',
   },
+  'show.setlistSource': {
+    zh: '歌单来源',
+    'zh-Hant': '歌單來源',
+    ja: 'セットリストの出典',
+    ko: '세트리스트 출처',
+    en: 'Setlist source',
+  },
   'show.noSetlist': {
     zh: '暂无歌单',
     'zh-Hant': '暫無歌單',

@@ -763,7 +763,7 @@ def raw_entries() -> list[dict]:
                 "performanceId": pid,
                 "label": spec["labels"].get(pid, ""),
                 "source": url,
-                "accessedAt": ACCESSED,
+                "accessedAt": spec.get("accessedAt", ACCESSED),
                 "rows": rows_out,
             }
             if unattributed:

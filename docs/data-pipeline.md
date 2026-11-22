@@ -181,6 +181,7 @@ Besides `name`, `compatibility_date`, and `compatibility_flags`:
 - `data/song-variants.json` — version groups to merge in rankings.
 - `data/producer-flags.json` — producer attribution overrides.
 - `data/song-notes.json` — per-song notes shown in the UI.
+- `data/setlist-remarks.json` — translations of setlist 备注 text. The key is the stored note. A language with no row keeps that text; Traditional Chinese may use the Simplified row first. Older notes are left untranslated.
 - `data/setlist-merges.json` — setlist merge decisions.
 - `data/album-setlists.json` — official album programs used when a live setlist is missing; `scripts/vocadb/album-setlists.ts` emits increment `0004`.
 - `data/show-locations.json` — venue / city / country fills; `0013` is generated from this file and only writes blank `country_code` values.

@@ -8,6 +8,10 @@ import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { isVocaloidSong, songCategoryLabel } from '~~/shared/repertoire.ts'
+import { splitNote } from '~~/shared/rotation.ts'
+import { parseNoteSelectors } from '~~/shared/setlist-slots.ts'
+import { localizeSetlistRemark, parseSetlistRemarks } from '~~/shared/setlist-remarks.ts'
+import rawRemarks from '~~/data/setlist-remarks.json'
 
 const props = defineProps<{
   catalog: Catalog
@@ -25,6 +29,7 @@ const props = defineProps<{
 
 const { songById, songName, songHref, vocadbSongUrl } = useSongLookup()
 const { locale, t } = useLocale()
+const remarkTranslations = parseSetlistRemarks(rawRemarks)
 
 /** One table row: a single song or medley of a printed 序号. */
 type SetlistTableRow = {
@@ -120,7 +125,9 @@ const noteOf = (item: PerformanceShowSetlistItemRow): string => {
     labels.add(songCategoryLabel(song.category, t))
   }
   return labels.size === 0 ? '—' : [...labels].join('、')
-}/** `M/D` of a stored date; the year is already on the page. */
+}
+
+/** `M/D` of a stored date; the year is already on the page. */
 const monthDay = (date: string): string => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
 
 /** Compact 场次 label for a cell, e.g. `8/11 日场`; the year is already on the page. */
@@ -164,12 +171,25 @@ const showScopeOf = (item: ShowSetlistPrintItem): string => {
 }
 
 /**
- * 备注 cell of one printed item: its 场次 first, then the repertoire category of a non-VOCALOID
- * row. A song every 場次 played with no special category still prints `—`.
+ * Song-specific remark for the 备注 cell, in the active language.
+ * Drops fragments that only name a 场次 (those already appear as 仅日场 / 仅 8/11) and a bare
+ * wiki footnote marker. A fragment with no translation keeps its stored text.
+ */
+const songRemark = (notes: string | null): string => {
+  if (notes === null || notes.trim() === '') return ''
+  const remarks = splitNote(notes)
+    .filter((segment) => segment !== '※' && parseNoteSelectors(segment).length === 0)
+    .map((segment) => localizeSetlistRemark(remarkTranslations, segment, locale.value))
+  return remarks.join('、')
+}
+
+/**
+ * 备注 cell: 场次 scope, then a non-VOCALOID category, then a remark that belongs to this song.
+ * An ordinary shared vocaloid row prints `—`.
  */
 const remarkOf = (item: ShowSetlistPrintItem): string => {
-  const note = noteOf(item.item)
-  const parts = [showScopeOf(item), note === '—' ? '' : note].filter((part) => part !== '')
+  const category = noteOf(item.item)
+  const parts = [showScopeOf(item), category === '—' ? '' : category, songRemark(item.item.notes)].filter((part) => part !== '')
   return parts.length === 0 ? '—' : parts.join(' · ')
 }
 </script>

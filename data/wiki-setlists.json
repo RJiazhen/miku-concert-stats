@@ -23077,6 +23077,89 @@
       ]
     },
     {
+      "performanceId": 12940,
+      "label": "NHK 大厅",
+      "source": "https://w.atwiki.jp/hmiku/pages/81048.html",
+      "accessedAt": "2026-11-22",
+      "rows": [
+        {
+          "title": "ハジメテノオト",
+          "when": "",
+          "note": "オープニング"
+        },
+        {
+          "title": "（鼓童楽曲）",
+          "when": ""
+        },
+        {
+          "title": "ヒバナ",
+          "when": ""
+        },
+        {
+          "title": "初音ミクの消失",
+          "when": ""
+        },
+        {
+          "title": "千本桜",
+          "when": ""
+        },
+        {
+          "title": "紅一葉",
+          "when": ""
+        },
+        {
+          "title": "番凩",
+          "when": ""
+        },
+        {
+          "title": "百鬼祭",
+          "when": ""
+        },
+        {
+          "title": "glow",
+          "when": ""
+        },
+        {
+          "title": "大江戸ジュリアナイト",
+          "when": ""
+        },
+        {
+          "title": "リモコン",
+          "when": ""
+        },
+        {
+          "title": "混沌ブギ",
+          "when": ""
+        },
+        {
+          "title": "ヒビカセ",
+          "when": ""
+        },
+        {
+          "title": "グリーンライツ・セレナーデ",
+          "when": "",
+          "note": "※"
+        },
+        {
+          "title": "メルト",
+          "when": ""
+        },
+        {
+          "title": "NEPPUU〜熱風〜",
+          "when": "",
+          "note": "初音ミク×鼓童'23 テーマソング"
+        },
+        {
+          "title": "桜ノ雨",
+          "when": ""
+        },
+        {
+          "title": "Tell Your World",
+          "when": ""
+        }
+      ]
+    },
+    {
       "performanceId": 13120,
       "label": "上海",
       "source": "https://w.atwiki.jp/hmiku/pages/79886.html",

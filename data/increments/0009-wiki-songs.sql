@@ -64,6 +64,7 @@ INSERT OR IGNORE INTO songs (id, name, name_ja, name_en, artist_string, song_typ
 (232181, 'ロンリーユニバース', NULL, NULL, 'Aqu3ra feat. 初音ミク, v flower', 'Original', '2019-04-06', 223, 'https://vocadb.net/S/232181', '2026-11-06T00:00:00.000Z'),
 (256954, 'ジターバグ', NULL, NULL, '栗山夕璃, 端倉鑛 feat. 初音ミク, MEIKO V3 (Power)', 'Original', '2019-10-13', 209, 'https://vocadb.net/S/256954', '2026-11-06T00:00:00.000Z'),
 (271920, '未来最終戦争', NULL, NULL, 'DIVELA feat. 初音ミク', 'Original', '2020-02-07', 207, 'https://vocadb.net/S/271920', '2026-11-06T00:00:00.000Z'),
+(281763, '百鬼祭', NULL, NULL, 'Kanaria feat. 初音ミク V4X (Original)', 'Original', '2020-05-10', 192, 'https://vocadb.net/S/281763', '2026-11-06T00:00:00.000Z'),
 (294036, '水色侵略', NULL, NULL, 'ナユタン星人 feat. 初音ミク', 'Original', '2020-09-04', 250, 'https://vocadb.net/S/294036', '2026-11-06T00:00:00.000Z'),
 (303006, 'Fondant Step', NULL, NULL, 'Heavenz feat. 初音ミク', 'Original', '2021-01-26', 266, 'https://vocadb.net/S/303006', '2026-11-06T00:00:00.000Z'),
 (335988, 'ノンブレス・オブリージュ', NULL, NULL, 'ピノキオピー feat. 初音ミク', 'Original', '2021-06-02', 209, 'https://vocadb.net/S/335988', '2026-11-06T00:00:00.000Z'),
@@ -157,4 +158,5 @@ INSERT OR IGNORE INTO songs (id, name, name_ja, name_en, artist_string, song_typ
 (2000000026, 'intro (デP Megamix)', 'intro (デP Megamix)', NULL, 'デッドボールP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
 (2000000027, '既成事実三部作Megamix', '既成事実三部作Megamix', NULL, 'デッドボールP', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
 (2000000028, '恋は戦争(future retro remix by kz)', '恋は戦争(future retro remix by kz)', NULL, 'ryo', 'Original', 'vocaloid', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T00:00:00.000Z'),
-(2000000029, 'SWEET MEMORIES', 'SWEET MEMORIES', NULL, '大村雅朗', 'Original', 'vocaloid', NULL, NULL, 'http://vocaloid.blog120.fc2.com/blog-entry-16607.html', '2026-11-06T00:00:00.000Z');
+(2000000029, 'SWEET MEMORIES', 'SWEET MEMORIES', NULL, '大村雅朗', 'Original', 'vocaloid', NULL, NULL, 'http://vocaloid.blog120.fc2.com/blog-entry-16607.html', '2026-11-06T00:00:00.000Z'),
+(2000000030, '（鼓童楽曲）', '（鼓童楽曲）', NULL, '鼓童', 'Original', 'instrumental', NULL, NULL, 'https://w.atwiki.jp/hmiku/pages/81048.html', '2026-11-06T00:00:00.000Z');

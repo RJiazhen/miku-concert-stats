@@ -826,6 +826,8 @@ INSERT OR IGNORE INTO edition_premieres (series_id, series_number, premiere_perf
 --                            https://l-tike.com/lawson50thmiku/
 --   ポケモン feat. 初音ミク      https://www.project-voltage.jp/live2026/afterreport.html
 --                            https://www.project-voltage.jp/live2026/
+--   初音ミク×TOUCH！WOWOW2014   https://blog.piapro.net/2014/11/z1411081-1.html
+--                            https://prtimes.jp/main/html/rd/p/000002279.000001355.html
 INSERT OR IGNORE INTO series (id, name, name_ja, description, source_url, retrieved_at) VALUES
 (900000001, 'ミクFES', 'ミクFES', '初音ミク的周年纪念演唱会系列：2009 年 8 月 31 日的首场单独公演，以及 2024 年 3 月 31 日的 16 周年公演。', 'https://w.atwiki.jp/hmiku/pages/67185.html', '2026-11-06T12:15:00.000Z'),
 (900000002, '夏の終わりの39祭り', '夏の終わりの39祭り', '2012 年 8 月 29 日在横滨红砖仓库举行的初音ミク 5 周年水幕舞台活动，与 PlayStation Vita《初音ミク -Project DIVA- f》联动。', 'https://w.atwiki.jp/vocalive/pages/167.html', '2026-11-06T12:15:00.000Z'),
@@ -881,4 +883,22 @@ INSERT OR IGNORE INTO performances (id, series_id, name, name_ja, venue_name, co
 INSERT OR IGNORE INTO performance_links (performance_id, url, description) VALUES
 (3000000011, 'https://w.atwiki.jp/hmiku/pages/67148.html', 'Setlist (Hatsune Miku Wiki)'),
 (3000000011, 'https://miku.sega.jp/39/', 'Official website');
+
+-- 900000007 / 3000000012  初音ミク×TOUCH！WOWOW2014 スペシャルライブ, 2014-11-01 at
+--             チームスマイル／豊洲PIT. A one-off subscriber concert, not a MIKU EXPO stop
+--             and not the 2014-11-22 WOWOW television broadcast. VocaDB event and series
+--             searches for "WOWOW 2014" and "TOUCH WOWOW" returned no mapping, so this
+--             uses the next unused local ids. Metadata only: no setlist or placeholders.
+-- Sources: https://blog.piapro.net/2014/11/z1411081-1.html (official retrospective; held)
+--          https://prtimes.jp/main/html/rd/p/000002279.000001355.html (18:00 start, venue)
+INSERT OR IGNORE INTO series (id, name, name_ja, description, source_url, retrieved_at) VALUES
+(900000007, '初音ミク×TOUCH！WOWOW2014 スペシャルライブ', '初音ミク×TOUCH！WOWOW2014 スペシャルライブ', 'One-off Hatsune Miku concert for TOUCH! WOWOW2014 subscribers, held at Toyosu PIT on 2014-11-01. This catalog group represents only this standalone concert, not a tour or a recurring event series.', 'https://blog.piapro.net/2014/11/z1411081-1.html', '2026-11-20T16:24:00.000Z');
+INSERT OR IGNORE INTO performances (id, series_id, name, name_ja, venue_name, country_code, start_date, end_date, showtime_local, timezone, time_precision, time_evidence, role, series_number, series_suffix, song_list_id, vocadb_status, source_url, retrieved_at) VALUES
+(3000000012, 900000007, '初音ミク×TOUCH！WOWOW2014 スペシャルライブ', '初音ミク×TOUCH！WOWOW2014 スペシャルライブ', 'チームスマイル／豊洲PIT', 'JP', '2014-11-01', NULL, '18:00', 'Asia/Tokyo', 'day', 'WOWOW organizer announcement explicitly gives 2014-11-01 18:00 scheduled start; https://prtimes.jp/main/html/rd/p/000002279.000001355.html. The official retrospective confirms the concert was held at Toyosu PIT; https://blog.piapro.net/2014/11/z1411081-1.html.', 'show', 2014, NULL, NULL, NULL, 'https://blog.piapro.net/2014/11/z1411081-1.html', '2026-11-20T16:24:00.000Z');
+INSERT OR IGNORE INTO performance_links (performance_id, url, description) VALUES
+(3000000012, 'https://prtimes.jp/main/html/rd/p/000002279.000001355.html', 'Official organizer announcement (WOWOW)'),
+(3000000012, 'https://blog.piapro.net/2014/11/z1411081-1.html', 'Official retrospective (Hatsune Miku Official Blog)'),
+(3000000012, 'https://mikudoc.blogspot.com/2014/11/wowow_1.html', 'Attendee report and eight-song programme; recording variants not adjudicated');
+INSERT OR IGNORE INTO edition_premieres (series_id, series_number, premiere_performance_id, premiere_date, premiere_showtime_local, rule) VALUES
+(900000007, 2014, 3000000012, '2014-11-01', '18:00', 'Manual: this group contains one verified standalone concert, so the concert is its own edition premiere. No recurring series or tour is asserted.');
 COMMIT;

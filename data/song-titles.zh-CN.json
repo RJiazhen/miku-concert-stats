@@ -1397,6 +1397,10 @@
     "title": "新人类",
     "source": "萌娘百科"
   },
+  "480845": {
+    "title": "NEPPUU～热风～",
+    "source": "vocawiki"
+  },
   "481543": {
     "title": "想象中的爱情故事",
     "source": "vocawiki",
@@ -1763,5 +1767,10 @@
     "title": "SWEET MEMORIES",
     "source": "人工核定",
     "comment": "松田聖子 1983 年原曲；标题保持英文"
+  },
+  "2000000030": {
+    "title": "鼓童乐曲",
+    "source": "人工核定",
+    "comment": "百科曲名未定，只写了「（鼓童楽曲）」；直译占位，确认曲名后替换"
   }
 }

@@ -66,6 +66,8 @@ UPDATE songs SET name_en = 'SWEET MEMORIES' WHERE id = 683540;
 UPDATE songs SET name_en = 'Orange Crossroads' WHERE id = 25668;
 UPDATE songs SET name_en = 'ONE NIGHT GIRL' WHERE id = 1089;
 UPDATE songs SET name_en = 'SWEET MEMORIES' WHERE id = 2000000029;
+UPDATE songs SET name_en = 'Kodo Piece' WHERE id = 2000000030;
+UPDATE songs SET name_en = 'Hundred-Demon Festival' WHERE id = 281763;
 UPDATE songs SET name_en = 'Corrupted Flower' WHERE id = 13418;
 
 -- Kana titles whose English name is what the site shows: サンドリヨン's Chinese title is
