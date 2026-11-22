@@ -5,7 +5,10 @@ import { applyCatalogSql } from '../scripts/build-catalog.ts'
 import {
   HOME_PATH,
   HOMEPAGE_FEATURE_MODULES,
+  HOMEPAGE_STAT_TILE_HREFS,
   RANKING_PATH,
+  SERIES_INDEX_PATH,
+  SERIES_PAGE_HEADING_IDS,
   RECENT_CONCERT_LIMIT,
   buildRecentConcerts,
   buildRecentlyUpdatedSummary,
@@ -717,6 +720,50 @@ describe('homepage page markup', () => {
       expect(stats.performancesWithSetlist).toBeGreaterThan(0)
     } finally {
       close()
+    }
+  })
+
+  it('makes each statistic tile a keyboard-focusable in-site link to an existing view', () => {
+    expect(SERIES_INDEX_PATH).toBe('/series')
+    expect(SERIES_PAGE_HEADING_IDS).toEqual({
+      series: 'series',
+      performances: 'performances',
+    })
+    expect(HOMEPAGE_STAT_TILE_HREFS).toEqual({
+      songs: '/rank',
+      shows: '/series',
+      performances: '/series#performances',
+      series: '/series#series',
+    })
+    expect(HOMEPAGE_STAT_TILE_HREFS.songs).toBe(RANKING_PATH)
+    expect(HOMEPAGE_STAT_TILE_HREFS.shows).toBe(SERIES_INDEX_PATH)
+    expect(HOMEPAGE_STAT_TILE_HREFS.shows).not.toMatch(/^\/shows(?:\/|$)/)
+    expect(HOMEPAGE_STAT_TILE_HREFS.shows).not.toBe('/timeline')
+    expect(HOMEPAGE_STAT_TILE_HREFS.performances).toBe(
+      `${SERIES_INDEX_PATH}#${SERIES_PAGE_HEADING_IDS.performances}`,
+    )
+    expect(HOMEPAGE_STAT_TILE_HREFS.series).toBe(
+      `${SERIES_INDEX_PATH}#${SERIES_PAGE_HEADING_IDS.series}`,
+    )
+    const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
+    const template = source.slice(source.indexOf('<template>'))
+    const statsStart = template.indexOf(":aria-label=\"t('home.statsTitle')\"")
+    const statsEnd = template.indexOf('</section>', statsStart)
+    expect(statsStart).toBeGreaterThan(-1)
+    expect(statsEnd).toBeGreaterThan(statsStart)
+    const stats = template.slice(statsStart, statsEnd)
+    expect(source).toContain('HOMEPAGE_STAT_TILE_HREFS')
+    expect(stats).toContain('<NuxtLink')
+    expect(stats).toContain(':to="tile.to"')
+    expect(stats).toContain('focus-visible:ring-2')
+    expect(stats).toContain('focus-visible:ring-primary')
+    expect(stats).toContain('hover:ring-primary/40')
+    expect(stats).toContain('no-underline')
+    expect(stats).not.toMatch(/target="_blank"/)
+    expect(stats).not.toContain('{{ tile.to }}')
+    for (const id of ['songs', 'shows', 'performances', 'series']) {
+      expect(source).toContain(`id: '${id}'`)
+      expect(source).toContain(`to: HOMEPAGE_STAT_TILE_HREFS.${id}`)
     }
   })
 })

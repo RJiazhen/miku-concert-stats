@@ -38,6 +38,32 @@ export const RECENT_CONCERT_LIMIT = 4
 /** How many dated 演出 can contribute links to the related-links section. */
 export const RELATED_LINK_PERFORMANCE_LIMIT = 16
 
+/** Series and performances overview. */
+export const SERIES_INDEX_PATH = '/series'
+
+/**
+ * Stable, locale-independent fragment ids of the visible Series and
+ * Performances `h2` headings on `/series`.
+ */
+export const SERIES_PAGE_HEADING_IDS = {
+  series: 'series',
+  performances: 'performances',
+} as const
+
+/**
+ * Existing in-site destinations for the four homepage statistic tiles,
+ * in the same order the tiles are shown. Shows opens `/series` at the top
+ * of the page: there is no 场次 index or 场次 heading, and `/shows/{id}` is
+ * a 演出 detail page. Performances and Series scroll to the matching
+ * heading on that same overview.
+ */
+export const HOMEPAGE_STAT_TILE_HREFS = {
+  songs: RANKING_PATH,
+  shows: SERIES_INDEX_PATH,
+  performances: `${SERIES_INDEX_PATH}#${SERIES_PAGE_HEADING_IDS.performances}`,
+  series: `${SERIES_INDEX_PATH}#${SERIES_PAGE_HEADING_IDS.series}`,
+} as const
+
 /** Feature modules the homepage offers as navigation, in header order. */
 export const HOMEPAGE_FEATURE_MODULES = [
   {

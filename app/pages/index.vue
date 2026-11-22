@@ -6,6 +6,7 @@ import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import {
   HOMEPAGE_FEATURE_MODULES,
+  HOMEPAGE_STAT_TILE_HREFS,
   buildRecentConcerts,
   buildSiteWideStats,
   buildUpcomingConcerts,
@@ -45,10 +46,11 @@ type ConcertSection = {
 }
 
 type StatTile = {
-  id: string
+  id: keyof typeof HOMEPAGE_STAT_TILE_HREFS
   labelKey: MessageKey
   icon: string
   value: string
+  to: (typeof HOMEPAGE_STAT_TILE_HREFS)[keyof typeof HOMEPAGE_STAT_TILE_HREFS]
 }
 
 /** Homepage concert sections: Recent first, then Upcoming, in document and visual order. */
@@ -74,10 +76,10 @@ const statTiles = computed((): StatTile[] => {
   const current = stats.value
   if (current === null) return []
   return [
-    { id: 'songs', labelKey: 'home.statSongs', icon: 'i-lucide-music', value: String(current.songs) },
-    { id: 'shows', labelKey: 'home.statShows', icon: 'i-lucide-mic-vocal', value: String(current.shows) },
-    { id: 'performances', labelKey: 'home.statPerformances', icon: 'i-lucide-ticket', value: String(current.performances) },
-    { id: 'series', labelKey: 'home.statSeries', icon: 'i-lucide-layers', value: String(current.series) },
+    { id: 'songs', labelKey: 'home.statSongs', icon: 'i-lucide-music', value: String(current.songs), to: HOMEPAGE_STAT_TILE_HREFS.songs },
+    { id: 'shows', labelKey: 'home.statShows', icon: 'i-lucide-mic-vocal', value: String(current.shows), to: HOMEPAGE_STAT_TILE_HREFS.shows },
+    { id: 'performances', labelKey: 'home.statPerformances', icon: 'i-lucide-ticket', value: String(current.performances), to: HOMEPAGE_STAT_TILE_HREFS.performances },
+    { id: 'series', labelKey: 'home.statSeries', icon: 'i-lucide-layers', value: String(current.series), to: HOMEPAGE_STAT_TILE_HREFS.series },
   ]
 })
 
@@ -122,20 +124,21 @@ useHead({ title: computed(() => t('home.title')) })
     <template v-else-if="catalog">
       <section :aria-label="t('home.statsTitle')">
         <ul v-if="statTiles.length > 0" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <li
-            v-for="tile in statTiles"
-            :key="tile.id"
-            class="rounded-xl bg-default/60 p-3 ring-1 ring-default"
-          >
-            <div class="flex items-start gap-2">
-              <UIcon :name="tile.icon" class="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-              <div class="min-w-0">
-                <p class="text-xs leading-4 text-muted">{{ t(tile.labelKey) }}</p>
-                <p class="mt-1 text-2xl font-semibold tabular-nums text-highlighted">
-                  {{ tile.value }}
-                </p>
+          <li v-for="tile in statTiles" :key="tile.id">
+            <NuxtLink
+              :to="tile.to"
+              class="block rounded-xl bg-default/60 p-3 text-inherit no-underline ring-1 ring-default transition-colors hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <div class="flex items-start gap-2">
+                <UIcon :name="tile.icon" class="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                <div class="min-w-0">
+                  <p class="text-xs leading-4 text-muted">{{ t(tile.labelKey) }}</p>
+                  <p class="mt-1 text-2xl font-semibold tabular-nums text-highlighted">
+                    {{ tile.value }}
+                  </p>
+                </div>
               </div>
-            </div>
+            </NuxtLink>
           </li>
         </ul>
       </section>
