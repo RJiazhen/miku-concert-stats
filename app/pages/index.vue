@@ -51,16 +51,8 @@ type ConcertSection = {
   concerts: RecentConcert[]
 }
 
-/** Homepage concert sections: upcoming first, then at most four already-started concerts. */
+/** Homepage concert sections: Recent first, then Upcoming, in document and visual order. */
 const concertSections = computed((): ConcertSection[] => [
-  {
-    id: 'upcoming',
-    headingId: 'home-upcoming-heading',
-    titleKey: 'home.upcomingTitle',
-    descKey: 'home.upcomingDesc',
-    emptyKey: 'home.upcomingEmpty',
-    concerts: upcomingConcerts.value,
-  },
   {
     id: 'recent',
     headingId: 'home-recent-heading',
@@ -68,6 +60,14 @@ const concertSections = computed((): ConcertSection[] => [
     descKey: 'home.recentDesc',
     emptyKey: 'home.recentEmpty',
     concerts: recentConcerts.value,
+  },
+  {
+    id: 'upcoming',
+    headingId: 'home-upcoming-heading',
+    titleKey: 'home.upcomingTitle',
+    descKey: 'home.upcomingDesc',
+    emptyKey: 'home.upcomingEmpty',
+    concerts: upcomingConcerts.value,
   },
 ])
 

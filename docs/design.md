@@ -325,7 +325,7 @@ The site root `/` is a dedicated landing page, separate from the song-appearance
 
 The first homepage ships without poster images or a visual carousel (deferred to [issue #67](https://github.com/RJiazhen/miku-concert-stats/issues/67)). Concert lists are text-only: localized name, concert calendar date, venue when known, optional sourced status, and a link to `/shows/{id}`. Concert dates come from `performances.start_date` / `end_date` and are never labelled as data-update times.
 
-The Recent concerts section lists at most four 演出 that have already started, newest `start_date` first. Concerts that have not started yet are listed in a separate Upcoming concerts section, soonest `start_date` first. A concert has started only from recorded catalog fields; the page never invents a start clock time, timezone, or `performance_status` value:
+The Recent concerts section appears first, above Upcoming, in both the document and the visual reading order on every viewport. It lists at most four 演出 that have already started, newest `start_date` first. Concerts that have not started yet are listed in the Upcoming concerts section below it, soonest `start_date` first. A concert has started only from recorded catalog fields; the page never invents a start clock time, timezone, or `performance_status` value:
 
 - Undated, cancelled, and postponed 演出 are omitted from both lists.
 - When both `showtime_local` and `timezone` are present, the concert has started at or after that local start instant.
