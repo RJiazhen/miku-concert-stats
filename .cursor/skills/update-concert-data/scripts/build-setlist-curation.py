@@ -499,6 +499,18 @@ add(
     note="官方页：6/3 有 13:00 与 19:00 两场，6/4 只有 13:00 一场，共 3 场",
 )
 add(
+    12940,
+    halves={"2026-11-20": ["night"], "2026-11-21": ["day"]},
+    sources=[
+        official_page(
+            "https://kyouen-kodo-miku.com/",
+            "鼓童×初音ミク 響演 公式サイト",
+            "11/20 開場 18:00／開演 19:00；11/21 開場 12:00／開演 13:00",
+        )
+    ],
+    note="官方页：11/20 仅夜场 19:00，11/21 仅昼场 13:00，共 2 场",
+)
+add(
     2510,
     day_night=["2013-02-09", "2013-02-10"],
     sources=[
@@ -1239,6 +1251,7 @@ SCHEDULE_NOTES = {
     3000000007: "2021-12-18–19 在线演唱会，两天同一套 12 首",
     3000000008: "2026-01-17 昼+夜、01-18 仅昼，共 3 场；每场 24 首，第 8 首按场次替换",
     3000000009: "2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场；每场 27 首",
+    12940: "官方页：2026-11-20 仅夜场（开场 18:00／开演 19:00），11-21 仅昼场（开场 12:00／开演 13:00），共 2 场。百科注明鼓童原创曲名未定、曲顺暂定",
     2520: "2010-03-09 Zepp Tokyo 昼 + 夜 2 场，逐曲表 40 行两场共用；昼场的嘉宾环节与夜场的应援 P MC 不计入曲目",
     2521: "2011-07-02 洛杉矶 Nokia Theatre 单场，24 首；沿用 2010 感謝祭节目并加入英语版",
     3000000011: "2012-03-09 TOKYO DOME CITY HALL 昼 + 夜 2 场，每场 29 首；昼场音响故障后「ワールドイズマイン」再演不计入曲数",
@@ -1259,6 +1272,34 @@ for pid, schedule_note in SCHEDULE_NOTES.items():
     entry = performances.get(str(pid))
     if entry is not None:
         entry["note"] = f"{entry.get('note', '')}；日程来源：{schedule_note}"
+
+# 针对某一首的说明写进该行备注，不放进演出页页头。
+SONG_ROW_NOTES: dict[int, dict[int, str]] = {
+    12940: {
+        2000000030: "曲名未定",
+        186877: "通常版歌词",
+        8741: "鼓童成员主唱，初音未来和声",
+    },
+}
+
+
+def apply_song_row_notes() -> None:
+    """Replaces a setlist row's note with the song-specific remark for that performance."""
+    for pid, by_song in SONG_ROW_NOTES.items():
+        entry = performances.get(str(pid))
+        if entry is None:
+            continue
+        setlist = entry.get("setlist") or {}
+        groups = [setlist.get("songs") or []]
+        groups += [slot.get("songs") or [] for slot in setlist.get("slots") or []]
+        for songs in groups:
+            for song in songs:
+                text = by_song.get(song.get("id"))
+                if text:
+                    song["note"] = text
+
+
+apply_song_row_notes()
 
 # 版本归属的维护者备注：说明某一行为什么登记成版本条目而不是百科写的曲名（VERSION_ROWS）。
 VERSION_NOTES = {
@@ -1337,6 +1378,15 @@ EXTRA_SOURCES = {
             "ポケモン feat. 初音ミク VOLTAGE Live！ 公式サイト",
             "2026-03-20–22 每天昼 12:00 + 夜 18:00，共 6 场",
         )
+    ],
+    "12940": [
+        {
+            "url": "https://kyouen-kodo-miku.com/",
+            "title": "鼓童×初音ミク 響演 公式サイト",
+            "accessedAt": "2026-11-22",
+            "confidence": "high",
+            "note": "11/20 開場 18:00／開演 19:00；11/21 開場 12:00／開演 13:00",
+        }
     ],
     "2521": [
         official_page(

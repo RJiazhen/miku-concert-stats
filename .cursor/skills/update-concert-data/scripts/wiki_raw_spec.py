@@ -326,4 +326,11 @@ RAW_SPEC: dict[str, dict] = {
         "labels": {3000000011: "东京"},
         "markers": {},
     },
+    # 没有 公演替 列。两天共用一套暂定曲顺；鼓童原创曲名未定，第 2 首只写「（鼓童楽曲）」。
+    "kodo2026": {
+        "performances": [12940],
+        "labels": {12940: "NHK 大厅"},
+        "markers": {},
+        "accessedAt": "2026-11-22",
+    },
 }

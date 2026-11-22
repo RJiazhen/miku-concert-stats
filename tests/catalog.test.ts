@@ -161,6 +161,7 @@ describe('committed catalog', () => {
         12713,
         12714,
         12739,
+        12940,
         3000000002,
         3000000003,
         3000000004,
@@ -189,6 +190,13 @@ describe('committed catalog', () => {
       expect(lawson.every((row) => row.item_count === 24)).toBe(true)
       const mikufes2009 = catalog.performanceShowSetlists.find((row) => row.performance_id === 3000000002)
       expect(mikufes2009?.item_count).toBe(28)
+      // 鼓童×初音ミク 響演 2026: 11/20 night + 11/21 day, one shared 18-row table.
+      const kodo2026 = catalog.performanceShowSetlists.filter((row) => row.performance_id === 12940)
+      expect(kodo2026.map((row) => row.show_key)).toEqual([
+        '12940:2026-11-20:night',
+        '12940:2026-11-21:day',
+      ])
+      expect(kodo2026.every((row) => row.item_count === 18)).toBe(true)
       // EXPO 2026 Europe: 8 cities / 9 shows (Madrid two nights), same 26-song table for every stop.
       const expo2026Eu = catalog.performanceShowSetlists.filter((row) =>
         [12222, 12223, 12224, 12225, 12226, 12227, 12228, 12449].includes(row.performance_id),
