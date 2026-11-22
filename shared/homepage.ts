@@ -501,16 +501,19 @@ const websiteLinksFor = (catalog: Catalog, performanceId: number): ClassifiedWeb
 
 /**
  * Already-started 演出 for the Recent section, newest concert `start_date` first.
- * Concerts that have not started yet, plus undated, cancelled, and postponed rows, are omitted.
+ * Concerts that have not started yet, plus undated, cancelled, postponed, and
+ * no-setlist rows, are omitted. The setlist check uses `setlistPerformanceIds`
+ * and runs before sorting and the four-item limit.
  */
 export const buildRecentConcerts = (
   catalog: Catalog,
   limit = RECENT_CONCERT_LIMIT,
   now = new Date(),
 ): RecentConcert[] => {
+  const setlistIds = setlistPerformanceIds(catalog)
   const started = catalog.performances.filter(
     (row): row is PerformanceRow & { start_date: string } =>
-      isListedHomepageConcert(catalog, row) && concertHasStarted(row, now),
+      isListedHomepageConcert(catalog, row) && concertHasStarted(row, now) && setlistIds.has(row.id),
   )
   started.sort((left, right) => right.start_date.localeCompare(left.start_date) || right.id - left.id)
   return started.slice(0, limit).map((performance) => toHomepageConcert(catalog, performance))

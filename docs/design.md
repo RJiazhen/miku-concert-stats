@@ -333,6 +333,8 @@ The Recent concerts section lists at most four 演出 that have already started,
 - When no timezone is recorded, dates stay day-precision and are compared with the current UTC calendar date. A date-only concert on that UTC date is treated as started, because a venue-local midnight is not recorded and must not be assumed.
 - A hand-checked `upcoming` status may still appear as a badge; it does not override the date or showtime comparison.
 
+The Recent section further keeps only 演出 that have a setlist. This uses the same `setlistPerformanceIds` rule as the series indexes and the homepage site-wide statistics: a VocaDB `song_list_id`, or a derived wiki or curated row in `performance_setlists`. Checking `song_list_id` alone would drop Wikipedia-only stops that have no VocaDB song list, and would also treat a bare `song_list_id` as a setlist even when that list has no songs. The setlist filter is applied before sorting and the four-item limit, so a newer already-started concert without a setlist does not occupy a slot. The Upcoming section does not require a setlist.
+
 The homepage main heading matches the site title (`common.appName`) in every current UI locale, for example 初音未来演唱会曲目统计 and Hatsune Miku Concert Statistics. The song ranking page at `/rank` uses the page title (曲目排行 / Song ranking), not the site title.
 
 Site-wide statistics reuse the same counting rules as the series and performance indexes (`reviewRotations`, `showCountsByPerformance`, `setlistPerformanceIds`): series, 演出, 场次, songs, setlist coverage, cancelled rows, broadcast/online rows, and the concert calendar date range.

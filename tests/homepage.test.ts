@@ -28,7 +28,7 @@ import { loadCatalog } from '../shared/catalog.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '../shared/performance-setlists.ts'
 import { showsForPerformance } from '../shared/event-schedule.ts'
-import type { Catalog, PerformanceRow, SqlRow } from '../shared/types.ts'
+import type { Catalog, PerformanceRow, PerformanceSetlistRow, SqlRow } from '../shared/types.ts'
 
 /** Empty catalog with every required table present. */
 const emptyCatalog = (overrides: Partial<Catalog> = {}): Catalog => ({
@@ -390,17 +390,56 @@ describe('buildRecentConcerts and buildUpcomingConcerts', () => {
     expect(buildRecentConcerts(catalog, 4, after).map((row) => row.id)).toEqual([6])
   })
 
+  it('excludes newer started concerts without a setlist and fills four older eligible ones', () => {
+    const wikiSetlist = (performanceId: number): PerformanceSetlistRow => ({
+      performance_id: performanceId,
+      source_list_id: null,
+      source_kind: 'wiki',
+      change: 'none',
+      status: 'complete',
+      resolution: 'external',
+      source_row_count: 8,
+      day_night_dates: null,
+      no_show_dates: null,
+      single_show_dates: null,
+      conflict: 0,
+      pending_review: 0,
+      note: null,
+      page_note: null,
+    })
+    const catalog = emptyCatalog({
+      performances: [
+        performance({ id: 10, series_id: 81, name: 'Newest without setlist', start_date: '2026-11-22', song_list_id: null }),
+        performance({ id: 11, series_id: 81, name: 'Second newest without setlist', start_date: '2026-11-21', song_list_id: null }),
+        performance({ id: 4, series_id: 81, name: 'VocaDB setlist', start_date: '2026-11-20', song_list_id: 1 }),
+        performance({ id: 12, series_id: 81, name: 'Wiki setlist only', start_date: '2026-11-19', song_list_id: null }),
+        performance({ id: 2, series_id: 81, name: 'Older with setlist', start_date: '2026-11-18', song_list_id: 1 }),
+        performance({ id: 7, series_id: 81, name: 'Fourth eligible', start_date: '2026-11-17', song_list_id: 1 }),
+        performance({ id: 1, series_id: 81, name: 'Fifth eligible omitted by limit', start_date: '2026-11-16', song_list_id: 1 }),
+        performance({ id: 5, series_id: 81, name: 'Upcoming without setlist', start_date: '2026-11-23', song_list_id: null }),
+      ],
+      performanceSetlists: [wikiSetlist(12)],
+    })
+    const recent = buildRecentConcerts(catalog, RECENT_CONCERT_LIMIT, now)
+    expect(recent.map((row) => row.id)).toEqual([4, 12, 2, 7])
+    expect(recent).toHaveLength(4)
+    expect(recent.some((row) => row.id === 10 || row.id === 11)).toBe(false)
+    expect(buildUpcomingConcerts(catalog, now).map((row) => row.id)).toEqual([5])
+  })
+
   it('splits the committed catalog around a fixed instant without listing future dates as recent', () => {
     const { catalog, close } = loadCommittedCatalog()
     try {
       const recent = buildRecentConcerts(catalog, 4, now)
       const upcoming = buildUpcomingConcerts(catalog, now)
       expect(recent).toHaveLength(4)
-      expect(recent.map((row) => row.id)).toEqual([12227, 12940, 12226, 12225])
+      expect(recent.map((row) => row.id)).toEqual([12227, 12226, 12225, 12224])
       expect(recent.every((row) => row.startDate <= '2026-11-22')).toBe(true)
+      expect(recent.some((row) => row.id === 12940)).toBe(false)
       expect(upcoming.map((row) => row.id)).toEqual([12228, 12449, 3000000001, 12740, 13226, 13209])
       expect(upcoming.every((row) => row.startDate > '2026-11-22' || row.id === 3000000001)).toBe(true)
       expect(upcoming.some((row) => row.id === 13210)).toBe(false)
+      expect(upcoming.some((row) => row.id === 3000000001)).toBe(true)
     } finally {
       close()
     }
