@@ -573,8 +573,14 @@ describe('homepage page markup', () => {
     expect(source).not.toMatch(/poster|carousel|thumbnail|imageUrl/i)
   })
 
-  it('lists Recent concerts before Upcoming concerts in document order', () => {
+  it('places statistics first, then Recent, then Upcoming, without removed descriptive copy', () => {
     const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
+    const template = source.slice(source.indexOf('<template>'))
+    const stats = template.indexOf('home-stats-heading')
+    const concerts = template.indexOf('v-for="block in concertSections"')
+    expect(stats).toBeGreaterThan(-1)
+    expect(concerts).toBeGreaterThan(-1)
+    expect(stats).toBeLessThan(concerts)
     const start = source.indexOf('const concertSections = computed')
     const end = source.indexOf('])', start)
     expect(start).toBeGreaterThan(-1)
@@ -585,7 +591,49 @@ describe('homepage page markup', () => {
     expect(recent).toBeGreaterThan(-1)
     expect(upcoming).toBeGreaterThan(-1)
     expect(recent).toBeLessThan(upcoming)
-    expect(source).toMatch(/v-for="block in concertSections"/)
+    expect(template).not.toMatch('home-updated-heading')
+    expect(source).not.toMatch('buildRecentlyUpdatedSummary')
+    expect(source).not.toMatch('formatSourceTimestamp')
+    for (const key of [
+      'home.intro',
+      'home.statsDesc',
+      'home.recentDesc',
+      'home.upcomingDesc',
+      'home.featuresDesc',
+      'home.linksDesc',
+      'home.officialWebsitesDesc',
+      'home.bilibiliRecordingsDesc',
+      'home.updatedTitle',
+      'home.updatedDesc',
+    ]) {
+      expect(source).not.toContain(`t('${key}')`)
+    }
     expect(source).not.toMatch(/order-|flex-col-reverse|flex-row-reverse/)
+  })
+
+  it('still renders every site-wide statistic from buildSiteWideStats', () => {
+    const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
+    expect(source).toContain('buildSiteWideStats')
+    expect(source).toContain('current.series')
+    expect(source).toContain('current.performances')
+    expect(source).toContain('current.shows')
+    expect(source).toContain('current.songs')
+    expect(source).toContain('current.performancesWithSetlist')
+    expect(source).toContain('current.cancelledPerformances')
+    expect(source).toContain('current.broadcastPerformances')
+    expect(source).toContain('concertYearRange')
+    const { catalog, close } = loadCommittedCatalog()
+    try {
+      const stats = buildSiteWideStats(catalog)
+      expect(stats.series).toBe(catalog.series.length)
+      expect(stats.performances).toBe(catalog.performances.length)
+      expect(stats.songs).toBe(catalog.songs.length)
+      expect(stats.shows).toBeGreaterThan(0)
+      expect(stats.performancesWithSetlist).toBeGreaterThan(0)
+      expect(stats.firstConcertDate).not.toBeNull()
+      expect(stats.lastConcertDate).not.toBeNull()
+    } finally {
+      close()
+    }
   })
 })

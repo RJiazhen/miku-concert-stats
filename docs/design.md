@@ -325,7 +325,11 @@ The site root `/` is a dedicated landing page, separate from the song-appearance
 
 The first homepage ships without poster images or a visual carousel (deferred to [issue #67](https://github.com/RJiazhen/miku-concert-stats/issues/67)). Concert lists are text-only: localized name, concert calendar date, venue when known, optional sourced status, and a link to `/shows/{id}`. Concert dates come from `performances.start_date` / `end_date` and are never labelled as data-update times.
 
-The Recent concerts section appears first, above Upcoming, in both the document and the visual reading order on every viewport. It lists at most four 演出 that have already started, newest `start_date` first. Concerts that have not started yet are listed in the Upcoming concerts section below it, soonest `start_date` first. A concert has started only from recorded catalog fields; the page never invents a start clock time, timezone, or `performance_status` value:
+The first content section below the page heading is Site-wide statistics. It is a compact numerical overview: short labels, icons, and the catalog totals already computed by `buildSiteWideStats` (series, 演出, 场次, songs, setlist coverage, cancelled rows, broadcast/online rows, and the concert calendar date range). It does not invent figures, and it does not include a descriptive paragraph.
+
+The homepage does not show a “recently updated statistics data” section. Catalog `retrieved_at` / `accessed_at` summaries stay out of the landing page. Section introductory paragraphs — eligibility rules, navigation explanations, and notes that posters will come later — are not rendered. Section titles, concise stat and concert labels, sourced status or official-vs-unconfirmed website badges, empty states, and catalog-load errors remain, so uncertainty is not presented as confirmation.
+
+Recent concerts follow the statistics section and appear above Upcoming, in both the document and the visual reading order on every viewport. Recent lists at most four 演出 that have already started, newest `start_date` first. Concerts that have not started yet are listed in the Upcoming concerts section below it, soonest `start_date` first. A concert has started only from recorded catalog fields; the page never invents a start clock time, timezone, or `performance_status` value:
 
 - Undated, cancelled, and postponed 演出 are omitted from both lists.
 - When both `showtime_local` and `timezone` are present, the concert has started at or after that local start instant.
@@ -337,9 +341,7 @@ The Recent section further keeps only 演出 that have a setlist. This uses the 
 
 The homepage main heading matches the site title (`common.appName`) in every current UI locale, for example 初音未来演唱会曲目统计 and Hatsune Miku Concert Statistics. The song ranking page at `/rank` uses the page title (曲目排行 / Song ranking), not the site title.
 
-Site-wide statistics reuse the same counting rules as the series and performance indexes (`reviewRotations`, `showCountsByPerformance`, `setlistPerformanceIds`): series, 演出, 场次, songs, setlist coverage, cancelled rows, broadcast/online rows, and the concert calendar date range.
-
-The “recently updated statistics data” summary uses only catalog source metadata: `retrieved_at` on series, performances, songs, and song lists, and `accessed_at` on setlist sources and hand-checked performance status. Those timestamps are displayed as source retrieval or access times, not as concert dates.
+Site-wide statistics reuse the same counting rules as the series and performance indexes (`reviewRotations`, `showCountsByPerformance`, `setlistPerformanceIds`). The same totals are what the compact overview displays.
 
 Related links are classified from actual catalog rows, with no invented URLs:
 
