@@ -9,6 +9,7 @@ import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
 import { catalogSchedules } from '~~/shared/performance-setlists.ts'
 import { performanceDateLabel } from '~~/shared/performance-date-label.ts'
 import { performanceHeaderFacts } from '~~/shared/performance-header.ts'
+import { showSourceButtons } from '~~/shared/show-source-buttons.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useVenueNames } from '~/composables/useVenueNames.ts'
 import { fromVocaDB } from '~~/shared/repertoire.ts'
@@ -94,11 +95,20 @@ const vocaDBListUrl = computed(() => {
   return `https://vocadb.net/L/${row.source_list_id}`
 })
 
-/** Wiki page the rows came from, shown only when the setlist is a wiki table. */
-const wikiSource = computed(() => {
-  if (setlistRow.value?.source_kind !== 'wiki') return null
-  const sources = catalog.value?.performanceSetlistSources.filter((row) => row.performance_id === performanceId.value) ?? []
-  return sources.find((row) => row.url.includes('w.atwiki.jp')) ?? sources[0] ?? null
+/**
+ * Header source buttons: the event URL once, then distinct setlist citations.
+ * A curated `source_kind` of `wiki` is not treated as "the first source is a wiki page".
+ */
+const sourceButtons = computed(() => {
+  const current = performance.value
+  if (!current) return []
+  return showSourceButtons({
+    sourceUrl: current.source_url,
+    fromVocaDB: performanceOnVocaDB.value,
+    vocaDBListUrl: vocaDBListUrl.value,
+    albumUrl: albumSource.value?.url ?? null,
+    setlistSources: catalog.value?.performanceSetlistSources.filter((row) => row.performance_id === performanceId.value) ?? [],
+  })
 })
 
 /** Performance name with its series and place in the site language. */
@@ -218,17 +228,18 @@ useHead({ title: computed(() => performanceLabel.value || t('col.performance')) 
           </template>
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
-          <UButton :to="performance.source_url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            {{ performanceOnVocaDB ? t('show.vocadbEvent') : t('show.eventSource') }}
-          </UButton>
-          <UButton v-if="vocaDBListUrl" :to="vocaDBListUrl" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            {{ t('show.vocadbSetlist') }}
-          </UButton>
-          <UButton v-if="albumSource" :to="albumSource.url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            {{ t('show.albumTracks') }}
-          </UButton>
-          <UButton v-if="wikiSource" :to="wikiSource.url" target="_blank" color="neutral" variant="outline" size="xs" icon="i-lucide-external-link">
-            {{ t('song.wiki') }}
+          <UButton
+            v-for="button in sourceButtons"
+            :key="button.url"
+            :to="button.url"
+            :title="button.title"
+            target="_blank"
+            color="neutral"
+            variant="outline"
+            size="xs"
+            icon="i-lucide-external-link"
+          >
+            {{ t(button.labelKey) }}
           </UButton>
         </div>
       </header>
