@@ -18,6 +18,7 @@ import {
   collectBilibiliRecordingLinks,
   formatSourceTimestamp,
   isBilibiliConcertRecordingUrl,
+  websiteHostLabel,
   showPath,
   utcCalendarDate,
   zonedShowtimeToUtc,
@@ -512,6 +513,20 @@ describe('website and Bilibili link classification', () => {
     ).toBeNull()
   })
 
+  it('labels sourced website URLs with a compact host and never infers official status from it', () => {
+    expect(websiteHostLabel('https://www.magicalmirai.com/2024/')).toBe('magicalmirai.com')
+    expect(websiteHostLabel('https://mikuexpo.com/2024/')).toBe('mikuexpo.com')
+    expect(websiteHostLabel('https://WWW.Example.COM/path')).toBe('example.com')
+    expect(websiteHostLabel('not a url')).toBe('not a url')
+    expect(
+      classifyPerformanceWebsiteLink({
+        performance_id: 1,
+        url: 'https://www.magicalmirai.com/2024/',
+        description: 'Website',
+      })?.kind,
+    ).toBe('website')
+  })
+
   it('accepts only Bilibili video URLs from 演出-level sources, not profiles or song PVs', () => {
     expect(isBilibiliConcertRecordingUrl('https://www.bilibili.com/video/BV1xx411c7mD')).toBe(true)
     expect(isBilibiliConcertRecordingUrl('https://www.bilibili.com/video/av11787782')).toBe(true)
@@ -576,11 +591,13 @@ describe('homepage page markup', () => {
   it('places statistics first, then Recent, then Upcoming, without removed descriptive copy', () => {
     const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
     const template = source.slice(source.indexOf('<template>'))
-    const stats = template.indexOf('home-stats-heading')
+    const stats = template.indexOf(":aria-label=\"t('home.statsTitle')\"")
     const concerts = template.indexOf('v-for="block in concertSections"')
     expect(stats).toBeGreaterThan(-1)
     expect(concerts).toBeGreaterThan(-1)
     expect(stats).toBeLessThan(concerts)
+    expect(template).not.toContain('home-stats-heading')
+    expect(template).not.toMatch(/<h2[^>]*>\s*\{\{\s*t\('home\.statsTitle'\)/)
     const start = source.indexOf('const concertSections = computed')
     const end = source.indexOf('])', start)
     expect(start).toBeGreaterThan(-1)
@@ -602,7 +619,11 @@ describe('homepage page markup', () => {
       'home.featuresDesc',
       'home.linksDesc',
       'home.officialWebsitesDesc',
+      'home.officialWebsitesTitle',
       'home.bilibiliRecordingsDesc',
+      'home.bilibiliRecordingsTitle',
+      'home.bilibiliEmpty',
+      'home.linkSource',
       'home.updatedTitle',
       'home.updatedDesc',
     ]) {
@@ -611,17 +632,46 @@ describe('homepage page markup', () => {
     expect(source).not.toMatch(/order-|flex-col-reverse|flex-row-reverse/)
   })
 
-  it('still renders every site-wide statistic from buildSiteWideStats', () => {
+  it('renders compact related concert website cards without Bilibili recordings or raw URL walls', () => {
+    const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
+    expect(source).toContain('buildRelatedConcertLinks')
+    expect(source).toContain('relatedWebsiteLinks')
+    expect(source).toContain('websiteHostLabel(link.url)')
+    expect(source).toContain('websiteKindLabel(link.kind)')
+    expect(source).toContain("t('home.officialWebsite')")
+    expect(source).toContain("t('home.websiteUnconfirmed')")
+    expect(source).toContain("t('home.officialEmpty')")
+    expect(source).toContain('i-lucide-external-link')
+    expect(source).toContain('target="_blank"')
+    expect(source).toContain('rel="noopener noreferrer"')
+    expect(source).toContain('externalWebsiteLabel(link)')
+    expect(source).not.toContain('{{ link.url }}')
+    expect(source).not.toContain('bilibiliRecordings')
+    expect(source).not.toContain('bilibiliEmpty')
+    expect(source).not.toContain('bilibiliRecordingsTitle')
+    expect(source).not.toContain("lg:grid-cols-2")
+  })
+
+  it('renders only the four core catalog counts as homepage statistic tiles, in songs-shows-performances-series order', () => {
     const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
     expect(source).toContain('buildSiteWideStats')
     expect(source).toContain('current.series')
     expect(source).toContain('current.performances')
     expect(source).toContain('current.shows')
     expect(source).toContain('current.songs')
-    expect(source).toContain('current.performancesWithSetlist')
-    expect(source).toContain('current.cancelledPerformances')
-    expect(source).toContain('current.broadcastPerformances')
-    expect(source).toContain('concertYearRange')
+    expect(source).not.toContain('current.performancesWithSetlist')
+    expect(source).not.toContain('current.cancelledPerformances')
+    expect(source).not.toContain('current.broadcastPerformances')
+    expect(source).not.toContain('concertYearRange')
+    expect(source).not.toContain("id: 'setlists'")
+    expect(source).not.toContain("id: 'cancelled'")
+    expect(source).not.toContain("id: 'broadcast'")
+    expect(source).not.toContain("id: 'dates'")
+    expect(source).toContain("grid-cols-2 gap-3 sm:grid-cols-4")
+    const tileIds = [...source.matchAll(/\{ id: '([^']+)', labelKey: 'home\.stat/g)].map((match) => match[1])
+    expect(tileIds).toEqual(['songs', 'shows', 'performances', 'series'])
+    expect(source).toContain(":aria-label=\"t('home.statsTitle')\"")
+    expect(source).not.toContain('home-stats-heading')
     const { catalog, close } = loadCommittedCatalog()
     try {
       const stats = buildSiteWideStats(catalog)
@@ -630,8 +680,6 @@ describe('homepage page markup', () => {
       expect(stats.songs).toBe(catalog.songs.length)
       expect(stats.shows).toBeGreaterThan(0)
       expect(stats.performancesWithSetlist).toBeGreaterThan(0)
-      expect(stats.firstConcertDate).not.toBeNull()
-      expect(stats.lastConcertDate).not.toBeNull()
     } finally {
       close()
     }

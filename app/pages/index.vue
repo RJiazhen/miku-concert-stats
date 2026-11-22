@@ -11,7 +11,9 @@ import {
   buildSiteWideStats,
   buildUpcomingConcerts,
   type ClassifiedWebsiteKind,
+  type ClassifiedWebsiteLink,
   type RecentConcert,
+  websiteHostLabel,
 } from '~~/shared/homepage.ts'
 import type { PerformanceStatusValue } from '~~/shared/types.ts'
 import type { MessageKey } from '~~/shared/i18n/index.ts'
@@ -37,7 +39,7 @@ const now = new Date()
 const stats = computed(() => (catalog.value ? buildSiteWideStats(catalog.value) : null))
 const upcomingConcerts = computed(() => (catalog.value ? buildUpcomingConcerts(catalog.value, now) : []))
 const recentConcerts = computed(() => (catalog.value ? buildRecentConcerts(catalog.value, undefined, now) : []))
-const relatedLinks = computed(() => (catalog.value ? buildRelatedConcertLinks(catalog.value) : { websites: [], bilibiliRecordings: [] }))
+const relatedWebsiteLinks = computed(() => (catalog.value ? buildRelatedConcertLinks(catalog.value).websites : []))
 
 type ConcertSection = {
   id: 'upcoming' | 'recent'
@@ -72,26 +74,15 @@ const concertSections = computed((): ConcertSection[] => [
   },
 ])
 
-const concertYearRange = computed((): string | null => {
-  const current = stats.value
-  if (current === null || current.firstConcertDate === null || current.lastConcertDate === null) return null
-  if (current.firstConcertDate === current.lastConcertDate) return current.firstConcertDate
-  return `${current.firstConcertDate} – ${current.lastConcertDate}`
-})
-
-/** Compact tiles for the catalog totals already computed by `buildSiteWideStats`. */
+/** Compact tiles for the four core catalog counts already computed by `buildSiteWideStats`. */
 const statTiles = computed((): StatTile[] => {
   const current = stats.value
   if (current === null) return []
   return [
-    { id: 'series', labelKey: 'home.statSeries', icon: 'i-lucide-layers', value: String(current.series) },
-    { id: 'performances', labelKey: 'home.statPerformances', icon: 'i-lucide-ticket', value: String(current.performances) },
-    { id: 'shows', labelKey: 'home.statShows', icon: 'i-lucide-mic-vocal', value: String(current.shows) },
     { id: 'songs', labelKey: 'home.statSongs', icon: 'i-lucide-music', value: String(current.songs) },
-    { id: 'setlists', labelKey: 'home.statSetlists', icon: 'i-lucide-list-music', value: String(current.performancesWithSetlist) },
-    { id: 'cancelled', labelKey: 'home.statCancelled', icon: 'i-lucide-ban', value: String(current.cancelledPerformances) },
-    { id: 'broadcast', labelKey: 'home.statBroadcast', icon: 'i-lucide-radio', value: String(current.broadcastPerformances) },
-    { id: 'dates', labelKey: 'home.statConcertDateRange', icon: 'i-lucide-calendar-range', value: concertYearRange.value ?? '—' },
+    { id: 'shows', labelKey: 'home.statShows', icon: 'i-lucide-mic-vocal', value: String(current.shows) },
+    { id: 'performances', labelKey: 'home.statPerformances', icon: 'i-lucide-ticket', value: String(current.performances) },
+    { id: 'series', labelKey: 'home.statSeries', icon: 'i-lucide-layers', value: String(current.series) },
   ]
 })
 
@@ -124,6 +115,9 @@ const concertNameOf = (performanceId: number): string => {
   return localizePlace(localizePerformanceSeries(row.name, seriesNameOf(row.series_id), row.series_number))
 }
 
+const externalWebsiteLabel = (link: ClassifiedWebsiteLink): string =>
+  [concertNameOf(link.performanceId), websiteKindLabel(link.kind), websiteHostLabel(link.url), t('home.externalLink')].join(' · ')
+
 useHead({ title: computed(() => t('home.title')) })
 </script>
 
@@ -148,11 +142,8 @@ useHead({ title: computed(() => t('home.title')) })
     <PageSkeleton v-else-if="pending && !catalog" />
 
     <template v-else-if="catalog">
-      <section aria-labelledby="home-stats-heading">
-        <h2 id="home-stats-heading" class="text-xl font-semibold tracking-tight text-highlighted sm:text-2xl">
-          {{ t('home.statsTitle') }}
-        </h2>
-        <ul v-if="statTiles.length > 0" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section :aria-label="t('home.statsTitle')">
+        <ul v-if="statTiles.length > 0" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <li
             v-for="tile in statTiles"
             :key="tile.id"
@@ -162,10 +153,7 @@ useHead({ title: computed(() => t('home.title')) })
               <UIcon :name="tile.icon" class="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
               <div class="min-w-0">
                 <p class="text-xs leading-4 text-muted">{{ t(tile.labelKey) }}</p>
-                <p
-                  class="mt-1 font-semibold tabular-nums text-highlighted"
-                  :class="tile.id === 'dates' ? 'text-base sm:text-lg' : 'text-2xl'"
-                >
+                <p class="mt-1 text-2xl font-semibold tabular-nums text-highlighted">
                   {{ tile.value }}
                 </p>
               </div>
@@ -245,67 +233,43 @@ useHead({ title: computed(() => t('home.title')) })
         <h2 id="home-links-heading" class="text-xl font-semibold tracking-tight text-highlighted sm:text-2xl">
           {{ t('home.linksTitle') }}
         </h2>
-        <div class="mt-4 grid gap-6 lg:grid-cols-2">
-          <div>
-            <h3 class="text-sm font-medium text-default">{{ t('home.officialWebsitesTitle') }}</h3>
-            <ul v-if="relatedLinks.websites.length > 0" class="mt-3 space-y-3">
-              <li v-for="link in relatedLinks.websites" :key="`${link.performanceId}-${link.url}`">
-                <p class="text-sm">
-                  <NuxtLink :to="concertHref(link.performanceId)" class="text-highlighted no-underline hover:text-primary hover:underline">
-                    {{ concertNameOf(link.performanceId) }}
-                  </NuxtLink>
-                </p>
-                <p>
-                  <ULink
-                    :to="link.url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-sm text-primary"
-                  >
-                    {{ link.url }}
-                  </ULink>
-                </p>
-                <p class="mt-0.5 text-xs text-muted">
-                  {{ websiteKindLabel(link.kind) }}
-                  <template v-if="link.sourceDescription">
-                    · {{ t('home.linkSource', { description: link.sourceDescription }) }}
-                  </template>
-                </p>
-              </li>
-            </ul>
-            <p v-else class="mt-3 text-sm text-muted">
-              {{ t('home.officialEmpty') }}
-            </p>
-          </div>
-          <div>
-            <h3 class="text-sm font-medium text-default">{{ t('home.bilibiliRecordingsTitle') }}</h3>
-            <ul v-if="relatedLinks.bilibiliRecordings.length > 0" class="mt-3 space-y-3">
-              <li v-for="link in relatedLinks.bilibiliRecordings" :key="`${link.performanceId}-${link.url}`">
-                <p class="text-sm">
-                  <NuxtLink :to="concertHref(link.performanceId)" class="text-highlighted no-underline hover:text-primary hover:underline">
-                    {{ concertNameOf(link.performanceId) }}
-                  </NuxtLink>
-                </p>
-                <p>
-                  <ULink
-                    :to="link.url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-sm text-primary"
-                  >
-                    {{ link.url }}
-                  </ULink>
-                </p>
-                <p v-if="link.sourceLabel" class="mt-0.5 text-xs text-muted">
-                  {{ t('home.linkSource', { description: link.sourceLabel }) }}
-                </p>
-              </li>
-            </ul>
-            <p v-else class="mt-3 text-sm text-muted">
-              {{ t('home.bilibiliEmpty') }}
-            </p>
-          </div>
-        </div>
+        <ul v-if="relatedWebsiteLinks.length > 0" class="mt-4 grid gap-3 sm:grid-cols-2">
+          <li
+            v-for="link in relatedWebsiteLinks"
+            :key="`${link.performanceId}-${link.url}`"
+            class="rounded-xl bg-default/60 p-3 ring-1 ring-default"
+          >
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <NuxtLink
+                :to="concertHref(link.performanceId)"
+                class="min-w-0 text-sm font-semibold text-highlighted no-underline hover:text-primary hover:underline"
+              >
+                {{ concertNameOf(link.performanceId) }}
+              </NuxtLink>
+              <UBadge
+                :color="link.kind === 'official-website' ? 'primary' : 'neutral'"
+                variant="subtle"
+                size="sm"
+                class="shrink-0"
+              >
+                {{ websiteKindLabel(link.kind) }}
+              </UBadge>
+            </div>
+            <ULink
+              :to="link.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-2 inline-flex min-w-0 max-w-full items-center gap-1 text-sm text-primary"
+              :aria-label="externalWebsiteLabel(link)"
+            >
+              <UIcon name="i-lucide-external-link" class="size-3.5 shrink-0" aria-hidden="true" />
+              <span class="truncate">{{ websiteHostLabel(link.url) }}</span>
+            </ULink>
+          </li>
+        </ul>
+        <p v-else class="mt-4 text-sm text-muted">
+          {{ t('home.officialEmpty') }}
+        </p>
       </section>
     </template>
   </main>

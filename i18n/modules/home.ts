@@ -55,6 +55,13 @@ export default {
     ko: '공연 날짜',
     en: 'Concert date',
   },
+  'home.externalLink': {
+    zh: '在新标签页打开',
+    'zh-Hant': '在新分頁開啟',
+    ja: '新しいタブで開く',
+    ko: '새 탭에서 열기',
+    en: 'Opens in a new tab',
+  },
   'home.featureCitiesDesc': {
     zh: '按城市查看巡演足迹和场次分布。',
     'zh-Hant': '按城市查看巡演足跡和場次分布。',

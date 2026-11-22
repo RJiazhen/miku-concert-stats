@@ -425,6 +425,22 @@ const descriptionOf = (value: string | null | undefined): string | null => {
 }
 
 /**
+ * A compact host label for a sourced website URL.
+ * Strips a leading `www.` but does not invent a site name or official status.
+ * Invalid URLs fall back to the trimmed source string.
+ */
+export const websiteHostLabel = (url: string): string => {
+  const trimmed = url.trim()
+  try {
+    const host = new URL(trimmed).hostname.toLowerCase()
+    if (host === '') return trimmed
+    return host.startsWith('www.') ? host.slice(4) : host
+  } catch {
+    return trimmed
+  }
+}
+
+/**
  * Classifies a performance link as an official website, a generic website, or neither.
  * Only the catalog description is used; host heuristics never upgrade a link to official.
  */
