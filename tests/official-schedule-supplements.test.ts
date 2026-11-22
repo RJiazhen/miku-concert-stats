@@ -50,7 +50,7 @@ const programmeLengths: Record<number, number> = {
   2525: 25,
 }
 
-describe('MikuOnly-verified schedule and WOWOW metadata (issue #66)', () => {
+describe('Official schedule corrections and WOWOW 2014 metadata (issue #66)', () => {
   it('emits the official show keys and keeps each existing programme identical across those shows', () => {
     const { catalog, close } = loadBuiltCatalog()
     try {
@@ -74,46 +74,27 @@ describe('MikuOnly-verified schedule and WOWOW metadata (issue #66)', () => {
     }
   })
 
-  it('keeps official and MikuOnly provenance on the corrected concerts', () => {
+  it('keeps official schedule pages and existing wiki programme sources on the corrected concerts', () => {
     const { catalog, close } = loadBuiltCatalog()
     try {
       const required: Record<number, string[]> = {
-        1924: [
-          'https://mikuexpo.com/na2016/',
-          'https://mikuonly.com/lives/EVT-0025-D',
-          'https://mikuonly.com/lives/EVT-0025-N',
-          'https://w.atwiki.jp/hmiku/pages/67134.html',
-        ],
+        1924: ['https://mikuexpo.com/na2016/', 'https://w.atwiki.jp/hmiku/pages/67134.html'],
         2947: [
           'https://www.kodo.or.jp/blog/news/20170110_11807.html',
-          'https://mikuonly.com/lives/EVT-0214-20170305-N',
           'https://w.atwiki.jp/hmiku/pages/67219.html',
         ],
-        2517: [
-          'https://magicalmirai.com/2014/ticket_osaka.html',
-          'https://mikuonly.com/lives/EVT-0121-D',
-          'https://mikuonly.com/lives/EVT-0121-N',
-        ],
-        2518: [
-          'https://magicalmirai.com/2014/ticket_tokyo.html',
-          'https://mikuonly.com/lives/EVT-0122-D',
-          'https://mikuonly.com/lives/EVT-0122-N',
-        ],
-        4056: ['https://info.miku.sega.jp/489', 'https://mikuonly.com/lives/EVT-0203-D', 'https://mikuonly.com/lives/EVT-0203-N'],
-        2524: [
-          'https://blog.piapro.net/2012/10/post-576.html',
-          'https://mikuonly.com/lives/EVT-0205-HK-D',
-          'https://mikuonly.com/lives/EVT-0205-HK-N',
-        ],
+        2517: ['https://magicalmirai.com/2014/ticket_osaka.html', 'https://w.atwiki.jp/hmiku/pages/67113.html'],
+        2518: ['https://magicalmirai.com/2014/ticket_tokyo.html', 'https://w.atwiki.jp/hmiku/pages/67113.html'],
+        4056: ['https://info.miku.sega.jp/489', 'https://w.atwiki.jp/hmiku/pages/67152.html'],
+        2524: ['https://blog.piapro.net/2012/10/post-576.html', 'https://w.atwiki.jp/hmiku/pages/67153.html'],
         2525: [
           'https://sonymusic.com.tw/news/%e5%ae%87%e5%ae%99%e6%9c%80%e5%bc%b7%e8%99%9b%e6%93%ac%e5%81%b6%e5%83%8f%e5%88%9d%e9%9f%b3%e6%9c%aa%e4%be%8610%e6%9c%886%e6%97%a5%e4%be%86%e5%8f%b0%e9%96%8b%e5%94%b1/',
-          'https://mikuonly.com/lives/EVT-0205-TW-D',
-          'https://mikuonly.com/lives/EVT-0205-TW-N',
+          'https://w.atwiki.jp/hmiku/pages/67153.html',
         ],
       }
       for (const [performanceId, urls] of Object.entries(required)) {
         const have = sourceUrls(catalog, Number(performanceId))
-        for (const url of urls) expect(have).toContain(url)
+        expect([...have].sort()).toEqual([...urls].sort())
       }
     } finally {
       close()
@@ -145,12 +126,11 @@ describe('MikuOnly-verified schedule and WOWOW metadata (issue #66)', () => {
       expect(catalog.performanceSetlists.filter((row) => row.performance_id === 3000000012)).toHaveLength(0)
 
       const links = catalog.performanceLinks.filter((row) => row.performance_id === 3000000012).map((row) => row.url)
-      expect(links).toHaveLength(4)
+      expect(links).toHaveLength(3)
       expect([...links].sort()).toEqual(
         [
           'https://blog.piapro.net/2014/11/z1411081-1.html',
           'https://mikudoc.blogspot.com/2014/11/wowow_1.html',
-          'https://mikuonly.com/lives/EVT-0210',
           'https://prtimes.jp/main/html/rd/p/000002279.000001355.html',
         ].sort(),
       )
@@ -183,7 +163,7 @@ describe('MikuOnly-verified schedule and WOWOW metadata (issue #66)', () => {
     }
   })
 
-  it('pins derived and site-wide show totals after the verified supplements', () => {
+  it('pins derived and site-wide show totals after the official schedule batch', () => {
     const { catalog, close } = loadBuiltCatalog()
     try {
       const derivedShowRows = catalog.performanceShowSetlists.length
@@ -194,8 +174,8 @@ describe('MikuOnly-verified schedule and WOWOW metadata (issue #66)', () => {
       // Rebuilt from committed increments on this branch. Derived rows are the
       // performance_show_setlists table; site-wide 场次 use showCountsByPerformance
       // (derived schedules win, date-range fallback otherwise). On d713f12 these
-      // were 447 and 456. This batch predicts +6 derived rows and +7 site-wide
-      // 场次 (the sixth official split/show plus WOWOW's fallback calendar date).
+      // were 447 and 456. After the official schedule batch: +6 derived rows and
+      // +7 site-wide 场次 (the sixth official split/show plus WOWOW's fallback date).
       expect(derivedShowRows).toBe(453)
       expect(siteWideShows).toBe(463)
       expect(catalog.series.some((row) => row.id === 900000007)).toBe(true)

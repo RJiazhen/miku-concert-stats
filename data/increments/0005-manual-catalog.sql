@@ -898,7 +898,6 @@ INSERT OR IGNORE INTO performances (id, series_id, name, name_ja, venue_name, co
 INSERT OR IGNORE INTO performance_links (performance_id, url, description) VALUES
 (3000000012, 'https://prtimes.jp/main/html/rd/p/000002279.000001355.html', 'Official organizer announcement (WOWOW)'),
 (3000000012, 'https://blog.piapro.net/2014/11/z1411081-1.html', 'Official retrospective (Hatsune Miku Official Blog)'),
-(3000000012, 'https://mikuonly.com/lives/EVT-0210', 'Additional concert and setlist reference (MikuOnly)'),
 (3000000012, 'https://mikudoc.blogspot.com/2014/11/wowow_1.html', 'Attendee report and eight-song programme; recording variants not adjudicated');
 INSERT OR IGNORE INTO edition_premieres (series_id, series_number, premiere_performance_id, premiere_date, premiere_showtime_local, rule) VALUES
 (900000007, 2014, 3000000012, '2014-11-01', '18:00', 'Manual: this group contains one verified standalone concert, so the concert is its own edition premiere. No recurring series or tour is asserted.');

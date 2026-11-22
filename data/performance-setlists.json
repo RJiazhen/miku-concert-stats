@@ -20832,20 +20832,6 @@
           "accessedAt": "2026-11-21",
           "confidence": "high",
           "note": "The .cont-mexico block lists Mexico City, El Plaza Condesa: June 4 Show 2:30pm / 8:30pm FINISHED; June 5 Show 2:30pm FINISHED and 8:30pm CANCEL."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0025-D",
-          "title": "MikuOnly: MIKU EXPO 2016 Mexico City June 4 daytime",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Independently flags the June 4 daytime/nighttime split. Shared programme; not a recording-verified per-show variation."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0025-N",
-          "title": "MikuOnly: MIKU EXPO 2016 Mexico City June 4 evening",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "June 4 night is a distinct scheduled show; the official page adjudicates dates and the June 5 cancellation."
         }
       ],
       "setlist": {
@@ -30390,7 +30376,7 @@
       }
     },
     "2947": {
-      "note": "歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），22 行；其中 3 首不是 VOCALOID 歌曲（器乐曲、民谣・传统曲），按普通曲目登记、没有对应歌手 | The added March 5 evening performance is confirmed by Kodo’s 2017-01-10 announcement (19:00). The existing 22-song programme is reused; it is not inferred from another stop.",
+      "note": "歌单来自初音ミク Wiki 的逐曲表（NHK 大厅），22 行；其中 3 首不是 VOCALOID 歌曲（器乐曲、民谣・传统曲），按普通曲目登记、没有对应歌手 | The official 2017-01-10 Kodo announcement adds the March 5 19:00 show. That page is schedule evidence only, not a programme source. The existing 22-song Hatsune Miku Wiki table for this concert has no per-show when values; it is an event-level programme already used for the other two shows. No independent half-specific setlist for the added evening show is recorded.",
       "halves": {
         "2017-03-04": [
           "night"
@@ -30414,13 +30400,6 @@
           "accessedAt": "2026-11-21",
           "confidence": "high",
           "note": "March 4 19:00; March 5 13:00 and newly added 19:00 at NHK Hall. This source establishes the additional show, not a new programme identity."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0214-20170305-N",
-          "title": "MikuOnly: Hatsune Miku × Kodo 2017, March 5 evening",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source catalog e9ac9869a3a69975ca87a1fb499530486e3b33b7 lists 22 ordered titles for this night that align with the current 22-row programme. Existing song IDs are preserved."
         }
       ],
       "setlist": {
@@ -34742,20 +34721,6 @@
           "accessedAt": "2026-11-21",
           "confidence": "high",
           "note": "INTEX Osaka Hall 5: daytime OPEN 11:30 / START 12:30; evening OPEN 16:00 / START 17:00. Hall 4 exhibition hours are not additional concerts."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0121-D",
-          "title": "MikuOnly: Magical Mirai 2014 Osaka daytime",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme. Schedule granularity only."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0121-N",
-          "title": "MikuOnly: Magical Mirai 2014 Osaka evening",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme. Schedule granularity only."
         }
       ],
       "note": "歌单来自初音ミク Wiki 的逐曲表（大阪），25 行 | Official ticket page lists separately scheduled daytime and evening concerts on 2014-08-30 at INTEX Osaka Hall 5 (START 12:30 / 17:00). Exhibition Hall 4 is not a concert. Existing programme and song IDs are preserved.",
@@ -34895,20 +34860,6 @@
           "accessedAt": "2026-11-21",
           "confidence": "high",
           "note": "Tokyo Metropolitan Gymnasium main arena: daytime OPEN 12:00 / START 13:00; evening OPEN 17:00 / START 18:00."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0122-D",
-          "title": "MikuOnly: Magical Mirai 2014 Tokyo daytime",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme. Schedule granularity only."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0122-N",
-          "title": "MikuOnly: Magical Mirai 2014 Tokyo evening",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme. Schedule granularity only."
         }
       ],
       "note": "歌单来自初音ミク Wiki 的逐曲表（东京），25 行 | Official ticket page lists separately scheduled daytime and evening concerts on 2014-09-20 at Tokyo Metropolitan Gymnasium (START 13:00 / 18:00). Existing programme and song IDs are preserved.",
@@ -35249,20 +35200,6 @@
           "accessedAt": "2026-11-21",
           "confidence": "high",
           "note": "Two shows held at KITEC Star Hall: 15:00 and 20:00."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0205-HK-D",
-          "title": "MikuOnly: MikuPa 2012 Hong Kong daytime",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme, including existing id 1355. Schedule granularity only."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0205-HK-N",
-          "title": "MikuOnly: MikuPa 2012 Hong Kong evening",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme, including existing id 1355. Schedule granularity only."
         }
       ],
       "note": "歌单来自初音ミク Wiki 的逐曲表（香港），25 行 | Official retrospective confirms two shows on 2012-10-02 at KITEC Star Hall (15:00 and 20:00). Existing programme and song IDs are preserved.",
@@ -35396,20 +35333,6 @@
           "accessedAt": "2026-11-21",
           "confidence": "high",
           "note": "Two shows on 2012-10-06 at 14:00 and 19:00, Taipeishow (台北展演二館)."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0205-TW-D",
-          "title": "MikuOnly: MikuPa 2012 Taiwan daytime",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme, including existing id 1355. Schedule granularity only."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0205-TW-N",
-          "title": "MikuOnly: MikuPa 2012 Taiwan evening",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 25 ordered rows align with the existing programme, including existing id 1355. Schedule granularity only."
         }
       ],
       "note": "歌单来自初音ミク Wiki 的逐曲表（台北），25 行 | Sony Music Taiwan announcement lists two shows on 2012-10-06 at Taipei Show (台北展演二館), 14:00 and 19:00. Existing programme and song IDs are preserved.",
@@ -37896,20 +37819,6 @@
           "accessedAt": "2026-11-21",
           "confidence": "high",
           "note": "2012-03-08 MikuPa daytime OPEN 13:00 / START 14:00 and evening OPEN 18:00 / START 19:00 at TOKYO DOME CITY HALL. Do not confuse with the 2012-03-09 Thanksgiving finale (3000000011)."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0203-D",
-          "title": "MikuOnly: MikuPa 2012 Tokyo daytime",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 33 ordered rows align with the existing programme, including the known shorter title みくみくにしてあげる♪ for existing id 1355. Schedule granularity only."
-        },
-        {
-          "url": "https://mikuonly.com/lives/EVT-0203-N",
-          "title": "MikuOnly: MikuPa 2012 Tokyo evening",
-          "accessedAt": "2026-11-21",
-          "confidence": "medium",
-          "note": "Pinned source e9ac9869a3a69975ca87a1fb499530486e3b33b7; 33 ordered rows align with the existing programme, including the known shorter title みくみくにしてあげる♪ for existing id 1355. Schedule granularity only."
         }
       ],
       "note": "歌单来自初音ミク Wiki 的逐曲表（东京），33 行 | Official SEGA announcement lists separately scheduled MikuPa daytime and evening concerts on 2012-03-08 (START 14:00 / 19:00). This is distinct from the 2012-03-09 Thanksgiving finale already catalogued as 3000000011. Existing programme and song IDs are preserved.",
