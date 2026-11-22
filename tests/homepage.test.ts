@@ -18,6 +18,7 @@ import {
   collectBilibiliRecordingLinks,
   formatSourceTimestamp,
   isBilibiliConcertRecordingUrl,
+  isConfirmedOfficialWebsiteHost,
   websiteHostLabel,
   showPath,
   utcCalendarDate,
@@ -489,6 +490,13 @@ describe('website and Bilibili link classification', () => {
         url: 'https://mikuexpo.com/2024/',
         description: 'Website (EN)',
       }),
+    ).toMatchObject({ kind: 'official-website', sourceDescription: 'Website (EN)' })
+    expect(
+      classifyPerformanceWebsiteLink({
+        performance_id: 1,
+        url: 'https://example.com/expo',
+        description: 'Website (EN)',
+      }),
     ).toMatchObject({ kind: 'website', sourceDescription: 'Website (EN)' })
     expect(
       classifyPerformanceWebsiteLink({
@@ -518,13 +526,33 @@ describe('website and Bilibili link classification', () => {
     expect(websiteHostLabel('https://mikuexpo.com/2024/')).toBe('mikuexpo.com')
     expect(websiteHostLabel('https://WWW.Example.COM/path')).toBe('example.com')
     expect(websiteHostLabel('not a url')).toBe('not a url')
-    expect(
-      classifyPerformanceWebsiteLink({
-        performance_id: 1,
-        url: 'https://www.magicalmirai.com/2024/',
-        description: 'Website',
-      })?.kind,
-    ).toBe('website')
+  })
+
+  it('treats confirmed official domains and their subdomains as official websites, not lookalikes', () => {
+    const officialWebsite = (url: string, description = 'Website') =>
+      classifyPerformanceWebsiteLink({ performance_id: 1, url, description })
+
+    expect(isConfirmedOfficialWebsiteHost('https://mikuexpo.com/2026/')).toBe(true)
+    expect(isConfirmedOfficialWebsiteHost('https://www.snowmiku.com/')).toBe(true)
+    expect(isConfirmedOfficialWebsiteHost('https://EN.MagicalMirai.com/2024/')).toBe(true)
+    expect(isConfirmedOfficialWebsiteHost('https://mikuexpo.com./path')).toBe(true)
+    expect(isConfirmedOfficialWebsiteHost('https://notmikuexpo.com/')).toBe(false)
+    expect(isConfirmedOfficialWebsiteHost('https://evilmikuexpo.com/')).toBe(false)
+    expect(isConfirmedOfficialWebsiteHost('https://mikuexpo.com.evil.test/')).toBe(false)
+    expect(isConfirmedOfficialWebsiteHost('https://example.com/mikuexpo.com')).toBe(false)
+    expect(isConfirmedOfficialWebsiteHost('https://snowmiku.com.example/')).toBe(false)
+    expect(isConfirmedOfficialWebsiteHost('not a url')).toBe(false)
+
+    expect(officialWebsite('https://mikuexpo.com/2024/')?.kind).toBe('official-website')
+    expect(officialWebsite('https://www.snowmiku.com/')?.kind).toBe('official-website')
+    expect(officialWebsite('https://www.magicalmirai.com/2024/')?.kind).toBe('official-website')
+    expect(officialWebsite('https://en.mikuexpo.com/')?.kind).toBe('official-website')
+    expect(officialWebsite('https://example.com/expo', 'Website (EN)')?.kind).toBe('website')
+    expect(officialWebsite('https://notmikuexpo.com/', 'Website')?.kind).toBe('website')
+    expect(officialWebsite('https://mikuexpo.com.evil.test/', 'Website')?.kind).toBe('website')
+    expect(officialWebsite('https://example.com/mikuexpo.com', 'Website')?.kind).toBe('website')
+    expect(officialWebsite('https://evil.example/official', 'Official Webpage')?.kind).toBe('official-website')
+    expect(officialWebsite('https://blog.piapro.net/example', 'HATSUNE MIKU OFFICIAL BLOG')).toBeNull()
   })
 
   it('accepts only Bilibili video URLs from 演出-level sources, not profiles or song PVs', () => {
@@ -575,6 +603,14 @@ describe('website and Bilibili link classification', () => {
       expect(related.websites.length).toBeGreaterThan(0)
       expect(related.websites.every((link) => link.kind === 'official-website' || link.kind === 'website')).toBe(true)
       expect(related.websites.every((link) => link.url.startsWith('http'))).toBe(true)
+      expect(related.websites.some((link) => isConfirmedOfficialWebsiteHost(link.url))).toBe(true)
+      for (const link of related.websites) {
+        if (isConfirmedOfficialWebsiteHost(link.url)) {
+          expect(link.kind).toBe('official-website')
+        } else if (!/official\s+web\s*(?:page|site)/i.test(link.sourceDescription ?? '')) {
+          expect(link.kind).toBe('website')
+        }
+      }
     } finally {
       close()
     }
@@ -624,6 +660,11 @@ describe('homepage page markup', () => {
       'home.bilibiliRecordingsTitle',
       'home.bilibiliEmpty',
       'home.linkSource',
+      'home.linksTitle',
+      'home.officialEmpty',
+      'home.officialWebsite',
+      'home.websiteUnconfirmed',
+      'home.externalLink',
       'home.updatedTitle',
       'home.updatedDesc',
     ]) {
@@ -632,24 +673,18 @@ describe('homepage page markup', () => {
     expect(source).not.toMatch(/order-|flex-col-reverse|flex-row-reverse/)
   })
 
-  it('renders compact related concert website cards without Bilibili recordings or raw URL walls', () => {
+  it('does not render the Related concert links section or a tour-grouped placeholder', () => {
     const source = readFileSync(new URL('../app/pages/index.vue', import.meta.url), 'utf8')
-    expect(source).toContain('buildRelatedConcertLinks')
-    expect(source).toContain('relatedWebsiteLinks')
-    expect(source).toContain('websiteHostLabel(link.url)')
-    expect(source).toContain('websiteKindLabel(link.kind)')
-    expect(source).toContain("t('home.officialWebsite')")
-    expect(source).toContain("t('home.websiteUnconfirmed')")
-    expect(source).toContain("t('home.officialEmpty')")
-    expect(source).toContain('i-lucide-external-link')
-    expect(source).toContain('target="_blank"')
-    expect(source).toContain('rel="noopener noreferrer"')
-    expect(source).toContain('externalWebsiteLabel(link)')
-    expect(source).not.toContain('{{ link.url }}')
-    expect(source).not.toContain('bilibiliRecordings')
-    expect(source).not.toContain('bilibiliEmpty')
-    expect(source).not.toContain('bilibiliRecordingsTitle')
-    expect(source).not.toContain("lg:grid-cols-2")
+    const template = source.slice(source.indexOf('<template>'))
+    expect(source).not.toContain('buildRelatedConcertLinks')
+    expect(source).not.toContain('relatedWebsiteLinks')
+    expect(source).not.toContain('home-links-heading')
+    expect(template).not.toContain("t('home.linksTitle')")
+    expect(template).not.toContain("t('home.officialEmpty')")
+    expect(template).not.toContain('bilibiliRecordings')
+    expect(template).not.toContain('bilibiliEmpty')
+    expect(template).not.toContain('bilibiliRecordingsTitle')
+    expect(source).not.toMatch(/group(?:ed)? by tour|tour-group/i)
   })
 
   it('renders only the four core catalog counts as homepage statistic tiles, in songs-shows-performances-series order', () => {

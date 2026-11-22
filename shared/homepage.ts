@@ -126,10 +126,13 @@ export type RecentlyUpdatedSummary = {
 }
 
 /**
- * A homepage concert link whose official status is classified from catalog text.
+ * A homepage concert link whose official status is classified from catalog text
+ * or a confirmed official host.
  * `official-website` means the source description explicitly says official website
- * or official webpage. `website` is a generic VocaDB "Website" label whose official
- * status is not confirmed.
+ * or official webpage, or the URL host is `mikuexpo.com`, `snowmiku.com`, or
+ * `magicalmirai.com` (exact hostname or a legitimate subdomain). `website` is a
+ * generic VocaDB "Website" label whose host is not one of those confirmed
+ * domains, so official status is not confirmed.
  */
 export type ClassifiedWebsiteKind = 'official-website' | 'website'
 
@@ -440,9 +443,33 @@ export const websiteHostLabel = (url: string): string => {
   }
 }
 
+/** Confirmed official concert website registrable domains. */
+export const CONFIRMED_OFFICIAL_WEBSITE_DOMAINS = ['magicalmirai.com', 'mikuexpo.com', 'snowmiku.com'] as const
+
+/**
+ * True when the URL host is a confirmed official concert website domain, or a
+ * legitimate subdomain of one. Comparison uses the parsed hostname only:
+ * exact match or `*.domain`, case-insensitive, with a trailing DNS dot stripped.
+ * Substring lookalikes and hosts taken from the path never match.
+ */
+export const isConfirmedOfficialWebsiteHost = (url: string): boolean => {
+  let hostname: string
+  try {
+    const parsed = new URL(url.trim())
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false
+    hostname = parsed.hostname.toLowerCase().replace(/\.$/, '')
+  } catch {
+    return false
+  }
+  if (hostname === '') return false
+  return CONFIRMED_OFFICIAL_WEBSITE_DOMAINS.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+}
+
 /**
  * Classifies a performance link as an official website, a generic website, or neither.
- * Only the catalog description is used; host heuristics never upgrade a link to official.
+ * Official Website / Official Webpage descriptions stay official. A generic Website
+ * description is official only when `isConfirmedOfficialWebsiteHost` is true;
+ * otherwise it stays an unconfirmed website. Other labels are not classified.
  */
 export const classifyPerformanceWebsiteLink = (
   link: Pick<PerformanceLinkRow, 'performance_id' | 'url' | 'description'>,
@@ -455,7 +482,8 @@ export const classifyPerformanceWebsiteLink = (
     return { performanceId: link.performance_id, url, sourceDescription: description, kind: 'official-website' }
   }
   if (/^website\b/i.test(description)) {
-    return { performanceId: link.performance_id, url, sourceDescription: description, kind: 'website' }
+    const kind = isConfirmedOfficialWebsiteHost(url) ? 'official-website' : 'website'
+    return { performanceId: link.performance_id, url, sourceDescription: description, kind }
   }
   return null
 }

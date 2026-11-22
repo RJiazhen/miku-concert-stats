@@ -7,13 +7,9 @@ import { useLocale } from '~/composables/useLocale.ts'
 import {
   HOMEPAGE_FEATURE_MODULES,
   buildRecentConcerts,
-  buildRelatedConcertLinks,
   buildSiteWideStats,
   buildUpcomingConcerts,
-  type ClassifiedWebsiteKind,
-  type ClassifiedWebsiteLink,
   type RecentConcert,
-  websiteHostLabel,
 } from '~~/shared/homepage.ts'
 import type { PerformanceStatusValue } from '~~/shared/types.ts'
 import type { MessageKey } from '~~/shared/i18n/index.ts'
@@ -39,7 +35,6 @@ const now = new Date()
 const stats = computed(() => (catalog.value ? buildSiteWideStats(catalog.value) : null))
 const upcomingConcerts = computed(() => (catalog.value ? buildUpcomingConcerts(catalog.value, now) : []))
 const recentConcerts = computed(() => (catalog.value ? buildRecentConcerts(catalog.value, undefined, now) : []))
-const relatedWebsiteLinks = computed(() => (catalog.value ? buildRelatedConcertLinks(catalog.value).websites : []))
 
 type ConcertSection = {
   id: 'upcoming' | 'recent'
@@ -100,23 +95,6 @@ const statusLabel = (status: PerformanceStatusValue): string => {
   if (status === 'postponed') return t('home.statusPostponed')
   return t('home.statusUpcoming')
 }
-
-const websiteKindLabel = (kind: ClassifiedWebsiteKind): string =>
-  kind === 'official-website' ? t('home.officialWebsite') : t('home.websiteUnconfirmed')
-
-const concertHref = (performanceId: number): string => `/shows/${performanceId}`
-
-const concertNameOf = (performanceId: number): string => {
-  const row = upcomingConcerts.value.find((item) => item.id === performanceId)
-    ?? recentConcerts.value.find((item) => item.id === performanceId)
-    ?? catalog.value?.performances.find((item) => item.id === performanceId)
-  if (!row) return String(performanceId)
-  if ('seriesId' in row) return concertLabel(row)
-  return localizePlace(localizePerformanceSeries(row.name, seriesNameOf(row.series_id), row.series_number))
-}
-
-const externalWebsiteLabel = (link: ClassifiedWebsiteLink): string =>
-  [concertNameOf(link.performanceId), websiteKindLabel(link.kind), websiteHostLabel(link.url), t('home.externalLink')].join(' · ')
 
 useHead({ title: computed(() => t('home.title')) })
 </script>
@@ -227,49 +205,6 @@ useHead({ title: computed(() => t('home.title')) })
             </NuxtLink>
           </li>
         </ul>
-      </section>
-
-      <section aria-labelledby="home-links-heading">
-        <h2 id="home-links-heading" class="text-xl font-semibold tracking-tight text-highlighted sm:text-2xl">
-          {{ t('home.linksTitle') }}
-        </h2>
-        <ul v-if="relatedWebsiteLinks.length > 0" class="mt-4 grid gap-3 sm:grid-cols-2">
-          <li
-            v-for="link in relatedWebsiteLinks"
-            :key="`${link.performanceId}-${link.url}`"
-            class="rounded-xl bg-default/60 p-3 ring-1 ring-default"
-          >
-            <div class="flex flex-wrap items-start justify-between gap-2">
-              <NuxtLink
-                :to="concertHref(link.performanceId)"
-                class="min-w-0 text-sm font-semibold text-highlighted no-underline hover:text-primary hover:underline"
-              >
-                {{ concertNameOf(link.performanceId) }}
-              </NuxtLink>
-              <UBadge
-                :color="link.kind === 'official-website' ? 'primary' : 'neutral'"
-                variant="subtle"
-                size="sm"
-                class="shrink-0"
-              >
-                {{ websiteKindLabel(link.kind) }}
-              </UBadge>
-            </div>
-            <ULink
-              :to="link.url"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mt-2 inline-flex min-w-0 max-w-full items-center gap-1 text-sm text-primary"
-              :aria-label="externalWebsiteLabel(link)"
-            >
-              <UIcon name="i-lucide-external-link" class="size-3.5 shrink-0" aria-hidden="true" />
-              <span class="truncate">{{ websiteHostLabel(link.url) }}</span>
-            </ULink>
-          </li>
-        </ul>
-        <p v-else class="mt-4 text-sm text-muted">
-          {{ t('home.officialEmpty') }}
-        </p>
       </section>
     </template>
   </main>
