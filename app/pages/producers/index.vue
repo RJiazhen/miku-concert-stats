@@ -6,8 +6,8 @@ import { useProducerFlags } from '~/composables/useProducerFlags.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useSongLookup } from '~/composables/useSongLookup.ts'
-import {
 import { RANKING_PATH } from '~~/shared/homepage.ts'
+import {
   buildProducerIndex,
   producerPath,
   rankProducers,
