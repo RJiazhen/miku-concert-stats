@@ -6,16 +6,24 @@ import {
   HOME_PATH,
   HOMEPAGE_FEATURE_MODULES,
   RANKING_PATH,
+  RECENT_CONCERT_LIMIT,
   buildRecentConcerts,
   buildRecentlyUpdatedSummary,
   buildRelatedConcertLinks,
   buildSiteWideStats,
+  buildUpcomingConcerts,
+  calendarDateInTimeZone,
+  concertHasStarted,
   classifyPerformanceWebsiteLink,
   collectBilibiliRecordingLinks,
   formatSourceTimestamp,
   isBilibiliConcertRecordingUrl,
   showPath,
+  utcCalendarDate,
+  zonedShowtimeToUtc,
 } from '../shared/homepage.ts'
+import { LOCALES } from '../shared/i18n/locale.ts'
+import { catalogForLocale } from '../shared/i18n/split-modules.ts'
 import { loadCatalog } from '../shared/catalog.ts'
 import { reviewRotations } from '../shared/rotation.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '../shared/performance-setlists.ts'
@@ -232,8 +240,33 @@ describe('buildRecentlyUpdatedSummary', () => {
   })
 })
 
-describe('buildRecentConcerts', () => {
-  it('orders by concert start_date and omits image fields and undated rows', () => {
+describe('concert start timing', () => {
+  it('compares recorded showtimes in their timezone and does not invent a midnight start', () => {
+    const nowBefore = new Date('2026-12-26T10:59:00.000Z')
+    const nowAt = new Date('2026-12-26T11:00:00.000Z')
+    const chengdu = performance({
+      id: 3000000001,
+      series_id: 1,
+      start_date: '2026-12-26',
+      showtime_local: '19:00',
+      timezone: 'Asia/Shanghai',
+    })
+    expect(zonedShowtimeToUtc('2026-12-26', '19:00', 'Asia/Shanghai')?.toISOString()).toBe('2026-12-26T11:00:00.000Z')
+    expect(concertHasStarted(chengdu, nowBefore)).toBe(false)
+    expect(concertHasStarted(chengdu, nowAt)).toBe(true)
+
+    const dateOnly = performance({ id: 12227, series_id: 82, start_date: '2026-11-22', timezone: null, showtime_local: null })
+    expect(concertHasStarted(dateOnly, new Date('2026-11-21T23:59:59.000Z'))).toBe(false)
+    expect(concertHasStarted(dateOnly, new Date('2026-11-22T00:00:00.000Z'))).toBe(true)
+    expect(utcCalendarDate(new Date('2026-11-22T00:00:00.000Z'))).toBe('2026-11-22')
+    expect(calendarDateInTimeZone(new Date('2026-11-21T16:00:00.000Z'), 'Asia/Shanghai')).toBe('2026-11-22')
+  })
+})
+
+describe('buildRecentConcerts and buildUpcomingConcerts', () => {
+  const now = new Date('2026-11-22T12:00:00.000Z')
+
+  it('keeps at most four already-started concerts in recent and lists future concerts separately', () => {
     const catalog = emptyCatalog({
       performances: [
         performance({
@@ -246,7 +279,7 @@ describe('buildRecentConcerts', () => {
         performance({
           id: 2,
           series_id: 81,
-          name: 'Newer concert',
+          name: 'Past concert with leftover upcoming badge',
           start_date: '2025-06-01',
           venue_name: 'Osaka',
           retrieved_at: '2026-01-01T00:00:00.000Z',
@@ -258,6 +291,19 @@ describe('buildRecentConcerts', () => {
           start_date: null,
           retrieved_at: '2026-12-31T00:00:00.000Z',
         }),
+        performance({ id: 4, series_id: 81, name: 'Today date-only', start_date: '2026-11-22' }),
+        performance({ id: 5, series_id: 81, name: 'Tomorrow', start_date: '2026-11-23' }),
+        performance({
+          id: 6,
+          series_id: 81,
+          name: 'Chengdu night',
+          start_date: '2026-12-26',
+          showtime_local: '19:00',
+          timezone: 'Asia/Shanghai',
+        }),
+        performance({ id: 7, series_id: 81, name: 'Fifth started', start_date: '2024-02-01' }),
+        performance({ id: 8, series_id: 81, name: 'Cancelled future', start_date: '2026-12-01' }),
+        performance({ id: 9, series_id: 81, name: 'Postponed future', start_date: '2026-12-02' }),
       ],
       performanceStatus: [
         {
@@ -267,21 +313,38 @@ describe('buildRecentConcerts', () => {
           source_url: 'https://example.com/upcoming',
           accessed_at: '2026-11-06',
         },
+        {
+          performance_id: 8,
+          status: 'cancelled',
+          note: null,
+          source_url: 'https://example.com/cancelled',
+          accessed_at: '2026-11-06',
+        },
+        {
+          performance_id: 9,
+          status: 'postponed',
+          note: null,
+          source_url: 'https://example.com/postponed',
+          accessed_at: '2026-11-06',
+        },
       ],
       performanceLinks: [
         { performance_id: 2, url: 'https://magicalmirai.com/2025/', description: 'Official Website' },
       ],
     })
-    const rows = buildRecentConcerts(catalog, 8)
-    expect(rows.map((row) => row.id)).toEqual([2, 1])
-    expect(rows[0]).toMatchObject({
+
+    expect(RECENT_CONCERT_LIMIT).toBe(4)
+    const recent = buildRecentConcerts(catalog, RECENT_CONCERT_LIMIT, now)
+    expect(recent.map((row) => row.id)).toEqual([4, 2, 7, 1])
+    expect(recent).toHaveLength(4)
+    expect(recent[1]).toMatchObject({
       id: 2,
       startDate: '2025-06-01',
       venue: 'Osaka',
       href: '/shows/2',
       status: 'upcoming',
     })
-    expect(rows[0]?.websiteLinks).toEqual([
+    expect(recent[1]?.websiteLinks).toEqual([
       {
         performanceId: 2,
         url: 'https://magicalmirai.com/2025/',
@@ -289,13 +352,77 @@ describe('buildRecentConcerts', () => {
         kind: 'official-website',
       },
     ])
-    for (const row of rows) {
+    for (const row of recent) {
       expect(row).not.toHaveProperty('poster')
       expect(row).not.toHaveProperty('image')
       expect(row).not.toHaveProperty('imageUrl')
       expect(row).not.toHaveProperty('thumbnail')
       expect(row.startDate).not.toBe(catalog.performances.find((item) => item.id === row.id)?.retrieved_at)
     }
+
+    const upcoming = buildUpcomingConcerts(catalog, now)
+    expect(upcoming.map((row) => row.id)).toEqual([5, 6])
+    expect(upcoming[1]).toMatchObject({
+      id: 6,
+      startDate: '2026-12-26',
+      href: '/shows/6',
+    })
+  })
+
+  it('moves a showtime concert from upcoming to recent at the recorded local start', () => {
+    const catalog = emptyCatalog({
+      performances: [
+        performance({
+          id: 6,
+          series_id: 81,
+          name: 'Chengdu night',
+          start_date: '2026-12-26',
+          showtime_local: '19:00',
+          timezone: 'Asia/Shanghai',
+        }),
+      ],
+    })
+    const before = new Date('2026-12-26T10:59:00.000Z')
+    const after = new Date('2026-12-26T11:00:00.000Z')
+    expect(buildUpcomingConcerts(catalog, before).map((row) => row.id)).toEqual([6])
+    expect(buildRecentConcerts(catalog, 4, before)).toEqual([])
+    expect(buildUpcomingConcerts(catalog, after)).toEqual([])
+    expect(buildRecentConcerts(catalog, 4, after).map((row) => row.id)).toEqual([6])
+  })
+
+  it('splits the committed catalog around a fixed instant without listing future dates as recent', () => {
+    const { catalog, close } = loadCommittedCatalog()
+    try {
+      const recent = buildRecentConcerts(catalog, 4, now)
+      const upcoming = buildUpcomingConcerts(catalog, now)
+      expect(recent).toHaveLength(4)
+      expect(recent.map((row) => row.id)).toEqual([12227, 12940, 12226, 12225])
+      expect(recent.every((row) => row.startDate <= '2026-11-22')).toBe(true)
+      expect(upcoming.map((row) => row.id)).toEqual([12228, 12449, 3000000001, 12740, 13226, 13209])
+      expect(upcoming.every((row) => row.startDate > '2026-11-22' || row.id === 3000000001)).toBe(true)
+      expect(upcoming.some((row) => row.id === 13210)).toBe(false)
+    } finally {
+      close()
+    }
+  })
+})
+
+describe('homepage and ranking titles', () => {
+  it('uses the site title on the homepage and Song ranking on /rank in every locale', () => {
+    const displayHeading = (locale: string, heading1: string, heading2: string): string => {
+      const suffix = heading2.trimStart()
+      if (locale === 'en' || locale === 'ko') return `${heading1} ${suffix}`
+      return `${heading1}${suffix}`
+    }
+    for (const locale of LOCALES) {
+      const messages = catalogForLocale(locale)
+      expect(displayHeading(locale, messages['home.heading1'], messages['home.heading2'])).toBe(messages['common.appName'])
+      expect(displayHeading(locale, messages['rank.heading1'], messages['rank.heading2'])).toBe(messages['rank.title'])
+    }
+    expect(catalogForLocale('en')['common.appName']).toBe('Hatsune Miku Concert Statistics')
+    expect(catalogForLocale('en')['rank.title']).toBe('Song ranking')
+    expect(catalogForLocale('zh')['common.appName']).toBe('初音未来演唱会曲目统计')
+    expect(catalogForLocale('zh')['rank.title']).toBe('曲目排行')
   })
 })
 

@@ -10,19 +10,21 @@ import {
   buildRecentlyUpdatedSummary,
   buildRelatedConcertLinks,
   buildSiteWideStats,
+  buildUpcomingConcerts,
   formatSourceTimestamp,
   type ClassifiedWebsiteKind,
   type RecentConcert,
 } from '~~/shared/homepage.ts'
 import type { PerformanceStatusValue } from '~~/shared/types.ts'
+import type { MessageKey } from '~~/shared/i18n/index.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const { localizePerformanceSeries } = useSeriesTitles()
 const { localizePlace } = usePlaceNames()
 const { locale, t } = useLocale()
 
-/** Chinese headings join without a space; other locales need one on the desktop single-line title. */
-const headingJoinSpace = computed(() => locale.value !== 'zh' && locale.value !== 'zh-Hant')
+/** English and Korean site titles need a space on the desktop single-line heading; Chinese and Japanese do not. */
+const headingJoinSpace = computed(() => locale.value === 'en' || locale.value === 'ko')
 
 
 /** Starts the browser catalog load after hydration. */
@@ -31,10 +33,43 @@ const startLoad = (): void => {
 }
 onMounted(startLoad)
 
+/** Clock used to split upcoming vs already-started concerts for this page load. */
+const now = new Date()
+
 const stats = computed(() => (catalog.value ? buildSiteWideStats(catalog.value) : null))
 const updated = computed(() => (catalog.value ? buildRecentlyUpdatedSummary(catalog.value) : null))
-const recentConcerts = computed(() => (catalog.value ? buildRecentConcerts(catalog.value) : []))
+const upcomingConcerts = computed(() => (catalog.value ? buildUpcomingConcerts(catalog.value, now) : []))
+const recentConcerts = computed(() => (catalog.value ? buildRecentConcerts(catalog.value, undefined, now) : []))
 const relatedLinks = computed(() => (catalog.value ? buildRelatedConcertLinks(catalog.value) : { websites: [], bilibiliRecordings: [] }))
+
+type ConcertSection = {
+  id: 'upcoming' | 'recent'
+  headingId: string
+  titleKey: MessageKey
+  descKey: MessageKey
+  emptyKey: MessageKey
+  concerts: RecentConcert[]
+}
+
+/** Homepage concert sections: upcoming first, then at most four already-started concerts. */
+const concertSections = computed((): ConcertSection[] => [
+  {
+    id: 'upcoming',
+    headingId: 'home-upcoming-heading',
+    titleKey: 'home.upcomingTitle',
+    descKey: 'home.upcomingDesc',
+    emptyKey: 'home.upcomingEmpty',
+    concerts: upcomingConcerts.value,
+  },
+  {
+    id: 'recent',
+    headingId: 'home-recent-heading',
+    titleKey: 'home.recentTitle',
+    descKey: 'home.recentDesc',
+    emptyKey: 'home.recentEmpty',
+    concerts: recentConcerts.value,
+  },
+])
 
 /** Newest retrieval batches first; a short list keeps the summary readable. */
 const retrievalBatches = computed(() => updated.value?.retrievalBatches.slice(0, 4) ?? [])
@@ -69,7 +104,8 @@ const concertYearRange = computed((): string | null => {
 const concertHref = (performanceId: number): string => `/shows/${performanceId}`
 
 const concertNameOf = (performanceId: number): string => {
-  const row = recentConcerts.value.find((item) => item.id === performanceId)
+  const row = upcomingConcerts.value.find((item) => item.id === performanceId)
+    ?? recentConcerts.value.find((item) => item.id === performanceId)
     ?? catalog.value?.performances.find((item) => item.id === performanceId)
   if (!row) return String(performanceId)
   if ('seriesId' in row) return concertLabel(row)
@@ -103,18 +139,22 @@ useHead({ title: computed(() => t('home.title')) })
     <PageSkeleton v-else-if="pending && !catalog" />
 
     <template v-else-if="catalog">
-      <section aria-labelledby="home-recent-heading">
-        <h2 id="home-recent-heading" class="text-xl font-semibold tracking-tight text-highlighted sm:text-2xl">
-          {{ t('home.recentTitle') }}
+      <section
+        v-for="block in concertSections"
+        :key="block.id"
+        :aria-labelledby="block.headingId"
+      >
+        <h2 :id="block.headingId" class="text-xl font-semibold tracking-tight text-highlighted sm:text-2xl">
+          {{ t(block.titleKey) }}
         </h2>
         <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
-          {{ t('home.recentDesc') }}
+          {{ t(block.descKey) }}
         </p>
-        <p v-if="recentConcerts.length === 0" class="mt-4 text-sm text-muted">
-          {{ t('home.recentEmpty') }}
+        <p v-if="block.concerts.length === 0" class="mt-4 text-sm text-muted">
+          {{ t(block.emptyKey) }}
         </p>
         <ul v-else class="mt-4 grid gap-3 sm:grid-cols-2">
-          <li v-for="concert in recentConcerts" :key="concert.id">
+          <li v-for="concert in block.concerts" :key="concert.id">
             <UCard class="h-full">
               <div class="flex flex-col gap-3">
                 <div class="flex flex-wrap items-start justify-between gap-2">

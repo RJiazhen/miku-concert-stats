@@ -323,7 +323,17 @@ These labels appear in every user-facing date field: the show header, series lis
 
 The site root `/` is a dedicated landing page, separate from the song-appearance ranking that previously occupied `/`. The ranking remains available at `/rank`. The header logo stays on `/`; the Songs nav item and “view ranking” links point at `/rank`. Existing withdrawn-page redirects (`/catalog`, `/compare`, `/windows`, `/correlation`) still go to `/`, which is now the homepage.
 
-The first homepage ships without poster images or a visual carousel (deferred to [issue #67](https://github.com/RJiazhen/miku-concert-stats/issues/67)). Recent concerts are a text list: localized name, concert calendar date, venue when known, optional sourced status, and a link to `/shows/{id}`. Concert dates come from `performances.start_date` / `end_date` and are never labelled as data-update times.
+The first homepage ships without poster images or a visual carousel (deferred to [issue #67](https://github.com/RJiazhen/miku-concert-stats/issues/67)). Concert lists are text-only: localized name, concert calendar date, venue when known, optional sourced status, and a link to `/shows/{id}`. Concert dates come from `performances.start_date` / `end_date` and are never labelled as data-update times.
+
+The Recent concerts section lists at most four 演出 that have already started, newest `start_date` first. Concerts that have not started yet are listed in a separate Upcoming concerts section, soonest `start_date` first. A concert has started only from recorded catalog fields; the page never invents a start clock time, timezone, or `performance_status` value:
+
+- Undated, cancelled, and postponed 演出 are omitted from both lists.
+- When both `showtime_local` and `timezone` are present, the concert has started at or after that local start instant.
+- When a timezone is recorded without a clock time, the concert has started once `start_date` is on or before the current calendar date in that timezone.
+- When no timezone is recorded, dates stay day-precision and are compared with the current UTC calendar date. A date-only concert on that UTC date is treated as started, because a venue-local midnight is not recorded and must not be assumed.
+- A hand-checked `upcoming` status may still appear as a badge; it does not override the date or showtime comparison.
+
+The homepage main heading matches the site title (`common.appName`) in every current UI locale, for example 初音未来演唱会曲目统计 and Hatsune Miku Concert Statistics. The song ranking page at `/rank` uses the page title (曲目排行 / Song ranking), not the site title.
 
 Site-wide statistics reuse the same counting rules as the series and performance indexes (`reviewRotations`, `showCountsByPerformance`, `setlistPerformanceIds`): series, 演出, 场次, songs, setlist coverage, cancelled rows, broadcast/online rows, and the concert calendar date range.
 

@@ -32,8 +32,8 @@ export const RANKING_PATH = '/rank'
 /** Concert detail path for one 演出. */
 export const showPath = (performanceId: number): string => `/shows/${performanceId}`
 
-/** How many recent 演出 the homepage lists by default. */
-export const RECENT_CONCERT_LIMIT = 8
+/** How many already-started 演出 the homepage Recent section lists by default. */
+export const RECENT_CONCERT_LIMIT = 4
 
 /** How many dated 演出 can contribute links to the related-links section. */
 export const RELATED_LINK_PERFORMANCE_LIMIT = 16
@@ -197,9 +197,148 @@ export const formatSourceTimestamp = (stamp: string): string => {
 /** Compares ISO-like timestamps; missing values sort last. */
 const compareStampDesc = (left: string, right: string): number => right.localeCompare(left)
 
+/** Reads one numeric date-time part from `Intl` output. */
+const partNumber = (parts: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes): number | null => {
+  const value = parts.find((part) => part.type === type)?.value
+  if (value === undefined) return null
+  const number = Number(value)
+  return Number.isInteger(number) ? number : null
+}
+
+/**
+ * Calendar and clock parts of an instant in a recorded IANA timezone.
+ * Hour 24 (some engines at midnight) is normalized to 0.
+ */
+const zonedParts = (utcMs: number, timeZone: string): {
+  year: number
+  month: number
+  day: number
+  hour: number
+  minute: number
+  second: number
+} | null => {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      calendar: 'iso8601',
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).formatToParts(new Date(utcMs))
+    const year = partNumber(parts, 'year')
+    const month = partNumber(parts, 'month')
+    const day = partNumber(parts, 'day')
+    const hourRaw = partNumber(parts, 'hour')
+    const minute = partNumber(parts, 'minute')
+    const second = partNumber(parts, 'second')
+    if (year === null || month === null || day === null || hourRaw === null || minute === null || second === null) {
+      return null
+    }
+    return { year, month, day, hour: hourRaw === 24 ? 0 : hourRaw, minute, second }
+  } catch {
+    return null
+  }
+}
+
+/** Offset from UTC to the timezone wall clock, in milliseconds, at `utcMs`. */
+const timezoneOffsetMs = (utcMs: number, timeZone: string): number | null => {
+  const parts = zonedParts(utcMs, timeZone)
+  if (parts === null) return null
+  return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second) - utcMs
+}
+
+/** `YYYY-MM-DD` for `now` in UTC. Used when no venue timezone is recorded. */
+export const utcCalendarDate = (now: Date): string => now.toISOString().slice(0, 10)
+
+/** `YYYY-MM-DD` for `now` in a recorded IANA timezone, or null when the zone is invalid. */
+export const calendarDateInTimeZone = (now: Date, timeZone: string): string | null => {
+  const parts = zonedParts(now.getTime(), timeZone)
+  if (parts === null) return null
+  return `${String(parts.year).padStart(4, '0')}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`
+}
+
+/**
+ * Instant of a catalog local showtime in its recorded timezone.
+ * Returns null when the date, clock, or timezone is missing, malformed, or unrepresentable.
+ * Does not invent a midnight start.
+ */
+export const zonedShowtimeToUtc = (startDate: string, showtimeLocal: string, timeZone: string): Date | null => {
+  const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(startDate.trim())
+  const timeMatch = /^(\d{1,2}):(\d{2})$/.exec(showtimeLocal.trim())
+  if (dateMatch === null || timeMatch === null) return null
+  const year = Number(dateMatch[1])
+  const month = Number(dateMatch[2])
+  const day = Number(dateMatch[3])
+  const hour = Number(timeMatch[1])
+  const minute = Number(timeMatch[2])
+  if (hour > 23 || minute > 59) return null
+  if (zonedParts(Date.now(), timeZone) === null) return null
+  const asUtc = Date.UTC(year, month - 1, day, hour, minute, 0)
+  let utc = asUtc
+  for (let i = 0; i < 3; i += 1) {
+    const offset = timezoneOffsetMs(utc, timeZone)
+    if (offset === null) return null
+    utc = asUtc - offset
+  }
+  const parts = zonedParts(utc, timeZone)
+  if (parts === null) return null
+  if (parts.year !== year || parts.month !== month || parts.day !== day || parts.hour !== hour || parts.minute !== minute) {
+    return null
+  }
+  return new Date(utc)
+}
+
+/**
+ * Whether a 演出 has already started, using only recorded date / showtime / timezone fields.
+ * Missing clock times are never treated as 00:00 at the venue.
+ */
+export const concertHasStarted = (
+  performance: Pick<PerformanceRow, 'start_date' | 'showtime_local' | 'timezone'>,
+  now: Date,
+): boolean => {
+  const startDate = performance.start_date?.trim() ?? ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) return false
+  const showtime = performance.showtime_local?.trim() || null
+  const timeZone = performance.timezone?.trim() || null
+  if (showtime !== null && timeZone !== null) {
+    const start = zonedShowtimeToUtc(startDate, showtime, timeZone)
+    if (start !== null) return now.getTime() >= start.getTime()
+  }
+  const today = timeZone !== null
+    ? (calendarDateInTimeZone(now, timeZone) ?? utcCalendarDate(now))
+    : utcCalendarDate(now)
+  return startDate <= today
+}
+
 /** Status of one 演出, or null when the catalog has no hand-checked row. */
 const statusOf = (catalog: Catalog, performanceId: number): PerformanceStatusValue | null =>
   catalog.performanceStatus.find((row) => row.performance_id === performanceId)?.status ?? null
+
+/** Cancelled or postponed 演出 are omitted from homepage recent and upcoming lists. */
+const isListedHomepageConcert = (catalog: Catalog, performance: PerformanceRow): performance is PerformanceRow & { start_date: string } => {
+  if (performance.start_date === null) return false
+  const status = statusOf(catalog, performance.id)
+  return status !== 'cancelled' && status !== 'postponed'
+}
+
+/** Maps one dated 演出 to the text-only homepage card. */
+const toHomepageConcert = (catalog: Catalog, performance: PerformanceRow & { start_date: string }): RecentConcert => ({
+  id: performance.id,
+  name: performance.name,
+  seriesId: performance.series_id,
+  seriesNumber: performance.series_number,
+  startDate: performance.start_date,
+  dates: performanceHeaderFacts(performance).dates,
+  venue: performance.venue_name,
+  countryCode: performance.country_code,
+  status: statusOf(catalog, performance.id),
+  href: showPath(performance.id),
+  websiteLinks: websiteLinksFor(catalog, performance.id),
+})
 
 /**
  * Totals for the homepage site-wide statistics summary.
@@ -361,25 +500,33 @@ const websiteLinksFor = (catalog: Catalog, performanceId: number): ClassifiedWeb
 }
 
 /**
- * Recent 演出, newest concert `start_date` first.
- * Undated 演出 are omitted because "recent" needs a concert date, not a retrieval time.
+ * Already-started 演出 for the Recent section, newest concert `start_date` first.
+ * Concerts that have not started yet, plus undated, cancelled, and postponed rows, are omitted.
  */
-export const buildRecentConcerts = (catalog: Catalog, limit = RECENT_CONCERT_LIMIT): RecentConcert[] => {
-  const dated = catalog.performances.filter((row): row is PerformanceRow & { start_date: string } => row.start_date !== null)
-  dated.sort((left, right) => right.start_date.localeCompare(left.start_date) || right.id - left.id)
-  return dated.slice(0, limit).map((performance) => ({
-    id: performance.id,
-    name: performance.name,
-    seriesId: performance.series_id,
-    seriesNumber: performance.series_number,
-    startDate: performance.start_date,
-    dates: performanceHeaderFacts(performance).dates,
-    venue: performance.venue_name,
-    countryCode: performance.country_code,
-    status: statusOf(catalog, performance.id),
-    href: showPath(performance.id),
-    websiteLinks: websiteLinksFor(catalog, performance.id),
-  }))
+export const buildRecentConcerts = (
+  catalog: Catalog,
+  limit = RECENT_CONCERT_LIMIT,
+  now = new Date(),
+): RecentConcert[] => {
+  const started = catalog.performances.filter(
+    (row): row is PerformanceRow & { start_date: string } =>
+      isListedHomepageConcert(catalog, row) && concertHasStarted(row, now),
+  )
+  started.sort((left, right) => right.start_date.localeCompare(left.start_date) || right.id - left.id)
+  return started.slice(0, limit).map((performance) => toHomepageConcert(catalog, performance))
+}
+
+/**
+ * Not-yet-started 演出 for the Upcoming section, soonest concert `start_date` first.
+ * Uses the same recorded date and showtime rules as `buildRecentConcerts`.
+ */
+export const buildUpcomingConcerts = (catalog: Catalog, now = new Date()): RecentConcert[] => {
+  const upcoming = catalog.performances.filter(
+    (row): row is PerformanceRow & { start_date: string } =>
+      isListedHomepageConcert(catalog, row) && !concertHasStarted(row, now),
+  )
+  upcoming.sort((left, right) => left.start_date.localeCompare(right.start_date) || left.id - right.id)
+  return upcoming.map((performance) => toHomepageConcert(catalog, performance))
 }
 
 /**
