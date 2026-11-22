@@ -17408,6 +17408,73 @@
         ]
       }
     },
+    "3000000012": {
+      "note": "歌单 8 首，顺序来自两份互不依赖的同日观众记录；官方回顾证实开场 Sharing the World（日本演唱会初披露）并提到其后的 メルト、Yellow 与 秘密警察。主办公告只作日程证据，不是曲目顺序证据。Sharing The World 取 Expo 2014 原曲 66126（66752 是其 Cover）；Tell Your World 取正长版 8395（399060 是 61 秒 Google Chrome 广告原曲）。",
+      "sources": [
+        {
+          "url": "https://blog.piapro.net/2014/11/z1411081-1.html",
+          "title": "初音ミク公式ブログ：初音ミク×TOUCH！WOWOW2014 スペシャルライブ レポ",
+          "accessedAt": "2026-11-22",
+          "confidence": "high",
+          "note": "Official retrospective: concert held at Toyosu PIT; opening Sharing the world, first Japan-live performance of that English song; later mentions メルト, Yellow, and 秘密警察. Not a complete eight-song order by itself."
+        },
+        {
+          "url": "https://nat.hatenadiary.com/entry/20141101/p1",
+          "title": "日替わり NAT’s Champloo：初音ミク×TOUCH！WOWOW2014 スペシャルライブ",
+          "accessedAt": "2026-11-22",
+          "confidence": "medium",
+          "note": "Same-day attendee report with a complete eight-song setlist; also states an eight-song, about 30-minute live."
+        },
+        {
+          "url": "https://mikudoc.blogspot.com/2014/11/wowow_1.html",
+          "title": "mikudoc：行ってきた 初音ミク WOWOW スペシャルライブ",
+          "accessedAt": "2026-11-22",
+          "confidence": "medium",
+          "note": "Independent attendee report with the same complete eight-song order; about 35 minutes."
+        }
+      ],
+      "setlist": {
+        "source": "https://nat.hatenadiary.com/entry/20141101/p1",
+        "title": "日替わり NAT’s Champloo：初音ミク×TOUCH！WOWOW2014 スペシャルライブ（豊洲PIT）",
+        "accessedAt": "2026-11-22",
+        "confidence": "medium",
+        "label": "豊洲PIT",
+        "songs": [
+          {
+            "id": 66126,
+            "title": "Sharing The World"
+          },
+          {
+            "id": 1322,
+            "title": "メルト"
+          },
+          {
+            "id": 2905,
+            "title": "Yellow"
+          },
+          {
+            "id": 1141,
+            "title": "Parades"
+          },
+          {
+            "id": 50132,
+            "title": "Glass Wall"
+          },
+          {
+            "id": 373,
+            "title": "秘密警察"
+          },
+          {
+            "id": 1326,
+            "title": "ワールドイズマイン"
+          },
+          {
+            "id": 8395,
+            "title": "Tell Your World"
+          }
+        ]
+      }
+    },
     "4765": {
       "note": "歌单来自初音ミク Wiki 的逐曲表（名古屋），23 行；日程来源：2023-02-23 Zepp Nagoya 昼 + 夜 2 场，每场 23 首",
       "dayNight": [

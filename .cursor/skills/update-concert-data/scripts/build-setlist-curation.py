@@ -619,6 +619,32 @@ add(
     ],
     note="2012-03-09 TOKYO DOME CITY HALL 昼 + 夜两场，29 首；昼场第 3 首音响故障后追加「ワールドイズマイン」再演，不计入曲数",
 )
+
+add(
+    3000000012,
+    sources=[
+        official_page(
+            "https://blog.piapro.net/2014/11/z1411081-1.html",
+            "初音ミク公式ブログ：初音ミク×TOUCH！WOWOW2014 スペシャルライブ レポ",
+            "Official retrospective confirms the opening and several titles; not complete song-order proof",
+        ),
+        {
+            "url": "https://nat.hatenadiary.com/entry/20141101/p1",
+            "title": "日替わり NAT’s Champloo：初音ミク×TOUCH！WOWOW2014 スペシャルライブ",
+            "accessedAt": "2026-11-22",
+            "confidence": "medium",
+            "note": "Same-day attendee report with the complete eight-song setlist",
+        },
+        {
+            "url": "https://mikudoc.blogspot.com/2014/11/wowow_1.html",
+            "title": "mikudoc：行ってきた 初音ミク WOWOW スペシャルライブ",
+            "accessedAt": "2026-11-22",
+            "confidence": "medium",
+            "note": "Independent attendee report with the same complete eight-song order",
+        },
+    ],
+    note="2014-11-01 チームスマイル／豊洲PIT，单场 8 首；主办公告只作日程证据。Sharing The World 为 Expo 2014 原曲 66126，Tell Your World 为正长版 8395",
+)
 thunderbolt = [
     wiki(JAPANTOUR2023Wiki, "初音ミク Wiki：初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜", "5 城 10 场；3/11 福岡与 3/25 札幌仅夜场"),
     official_page("https://piapro.net/japantour2023/", "初音ミク JAPAN LIVE TOUR 2023 〜THUNDERBOLT〜 公式サイト", "5 城巡演日程"),

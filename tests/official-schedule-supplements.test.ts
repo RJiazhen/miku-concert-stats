@@ -101,7 +101,7 @@ describe('Official schedule corrections and WOWOW 2014 metadata (issue #66)', ()
     }
   })
 
-  it('adds WOWOW 2014 as metadata-only exact-name standalone grouping with unused local ids', () => {
+  it('adds WOWOW 2014 as an exact-name standalone concert with the sourced eight-song programme', () => {
     const { catalog, close } = loadBuiltCatalog()
     try {
       const series = catalog.series.filter((row) => row.id === 900000007)
@@ -121,9 +121,25 @@ describe('Official schedule corrections and WOWOW 2014 metadata (issue #66)', ()
       expect(performance[0]?.time_precision).toBe('day')
       expect(performance[0]?.song_list_id).toBeNull()
 
-      expect(catalog.performanceShowSetlists.filter((row) => row.performance_id === 3000000012)).toHaveLength(0)
-      expect(catalog.performanceShowSetlistItems.filter((row) => row.performance_id === 3000000012)).toHaveLength(0)
-      expect(catalog.performanceSetlists.filter((row) => row.performance_id === 3000000012)).toHaveLength(0)
+      const wowowShows = catalog.performanceShowSetlists.filter((row) => row.performance_id === 3000000012)
+      expect(wowowShows).toHaveLength(1)
+      expect(wowowShows[0]?.show_key).toBe('3000000012:2014-11-01')
+      expect(wowowShows[0]?.item_count).toBe(8)
+
+      const wowowItems = catalog.performanceShowSetlistItems
+        .filter((row) => row.show_key === '3000000012:2014-11-01')
+        .sort((left, right) => left.position - right.position)
+      expect(wowowItems.map((row) => row.song_id)).toEqual([66126, 1322, 2905, 1141, 50132, 373, 1326, 8395])
+      expect(catalog.performanceSetlists.filter((row) => row.performance_id === 3000000012)).toHaveLength(1)
+
+      const programmeSources = sourceUrls(catalog, 3000000012)
+      expect([...programmeSources].sort()).toEqual(
+        [
+          'https://blog.piapro.net/2014/11/z1411081-1.html',
+          'https://mikudoc.blogspot.com/2014/11/wowow_1.html',
+          'https://nat.hatenadiary.com/entry/20141101/p1',
+        ].sort(),
+      )
 
       const links = catalog.performanceLinks.filter((row) => row.performance_id === 3000000012).map((row) => row.url)
       expect(links).toHaveLength(3)
@@ -163,7 +179,7 @@ describe('Official schedule corrections and WOWOW 2014 metadata (issue #66)', ()
     }
   })
 
-  it('pins derived and site-wide show totals after the official schedule batch', () => {
+  it('pins derived and site-wide show totals after the official schedule batch and WOWOW programme', () => {
     const { catalog, close } = loadBuiltCatalog()
     try {
       const derivedShowRows = catalog.performanceShowSetlists.length
@@ -174,9 +190,11 @@ describe('Official schedule corrections and WOWOW 2014 metadata (issue #66)', ()
       // Rebuilt from committed increments on this branch. Derived rows are the
       // performance_show_setlists table; site-wide 场次 use showCountsByPerformance
       // (derived schedules win, date-range fallback otherwise). On d713f12 these
-      // were 447 and 456. After the official schedule batch: +6 derived rows and
-      // +7 site-wide 场次 (the sixth official split/show plus WOWOW's fallback date).
-      expect(derivedShowRows).toBe(453)
+      // were 447 and 456. After the official schedule batch plus the WOWOW
+      // programme: +7 derived rows (the sixth official split/show plus WOWOW's
+      // one derived show). Site-wide 场次 stay at 463, because WOWOW already
+      // counted as one date-range fallback 场次 before the programme was derived.
+      expect(derivedShowRows).toBe(454)
       expect(siteWideShows).toBe(463)
       expect(catalog.series.some((row) => row.id === 900000007)).toBe(true)
       expect(catalog.performances.some((row) => row.id === 3000000012)).toBe(true)
