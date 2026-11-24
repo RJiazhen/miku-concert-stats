@@ -8,8 +8,10 @@
  *   vp run task -- dev-url <branch-or-path>
  *   vp run task -- dev-stop <branch-or-path>
  *   vp run task -- ship <branch> --message "..." [--skip-checks]
+ *   vp run task -- clean <branch>
  */
 import { existsSync } from 'node:fs'
+import { cmdClean } from './task/cleanup.ts'
 import { resolveDevUrl, stopDevServer, waitForDevUrl } from './task/dev-server.ts'
 import { currentBranch } from './task/git.ts'
 import { printError, printRecord } from './task/print.ts'
@@ -51,11 +53,12 @@ const usage = (): void => {
   vp run task -- start <branch> [--issue N]
   vp run task -- dev-url <branch-or-path> [--wait]
   vp run task -- dev-stop <branch-or-path>
-  vp run task -- ship <branch> --message "..." [--skip-checks]`)
+  vp run task -- ship <branch> --message "..." [--skip-checks]
+  vp run task -- clean <branch>`)
 }
 
 /**
- * CLI entry: dispatches to status / start / dev-url / dev-stop / ship.
+ * CLI entry: dispatches to status / start / dev-url / dev-stop / ship / clean.
  */
 const main = async (): Promise<number> => {
   // `vp run task -- status` and `pnpm task -- status` pass a literal `--` separator.
@@ -131,6 +134,15 @@ const main = async (): Promise<number> => {
       message,
       skipChecks: hasFlag(argv, '--skip-checks'),
     })
+  }
+
+  if (command === 'clean') {
+    const branch = argv[1]
+    if (!branch || branch.startsWith('-')) {
+      usage()
+      return printError('clean requires <branch>')
+    }
+    return cmdClean({ branch })
   }
 
   usage()

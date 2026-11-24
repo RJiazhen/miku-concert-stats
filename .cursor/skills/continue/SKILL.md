@@ -34,9 +34,11 @@ vp run task -- dev-stop <branch>   # 仅 Ship 成功后或用户明确要求停
 
 # Ship（用户已确认）：squash → push → 等 Workers Builds → 关 issue → 清理
 vp run task -- ship <branch> --message "<一句话说明这次改了什么>"
+# 若 ship 已合入 / 部署成功但清理中断：不要手写 git/workspace 补救
+vp run task -- clean <branch>
 ```
 
-生产地址与 Workers Builds 名称由 `task status` / `task ship` 输出；仓库 `RJiazhen/miku-concert-stats`。
+生产地址与 Workers Builds 名称由 `task status` / `task ship` / `task clean` 输出；仓库 `RJiazhen/miku-concert-stats`。
 
 ## Phase：Start
 
@@ -54,11 +56,14 @@ vp run task -- ship <branch> --message "<一句话说明这次改了什么>"
 
 1. `vp run task -- status --worktree <branch>`：dirty 先提交；确认是本任务 worktree。
 2. `vp run task -- ship <branch> --message "..."`（issue 时脚本自动加 `Closes #N`）。
-3. 读输出：`ok=true` + `deploy_conclusion=success` 才算完；`can_push=false` 时按输出 hint 推分支开 PR，不碰 main。
-4. 失败（检查红灯、冲突、deploy 失败）停下修；不要 `--force` 清 worktree，不要绕过 Workers Builds 本地 `wrangler deploy`（除非用户明确要求）。
+3. 读输出：`ok=true` + `deploy_conclusion=success` 且 cleanup `step=cleaned` 才算完；`can_push=false` 时按输出 hint 推分支开 PR，不碰 main。
+4. 失败时按原因处理，**不要**用一长串自定义 `git worktree` / `branch -D` / 手改 `.code-workspace` 绕过：
+   - 检查红灯、冲突、业务代码问题：在本任务 worktree 修，再 ship；不要绕过 Workers Builds 本地 `wrangler deploy`（除非用户明确要求）。
+   - deploy 已成功但清理失败：先跑 `vp run task -- clean <branch>`。若 `clean` / `ship` 的 cleanup 仍失败，**改 `scripts/task/`（并更新本 skill 与相关 docs）让脚本下次能过**，再重跑 `clean`；不要反复发明临时 shell。
 
 ## 不要做
 
 - 不要手写 worktree / workspace / 端口登记 / squash / 轮询 / 清理的长 shell；交给 `vp run task`。
+- 不要在 `vp run task` 失败时用自定义补救脚本代替修脚本；脚本错了就改 `scripts/task/`。
 - 不要停别人的开发服务器或删别人的 worktree。
 - 不要在用户确认前 merge / push `main`。

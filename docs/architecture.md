@@ -61,4 +61,4 @@ See [local-development.md](local-development.md) and [cloudflare.md](cloudflare.
 
 ## Maintainer workflow (optional)
 
-This repo often develops in git worktrees under `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`. Contributors can use any normal clone/branch workflow. Parallel task setup, status, and ship/cleanup are driven by `vp run task` (`scripts/task.ts`); `/continue` only decides the phase and implements the feature.
+This repo often develops in git worktrees under `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`. Contributors can use any normal clone/branch workflow. Parallel task setup, status, ship, and leftover cleanup are driven by `vp run task` (`scripts/task.ts`: `start`, `status`, `dev-url`, `dev-stop`, `ship`, `clean`); `/continue` only decides the phase and implements the feature. Ship cleanup retries a forced worktree remove when leftover ignored files block a normal remove; agents should run `vp run task -- clean <branch>` for interrupted cleanup and fix `scripts/task/` when the helper itself is wrong, not hand-roll git/workspace commands.

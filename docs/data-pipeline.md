@@ -218,7 +218,7 @@ When a unit of work is done, commit it on the feature branch. Do not leave finis
 
 ### One worktree per development task
 
-See `.cursor/rules/git-worktree.mdc` and `.cursor/skills/continue/SKILL.md`. Prefer `vp run task -- start <branch>` (creates the worktree from `origin/main` and registers the workspace folder). Do not develop on the `main` worktree. Preview with `vp run dev` and `vp run task -- dev-url <branch>`.
+See `.cursor/rules/git-worktree.mdc` and `.cursor/skills/continue/SKILL.md`. Prefer `vp run task -- start <branch>` (creates the worktree from `origin/main` and registers the workspace folder). Do not develop on the `main` worktree. Preview with `vp run dev` and `vp run task -- dev-url <branch>`. After ship, leftover worktree/branch/workspace cleanup is `vp run task -- clean <branch>` — fix `scripts/task/` if that helper fails instead of hand-rolling git commands.
 
 ### Commit scope
 

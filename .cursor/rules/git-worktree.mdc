@@ -14,8 +14,9 @@ alwaysApply: true
 - **Start**：`vp run task -- start <branch> [--issue N]`（从 `origin/main` 建 worktree、登记 workspace、写 `tmp/task-issue`）
 - **开发**：只在该 worktree 改、测、提交；`vp run dev` 不要传 `--port`；用 `vp run task -- dev-url <branch>` 读地址
 - **Ship**（用户确认后）：`vp run task -- ship <branch> --message "..."`
+- **清理残留**（ship 已合入但 worktree / 分支 / workspace 未清）：`vp run task -- clean <branch>`；不要手写 `git worktree remove` / `branch -D` / 改 `.code-workspace`
 
-手工等价操作时：目录名等于分支名，路径在 `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`，仍从 `origin/main` 拉出。
+手工等价操作时：目录名等于分支名，路径在 `~/projects/full-stack/miku-concert-stats.worktrees/<branch>`，仍从 `origin/main` 拉出。`vp run task` 行为不对时改 `scripts/task/`，不要反复用临时 shell 绕过。
 
 ## 不要做
 

@@ -1,9 +1,8 @@
 import { existsSync } from 'node:fs'
-import { stopDevServer } from './dev-server.ts'
+import { cleanupTaskBranch } from './cleanup.ts'
 import {
   canPushRepo,
   commitsAheadOfOriginMain,
-  currentBranch,
   fetchOriginMain,
   git,
   gitTry,
@@ -14,7 +13,6 @@ import {
 import { mainRoot, PRODUCTION_URL, REPO, WORKERS_BUILDS_NAME, worktreePath } from './paths.ts'
 import { printError, printRecord } from './print.ts'
 import { out, run, runOrThrow } from './run.ts'
-import { removeWorkspaceFolder } from './workspace.ts'
 
 export type ShipOptions = {
   branch: string
@@ -213,42 +211,27 @@ export const cmdShip = async (opts: ShipOptions): Promise<number> => {
     }
   }
 
-  const tip = gitTry(main, ['rev-parse', branch])
-  if (!tip.ok) return printError(`cannot resolve branch ${branch} for cleanup`)
-  if (tip.stdout !== branchTipBefore) {
+  try {
+    const cleaned = cleanupTaskBranch({ branch, expectedTip: branchTipBefore })
+    printRecord({
+      ok: true,
+      action: 'ship',
+      step: 'cleaned',
+      sha,
+      deploy_conclusion: 'success',
+      production_url: PRODUCTION_URL,
+      task_issue: issue || '',
+      issue_state: issueState || 'unlinked',
+      issue_closed_how: issueClosedHow || '',
+      killed_pids: cleaned.killedPids.join(','),
+      workspace_removed: cleaned.workspaceRemoved,
+      local_branch_deleted: cleaned.localBranchDeleted,
+      remote_branch_deleted: cleaned.remoteBranchDeleted,
+    })
+    return 0
+  } catch (error) {
     return printError(
-      `refusing cleanup: branch ${branch} moved after ship (${branchTipBefore} → ${tip.stdout}); another session may have committed`,
+      `${error instanceof Error ? error.message : String(error)}\nhint=fix scripts/task cleanup, then: vp run task -- clean ${branch}`,
     )
   }
-  if (currentBranch(worktree) !== branch) {
-    return printError(`refusing cleanup: worktree branch is ${currentBranch(worktree)}`)
-  }
-
-  const stopped = stopDevServer(worktree, branch)
-  const stillDirty = statusShort(worktree)
-  if (stillDirty) return printError(`refusing worktree remove; dirty:\n${stillDirty}`)
-
-  try {
-    runOrThrow('git', ['-C', main, 'worktree', 'remove', worktree])
-    runOrThrow('git', ['-C', main, 'branch', '-D', branch])
-    run('git', ['-C', main, 'push', 'origin', '--delete', branch])
-  } catch (error) {
-    return printError(error instanceof Error ? error.message : String(error))
-  }
-
-  const workspaceRemoved = removeWorkspaceFolder(branch)
-  printRecord({
-    ok: true,
-    action: 'ship',
-    step: 'cleaned',
-    sha,
-    deploy_conclusion: 'success',
-    production_url: PRODUCTION_URL,
-    task_issue: issue || '',
-    issue_state: issueState || 'unlinked',
-    issue_closed_how: issueClosedHow || '',
-    killed_pids: stopped.killedPids.join(','),
-    workspace_removed: workspaceRemoved,
-  })
-  return 0
 }
