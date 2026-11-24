@@ -321,7 +321,7 @@ describe('buildRecentSetlistBannerSlides', () => {
       expect(kodo?.dates).toBe('2026-11-20 – 2026-11-21')
       expect(kodo?.showtime).toBeNull()
       expect(kodo?.songCount).toBe(18)
-      expect(kodo?.poster?.src).toBe('/posters/hatsune-miku-x-kodo-2026.jpg')
+      expect(kodo?.poster?.src).toBe('/posters/hatsune-miku-x-kodo-2026.webp')
       expect(kodo?.estimatedSongDurationSeconds).toBeNull()
       expect(kodo?.href).toBe('/shows/12940')
       for (const slide of slides) {
@@ -394,12 +394,12 @@ describe('homepage setlist carousel source files', () => {
     const kodo = mapping.tours['hatsune-miku-x-kodo-2026']
     const paris = mapping.tours['miku-expo-2026-europe']
     const wowow = mapping.tours['wowow-2014']
-    expect(kodo?.src).toBe('/posters/hatsune-miku-x-kodo-2026.jpg')
+    expect(kodo?.src).toBe('/posters/hatsune-miku-x-kodo-2026.webp')
     expect(paris?.src).toBe('/posters/miku-expo-2026-europe.webp')
     expect(wowow?.src).toBe('/posters/wowow-2014.png')
-    expect(posterForPerformance(12940)?.src).toBe('/posters/hatsune-miku-x-kodo-2026.jpg')
+    expect(posterForPerformance(12940)?.src).toBe('/posters/hatsune-miku-x-kodo-2026.webp')
     expect(posterForPerformance(12227)?.src).toBe('/posters/miku-expo-2026-europe.webp')
-    expect(readFileSync(join(process.cwd(), 'public/posters/hatsune-miku-x-kodo-2026.jpg')).byteLength).toBeGreaterThan(1000)
+    expect(readFileSync(join(process.cwd(), 'public/posters/hatsune-miku-x-kodo-2026.webp')).byteLength).toBeGreaterThan(1000)
     expect(readFileSync(join(process.cwd(), 'public/posters/miku-expo-2026-europe.webp')).byteLength).toBeGreaterThan(1000)
     const component = readFileSync(join(process.cwd(), 'app/components/HomeSetlistCarousel.vue'), 'utf8')
     expect(component).toContain('prefers-reduced-motion')
