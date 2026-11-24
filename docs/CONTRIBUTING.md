@@ -42,6 +42,7 @@ Committed SQL under `data/increments/` is enough to build the catalog. `vp run c
 | [architecture.md](architecture.md) | Modules and data flow |
 | [cloudflare.md](cloudflare.md) | Deploy, KV, Access, analytics (maintainer) |
 | [data-pipeline.md](data-pipeline.md) | Detailed curation rules and file formats |
+| [../poster-intake/README.md](../poster-intake/README.md) | Tour poster intake; ship WebP ≤ 1800px wide via `pnpm posters:compress` |
 
 ## Tests
 

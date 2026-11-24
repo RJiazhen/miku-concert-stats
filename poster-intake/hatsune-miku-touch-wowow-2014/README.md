@@ -9,4 +9,4 @@ An official Piapro main visual is still kept for intake and provenance, wired in
 - Artist credit: てもし
 - Accessed: 2026-11-23
 
-Drop a corrected poster as `wowow-2014.jpg` (or `.png` / `.webp`) here, then copy it to `public/posters/wowow-2014.*` and update the mapping if this visual is needed elsewhere. Recommended 3:4 or similar portrait source; the current official main visual is a wide banner.
+Drop a corrected poster as `wowow-2014.jpg` (or `.png` / `.webp`) here, then run `pnpm posters:compress --out public/posters` and update the mapping if this visual is needed elsewhere. Recommended delivery: WebP at most 1800px wide via `pnpm posters:compress` (see root README). Prefer 3:4 portrait when possible; the current official main visual is a wide banner.

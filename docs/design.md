@@ -1,17 +1,17 @@
-# 初音未来演唱会曲目播放统计 — 设计
+# Hatsune Miku Concert Setlist Statistics — Design
 
 > Historical design notes from early scoping. Current runtime behavior lives in
 > [architecture.md](architecture.md); prefer that file for ongoing development.
 
-本文件固定范围、数据边界和模块划分。开演钟点只写入有出处的值；缺数据时界面保持空态，不补造。
+This document fixes scope, data boundaries, and module boundaries. Show start times are written only when sourced; when data is missing the UI stays empty rather than inventing values.
 
-## 目标与范围
+## Goals and scope
 
-做一个可部署到 Cloudflare Workers 的 SSR 站点，统计 Crypton 主办的初音未来演唱会歌单，并在浏览器内比较各场、各系列、各年份的曲目构成。
+Build an SSR site deployable on Cloudflare Workers that catalogs setlists for Crypton-sponsored Hatsune Miku concerts and lets the browser compare repertoire across 场次, 演出, series, and years.
 
-收录范围（VocaDB 系列 id，类别均为 Concert）：
+In scope (VocaDB series ids; category Concert):
 
-| 系列 | VocaDB series id |
+| Series | VocaDB series id |
 | --- | --- |
 | 初音ミク「マジカルミライ」 | 81 |
 | MIKU EXPO | 82 |
@@ -20,84 +20,84 @@
 | 初音ミクライブパーティー | 219 |
 | SNOW MIKU LIVE! | 204 |
 
-每条记录保存系列、演出、歌单行、歌曲、投稿和观测值，并分开保存「演出日期」与「系列年度首演」。年度首演取该 `series_id + series_number` 下第一个有日期、角色为 `show` 的演出；名称或简介命中配信 / livestream 的场次标为 `broadcast`，不参与首演。VocaDB 的 `date` 只到日，记为 `time_precision = day`。只有简介里出现可引用的 `Showtime` / `開演` 钟点，且场馆国家为 JP 时，才写入当地 `HH:MM` 与 `Asia/Tokyo`（日本无夏令时）。歌单公布时间在公开 API 的歌单对象上不存在，字段留空。
+Each record stores series, 演出, setlist rows, songs, uploads, and observations, with **concert calendar date** and **edition premiere** kept separate. Edition premiere is the first dated 演出 with role `show` for that `series_id + series_number`; 场次 whose name or description match broadcast / livestream are tagged `broadcast` and do not count as premiere. VocaDB `date` is day-only, stored as `time_precision = day`. Local `HH:MM` and `Asia/Tokyo` are written only when the description cites `Showtime` / `開演` and the venue country is JP (Japan has no DST). Setlist publication time is not on the public API setlist object; the field stays empty.
 
-串烧（`songType = Mashup`）拆到组成歌曲后再计数。找不到可核验的组成歌曲时，该行进入未拆分隔离区，不按一条曲目计入区间统计。
+Mashups (`songType = Mashup`) are split into component songs before counting. Rows without verifiable components go into an unsplit quarantine and do not count as one track in interval stats.
 
-## 非目标
+## Non-goals
 
-- 不覆盖上表以外的活动、俱乐部或企划。
-- 不采集、不估算任何平台的播放量。niconico 非官方观看页接口与哔哩哔哩播放量都不抓取，VocaDB 简介里的「殿堂入り」字样也不算数据。
-- 不把日常聚合放到 Workers 上。Workers 只做首屏 SSR 和按需的缺歌检索。
-- 不下载或再分发第三方封面、歌词和官方标识。
+- No activities, clubs, or projects outside the table above.
+- No play counts or estimates on any platform. No niconico unofficial view APIs, no Bilibili view counts; VocaDB description “殿堂入り” text is not data.
+- No routine aggregation on Workers. Workers only do first-paint SSR and on-demand missing-song lookup.
+- No downloading or redistributing third-party covers, lyrics, or official logos.
 
-## 方案与取舍
+## Approach and trade-offs
 
-**Nuxt 3 + Nitro `cloudflare-module`。** 需要 Vue（箭头函数约束）和 Workers SSR。相比 Next.js / vinext，少一层 React 兼容运行时，Nitro 直接产出 Worker。相比纯静态站，保留一个按需检索路由。代价是本地统计必须放在客户端，首屏在目录下载完成前只显示壳。
+**Nuxt 3 + Nitro `cloudflare-module`.** Vue (arrow-function constraints) and Workers SSR. Versus Next.js / vinext, one fewer React-compat runtime layer; Nitro emits the Worker directly. Versus a static site, one on-demand lookup route remains. Cost: stats run on the client; first paint is shell-only until the catalog downloads.
 
-**SQL 增量文件是源，SQLite 是构建产物。** 规范要求把可审查的 SQL 提交到 Git。浏览器用 sql.js 只读打开构建出的 `catalog.sqlite`，再在本地用同一套 TypeScript 聚合。聚合不写第二套 SQL，避免 wasm SQL 与测试 SQL 漂移。代价是浏览器要下载整库；以当前六系列的规模（约两百场）可以接受。服务端不跑 better-sqlite3，原生模块进不了 Workers。Cloudflare 不压缩 sqlite 类型，所以构建同时写出 `catalog.sqlite.gz`，浏览器下载后自己解压。
+**SQL increment files are source; SQLite is build output.** Reviewable SQL is committed to Git. The browser opens built `catalog.sqlite` read-only via sql.js, then aggregates with the same TypeScript on the client. No second SQL for aggregation, to avoid wasm SQL drifting from test SQL. Cost: full DB download; acceptable at roughly two hundred 演出 across six series today. No better-sqlite3 on the server (native modules cannot run on Workers). Cloudflare does not compress `sqlite`, so the build also writes `catalog.sqlite.gz` for browser-side decompression.
 
-**VocaDB 是同级参考源，不是标准。** `https://vocadb.net/api/`，JSON，自定义 User-Agent，请求间隔 ≥ 300ms，并缓存原始响应。数据库内容按 [VocaDB License](https://wiki.vocadb.net/docs/license) 为 CC BY，页面给出返回链接。取数顺序是「官网 → 萌娘百科 → 初音ミク Wiki → VocaDB」；`performances.id` / `series.id` / `songs.id` 尽量沿用 VocaDB 的 id，VocaDB 没有条目时用本地保留区间，VocaDB 与本项目不一致时保留已采集的数据，不改上游也不回改自己。只要本项目记录了某个演出的歌单，该演出就进入统计，不再要求上游歌单存在。代价是开演钟点多数缺失，日期精度停在「日」。
+**VocaDB is a peer reference, not the standard.** `https://vocadb.net/api/`, JSON, custom User-Agent, ≥ 300 ms between requests, cached raw responses. DB content is CC BY per [VocaDB License](https://wiki.vocadb.net/docs/license); pages link back. Ingest order: official site → 萌娘百科 → 初音ミク Wiki → VocaDB. `performances.id` / `series.id` / `songs.id` reuse VocaDB ids when possible; reserved local ranges when absent; when VocaDB disagrees, keep collected data—do not rewrite upstream or ourselves. If this project has a setlist for a 演出, that 演出 enters stats regardless of upstream setlist presence. Cost: most showtimes missing; date precision stops at day.
 
-## 线上演出标识
+## Online 演出 designation
 
-无实体场馆的线上、直播、VR 演出不套用地理国家代码。这类演出在 `performances.country_code` 中记为 `ONLINE`（非 ISO 3166-1 alpha-2），与城市地理演出分开统计，在时间线的「城市迁移」图中显示为独立的「线上」柱段，不影响「日本国内」「海外」与真正的「国家未知」。当前清单由 `data/increments/0014-online-designation.sql` 维护；`pnpm collect` 会重写 `0001`，但 `0014` 在 `0001` 与 `0013` 之后运行，保证标识不会被覆盖。
+Online, livestream, and VR 演出 with no physical venue do not use geographic country codes. They use `performances.country_code = ONLINE` (not ISO 3166-1 alpha-2), counted separately from city-based 演出, shown as their own “online” bar segment on the timeline city-migration chart without affecting domestic Japan, overseas, or true unknown country. List maintained in `data/increments/0014-online-designation.sql`; `pnpm collect` rewrites `0001`, but `0014` runs after `0001` and `0013` so designation is not lost.
 
-## 模块与职责
+## Modules and responsibilities
 
-| 模块 | 职责 |
+| Module | Responsibility |
 | --- | --- |
-| 采集 | 拉取系列、演出、歌单、歌曲与 PV；标示配信场；解析有证据的开演钟点；隔离无法拆分的串烧 |
-| SQL | 表结构、转义后的增量、应用到 SQLite |
-| 统计 | 按场次 / 演出计数、跨系列与年份分组、版本合并 |
-| 站点 | SSR 壳、客户端读库、筛选与图表、出处 |
-| 检索 | 页内搜索只在已下载的本地目录里匹配，不向站外查询 |
-| 工作流 | CI 跑 lint、类型检查、测试和目录构建；每周采集并在有 diff 时提交 SQL |
+| Collect | Fetch series, 演出, setlists, songs, PVs; tag broadcast 场次; parse sourced showtimes; quarantine unsplit mashups |
+| SQL | Schema, escaped increments, apply to SQLite |
+| Stats | Count by 场次 / 演出, group across series and years, merge variants |
+| Site | SSR shell, client catalog read, filters and charts, attribution |
+| Search | In-page search matches downloaded local catalog only; no off-site queries |
+| Workflow | CI lint, typecheck, tests, catalog build; weekly collect and commit SQL on diff |
 
-## 路径
+## Paths
 
-新增（本分支从空仓库实现）：
+New (this branch from empty repo):
 
 - `docs/design.md`
-- `package.json`、`pnpm-lock.yaml`、`tsconfig.json`、`nuxt.config.ts`、`eslint.config.mjs`、`vitest.config.ts`、`wrangler.toml`、`.gitignore`、`.github/workflows/ci.yml`
-- `data/schema.sql`、`data/increments/0001-vocadb-catalog.sql`（采集后写入）
-- `scripts/vocadb/client.ts`、`scripts/vocadb/normalize.ts`、`scripts/vocadb/collect.ts`
-- `scripts/sql/emit.ts`、`scripts/build-catalog.ts`
-- `shared/types.ts`、`shared/premiere.ts`、`shared/showtime.ts`、`shared/medley.ts`、`shared/stats.ts`、`shared/catalog.ts`
-- `tests/premiere.test.ts`、`tests/showtime.test.ts`、`tests/medley.test.ts`、`tests/catalog.test.ts`
-- `app.vue`、`layouts/default.vue`、`assets/css/main.css`
-- `pages/index.vue`、`pages/raw.vue`、`pages/shows/[id].vue`
-- `components/SiteHeader.vue`、`components/CatalogView.vue`、`composables/useCatalog.ts`
+- `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `nuxt.config.ts`, `eslint.config.mjs`, `vitest.config.ts`, `wrangler.toml`, `.gitignore`, `.github/workflows/ci.yml`
+- `data/schema.sql`, `data/increments/0001-vocadb-catalog.sql` (written by collect)
+- `scripts/vocadb/client.ts`, `scripts/vocadb/normalize.ts`, `scripts/vocadb/collect.ts`
+- `scripts/sql/emit.ts`, `scripts/build-catalog.ts`
+- `shared/types.ts`, `shared/premiere.ts`, `shared/showtime.ts`, `shared/medley.ts`, `shared/stats.ts`, `shared/catalog.ts`
+- `tests/premiere.test.ts`, `tests/showtime.test.ts`, `tests/medley.test.ts`, `tests/catalog.test.ts`
+- `app.vue`, `layouts/default.vue`, `assets/css/main.css`
+- `pages/index.vue`, `pages/raw.vue`, `pages/shows/[id].vue`
+- `components/SiteHeader.vue`, `components/CatalogView.vue`, `composables/useCatalog.ts`
 
-修改：
+Modified:
 
-- `README.md`：运行方式与 VocaDB 署名。根目录 README 与 `docs/README.zh-CN.md` / `docs/README.zh-Hant.md` / `docs/README.ja.md` 继续作为面向访客的多语言入口，予以保留。
-- 除此以外的仓库文档（`docs/` 下的架构、本地开发、Cloudflare、贡献指南、数据管道等）只维护英文正文。原先的 `*.zh-CN.md` / `*.zh-Hant.md` / `*.ja.md` 平行译本不再保留；译本里独有的必要说明并入对应英文稿后再删除平行文件。站内 UI 文案与 `data/` 中的歌曲/地点/角色译名不受影响。
+- `README.md`: how to run and VocaDB attribution. Root README and `docs/README.zh-CN.md` / `docs/README.zh-Hant.md` / `docs/README.ja.md` remain visitor-facing multilingual entry points.
+- All other repo docs under `docs/` (architecture, local dev, Cloudflare, contributing, data pipeline, etc.) are English-only. Former parallel `*.zh-CN.md` / `*.zh-Hant.md` / `*.ja.md` files are not kept; unique notes from translations merge into the English file before deletion. In-app UI strings and `data/` song/place/character display names are unchanged.
 
-只读参考：
+Read-only references:
 
-- 上文 idea 笔记
-- [VocaDB Public API](https://wiki.vocadb.net/docs/public-api)、[Events](https://wiki.vocadb.net/docs/events)、[License](https://wiki.vocadb.net/docs/license)
-- [Cloudflare Workers 全栈路由](https://developers.cloudflare.com/workers/static-assets/routing/full-stack-application/)
+- Idea notes above
+- [VocaDB Public API](https://wiki.vocadb.net/docs/public-api), [Events](https://wiki.vocadb.net/docs/events), [License](https://wiki.vocadb.net/docs/license)
+- [Cloudflare Workers full-stack routing](https://developers.cloudflare.com/workers/static-assets/routing/full-stack-application/)
 
-`public/data/catalog.sqlite`（以及发给浏览器的 gzip 副本 `catalog.sqlite.gz`）与 sql.js wasm 由构建复制，不作为源文件提交。
+`public/data/catalog.sqlite` (and browser gzip copy `catalog.sqlite.gz`) and sql.js wasm are build copies, not committed source.
 
-## 数据流
+## Data flow
 
 ```mermaid
 flowchart LR
-  subgraph sources [来源]
+  subgraph sources [Sources]
     VocaDB["VocaDB REST API"]
   end
-  subgraph repo [仓库]
+  subgraph repo [Repository]
     SQL["data/schema.sql + increments"]
     Build["scripts/build-catalog.ts"]
     SQLite["catalog.sqlite"]
   end
   subgraph edge [Cloudflare Worker]
-    SSR["Nuxt SSR 壳"]
+    SSR["Nuxt SSR shell"]
   end
-  subgraph browser [浏览器]
+  subgraph browser [Browser]
     Wasm["sql.js"]
     Stats["shared/stats.ts"]
   end
@@ -106,66 +106,66 @@ flowchart LR
   SSR --> browser
 ```
 
-系列年度首演规则在写入 SQL 前于 `shared/premiere.ts` 计算，并落表 `edition_premieres`（表名保留，含义是「系列年度第一个演出」），便于复核。
+Edition premiere rules are computed in `shared/premiere.ts` before SQL write and stored in `edition_premieres` (name kept; meaning is first 演出 of a series edition year) for review.
 
-## 风险与验证
+## Risks and verification
 
-| 风险 | 处理 |
+| Risk | Mitigation |
 | --- | --- |
-| VocaDB 日期是午夜 UTC，不是开演时刻 | 精度为 day；钟点必须带简介原文摘录 |
-| 同一系列年度多城、后至配信被当成首演 | `broadcast` 排除；首演取最早 `show` |
-| 串烧被当成一首歌 | 无组成歌曲则隔离，不进分母 |
-| 每周任务打满 API | 六系列、≥300ms 间隔、自定义 UA；超过预算则失败而不分片狂刷 |
-| Workers 上误跑统计或原生 sqlite | 聚合只在客户端；服务端路由只用 `fetch` |
+| VocaDB date is UTC midnight, not show start | Precision `day`; clock time requires excerpt from description |
+| Multi-city edition; late broadcast mistaken for premiere | Exclude `broadcast`; premiere is earliest `show` |
+| Mashup counted as one song | Quarantine without components; exclude from denominator |
+| Weekly job saturates API | Six series, ≥ 300 ms gap, custom UA; fail over budget instead of shard spam |
+| Stats or native sqlite on Workers by mistake | Aggregate client-only; server routes use `fetch` only |
 
-验证：
+Verification:
 
-- `pnpm test` 覆盖首演、钟点解析、串烧、版本合并与计数口径
-- `pnpm test` 中的目录测试打开已提交 SQL，核对 2014 年マジカルミライ首演是大阪场 `2014-08-30` 而不是东京场 `2014-09-20`
-- `pnpm lint`、`pnpm typecheck`
-- 浏览器走通首页筛选、单曲、演出、系列与制作人页
+- `pnpm test` covers premiere, showtime parse, mashups, variant merge, count semantics
+- Catalog tests in `pnpm test` open committed SQL and assert 2014 マジカルミライ premiere is Osaka `2014-08-30`, not Tokyo `2014-09-20`
+- `pnpm lint`, `pnpm typecheck`
+- Browser smoke: home filters, song, 演出, series, producer pages
 
-## 歌曲出现次数排行
+## Song appearance ranking
 
-首页按歌曲统计「出现过多少次」。聚合仍是 `shared/stats.ts` 里的纯函数，读已加载的目录行（场次层 `performance_show_setlist_items` 优先，没有展开行时回退 `setlist_item_songs` / `setlist_items`，以及 `songs`、`performances`、`series`），不另写 SQL。
+The ranking page counts how many times each song appeared. Aggregation stays pure functions in `shared/stats.ts`, reading loaded catalog rows (prefer 场次 layer `performance_show_setlist_items`; fall back to `setlist_item_songs` / `setlist_items`, plus `songs`, `performances`, `series`); no separate SQL.
 
-计数不以上游 VocaDB 为准：只要本项目记录了某个演出的歌单（上游歌单、专辑补位，或只有百科逐曲表、`song_list_id` 为空的演出），该演出的曲目就进入排行、单曲出场记录与制作人统计。
+Counts are not VocaDB-authoritative: if this project has a setlist for a 演出 (upstream list, album fill, or wiki-only table with empty `song_list_id`), that 演出’s tracks enter ranking, song appearances, and producer stats.
 
-三级单位与 VocaDB 对齐：系列（`series`）> 演出（一条 `performances` 行 = 一个 VocaDB release event = 一个城市站）> 场次（一天，或同一天日场 / 夜场各一场）。
+Three levels align with VocaDB: series (`series`) > 演出 (one `performances` row = one VocaDB release event = one city stop) > 场次 (one calendar day, or separate day/night 场次 same day).
 
-两种计数：
+Two count modes:
 
-- `show`（按场次，默认）：读场次层 `performance_show_setlist_items`，按 `show_key` 去重。三日巡演计 3；同日日场 + 夜场计 2；没有日期的演出没有场次。没有展开行的旧目录回退到 `event-schedule.ts` 推导与歌单备注解析（备注写了天 / 半天 / 场次号时只计对应场次，否则一行计入该演出的全部场次）；解析不了的场次仍给出约数，并标不确定。
-- `event`（按演出）：每条 `performances` 行最多计 1。同一年大阪与东京各计一次，不再按 `series_id` + `series_number` 合并。
+- `show` (by 场次, default): read `performance_show_setlist_items`, dedupe by `show_key`. Three-day tour = 3; same-day matinee + evening = 2; undated 演出 has no 场次. Legacy catalogs without expanded rows fall back to `event-schedule.ts` and note parsing (notes naming day / half-day / 场次 number count only those 场次; else one row counts all 场次 of that 演出); unresolved 场次 get approximate counts marked uncertain.
+- `event` (by 演出): each `performances` row counts at most once. Osaka and Tokyo same year each count once; no merge by `series_id` + `series_number`.
 
-筛选：
+Filters:
 
-- 系列 id 列表。省略或空列表表示全部系列。
-- 年份闭区间，取演出 `start_date` 的公历年。没有日期的演出在设置了任一年份边界时不计入。
-- `includeBroadcast` 为 false 时排除 `role = broadcast`，以及名称、日文名或 `series_suffix` 命中 livestream、online、オンライン、VR、ＶＲ、配信的演出。演出简介没有单独落在 `performances` 上；`performance_links.description` 多是外链标题（例如现场场次的 “Online Live Information”），不参与排除。
-- `includeMedleyComponents` 为 false 时只计 `setlist_item_songs.role = listed`（直接列出的曲目）。`component` 仅在为 true 时计入。未能拆分的串烧不写入 `setlist_item_songs`，两种模式都不计。
+- Series id list; omit or empty = all series.
+- Closed year range on `start_date` calendar year. Undated 演出 excluded when any year bound is set.
+- `includeBroadcast` false excludes `role = broadcast` and 演出 whose name, Japanese name, or `series_suffix` match livestream, online, オンライン, VR, ＶＲ, 配信. Descriptions are not on `performances`; `performance_links.description` is usually link titles (e.g. “Online Live Information” on an in-person stop) and does not drive exclusion.
+- `includeMedleyComponents` false counts only `setlist_item_songs.role = listed`. `component` counts only when true. Unsplit mashups are not in `setlist_item_songs`; neither mode counts them.
 
-每行输出歌曲 id、名称（`songs.name`）、制作人署名、次数、出现过的演出数、最早年份、最晚年份。次数为 0 的歌曲不输出。默认按次数降序、歌曲 id 升序。`seriesCount` 仍保留在返回值里但不再展示；表格的「演出数」用 `performanceCount`（去重后的演出行数，两种统计模式都一样）。
+Each row outputs song id, name (`songs.name`), producer credit, count, distinct 演出 count, earliest and latest year. Songs with count 0 are omitted. Default sort: count desc, song id asc. `seriesCount` remains in the return value but is not shown; the performance-count column uses `performanceCount` (distinct 演出 rows; same in both modes).
 
-首页改为这张可排序的表，并提供模式、系列多选、年份、配信/VR、串烧组成的控件。覆盖说明写明：默认按场次统计，按演出时每个城市站各算一次。
+The ranking page is this sortable table with mode, multi-series, year, broadcast/VR, and medley-component controls. Coverage note: default is 场次 counts; 演出 mode counts each city stop once.
 
-## 歌单备注与逐场解析
+## Setlist notes and per-场次 parsing
 
-`setlist_items.notes` 保存 VocaDB 歌单行的自由文本。采集已经写入该列，原始响应在 `data/cache`，已提交的 `data/increments/0001-vocadb-catalog.sql` 含这些备注（例如歌单 17933 的「愛の詩」与「サイハテ」）。空备注表示该歌单下的每个演出都演出了这首歌。不为此重新请求网络。
+`setlist_items.notes` holds VocaDB setlist-row free text. Collect already writes this column; raw responses live in `data/cache`; committed `data/increments/0001-vocadb-catalog.sql` includes these notes (e.g. setlist 17933’s 「愛の詩」 and 「サイハテ」). Empty notes mean every 演出 under that setlist played the song. No re-fetch for this.
 
-`shared/rotation.ts` 把备注拆成场次集合。城市名对齐到共用该 `song_list_id` 的演出（名称、日文名、场馆、`series_suffix`）。`Day N` 是该城市按日期排序后的第 N 个不同日期；日期来自 `start_date` 到 `end_date`（含首尾）。一场演出覆盖多日时，这些日仍对应同一条演出记录。
+`shared/rotation.ts` parses notes into 场次 sets. City names align to 演出 sharing that `song_list_id` (name, Japanese name, venue, `series_suffix`). `Day N` is the Nth distinct date in that city by sorted dates from `start_date` through `end_date` inclusive. Multi-day 演出 still maps those days to one 演出 record.
 
-不确定时保留已识别出的场次，并记下原因：只写了城市但该城市有多场或多日；某一日存在日夜场或备注写了 daytime / nighttime / 1st / 2nd show；格式无法识别；城市对不上任何演出。
+When uncertain, keep identified 场次 and record why: city only but multiple 演出 or days; day with matinee/evening or note says daytime / nighttime / 1st / 2nd show; unparseable format; city matches no 演出.
 
-同一歌单内，解析后统计每场的歌单行数。与该歌单行数的众数不同的场次记为 `setlist length mismatch: X vs expected Y`，并把因此受影响的行（有备注、或被排除出该场的行）标成不确定。
+Within one setlist, count setlist rows per 场次 after parsing. 场次 whose row count differs from the mode get `setlist length mismatch: X vs expected Y`; affected rows (with notes or excluded from a 场次) are marked uncertain.
 
-按场次的排行使用解析结果，并用 `showsForNotes` 把一行收窄到 `Day N` / 日场 / 夜场所指的场次。次数不可靠时显示「≈」，悬停列出尚未确认具体场次数的演出。页上另列未解决的行和演出。演出页 `/shows/:id` 展示场次列表、原始备注与解析结果；系列主页 `/series/:id` 列出该系列的全部演出，并从排行、演出页链入。
+场次-based ranking uses parse results; `showsForNotes` narrows a row to 场次 meant by `Day N` / matinee / evening. Unreliable counts show “≈”; hover lists 演出 with unconfirmed 场次 counts. The page also lists unresolved rows and 演出. `/shows/:id` shows 场次 list, raw notes, and parse results; `/series/:id` lists all 演出 in the series and links from ranking and 演出 pages.
 
-外观由 Nuxt UI 的 color mode 控制，默认跟随系统，系统无偏好时回落到深色。`html.dark` 由 `@nuxtjs/color-mode` 写入，页眉的 `UColorModeButton` 切换并记忆。深色是艺术方向基准：近黑背景配青绿 `#39C5BB` 与洋红 `#E12885` 的径向光晕；浅色同样必须可用。光晕画在固定的 `-z-10` 层，不进入正文层，避免影响对比度。
+Appearance uses Nuxt UI color mode: system default, dark when no system preference. `@nuxtjs/color-mode` sets `html.dark`; header `UColorModeButton` toggles and remembers. Dark is the art-direction baseline: near-black with teal `#39C5BB` and magenta `#E12885` radial glow; light theme required. Glow on fixed `-z-10`, not in content, for contrast.
 
-## 歌名中文
+## Chinese song titles
 
-`data/song-titles.zh-CN.json` 是按 VocaDB 歌曲 id 索引的对象。键是十进制 id 字符串。没有把握的歌不写进行去。
+`data/song-titles.zh-CN.json` is keyed by VocaDB song id (decimal string keys). Do not add songs without confidence.
 
 ```json
 {
@@ -178,59 +178,59 @@ flowchart LR
 }
 ```
 
-`title` 非空，是站内唯一显示的中文名。`aliases` 可省略，列出其他通行中文译名：显示在中文主名下方「其他名称」一行，搜索也能命中（例如搜「世界末日舞厅」仍能找到 `title` 为「世末舞厅」的歌）；同一个别名不要重复，也不要与 `title` 相同。繁体写法不进 `aliases`，写到 `data/song-titles.zh-Hant.json`（同样的 `title` / `aliases` / `source` 结构），繁体中文界面用它显示标题与其他名称。
-`source` 记录出处，优先级也是这个顺序：`官方中译`（官方频道 / 官方专辑的中文曲名）> `vocawiki` / `萌娘百科` / `vocadb-alias`（民间通行译名）> `人工核定`（自己翻译）；`简繁转换` 只给汉字同名的器乐曲。曲名是英文词的假名写法时（`クリスタルスノウ` → `Crystal Snow`、`サンドリヨン` → `Cendrillon`、`ネクストネスト` → `Next Nest`），中文位直接用英文，并把英文写进 `songs.name_en`（VocaDB 没给时补在 `data/increments/0012-song-english-names.sql`），不要把英文混进中文名或 `comment`；官方罗马字名同理（`ロキ` → `ROKI`）。`comment` 可省略，只写 `title` 与 `aliases` 放不下的说明。中文名与 `songs.name` 完全相同时不登记：显示结果一样，只会虚增映射条数；例外是原曲名虽相同、但有需要参与检索的别名（`番凩` 的「落叶秋风」「对霜风」）。`shared/song-titles.ts` 校验并按 id 取出。测试要求每个 id 都在已提交目录里。
+`title` is required and is the sole displayed Chinese name on site. Optional `aliases` list other common Chinese renderings: shown on an “other names” line under the Chinese primary title and searchable (e.g. searching 「世界末日舞厅」 still finds `title` 「世末舞厅」); no duplicate aliases or aliases equal to `title`. Traditional forms go in `data/song-titles.zh-Hant.json` (same `title` / `aliases` / `source` shape) for zh-Hant UI.
+`source` records provenance, priority order: `官方中译` (official channel / album Chinese title) > `vocawiki` / `萌娘百科` / `vocadb-alias` (community names) > `人工核定` (hand translation); `简繁转换` only for instrumental same-Han titles. Katakana spellings of English (`クリスタルスノウ` → Crystal Snow, etc.) use English in the Chinese slot and set `songs.name_en` (patch in `data/increments/0012-song-english-names.sql` when VocaDB lacks it); do not mix English into Chinese title or `comment`; same for official romanizations (`ロキ` → ROKI). Optional `comment` for what does not fit in `title` / `aliases`. Do not register when Chinese title equals `songs.name` (same display, inflates map); exception when aliases must be searchable (`番凩` aliases 「落叶秋风」「对霜风」). `shared/song-titles.ts` validates and loads by id; tests require every id in committed catalog.
 
-日文显示名不用 SQL 覆盖：上游 `songs.name` 不可用时（404329 的 default name 是 emoji `🔪、🔪、🔪`，其 `names` 列表与百科写 `ナイフ、ナイフ、ナイフ`），在 `data/song-aliases.json` 给这首歌登记 `title`，`shared/song-aliases.ts` 校验并让它在显示上优先于 `name_ja` / `name`。一首歌只有一个 `title`：同一首歌的其它日文或英文写法写进 `aliases`，显示在原文主名下方「其他名称」一行；`songs.name_en`（`0012`）也会显示在这里，中文名（`song-titles.zh-CN.json`）在中文模式下显示。不必在 `aliases` 里重复 `songs.name_en` 或中文名，解析层会去重。catalog 的 `name` / `name_ja` 保持上游原值，`pnpm collect` 重写 `0001` 不会影响这个文件。
+Japanese display names are not SQL-overridden: when upstream `songs.name` is unusable (404329 default emoji `🔪、🔪、🔪`, wiki lists `ナイフ、ナイフ、ナイフ`), register `title` in `data/song-aliases.json`; `shared/song-aliases.ts` validates and prefers it over `name_ja` / `name`. One `title` per song; other JP/EN spellings in `aliases` on “other names”; `songs.name_en` (`0012`) also there; Chinese from `song-titles.zh-CN.json` in Chinese mode. Do not duplicate `name_en` or Chinese in `aliases` (deduped in resolver). Catalog `name` / `name_ja` stay upstream; `pnpm collect` rewriting `0001` does not touch this file.
 
-顶栏用「中文歌名」开关（`USwitch`）控制是否显示中文，记在 `localStorage` 键 `miku-concert-stats-song-lang`（`zh` / `original`）。没有记录时，`navigator.language` 以 `zh` 开头则用中文。服务端和注水先显示原文，挂载后再读本地选择，避免注水不一致。选中中文且该歌有译文时，译文作主标题，原文用灰色小字换行显示在译文下方；否则只显示原文。各页歌曲名走同一个 `SongTitle` 组件。单曲页在标题下方用 `SongTitleAliases` 列出当前语言的其他名称（4 个以上折叠成 `+N`）；搜索结果行用 `SongSearchResultTitle`，命中别名时第二行显示并高亮该别名。
+Header “Chinese song titles” switch (`USwitch`) stored in `localStorage` `miku-concert-stats-song-lang` (`zh` / `original`). Default: Chinese when `navigator.language` starts with `zh`. SSR/hydration show original first, then client reads choice to avoid mismatch. With Chinese on and translation present, translation is primary, original gray below; else original only. All pages use `SongTitle`. Song page lists other names via `SongTitleAliases` (fold at 4+ as `+N`); search rows use `SongSearchResultTitle` with highlighted matching alias on second line.
 
-## 演出角色
+## 演出 roles (vocalists)
 
-`data/characters.json` 把固定的角色本名映射到匹配规则，用来合并声库变体。键是显示名，例如 `初音ミク`。值含 `patterns`（锚定在名称开头的正则）、可选 `aliases`（整段或作为前缀的别名，如英语名）与可选 `color`（应援色的 `#rrggbb`，渲染歌手标签时用作边框色，并以 12% 透明度作底色）。`初音ミク Append (Unknown)`、`初音ミク V4X (Original)`、`初音ミク V4X (Dark)` 都落到 `初音ミク`。对不上任何规则的名字保持未匹配，不猜测；没有 `color` 的角色标签不带颜色。
+`data/characters.json` maps canonical character names to match rules to merge voicebank variants. Keys are display names such as `初音ミク`. Values have `patterns` (regex anchored at start), optional `aliases` (full or prefix, e.g. English names), optional `color` (cheer color `#rrggbb` for chip border and 12% fill). `初音ミク Append (Unknown)`, `初音ミク V4X (Original)`, `初音ミク V4X (Dark)` resolve to `初音ミク`. Unmatched names stay unmatched; no `color` means no colored chip.
 
-一首歌的演唱者优先取 `song_vocalists` 表：`scripts/vocadb/vocalists.ts`（`pnpm collect:vocalists`）对每首歌请求 VocaDB 的 `fields=Artists`，只保留 `categories` 或 `roles` 含 `Vocalist` 的条目，名字用条目的 `name`，否则用嵌套 `artist.name`，写成 `data/increments/0006-song-vocalists.sql`。`artist_string` 会把大编制合唱压成 `feat. various`（例如 Hand in Hand 的现场翻唱实际由 KAITO、MEIKO、初音ミク、巡音ルカ、鏡音リン、鏡音レン 演唱），所以这份名单才是「演出角色」的来源。库里没有该歌的名单时，退回 `songs.artist_string` 里第一次出现的 `feat.` 之后的名单，按逗号拆开；`feat.` 前面的制作人不算角色。
+Per-song vocalists prefer `song_vocalists`: `scripts/vocadb/vocalists.ts` (`pnpm collect:vocalists`) requests VocaDB `fields=Artists`, keeps entries with `Vocalist` in `categories` or `roles`, name from entry `name` or nested `artist.name`, emitted to `data/increments/0006-song-vocalists.sql`. `artist_string` collapses large choruses to `feat. various` (Hand in Hand live covers list KAITO, MEIKO, 初音ミク, 巡音ルカ, 鏡音リン, 鏡音レン), so this table is the source for on-stage roles. Without a row, fall back to text after first `feat.` in `songs.artist_string`, comma-split; producers before `feat.` are not roles.
 
-结果在读取目录时推导，不另写 SQL 列。排行、演出、系列索引与单曲页的歌曲行显示「歌手」。排行可按一个角色筛选。
+Derived at catalog read time, no extra SQL column. Ranking, 演出, series index, and song pages show “Vocalists”. Ranking can filter by one character.
 
-`shared/credit.ts` 负责署名文本：`producerCredit` 取 `feat.` 之前的制作人，`displayArtistString` 保留完整署名，两者都会丢掉 VocaDB 的名字占位（`Unknown producer(s)`、`Unknown artist` 等，不指向任何作者），只由占位组成的署名返回 `null`，页面显示「未记录」。页头、站内搜索结果与 `/raw` 的歌曲表都走这两个函数；单曲页的「其他版本」卡片按下面的制作人规则取值。排行的「制作人」列先取结构化的 `song_producers` 名单，只有该行（含合并的版本组）没有任何结构化署名时才退回 `producerCredit`；Publisher、Illustrator、厂牌 / 社团等署名不是制作人，`VoiceManipulator`（調声 / 調音）保留。
+`shared/credit.ts` handles credit strings: `producerCredit` before `feat.`, `displayArtistString` full string; both strip VocaDB placeholders (`Unknown producer(s)`, etc.); all-placeholder returns `null` → “Not recorded”. Header search and `/raw` song table use these; song page “other versions” cards use producer rules below. Ranking “Producer” column prefers structured `song_producers`, else `producerCredit` for that row (including merged variant groups). Publisher, Illustrator, label/circle credits are not producers; `VoiceManipulator` (調声 / 調音) kept.
 
-制作人署名以证据强度排序：官方专辑 / 官方页的署名优先，其次是 VocaDB `fields=Artists` 里的制作侧署名 `song_producers`，`artist_string` 只在歌曲条目没有任何制作人记录时作为回退。VocaDB 的结构化名单与别的来源冲突时不自动采用任一方：显示仍用结构化名单，差异写进由 `pnpm report:producers` 生成的 `docs/reports/producer-conflicts.md`，维护者确认后才改。
+Producer evidence order: official album/page credits, then VocaDB `song_producers` from `fields=Artists`, `artist_string` only when no producer on the song. VocaDB vs other sources: do not auto-pick; display structured list; conflicts in `docs/reports/producer-conflicts.md` from `pnpm report:producers` until maintainer resolves.
 
-制作人页（`/producers` 与 `/producers/{name}`）沿用同一份名单，不再另写一套规则。曲目数是不同歌曲 id 数，变体版本分别计数、不合并版本组；「演出曲目」与「表演次数」读场次层，旧目录回退到源歌单备注解析，串烧展开为组成曲；演出数是不同 `performances` 行数，场次按 `show_key` 去重；配信、线上与 VR 演出默认剔除。场次层里有歌单的演出都计入，包括 `song_list_id` 为空、歌单只来自百科逐曲表的演出，这样「演出曲目」和「表演次数」与首页同一制作人筛选后的行数、次数合计一致。自由文本署名没有 `artist_id` 时只显示名字，不编造 VocaDB 链接；没有出场记录的制作人仍然列出。页面用曲目数降序作为默认排序，页眉主导航、首页「制作人」列、单曲页「其他版本」和页眉搜索都链到 `/producers/{name}`。因为自由文本回退与排行完全一致，`DECO*27`、`kz` 这类同时出现在没有结构化署名的歌里的名字，曲目数会高于 `song_producers` 的单表 SQL，这是预期行为。
+Producer pages (`/producers`, `/producers/{name}`) use the same rules. Song count = distinct song ids (variants counted separately, no variant-group merge); “songs performed” and “performance count” read 场次 layer (legacy note parse; medley components); 演出 count = distinct `performances`; 场次 deduped by `show_key`; broadcast, online, VR excluded by default. 演出 with setlist at 场次 layer count, including empty `song_list_id` wiki-only setlists, matching ranking totals for the same producer filter. Free-text names without `artist_id` show name only, no fake VocaDB link; producers with zero appearances still listed. Default sort: song count desc. Header nav, ranking producer column, song “other versions”, header search link to `/producers/{name}`. Free-text fallback matches ranking, so names like `DECO*27`, `kz` on songs without structured producers can exceed `song_producers`-only SQL counts—expected.
 
-## 实现步骤
+## Implementation steps
 
-1. **模式与纯函数** — `data/schema.sql`，`shared/premiere.ts`，`shared/showtime.ts`，`shared/medley.ts`，`shared/stats.ts` 及对应 `tests/*`。
-2. **采集与 SQL** — `scripts/vocadb/*`，`scripts/sql/emit.ts`，`scripts/build-catalog.ts`；运行一次采集生成 `data/increments/0001-vocadb-catalog.sql`；`tests/catalog.test.ts`。
-3. **站点** — Nuxt 页面、`composables/useCatalog.ts`、署名与空态。
-4. **发布自动化** — `wrangler.toml`（含可为空的 `previews`）、CI、每周工作流；README。非 `main` 的 Worker Preview 需要顶层 `[previews]` 表（可为空，勿在 `[[...]]` 后写行内 `previews = { }`）；预览不继承生产 `FEEDBACK` / `PAGEVIEWS`。生产用 `npx wrangler deploy`；非 `main` 分支 Preview 用 `npx wrangler preview`（旧文档里的 `versions upload` 已弃用）。运维细节见 [cloudflare.md](cloudflare.md)。
+1. **Schema and pure functions** — `data/schema.sql`, `shared/premiere.ts`, `shared/showtime.ts`, `shared/medley.ts`, `shared/stats.ts`, and `tests/*`.
+2. **Collect and SQL** — `scripts/vocadb/*`, `scripts/sql/emit.ts`, `scripts/build-catalog.ts`; one collect run produces `data/increments/0001-vocadb-catalog.sql`; `tests/catalog.test.ts`.
+3. **Site** — Nuxt pages, `composables/useCatalog.ts`, credits and empty states.
+4. **Release automation** — `wrangler.toml` (optional empty `previews`), CI, weekly workflow; README. Non-`main` Worker Preview needs top-level `[previews]` (may be empty; no inline `previews = { }` after `[[...]]`); previews do not inherit prod `FEEDBACK` / `PAGEVIEWS`. Prod: `npx wrangler deploy`; non-`main` preview: `npx wrangler preview` (`versions upload` deprecated). Ops: [cloudflare.md](cloudflare.md).
 
-## 版本合并
+## Variant merging
 
-`data/song-variants.json` 是人工核对的清单，只收录确认属于同一首歌的 remix、remaster、声库、翻唱与语言版本。`shared/song-variants.ts` 拒绝链式映射与自指。统计函数接受 `SongVariantIndex`：计数时先归一到 canonical id 再按演出或场次去重，代表投稿在合并组内选，排行行带上 `variantSongIds`，页面标注「含 N 个版本」时 N 含原版（`variantSongIds.length + 1`）。单曲页的「其他版本」卡片只列并入的其他版本（没有并入版本时整块不渲染；URL 用变体 id 打开时跳过该变体本身，卡片不会出现指向当前页的链接）：类型、制作人与歌手。制作人先取该版本的 `song_producers`，没有时才取署名 `feat.` 之前的部分，并去掉 VocaDB 的 `Unknown producer(s)` 占位（它不指向任何作者）；歌手取 `song_vocalists` 里该变体自己的名单，没有时退回 `feat.` 名单，仍解析不到才改用原版的角色。原版的投稿日期与演出角色留在页头。清单之外的重复条目不会被自动合并，`/raw` 的「疑似重复但未合并」会持续列出候选。
+`data/song-variants.json` is a hand-checked list of same-song remix, remaster, voicebank, cover, and language variants. `shared/song-variants.ts` rejects chains and self-maps. Stats take `SongVariantIndex`: normalize to canonical id before dedupe by 演出 or 场次; pick representative upload in group; ranking rows include `variantSongIds`; UI “includes N versions” counts original (`variantSongIds.length + 1`). Song page “other versions” lists merged variants only (hidden when none; variant URL skips self). Type, producer, vocalists per variant: `song_producers` first, else producer before `feat.`, strip `Unknown producer(s)`; vocalists from variant `song_vocalists`, else `feat.`, else canonical roles. Canonical upload date and roles stay in header. Duplicates outside the list are not auto-merged; `/raw` “suspected duplicate, not merged” lists candidates.
 
-## 歌单槽位与跨地区合并
+## Setlist slots and cross-region merging
 
-同一槽位的替换曲目在 VocaDB 里是相邻但序号不同的多行。`shared/setlist-slots.ts` 判定两行是否可以共用一个序号：演出集合不同时要求日期与场次对齐；同一场记录跨多天时按备注的日期/日夜/场次判定；任一侧没有备注就不合并。只有连续且与槽位内每一行都互斥的行才会合并。
+Replacement tracks in the same slot appear as adjacent VocaDB rows with different numbers. `shared/setlist-slots.ts` decides if two rows share a slot: when 演出 sets differ, dates and 场次 must align; multi-day single records use note day/matinee/evening; merge only when both sides have notes. Only consecutive rows mutually exclusive with every row in the slot merge.
 
-**场次层（2026-11-05 起）**：源歌单不再直接充当「这场演出的歌单」。`pnpm derive:setlists` 把每一行展开到 `showsForNotes` 判定它覆盖的场次，写入 `performance_show_setlist_items`；一个演出有几天就存几套完整曲目，日内有日夜场就再拆成两套。源层（`song_lists` / `setlist_items` / `setlist_item_songs`）保持 VocaDB 原样，`/raw` 的跨演出对照与 `/report` 继续读它。
+**场次 layer (from 2026-11-05):** Source setlist is not directly “this 演出’s setlist”. `pnpm derive:setlists` expands each row via `showsForNotes` into `performance_show_setlist_items`; multi-day 演出 get full programs per day; matinee/evening split within a day. Source layer (`song_lists` / `setlist_items` / `setlist_item_songs`) stays VocaDB-shaped; `/raw` cross-演出 compare and `/report` read it.
 
-**演出级合并（2026-11-06 起）**：`/shows` 把可合并的场次折成一张表。`mergeShowSetlists` 先按代表场次定序并插入只在其他场次出现的曲目，再把「在演过它的每个场次里都落在同一序号」的行并成同一个槽位。日场 / 夜场轮换、分天替换都因此共用一个序号，`ShowSetlistTable` 用 `UTable` 的 `meta.rowspan` 把序号单元格上下合并（被吸收的单元格用 `meta.class` 置为 `hidden`），每首歌仍各占一行：编号只到单场曲目数，读者不会把替换曲误数成额外曲目。表格保持四列，不单设场次列，每个替代曲适用的场次写进「备注」（`仅日场` / `仅 8/11` / `仅 8/11 日场、8/12 夜场`，每场都演的省略），器乐曲等分类用 ` · ` 接在后面。70 个可合并演出里 64 个的槽位数与单场曲目数完全相等，其余 6 个是插入曲造成序号错位或场次长度本身不同，按实际情况多出或减少。并槽要求两侧场次集合完全不相交，序号错位的曲目仍单独占行，不猜测同槽位。
+**演出-level merge (from 2026-11-06):** `/shows` folds mergeable 场次 into one table. `mergeShowSetlists` orders by representative 场次, inserts 场次-only songs, then merges rows that share the same slot index in every 场次 they appear. Matinee/evening rotation and day swaps share slot numbers; `ShowSetlistTable` uses `UTable` `meta.rowspan` (absorbed cells `hidden` via `meta.class`); one row per song so replacements are not extra tracks. Four columns, no dedicated 场次 column; which 场次 a substitute applies to goes in “Notes” (`matinee only` / `8/11 only` / etc.; omit when all 场次). Instrumental tags after ` · `. Of 70 mergeable 演出, 64 have slot count equal to single-场次 length; six differ due to inserts or length mismatch. Merge requires disjoint 场次 sets; misaligned indices stay separate rows.
 
-外部核实遵循「VocaDB 备注 → 官方页 → 萌娘百科等 wiki → 录播」的顺序；查到就**直接采用**，来源（URL、访问日期、置信度、一句话说明）存进 `performance_setlist_sources`，`/shows` 页脚展示，另在 `docs/setlist-confirmation.md` 第 1 节留档，不需要逐条确认。逐场次的特殊说明写进演出层的 `note`，不另建场次级来源表。
+External confirmation order: VocaDB notes → official page → wikis → recordings; adopt when found; store URL, access date, confidence, one-line note in `performance_setlist_sources`, footer on `/shows`, archive in `docs/setlist-confirmation.md` §1 without per-line sign-off. Per-场次 notes live in 演出-level `note`, no 场次-level source table.
 
-同一系列年度不同演出的歌单（例如 2019 マジカルミライ 东京与大阪）仍只在 `/raw` 的跨演出对照里用 `data/setlist-merges.json` 人工分组后并排展示，不作为该系列年度的合并歌单；如果其中一份歌单被轮换检查标出长度不一致，说明各演出曲目数量对不上，则拆开单独显示，不参与合并。`shared/edition-setlists.ts` 以演出最多的歌单为骨架，其余用 LCS 对齐，重复曲目折叠成一行并合并演出集合。渲染时槽位用 `rowspan` 共享序号，末尾「演出」列说明该行属于哪个演出；每个演出都演出的行留空，不写说明。
+Different 演出 setlists in one edition year (e.g. 2019 マジカルミライ Tokyo vs Osaka) appear side by side only in `/raw` via `data/setlist-merges.json`; not one merged edition setlist. Rotation length mismatch splits display. `shared/edition-setlists.ts` uses largest 演出 setlist as skeleton, LCS-align others, fold duplicate songs and merge 演出 sets. `rowspan` for slots; trailing “演出” column when row is not universal.
 
-## 差异核验报告
+## Setlist difference reports
 
-`shared/setlist-diff.ts` 计算同一系列年度歌单对（以及相邻系列年度）的结构差异：行数、正片与安可行数、共有与独有曲目、LCS 覆盖率、是否已合并。分级为 `identical`、`order-only`、`count-differs`、`segment-differs`、`probably-different-program`。`pnpm report:setlist` 写出 `docs/reports/setlist-differences.{md,csv}`，`--check` 供 CI 校验；`/report` 在浏览器里用同一份纯函数渲染，可复制 Markdown。相邻系列年度只作参考，不参与分级统计。
+`shared/setlist-diff.ts` compares edition-year setlist pairs (and adjacent years): row counts, main/encore counts, shared/unique songs, LCS coverage, merge flag. Grades: `identical`, `order-only`, `count-differs`, `segment-differs`, `probably-different-program`. `pnpm report:setlist` writes `docs/reports/setlist-differences.{md,csv}`; `--check` for CI; `/report` renders same logic in browser with Markdown copy. Adjacent years are reference only.
 
-## 界面
+## UI
 
-Nuxt 4 + Nuxt UI 4 + Tailwind 4。目录迁到 `app/`，`shared/` 留在根目录，页面用 `~~/shared/*` 引用纯逻辑。页眉是毛玻璃吸顶条，公开导航为歌曲 / 制作人 / 时间线 / 系列 / 城市；`/raw` 改为仅开发环境可用的源数据浏览器（生产构建 `ignore`，不进导航）。排行用 `UTable` 与 TanStack 排序，筛选条件写入 URL query，刷新与分享都能复原。
+Nuxt 4 + Nuxt UI 4 + Tailwind 4. App code under `app/`; `shared/` at repo root; pages import `~~/shared/*`. Sticky frosted header; public nav: Songs / Producers / Timeline / Series / Cities; `/raw` dev-only catalog browser (ignored in prod build, not in nav). Ranking uses `UTable` and TanStack sort; filters in URL query for refresh and share.
 
-语言切换按钮在页眉顶栏最右侧，当前语言名显示在按钮文字区域（简体中文 / 繁體中文 / 日本語 / 한국어 / English），无需打开菜单即可看到当前语言。点击按钮弹出语言列表供选择，列表内第一项为当前语言，其余按 LOCALES 顺序排列。语言切换存储到 cookie，每个语言的「显示原文」开关位于语言列表底部的分隔带中，在日语模式下禁用（因为日语本就是原文）。
+Language control top-right: current locale on the button (简体中文 / 繁體中文 / 日本語 / 한국어 / English). Menu lists current first, then `LOCALES` order. Locale in cookie; per-locale “show original title” at menu bottom; disabled in Japanese.
 
 ## Korean UI locale (issue #46)
 
@@ -269,11 +269,11 @@ Characters: 7 of 22 catalog characters have a sourced Hangul label in `data/char
 
 Each accepted row records a source class, source URL, and — for VocaDB rows — API URL and name field, in `docs/research/korean-names/`, so an audit does not rely on an uncited bulk list. When Korean has no sourced row, the site still shows the original catalog spelling and does not borrow English or Chinese names.
 
-所有列表页的表格以曲目排行为基准：`TableSection` 提供标题、`UTable`、粘性表头、`ranking-scroll`、加载骨架与空状态，`SortableHeader` 提供统一下拉排序表头，页面不再各自决定外壳样式。角色一律用 `CharacterChips`（应援色描边与淡底色，超过 3 个折叠成 `+N` 气泡），制作人署名这类非角色标签用 `UBadge`；筛选标签用 `FilterField`（`UFormField`）。唯一的例外是 `/raw` 的「数据表」：列由目录表结构动态决定，保留手写表格，但沿用同样的外壳与空状态。详见 `docs/architecture.md` 的「共享 UI 组件」。
+List pages share the song-ranking table pattern: `TableSection` (title, `UTable`, sticky header, `ranking-scroll`, skeleton, empty), `SortableHeader` for sort dropdowns. Vocalists always `CharacterChips` (cheer border/fill, `+N` after 3); non-character tags like producers use `UBadge`; filters use `FilterField` (`UFormField`). Exception: `/raw` “data tables” with dynamic columns and hand-built table, same shell/empty state. See `docs/architecture.md` shared UI components.
 
-时间线页面的「场次 / 系列」堆叠柱图只按年份展开演出列表：点击柱段与点击柱上方或柱间空白相同，都切换该年在图下方的明细；柱段本身不跳转系列详情，也不保留点击选中态或选中变色。巡演城市迁移与角色曲目数年度变化两张柱图同样如此：点击柱段或折线点与点击空白年份带相同，只切换年份明细，不承担点击导航或选中变色；悬停与触摸提示、年份筛选器保留。系列详情通过页面顶部的系列筛选器或 `/series` 入口进入；甘特图仍保持系列跨度浏览。
+Timeline stacked 场次/series chart: year-only drill-down—clicking bar or gap above/between bars toggles year detail below; bars do not navigate to series or keep selection styling. City-migration and character song-year charts behave the same for bars/points vs year band. Series via top filter or `/series`; gantt still spans series.
 
-时间线的「场次 / 系列」、巡演城市迁移与角色曲目数年度变化三张柱图：悬停明细与点击展开的年份明细只列出该年有值的系列 / 分区 / 角色（以及对应的折线点）；数值为 0 或缺失的项不出现在明细里。年份选择、悬停提示本身与图上的合计（堆叠柱总高、轴刻度、页头汇总）保持不变，不因隐藏零项而改写计数口径。该行为由聚焦回归测试覆盖（`TimelineBarChart` 的 `hoverValues`，以及三图年份脚注的 `showsYearPerformances` / `characterYearRows` / `cityYearRow`）。
+Those three charts: hover and expanded year details list only series/segments/characters (and line points) with non-zero values that year; zeros omitted from detail lists; year picker, tooltips, and chart totals (stack height, axis, header aggregates) unchanged. Covered by focused tests (`TimelineBarChart` `hoverValues`, year footnotes `showsYearPerformances` / `characterYearRows` / `cityYearRow`).
 
 ## Mobile chart fullscreen (issue #49)
 
@@ -310,14 +310,13 @@ The date field never uses `尚未演出`, `这场演出尚未举行`, or any “
 
 These labels appear in every user-facing date field: the show header, series lists, search hits, song and producer appearance tables, setlist show labels, and timeline year-detail lists when a date is absent. Sorting, year charts, and 场次 counts continue to treat a missing `start_date` as undated.
 
-## 页眉社交链接
+## Header social links
 
-页眉顶栏在语言与主题按钮之后、从左到右依次放 GitHub、X、哔哩哔哩三个外链图标：哔哩哔哩必须紧挨在现有 X 图标的右侧，链接固定为 `https://b23.tv/IITMbFk`，无障碍标签为「k9009's Bilibili profile」（各语言有对应文案）。图标用与 GitHub / X 相同的 tabler brand 图标包（`i-tabler:brand-bilibili`），按钮尺寸、颜色、`target="_blank"` 与 `rel="noopener noreferrer"` 与现有外链一致。窄屏菜单里 GitHub + X 那一行同样把哔哩哔哩放在 X 右侧。
+After language and theme in the header bar: GitHub, X, Bilibili left to right. Bilibili must sit immediately right of X, link `https://b23.tv/IITMbFk`, accessible name “k9009's Bilibili profile” (localized). Tabler brand icon `i-tabler:brand-bilibili`, same size/color/`target="_blank"`/`rel="noopener noreferrer"` as other external links. Narrow menu row: Bilibili right of X.
 
-## 页眉搜索
+## Header search
 
-
-搜索放在页眉，不单独占一个页面。宽屏是常驻输入框，结果浮层显示目录内命中与「查看全部」；窄屏折叠成顶栏按钮，点开是全屏浮层。搜索只读本地目录，不在页内请求 VocaDB。结果浮层依次列系列（`localSeriesMatches`，链到 `/series/{id}`）、演出（`localPerformanceMatches`，名字、日期与场馆，链到 `/shows/{id}`）、地点（`localPlaceMatches`，场馆名与演出数，链到 `/series?place={场馆}`）、制作人（`localProducerMatches`，名字、角色、曲目数，链到 `/producers/{name}`）与歌曲（链到 `/songs/{id}`）；中文译名同样参与匹配。排行表的「制作人」列先显示 VocaDB 结构化的 `song_producers` 名单，没有时才退回 `feat.` 之前的自由文本；每个名字与悬停气泡都可链到详情页；宽度受限，悬停看完整署名；「歌手」列负责角色，用应援色标签，最多直接显示 3 个，其余收进 `+N` 按钮的气泡。「演出数」列给出该曲出现过的演出数（与统计模式无关），「系列数」不再展示。`/raw` 的歌曲表同样用「制作人」列显示 `producerCredit`，另外用「歌手」列显示解析后的角色，不再显示 `artist_string` 原文。
+Search lives in the header, not its own page. Wide: persistent input, overlay with catalog hits and “view all”; narrow: icon opens full-screen overlay. Local catalog only, no in-page VocaDB. Overlay order: series (`localSeriesMatches` → `/series/{id}`), 演出 (`localPerformanceMatches` → `/shows/{id}`), places (`localPlaceMatches` → `/series?place={venue}`), producers (`localProducerMatches` → `/producers/{name}`), songs → `/songs/{id}`; Chinese titles match too. Ranking producer column: structured `song_producers`, else text before `feat.`; names link to detail; truncated with hover for full credit. Vocalists column: cheer chips, 3 visible, rest in `+N` popover. “演出 count” column is distinct 演出 appearances (mode-independent); series count not shown. `/raw` song table: `producerCredit` and parsed vocalists, not raw `artist_string`.
 
 ## Dedicated homepage (issue #60)
 
@@ -393,7 +392,7 @@ A project-local, persistent intake area lives at `poster-intake/` in the reposit
 - `poster-intake/snow-miku-live/` — series 204 SNOW MIKU LIVE!.
 - `poster-intake/hatsune-miku-touch-wowow-2014/` — standalone group 900000007; retained for the existing official visual, not as a current banner slide. The catalog itself says this is not a tour.
 
-The README in each folder states the target catalog series or group, the performance ids already on the carousel when applicable, recommended file formats (`jpg`, `png`, `webp`), a naming convention keyed by tour id from `data/tours.json`, a recommended portrait-friendly official source (important subject in the upper two-thirds, because the banner crops with `object-fit: cover` and a top focal point into the wide stage), and how a dropped file is later wired through `data/tour-posters.json` into `public/posters/{tourId}.*`.
+The README in each folder states the target catalog series or group, the performance ids already on the carousel when applicable, accepted intake formats (`jpg`, `png`, `webp`), a naming convention keyed by tour id from `data/tours.json`, a recommended portrait-friendly official source (important subject in the upper two-thirds, because the banner crops with `object-fit: cover` and a top focal point into the wide stage), how a dropped file is wired through `data/tour-posters.json` into `public/posters/`, and delivery guidance for shipped assets: **WebP** is the recommended format under `public/posters/`; target **maximum width 1800px** (downscale wider sources to width ≤ 1800; never upscale); run **`pnpm posters:compress`** (`scripts/compress-poster.ts`) to encode before commit.
 
 The banner stays the full page width on every viewport. Official posters are cropped with `object-fit: cover` and a top focal point, then centered in the stage. The cover image — not the carousel — has an adjustable maximum width, set by the CSS custom property `--home-banner-poster-max-width` on `.banner-root` in `app/components/HomeSetlistCarousel.vue` (default `1100px`). The stage background uses `--home-banner-stage-bg`, which follows the site theme: `#05070d` in dark mode (the same as `body` in `.dark`) and `var(--color-neutral-50)` in light mode (the same as `body` on a light page), so the areas beside a capped image match the page. A left-and-right gradient fade sits on the poster frame itself (`.poster-side-fade`), so the blend starts at the actual capped image edges rather than only at the viewport edges; the fade distance is `--home-banner-side-fade-width` (default `clamp(2.5rem, 12vw, 6rem)`). A separate bottom readability mask (`.poster-readability-mask`) uses that same stage color and stays full banner width. Its vertical range follows the actual `--home-banner-poster-max-width` setting rather than a fixed `1100px` breakpoint. While the cover is still full-bleed — the stage is at or narrower than the cap — the fade stays tall (mid stop `42%`, transparent at `78%`) so the title, chips, and show-page CTA stay readable over the artwork. Once the stage is wider than the cap and the side background is visible, the fade shortens (mid stop `26%`, transparent at `48%`), because the lower stage background is no longer a reading concern and a tall veil would hide more of the poster than needed. Those stops are `--home-banner-readability-mid`, `--home-banner-readability-end`, `--home-banner-readability-mid-capped`, and `--home-banner-readability-end-capped` on `.banner-root`. The left and right fades are unchanged. Title, CTA, and fact-chip ink use `--home-banner-ink` (light on dark, dark on light) so type does not disappear over a light fade; chips use `--home-banner-chip-bg` and `--home-banner-chip-ring`. Arrow buttons stay dark frosted controls with light icons, which remain visible in both themes. The image uses width `100%` as well as the max-width cap, so on a viewport narrower than the cap it shrinks to the banner, the side fades sit at the image (viewport) edges, and nothing overflows. Slide-change `transform` stays on `.carousel-slide` only; the image is centered with auto margins, not a competing transform. There is no separate configuration UI: change those custom properties in that stylesheet. The banner is responsive on desktop and mobile. Controls and the active slide are keyboard-focusable, and the poster has an accessible description that includes the concert name.
 

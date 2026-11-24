@@ -9,4 +9,4 @@ Current placeholder, already wired in `data/tour-posters.json` and `public/poste
 - Artist credit: ゼンマイブック
 - Accessed: 2026-11-23
 
-Drop a corrected poster as `hatsune-miku-x-kodo-2026.webp` (or `.png` / `.webp`) here, then copy it to `public/posters/` and update the mapping. Recommended 3:4 or similar portrait source; the banner crops the top of the frame into a wide hero and keeps a black gradient mask over the artwork.
+Drop a corrected poster as `hatsune-miku-x-kodo-2026.webp` (or `.png` / `.webp`) here, then run `pnpm posters:compress --out public/posters` and update the mapping. Recommended delivery: WebP at most 1800px wide via `pnpm posters:compress` (see root README). Prefer 3:4 or similar portrait source; the banner crops the top of the frame into a wide hero with a readability mask.

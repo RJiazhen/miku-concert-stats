@@ -2,13 +2,13 @@
 """Renders docs/setlist-confirmation.md from the built catalog and the curation file.
 
 Sections:
-  0 现状
-  1 数据来源记录（已采用，无需确认）
-  2 百科与官网都没写逐日时刻的演出（可保留现状）
-  3 本轮按百科修正的冲突（供核对）
-  4 备注只写到城市的场次（已由百科settle）
-  5 整份歌单没有备注（整份沿用）
-  6 上游没有歌单的演出
+  0 Status snapshot
+  1 Source records (adopted, no confirmation needed)
+  2 Performances with date range only (no per-day times on wiki or official pages)
+  3 Conflicts resolved from wiki this round (for verification)
+  4 Shows whose notes stop at city level (settled via wiki)
+  5 Full song lists with no row notes (inherited wholesale)
+  6 Performances with no upstream setlist
 
 Run: uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py
 """
@@ -23,7 +23,15 @@ DB = ROOT / "public" / "data" / "catalog.sqlite"
 CURATION = ROOT / "data" / "performance-setlists.json"
 TARGET = ROOT / "docs" / "setlist-confirmation.md"
 
-SERIES = {81: "魔法未来", 82: "MIKU EXPO", 173: "未来有你", 204: "SNOW MIKU", 219: "Live Party", 255: "鼓童", 256: "交响乐"}
+SERIES = {
+    81: "Magical Mirai",
+    82: "MIKU EXPO",
+    173: "MIKU WITH YOU",
+    204: "SNOW MIKU",
+    219: "Live Party",
+    255: "Kodo",
+    256: "Symphony",
+}
 
 db = sqlite3.connect(DB)
 db.row_factory = sqlite3.Row
@@ -35,8 +43,8 @@ def rows(sql: str, params: tuple = ()) -> list[sqlite3.Row]:
     return list(db.execute(sql, params))
 
 
-# 用户在确认清单里已裁决的两条日期冲突，各自记下「百科怎么说、最终按什么」。
-# 只剩这几条连百科 / 官网都没有逐日时刻；其余都已按来源展开。
+# Two date conflicts already ruled in the confirmation checklist: what the wiki said vs what we adopted.
+# Only these lack per-day times on both wiki and official pages; everything else is expanded from sources.
 CHECKED_PAGES = {
     3792: ("SNOW MIKU LIVE! 2015 Presents MIKU EXPO Live Set", "only range"),
     5910: ("Hatsune Miku × Kodo Taiko Special Live 2023", "only range"),
@@ -44,32 +52,40 @@ CHECKED_PAGES = {
 
 RESOLVED_DATE_CONFLICTS = [
     (
-        "MIKU EXPO 2015 in Shanghai（演出 1940）",
-        "Fandom 记 6/26–6/27，VocaDB 记 6/27–6/28",
-        "官网海报（SCLA，2019-07-22 存档）与萌娘百科都写 6/27–6/28，两天各有昼场 13:00 + 夜场 19:00，共四场。"
-        "Fandom 的 6/26–6/27 不采用，最终按 6/27–6/28 展开 4 场。",
+        "MIKU EXPO 2015 in Shanghai (演出 1940)",
+        "Fandom lists 6/26–6/27; VocaDB lists 6/27–6/28",
+        "Official poster (SCLA, archived 2019-07-22) and Moegirl both say 6/27–6/28, with matinee 13:00 + evening 19:00 on each day (4 shows). "
+        "Fandom’s 6/26–6/27 is not used; we expand to 4 shows on 6/27–6/28.",
         [
             "https://web.archive.org/web/20190722050158/http://www.scla.com.cn/hatsunemiku/",
             "https://zh.moegirl.org.cn/HATSUNE_MIKU_EXPO_2015_in_Shanghai",
         ],
     ),
     (
-        "初音ミクライブパーティー 2011 Sapporo（演出 2526）",
-        "Fandom 只写 8/17，VocaDB 记 8/16–8/17",
-        "5pb. 官方页（2012-05-12 存档）写 8/16–8/17，两天各一场；与 VocaDB 一致，Fandom 不采用。",
+        "初音ミクライブパーティー 2011 Sapporo (演出 2526)",
+        "Fandom only lists 8/17; VocaDB has 8/16–8/17",
+        "5pb. official page (archived 2012-05-12) says 8/16–8/17, one show per day; matches VocaDB; Fandom not used.",
         ["https://web.archive.org/web/20120512094239/http://5pb.jp/mikupa/index_sapporo.html"],
     ),
 ]
 
 out: list[str] = []
-out.append("# 歌单数据核对清单")
+out.append("# Setlist data confirmation checklist")
 out.append("")
-out.append("> 生成本文件：`uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py`（读 `public/data/catalog.sqlite` 与 `data/performance-setlists.json`）。")
-out.append("> 本轮已按你的要求先去查萌娘百科 / VocaDB Fandom / 官方存档页：能查到的直接采用，冲突的优先用百科，并在第 3 节列出。")
-out.append("> 需要你回的只剩第 2 节（百科也没写逐日时刻的部分）与第 6 节（上游没有歌单）。")
+out.append(
+    "> Generate this file: `uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py` "
+    "(reads `public/data/catalog.sqlite` and `data/performance-setlists.json`)."
+)
+out.append(
+    "> This round checked Moegirl / VocaDB Fandom / official archives where possible: adopt when found; "
+    "on conflict prefer wiki, listed in section 3."
+)
+out.append(
+    "> Your input is only needed for section 2 (no per-day times on wiki) and section 6 (no upstream setlist)."
+)
 out.append("")
 
-# ---------------------------------------------------------------- 0. 现状
+# ---------------------------------------------------------------- 0. Status
 source_rows = rows(
     """
     SELECT ps.performance_id, p.name, p.series_id, p.start_date, ps.resolution, ps.note,
@@ -97,7 +113,7 @@ conflicts = rows("SELECT COUNT(*) AS n FROM performance_setlists WHERE conflict 
 official = rows("SELECT COUNT(*) AS n FROM performance_setlist_sources WHERE confidence = 'high'")[0]["n"]
 wiki_count = rows("SELECT COUNT(*) AS n FROM performance_setlist_sources WHERE confidence = 'medium'")[0]["n"]
 
-# 任何写了 dayNight / singleShowDates / halves / noShowDates 的演出都算已核实，不进第 2 节。
+# Any performance with dayNight / singleShowDates / halves / noShowDates in curation is settled and excluded from section 2.
 SETTLED = {
     int(key)
     for key, value in (curation.get("performances") or {}).items()
@@ -121,52 +137,74 @@ pending_schedule = [row for row in rows(
     """
 ) if row["id"] not in SETTLED]
 
-out.append("## 0. 一句话现状")
+out.append("## 0. Status at a glance")
 out.append("")
-out.append(f"- 目录里 {perf_total} 个演出已展开成 **{shows_total} 个场次**、{items_total} 条曲目。")
-out.append(f"- 来源记录 {len(source_rows)} 个演出：官方页 {official} 条、百科 {wiki_count} 条，全部已直接采用。")
-out.append(f"- 待核实归属 {pending_review} 个、冲突 {conflicts} 个、带不确定标记的场次 {uncertain_shows} 个。")
+out.append(
+    f"- The catalog expands **{perf_total}** 演出 (performances) into **{shows_total}** 场次 (shows) "
+    f"and **{items_total}** setlist rows."
+)
+out.append(
+    f"- **{len(source_rows)}** performances have source records: **{official}** official pages, "
+    f"**{wiki_count}** wiki entries—all adopted as-is."
+)
+out.append(
+    f"- Pending attribution review: **{pending_review}**; conflicts: **{conflicts}**; "
+    f"shows marked uncertain: **{uncertain_shows}**."
+)
 outside_total = rows("SELECT COUNT(*) AS n FROM songs WHERE category <> 'vocaloid'")[0]["n"]
 if outside_total:
     out.append(
-        f"- 另有 {outside_total} 首不是 VOCALOID 歌曲的曲目（古典改编、鼓童器乐曲、民谣）已按普通曲目登记，"
-        "没有歌手、来源写百科，演出页会标「非 VocaDB」。"
+        f"- **{outside_total}** non-VOCALOID tracks (classical arrangements, Kodo instrumentals, folk) "
+        "are registered as ordinary songs with wiki sources and no vocalist; performance pages tag them "
+        "as non-VocaDB."
     )
-out.append(f"- 还剩 **{len(pending_schedule)} 个跨天演出**：百科与官网都只写日期区间，没有逐日时刻，见第 2 节。")
+out.append(
+    f"- **{len(pending_schedule)}** multi-day 演出 still have only a date range on wiki and official pages "
+    "(no per-day show times)—see section 2."
+)
 out.append("")
 out.append("---")
 out.append("")
 
-# ---------------------------------------------------------------- 1. 数据来源记录
-out.append("## 1. 数据来源记录（已采用，无需确认）")
+# ---------------------------------------------------------------- 1. Source records
+out.append("## 1. Source records (adopted, no confirmation needed)")
 out.append("")
-out.append("凡是从官方票务页、萌娘百科或 VocaDB Fandom 查到场次的演出，数据已经直接采用；")
-out.append("来源、访问日期与置信度都写进 catalog 的 `performance_setlist_sources`，也在 `/shows` 页脚显示。")
+out.append(
+    "Where we found show counts on official ticketing pages, Moegirl, or VocaDB Fandom, the data is "
+    "already in the catalog; source, access date, and confidence live in `performance_setlist_sources` "
+    "and appear in `/shows` footers."
+)
 out.append("")
-out.append("| 演出 | 系列 | 日期 | 场次 × 曲目 | 归属 | 置信度 | 来源 |")
+out.append("| 演出 (performance) | Series | Date | Shows × tracks | Resolution | Confidence | Source |")
 out.append("| --- | --- | --- | --- | --- | --- | --- |")
 for row in source_rows:
     series = SERIES.get(row["series_id"], str(row["series_id"]))
     title = (row["titles"] or "").replace("|", "\\|")
     out.append(
-        f"| {row['name']}（{row['performance_id']}） | {series} | {row['start_date'] or '—'} | "
+        f"| {row['name']} ({row['performance_id']}) | {series} | {row['start_date'] or '—'} | "
         f"{row['shows']} × {row['items']} | {row['resolution']} | {row['confidence']} | "
-        f"[{title}]({row['url']})（{row['accessed']}） |"
+        f"[{title}]({row['url']}) ({row['accessed']}) |"
     )
 out.append("")
-out.append(f"共 {len(source_rows)} 个演出、{official + wiki_count} 条来源记录。")
+out.append(f"Total: {len(source_rows)} performances, {official + wiki_count} source rows.")
 out.append("")
 out.append("---")
 out.append("")
 
-# ---------------------------------------------------------------- 2. 无逐日时刻
-out.append(f"## 2. 百科与官网都没写逐日时刻（{len(pending_schedule)} 个演出）")
+# ---------------------------------------------------------------- 2. No per-day times
+out.append(f"## 2. No per-day times on wiki or official pages ({len(pending_schedule)} performances)")
 out.append("")
 if pending_schedule:
-    out.append("这些演出跨多天，但我查过的来源都只给日期区间：既没写每天几场，也没写开演时间。")
-    out.append("当前按「每个日历天 = 一个场次」计算。**如果你知道其中哪一站有昼夜两场，告诉我站名即可**。")
+    out.append(
+        "These 演出 span multiple days, but sources checked only give a date range—no daily show count "
+        "and no start times. We currently count **one 场次 per calendar day**. "
+        "**If you know a stop has separate matinee and evening shows, tell us the stop name.**"
+    )
 else:
-    out.append("**已经清零**：所有跨天演出的逐日场次都已由官网或百科核实并写入目录。")
+    out.append(
+        "**Clear:** per-day show counts for all multi-day 演出 are verified from official or wiki sources "
+        "and written into the catalog."
+    )
 out.append("")
 current_series = None
 for index, row in enumerate(pending_schedule, start=1):
@@ -177,109 +215,130 @@ for index, row in enumerate(pending_schedule, start=1):
         out.append("")
     page, state = CHECKED_PAGES.get(row["id"], ("", "unknown"))
     if state == "missing":
-        detail = f"已查：百科没有「{page}」这一条目（该年只有日本 / 北美页），也没有逐日时刻"
+        detail = (
+            f"Checked: wiki has no entry for “{page}” (that year only has Japan / North America pages), "
+            "and no per-day times"
+        )
         link = ""
     elif state == "only range":
-        detail = f"已查：VocaDB Fandom「{page}」，只写日期区间，没有逐日时刻"
+        detail = f"Checked: VocaDB Fandom “{page}” lists only a date range, no per-day times"
         link = f"https://vocaloid.fandom.com/wiki/{page.replace(' ', '_')}"
     elif row["source_titles"]:
         # Newer entries record their own sources; use them instead of an empty Fandom page.
-        detail = f"已查：{row['source_titles']}，只写日期区间或未写每日场次数，没有逐日时刻"
+        detail = (
+            f"Checked: {row['source_titles']}—date range only or no daily show count, no per-day times"
+        )
         link = row["source_url"] or ""
     else:
-        detail = "已查：现有来源只写日期区间，没有逐日时刻"
+        detail = "Checked: existing sources give only a date range, no per-day times"
         link = ""
-    out.append(f"**2.{index} · {row['name']}**（演出 {row['id']}，{row['start_date']} – {row['end_date']}，当前 {row['shows']} 场 × {row['items']} 首）")
+    out.append(
+        f"**2.{index} · {row['name']}** (演出 {row['id']}, {row['start_date']} – {row['end_date']}, "
+        f"currently {row['shows']} 场次 × {row['items']} tracks)"
+    )
     out.append("")
     out.append(f"- {detail}")
     if link:
         out.append(f"  - {link}")
     out.append("")
-    out.append("- [ ] 每天只有一场，保持现状即可")
-    out.append("- [ ] 有昼夜两场（写在补充说明：站名 + 来源）")
+    out.append("- [ ] One show per day—keep as-is")
+    out.append("- [ ] Matinee + evening (note in comments: stop name + source)")
     out.append("")
-    out.append("> 补充：")
+    out.append("> Notes:")
     out.append("")
 out.append("---")
 out.append("")
 
-# ---------------------------------------------------------------- 3. 修正的冲突
-out.append("## 3. 本轮按百科修正的冲突（请核对）")
+# ---------------------------------------------------------------- 3. Resolved conflicts
+out.append("## 3. Conflicts resolved from wiki this round (please verify)")
 out.append("")
-out.append("你已裁决的两条日期冲突、我按官网与萌娘百科补齐的整段场次表、以及按百科改掉的逐行备注问题，都列在这里。")
-out.append("处理原则：**冲突时优先采用百科 / 官方页**，改的是我们自己的派生层，不动 VocaDB。")
+out.append(
+    "Date conflicts you already ruled on, full show tables filled from official pages and Moegirl, "
+    "and row-note fixes from wiki are listed here. **On conflict, prefer wiki / official pages**; "
+    "we change our derived layer only, not VocaDB."
+)
 out.append("")
 entry = 0
 
 for title, conflict, resolution, urls in RESOLVED_DATE_CONFLICTS:
     entry += 1
-    out.append(f"### 3.{entry} · {title}（已按你的裁决处理）")
+    out.append(f"### 3.{entry} · {title} (processed per your ruling)")
     out.append("")
-    out.append(f"- 冲突：{conflict}")
-    out.append(f"- 处理：{resolution}")
+    out.append(f"- Conflict: {conflict}")
+    out.append(f"- Resolution: {resolution}")
     for url in urls:
-        out.append(f"- 来源：{url}")
+        out.append(f"- Source: {url}")
     out.append("")
 
 corrections = [
     (
-        "初音ミク「マジカルミライ 2021」in OSAKA（演出 3305）",
-        "VocaDB 把《スノーマン》标成「Day 1 / Day 3」，导致大阪 Day 3 变成 26 首",
-        "VocaDB Fandom 的逐日歌单：大阪 Day 1–3 各 25 首，《スノーマン》只在 Day 1。已把该行改成只在 Day 1，Day 3 回到 25 首。",
+        "初音ミク「マジカルミライ 2021」in OSAKA (演出 3305)",
+        "VocaDB tagged スノーマン as “Day 1 / Day 3”, making Osaka Day 3 count 26 tracks",
+        "VocaDB Fandom per-day lists: Osaka Days 1–3 each have 25 tracks; スノーマン only on Day 1. "
+        "Row limited to Day 1; Day 3 back to 25.",
         "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2021",
     ),
     (
-        "初音ミク「マジカルミライ 2024」in OSAKA（演出 7217）",
-        "VocaDB 只写「Osaka Day 1」，大阪 Day 3 因此只有 18 首",
-        "Fandom 把大阪分成「Day 1 & 3」与「Day 2」两套歌单，Day 1 与 Day 3 相同。已给对应行补上 Osaka Day 3，六个场次都回到 24 首。",
+        "初音ミク「マジカルミライ 2024」in OSAKA (演出 7217)",
+        "VocaDB only had “Osaka Day 1”, so Osaka Day 3 had only 18 tracks",
+        "Fandom splits Osaka into “Day 1 & 3” and “Day 2”; Days 1 and 3 share the same list. "
+        "Added Osaka Day 3 on matching rows; all six shows back to 24 tracks.",
         "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Magical_Mirai_2024",
     ),
     (
-        "MIKU EXPO 2024 San Jose（演出 6518）",
-        "VocaDB 把第三套歌单归给 San Jose Day 2，导致 Day 2 累加成 26 首、Day 1 只剩 20 首",
-        "Fandom 的三套歌单写明第三套是 San Jose Day 1。已把相关行从 Day 2 改到 Day 1，两天都回到 23 首。",
+        "MIKU EXPO 2024 San Jose (演出 6518)",
+        "VocaDB attributed the third setlist to San Jose Day 2, yielding 26 on Day 2 and 20 on Day 1",
+        "Fandom’s three lists state the third is San Jose Day 1. Moved rows from Day 2 to Day 1; "
+        "both days back to 23 tracks.",
         "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2024_North_America",
     ),
     (
-        "初音ミクライブパーティー 2012 Hong Kong（演出 2524）",
-        "香港 24 首、台湾 25 首，被长度检查标成不一致",
-        "Fandom：23 首固定 + 香港 1 首安可、台湾 2 首安可。24 / 25 是有意为之，已记为已解释，不再报警告。",
+        "初音ミクライブパーティー 2012 Hong Kong (演出 2524)",
+        "Hong Kong 24 vs Taiwan 25 tracks flagged as inconsistent by length check",
+        "Fandom: 23 fixed + 1 encore in HK, 2 encores in TW. 24/25 is intentional; marked explained, "
+        "no longer warned.",
         "https://vocaloid.fandom.com/wiki/Hatsune_Miku_Live_Party_2012_(Mikupa)/Hong_Kong_and_Taiwan",
     ),
     (
-        "MIKU EXPO 2016 日本 5 城（演出 1399 / 1400 / 1401 / 1402 / 1403）",
-        "VocaDB 只有日期区间，按每天一场算成 7 场",
-        "官方 jp2016/live 与萌娘百科一致：福冈 3/23、3/24 均仅夜场；大阪 3/29、名古屋 3/31、札幌 4/5 各有昼 + 夜；东京 4/9、4/10 各有昼 + 夜。合计 12 场。",
+        "MIKU EXPO 2016 Japan 5 cities (演出 1399 / 1400 / 1401 / 1402 / 1403)",
+        "VocaDB had date ranges only; one show per day → 7 场次",
+        "Official jp2016/live and Moegirl: Fukuoka 3/23–3/24 evening only; Osaka 3/29, Nagoya 3/31, "
+        "Sapporo 4/5 matinee + evening; Tokyo 4/9–4/10 matinee + evening. Total 12 shows.",
         "https://mikuexpo.com/jp2016/live",
     ),
     (
-        "MIKU EXPO 2016 北美（演出 1924 / 1930 / 1936 等 10 城）",
-        "VocaDB 只有日期区间，10 城按日历天算成 11 场",
-        "萌娘百科的逐城表：旧金山 4/30 与纽约 5/28 各有昼 + 夜；墨西哥城 6/4 一场、6/5 两场；其余 7 城各一场。合计 14 场。",
+        "MIKU EXPO 2016 North America (演出 1924 / 1930 / 1936 … 10 cities)",
+        "VocaDB date ranges only; 10 cities → 11 场次 by calendar day",
+        "Moegirl per-city table: San Francisco 4/30 and New York 5/28 matinee + evening; Mexico City "
+        "6/4 one show, 6/5 two; other 7 cities one each. Total 14 shows.",
         "https://zh.moegirl.org.cn/MIKU_EXPO_2016",
     ),
     (
-        "MIKU EXPO 2016 中国内地（演出 1942 / 1943）与台湾（演出 1941）",
-        "中国内地按每天一场算成 4 场；台湾按每天一场算成 2 场",
-        "萌娘百科：上海、北京每日各昼夜两场（昼 13:00 / 夜 18:00），合计 8 场；官方 tw2016：新北 6/25 仅夜场、6/26 昼 + 夜，合计 3 场。",
+        "MIKU EXPO 2016 mainland China (演出 1942 / 1943) and Taiwan (演出 1941)",
+        "Mainland: 4 场次 (one per day); Taiwan: 2 场次 (one per day)",
+        "Moegirl: Shanghai and Beijing each matinee + evening daily (13:00 / 18:00), 8 shows; "
+        "official tw2016: New Taipei 6/25 evening only, 6/26 matinee + evening, 3 shows.",
         "https://mikuexpo.com/tw2016/",
     ),
     (
-        "MIKU EXPO 2024 / 2025 / 2026 与未来有你 2024",
-        "VocaDB 只有日期区间，多日城市按每天一场算",
-        "萌娘百科给出总场次：2024 北美 17 城 21 场、2025 亚洲 8 城 9 场、2026 北美 15 城 19 场，且说明各场开演时间相同，因此每个日期只有一场；未来有你 2024 三地共 12 场 = 3 城 × 2 天 × 昼夜两场，每场 23 首。",
+        "MIKU EXPO 2024 / 2025 / 2026 and MIKU WITH YOU 2024",
+        "VocaDB date ranges only; multi-day cities counted one 场次 per day",
+        "Moegirl totals: 2024 NA 17 cities 21 shows, 2025 Asia 8 cities 9 shows, 2026 NA 15 cities 19 shows, "
+        "same start time per date → one show per date; MIKU WITH YOU 2024 three cities 12 shows "
+        "= 3 × 2 days × matinee + evening, 23 tracks each.",
         "https://zh.moegirl.org.cn/MIKU_EXPO_2024",
     ),
     (
-        "SNOW MIKU LIVE! 2019（演出 2422）与初音ミク×鼓童 2017（演出 2947）",
-        "按每天一场算成 2 场",
-        "萌娘百科：SNOW MIKU 2019 的 2/9、2/10 各有昼 + 夜两场（共 4 场）；鼓童 2017 的 3/4 仅夜场 19:00、3/5 仅昼场 13:00（共 2 场，但分属昼夜）。",
+        "SNOW MIKU LIVE! 2019 (演出 2422) and 初音ミク×鼓童 2017 (演出 2947)",
+        "Counted as 2 shows (one per day)",
+        "Moegirl: SNOW MIKU 2019 on 2/9 and 2/10 matinee + evening each (4 shows); Kodo 2017 on 3/4 "
+        "evening 19:00 only, 3/5 matinee 13:00 only (2 shows, split day/night).",
         "https://zh.moegirl.org.cn/SNOW_MIKU_LIVE!_2019",
     ),
     (
-        "初音ミク×鼓童スペシャルライブ２０１８（演出 2948）",
-        "VocaDB 只有日期区间，按每天一场算成 2 场",
-        "Fandom 转载的官方公演情报：6/2 有 13:00 与 19:00 两场，6/3 只有 13:00 一场。已改成 3 场。",
+        "初音ミク×鼓童スペシャルライブ２０１８ (演出 2948)",
+        "VocaDB date range only; one per day → 2 场次",
+        "Fandom repost of official notice: 6/2 at 13:00 and 19:00, 6/3 at 13:00 only. Updated to 3 shows.",
         "https://vocaloid.fandom.com/wiki/Hatsune_Miku_×_Kodo_Taiko_Special_Live_2018",
     ),
 ]
@@ -287,61 +346,64 @@ for title, conflict, resolution, url in corrections:
     entry += 1
     out.append(f"### 3.{entry} · {title}")
     out.append("")
-    out.append(f"- 原问题：{conflict}")
-    out.append(f"- 处理：{resolution}")
-    out.append(f"- 来源：{url}")
+    out.append(f"- Issue: {conflict}")
+    out.append(f"- Resolution: {resolution}")
+    out.append(f"- Source: {url}")
     out.append("")
 
-# 逐行备注更正与「同城一套节目」的清单，直接读 curation 文件
+# Row-note corrections and “one setlist per city” lists, read straight from curation
 note_lists = {
     key: value
     for key, value in (curation.get("lists") or {}).items()
     if value.get("notes") or value.get("dropShows") or value.get("explainedLengths")
 }
 if note_lists:
-    out.append("### 3.%d · 逐行备注更正汇总" % (entry + 1))
+    out.append("### 3.%d · Row-note corrections summary" % (entry + 1))
     out.append("")
-    out.append("| 源歌单 | 更正的行 | 说明 | 来源 |")
+    out.append("| Source list | Rows touched | Notes | Source |")
     out.append("| --- | --- | --- | --- |")
     for key, value in note_lists.items():
         touched = sorted(set(value.get("notes") or {}) | set(value.get("dropShows") or {}), key=int)
         explanation = []
         if value.get("notes"):
-            explanation.append(f"改写备注 {len(value['notes'])} 行")
+            explanation.append(f"rewrote notes on {len(value['notes'])} rows")
         if value.get("dropShows"):
-            explanation.append(f"移除越界的行 {len(value['dropShows'])} 行")
+            explanation.append(f"dropped {len(value['dropShows'])} out-of-scope rows")
         if value.get("explainedLengths"):
-            explanation.append(f"已解释长度差 {len(value['explainedLengths'])} 处")
+            explanation.append(f"explained {len(value['explainedLengths'])} length deltas")
         out.append(
-            f"| [{key}](https://vocadb.net/L/{key}) | {', '.join(touched) or '—'} | {'；'.join(explanation)}"
-            f"{'（' + value['note'] + '）' if value.get('note') else ''} | {value.get('source', '—')} |"
+            f"| [{key}](https://vocadb.net/L/{key}) | {', '.join(touched) or '—'} | {'; '.join(explanation)}"
+            f"{' (' + value['note'] + ')' if value.get('note') else ''} | {value.get('source', '—')} |"
         )
     out.append("")
 out.append("---")
 out.append("")
 
-# ---------------------------------------------------------------- 4. 城市级共用
+# ---------------------------------------------------------------- 4. City-level notes
 settled = {
     key: value
     for key, value in (curation.get("lists") or {}).items()
     if value.get("citiesPlayOneSetlist")
 }
-out.append(f"## 4. 备注只写到城市的场次（{len(settled)} 份歌单，已由百科定案）")
+out.append(f"## 4. Notes that stop at city level ({len(settled)} lists, settled via wiki)")
 out.append("")
-out.append("这些歌单的备注只写城市（如 `Osaka`、`Shanghai, Beijing`）。百科给出的是城市级歌单，")
-out.append("说明「只写城市」本来就等于「这座城市的所有场次都演」，所以已按城市套用到该城全部场次，不再标不确定。")
+out.append(
+    "These source lists note cities only (e.g. `Osaka`, `Shanghai, Beijing`). Wiki gives city-level setlists, "
+    "meaning “city only” implies **all 场次 in that city share one program**; applied per city, "
+    "no longer marked uncertain."
+)
 out.append("")
-out.append("| 源歌单 | 定案依据 | 来源 |")
+out.append("| Source list | Basis | Source |")
 out.append("| --- | --- | --- |")
 for key, value in settled.items():
     source = value.get("source", "")
-    link = f"[来源]({source})" if source.startswith("http") else "—"
+    link = f"[source]({source})" if source.startswith("http") else "—"
     out.append(f"| [{key}](https://vocadb.net/L/{key}) | {value.get('note', '')} | {link} |")
 out.append("")
 out.append("---")
 out.append("")
 
-# ---------------------------------------------------------------- 4b. 百科逐曲表
+# ---------------------------------------------------------------- 4b. Wiki track lists
 wiki_lists = rows(
     """
     SELECT ps.performance_id, p.name, p.series_id, ps.note,
@@ -359,26 +421,28 @@ wiki_lists = rows(
     ORDER BY p.series_id, p.start_date
     """
 )
-out.append(f"## 4b. 曲目逐条来自百科逐曲表的演出（{len(wiki_lists)} 个）")
+out.append(f"## 4b. Performances with per-track wiki setlists ({len(wiki_lists)})")
 out.append("")
-out.append("这些演出改用「初音ミク Wiki」的逐曲表：VocaDB 的 songList 要么是几个城市共用的整份表、")
-out.append("要么根本没有（交响乐全部是专辑 tracklist）。逐曲表按公演替 / 昼夜 / 场次把差别分开，")
-out.append("每行都带来源与メドレー 段落标注，可以逐条核对。")
+out.append(
+    "These 演出 use the 初音ミク Wiki per-performance track tables: VocaDB songLists are either "
+    "shared across cities or missing (Symphony uses album tracklists). Wiki tables separate "
+    "公演替 / day-night / 场次; each row has source and メドレー segment labels for line-by-line review."
+)
 out.append("")
-out.append("| 演出 | 系列 | 场次 × 曲目 | 说明 | 来源 |")
+out.append("| 演出 (performance) | Series | Shows × tracks | Note | Source |")
 out.append("| --- | --- | --- | --- | --- |")
 for row in wiki_lists:
     title = (row["titles"] or "").replace("|", "\\|")
     series = SERIES.get(row["series_id"], str(row["series_id"]))
     out.append(
-        f"| {row['name']}（{row['performance_id']}） | {series} | {row['shows']} × {row['items']} | "
+        f"| {row['name']} ({row['performance_id']}) | {series} | {row['shows']} × {row['items']} | "
         f"{row['note'] or ''} | [{title}]({row['url']}) |"
     )
 out.append("")
 out.append("---")
 out.append("")
 
-# ---------------------------------------------------------------- 5. 整份无备注
+# ---------------------------------------------------------------- 5. No row notes
 inherited = rows(
     """
     SELECT ps.source_list_id, sl.name, sl.source, COUNT(DISTINCT ps.performance_id) AS performances,
@@ -392,11 +456,14 @@ inherited = rows(
     """
 )
 if inherited:
-    out.append("## 5. 整份歌单没有任何备注（整份沿用）")
+    out.append("## 5. Full lists with no row notes (inherited wholesale)")
     out.append("")
-    out.append("这些源歌单一行备注都没有，每个演出都拿整套曲目。抽样确认即可，不必逐条回。")
+    out.append(
+        "These source lists have no per-row notes; each 演出 takes the full track list. "
+        "Spot-check is enough—no line-by-line reply needed."
+    )
     out.append("")
-    out.append("| 源歌单 | 名称 | 类型 | 演出数 | 场次数 | 行数 |")
+    out.append("| Source list | Name | Type | Performances | 场次 | Rows |")
     out.append("| --- | --- | --- | --- | --- | --- |")
     for row in inherited:
         name = (row["name"] or "").replace("|", "\\|")
@@ -407,16 +474,16 @@ if inherited:
             f"{row['performances']} | {row['shows']} | {row['list_rows']} |"
         )
     out.append("")
-    out.append("- [ ] 这些歌单确实只有一套曲目，整份沿用正确")
+    out.append("- [ ] Confirmed: these lists truly have one program; wholesale inherit is correct")
     out.append("")
-    out.append("**补充说明**")
+    out.append("**Additional notes**")
     out.append("")
     out.append("> ")
     out.append("")
 out.append("---")
 out.append("")
 
-# ---------------------------------------------------------------- 6. 无歌单
+# ---------------------------------------------------------------- 6. No setlist
 missing = rows(
     """
     SELECT p.id, p.series_id, p.name, p.start_date, p.vocadb_status, p.source_url AS page_url,
@@ -429,34 +496,36 @@ missing = rows(
     ORDER BY p.series_id, p.start_date
     """
 )
-out.append(f"## 6. 仍无歌单的演出（{len(missing)} 个）")
+out.append(f"## 6. Performances still without a setlist ({len(missing)})")
 out.append("")
-out.append("上游没有 songList、百科也还没有逐曲表的演出。取消的场次单独记在 `performance_status`，")
-out.append("演出页会显示「这场演出已取消」并给出公告链接；尚未举行的先留空。")
+out.append(
+    "No upstream songList and no wiki per-track table yet. Cancelled 场次 are in `performance_status`; "
+    "performance pages show “cancelled” with announcement links; upcoming stays empty."
+)
 out.append("")
-out.append("| 演出 | 系列 | 日期 | 状态 | VocaDB | 来源 |")
+out.append("| 演出 (performance) | Series | Date | Status | VocaDB | Source |")
 out.append("| --- | --- | --- | --- | --- | --- |")
 for row in missing:
     series = SERIES.get(row["series_id"], str(row["series_id"]))
     if row["status"] == "cancelled":
-        state = "**已取消**"
+        state = "**Cancelled**"
     elif row["status"] == "postponed":
-        state = "已延期"
+        state = "Postponed"
     elif row["status"] == "upcoming":
-        state = "尚未举行"
+        state = "Upcoming"
     else:
-        state = "未标注"
-    source = f"[公告]({row['status_source']})" if row["status_source"] else "—"
-    vocadb = row["vocadb_status"] or ("—" if "vocadb.net" not in (row["page_url"] or "") else "未记录")
+        state = "Unlabeled"
+    source = f"[announcement]({row['status_source']})" if row["status_source"] else "—"
+    vocadb = row["vocadb_status"] or ("—" if "vocadb.net" not in (row["page_url"] or "") else "Not recorded")
     out.append(
         f"| [{row['id']}]({row['page_url']}) {row['name']} | {series} | "
-        f"{row['start_date'] or '无'} | {state} | {vocadb} | {source} |"
+        f"{row['start_date'] or 'none'} | {state} | {vocadb} | {source} |"
     )
 out.append("")
-out.append("- [ ] 都先留空，等实体发行或官方歌单")
-out.append("- [ ] 其中有已举行的场次需要补录（写在补充说明）")
+out.append("- [ ] Leave empty for now until physical release or official setlist")
+out.append("- [ ] Some held shows need manual ingest (note in comments)")
 out.append("")
-out.append("**补充说明**")
+out.append("**Additional notes**")
 out.append("")
 out.append("> ")
 out.append("")

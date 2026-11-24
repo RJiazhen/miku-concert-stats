@@ -44,17 +44,17 @@ export type SetlistReview = {
 
 /** Options shared by entry kinds that ask "is this right?". */
 const CONFIRM_OPTIONS = [
-  '确认当前数据正确',
-  '需要修正（写在下方补充说明）',
-  '无法确认，暂时保持现状',
-  '其它（写在下方补充说明）',
+  'Confirm the current data is correct',
+  'Needs a fix (describe below)',
+  'Cannot confirm; leave as-is for now',
+  'Other (describe below)',
 ]
 
-/** Chinese label for one 场次 row. */
+/** English label for one 场次 row (keeps 日场/夜场 as catalog terms). */
 const showLabel = (row: PerformanceShowSetlistRow): string => {
-  if (row.date === null) return '日期未知'
-  if (row.half === 'day') return `${row.date} 日场`
-  if (row.half === 'night') return `${row.date} 夜场`
+  if (row.date === null) return 'date unknown'
+  if (row.half === 'day') return `${row.date} daytime`
+  if (row.half === 'night') return `${row.date} nighttime`
   return row.date
 }
 
@@ -116,17 +116,23 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
   const sectionA: ReviewEntry[] = multiDay.map((entry, index) => {
     const dates = datesOf(entry.shows)
     const facts = [
-      `系列：${seriesName.get(entry.performance.series_id) ?? String(entry.performance.series_id)}`,
-      `当前数据：${entry.shows.length} 个场次，按起止日期推导，未拆日夜场`,
-      `日期：${dates.join('、')}`,
-      `源歌单：[${entry.setlist?.source_list_id ?? '—'}](https://vocadb.net/L/${entry.setlist?.source_list_id ?? ''})，每场 ${entry.shows[0]?.item_count ?? 0} 首`,
-      'VocaDB 没有日夜场结构化字段（`showtime_local` 为空）',
+      `Series: ${seriesName.get(entry.performance.series_id) ?? String(entry.performance.series_id)}`,
+      `Current data: ${entry.shows.length} 场次, derived from the date range, day/night not split`,
+      `Dates: ${dates.join(', ')}`,
+      `Source list: [${entry.setlist?.source_list_id ?? '—'}](https://vocadb.net/L/${entry.setlist?.source_list_id ?? ''}), ${entry.shows[0]?.item_count ?? 0} songs per 场次`,
+      'VocaDB has no structured day/night field (`showtime_local` is empty)',
     ]
     return {
       id: `A-${index + 1}`,
-      title: `${entry.performance.name}（演出 ${entry.performance.id}）`,
+      title: `${entry.performance.name} (演出 ${entry.performance.id})`,
       facts,
-      options: ['确认这些日期每天都有昼场 + 夜场', '确认每天只有一场，保持现状', '部分日期有两场（写在下方补充说明）', '无法确认，暂时保持现状', '其它（写在下方补充说明）'],
+      options: [
+        'Confirm every date has daytime + nighttime shows',
+        'Confirm one show per day; leave as-is',
+        'Some dates have two shows (describe below)',
+        'Cannot confirm; leave as-is for now',
+        'Other (describe below)',
+      ],
     }
   })
 
@@ -138,11 +144,11 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
     const performance = performanceById.get(show.performance_id)
     const setlist = setlistByPerformance.get(show.performance_id)
     const facts = [
-      `演出：${performance?.name ?? String(show.performance_id)}`,
-      `场次：${showLabel(show)}`,
-      `当前数据：${show.item_count} 首，省略 ${show.omitted_count} 行`,
-      `归属方式：${setlist?.resolution ?? 'unknown'}${setlist?.pending_review === 1 ? '（归属仍待核实）' : ''}`,
-      `解析原因：${show.reasons}`,
+      `演出: ${performance?.name ?? String(show.performance_id)}`,
+      `场次: ${showLabel(show)}`,
+      `Current data: ${show.item_count} songs, ${show.omitted_count} rows omitted`,
+      `Resolution: ${setlist?.resolution ?? 'unknown'}${setlist?.pending_review === 1 ? ' (attribution still pending review)' : ''}`,
+      `Parse reasons: ${show.reasons}`,
     ]
     return {
       id: `B-${index + 1}`,
@@ -165,17 +171,17 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
         id: `C-${index + 1}`,
         title: `${performance?.name ?? String(row.performance_id)} · ${showLabel(row)}`,
         facts: [
-          `源歌单：[${listId}](https://vocadb.net/L/${listId})`,
-          `当前数据：${row.item_count} 首；同歌单其他场次多为 ${expected} 首`,
-          `省略 ${row.omitted_count} 行`,
-          `解析原因：${row.reasons}`,
+          `Source list: [${listId}](https://vocadb.net/L/${listId})`,
+          `Current data: ${row.item_count} songs; other 场次 on the same list are usually ${expected}`,
+          `Omitted ${row.omitted_count} rows`,
+          `Parse reasons: ${row.reasons}`,
         ],
         options: [
-          '确认当前行数正确',
-          '应排除多余曲目（写在下方补充说明）',
-          '应补充缺失曲目（写在下方补充说明）',
-          '无法确认，保留并标记不确定',
-          '其它（写在下方补充说明）',
+          'Confirm the current row count is correct',
+          'Exclude extra songs (describe below)',
+          'Add missing songs (describe below)',
+          'Cannot confirm; keep and mark uncertain',
+          'Other (describe below)',
         ],
       }
     })
@@ -190,17 +196,17 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
     const shows = rows.flatMap((row) => showsByPerformance.get(String(row.performance_id)) ?? [])
     return {
       id: `D-${index + 1}`,
-      title: `源歌单 ${listId}（${rows.length} 个演出，${shows.length} 个场次）`,
+      title: `Source list ${listId} (${rows.length} 演出, ${shows.length} 场次)`,
       facts: [
-        `源歌单：[${listId}](https://vocadb.net/L/${listId})，${first?.source_row_count ?? 0} 行，无任何备注`,
-        `每个演出整份沿用，每场 ${shows[0]?.item_count ?? 0} 首`,
-        `演出：${names.join('、')}${rows.length > names.length ? ` 等 ${rows.length} 个` : ''}`,
+        `Source list: [${listId}](https://vocadb.net/L/${listId}), ${first?.source_row_count ?? 0} rows, no notes`,
+        `Every 演出 inherits the whole list; ${shows[0]?.item_count ?? 0} songs per 场次`,
+        `演出: ${names.join(', ')}${rows.length > names.length ? ` (+${rows.length - names.length} more)` : ''}`,
       ],
       options: [
-        '确认整份歌单适用于这些演出的每一场',
-        '有分站替换曲（写在下方补充说明）',
-        '无法确认，保持整份沿用',
-        '其它（写在下方补充说明）',
+        'Confirm the full setlist applies to every 场次 of these 演出',
+        'There are stop-specific replacements (describe below)',
+        'Cannot confirm; keep whole-list inheritance',
+        'Other (describe below)',
       ],
     }
   })
@@ -212,45 +218,45 @@ export const buildSetlistReview = (catalog: Catalog): SetlistReview => {
     const shows = showsByPerformance.get(String(row.performance_id)) ?? []
     return {
       id: `E-${index + 1}`,
-      title: `${performance?.name ?? String(row.performance_id)}（演出 ${row.performance_id}）`,
+      title: `${performance?.name ?? String(row.performance_id)} (演出 ${row.performance_id})`,
       facts: [
-        `源歌单：[${row.source_list_id}](https://vocadb.net/L/${row.source_list_id})，${row.source_row_count} 行`,
-        `场次：${shows.map(showLabel).join('、')}`,
-        `说明：${row.note ?? '（无）'}`,
+        `Source list: [${row.source_list_id}](https://vocadb.net/L/${row.source_list_id}), ${row.source_row_count} rows`,
+        `场次: ${shows.map(showLabel).join(', ')}`,
+        `Note: ${row.note ?? '(none)'}`,
       ],
-      options: ['确认校正正确', '需要调整（写在下方补充说明）'],
+      options: ['Confirm the curation is correct', 'Needs adjustment (describe below)'],
     }
   })
 
   const sections: ReviewSection[] = [
     {
       key: 'A',
-      title: '日夜场待核实（VocaDB 无结构化证据）',
-      description: '这些演出跨多天，但 VocaDB 没有 `showtime_local`，也没有人工核实过日夜场。',
+      title: 'Day/night shows still unverified (no structured VocaDB evidence)',
+      description: 'These 演出 span multiple days, but VocaDB has no `showtime_local` and day/night splits were never hand-checked.',
       entries: sectionA,
     },
     {
       key: 'B',
-      title: '曲目归属待确认（备注只到城市或日期）',
-      description: '这些场次的曲目由备注筛出，备注没有定位到具体场次。',
+      title: 'Song attribution pending (notes only reach city or date)',
+      description: 'These 场次 were filtered by notes that do not pin a specific 场次.',
       entries: sectionB,
     },
     {
       key: 'C',
-      title: '行数与同歌单不一致（可能漏曲或多记）',
-      description: '这些场次的曲目数与同歌单其他场次不同，需要确认是多唱、漏记，还是备注没覆盖到。',
+      title: 'Row count differs from other 场次 on the same list',
+      description: 'Song counts differ from the usual length for this source list — extra songs, missing songs, or incomplete notes.',
       entries: sectionC,
     },
     {
       key: 'D',
-      title: '全份歌单无备注（整份沿用）',
-      description: '这些源歌单没有任何备注，每个演出整份沿用，无法证明有没有分站替换曲。',
+      title: 'Source lists with no notes (whole-list inheritance)',
+      description: 'These source lists have no notes; every 演出 inherits the full setlist, so stop-specific swaps cannot be proven.',
       entries: sectionD,
     },
     {
       key: 'E',
-      title: '人工校正行（curated）',
-      description: '这些演出的行被人工指定、排除或补充过，需要确认校正正确。',
+      title: 'Hand-curated rows',
+      description: 'These 演出 had rows hand-specified, excluded, or added; confirm the curation is correct.',
       entries: sectionE,
     },
   ]
@@ -279,7 +285,7 @@ const renderEntry = (entry: ReviewEntry): string[] => {
     return lines
   }
   for (const option of entry.options) lines.push(`- [ ] ${option}`)
-  lines.push('', '**补充说明**', '', '> ', '> ', '', '---', '')
+  lines.push('', '**Notes**', '', '> ', '> ', '', '---', '')
   return lines
 }
 
@@ -291,18 +297,18 @@ const renderEntry = (entry: ReviewEntry): string[] => {
 export const renderSetlistReview = (review: SetlistReview): string => {
   const total = review.sections.reduce((sum, section) => sum + section.entries.length, 0)
   const lines: string[] = [
-    '# 待二次确认清单',
+    '# Setlist review checklist',
     '',
-    `> 由 \`pnpm report:setlist-review\` 生成，共 ${total} 条。勾选后不要删除条目，便于下一轮对照。`,
-    '> 每条先在勾选框里选一个结论，再在「补充说明」里写具体数据或链接。',
+    `> Generated by \`pnpm report:setlist-review\` (${total} entries). Keep checked items for the next pass; do not delete rows.`,
+    '> Pick one conclusion per entry, then add concrete data or links under Notes.',
     '',
-    '## 总览',
+    '## Overview',
     '',
-    '| 节 | 条数 |',
+    '| Section | Count |',
     '| --- | --- |',
     ...review.sections.map((section) => `| ${section.key} ${section.title} | ${section.entries.length} |`),
     '',
-    '> 数据来源记录（URL、访问日期、置信度）见 `docs/setlist-confirmation.md` 第 1 节与 `/shows` 页脚，本清单不再重复列出。',
+    '> Source records (URL, access date, confidence) live in `docs/setlist-confirmation.md` §1 and the `/shows` footer; this checklist does not repeat them.',
     '',
     '---',
     '',
@@ -310,7 +316,7 @@ export const renderSetlistReview = (review: SetlistReview): string => {
   for (const section of review.sections) {
     lines.push(`## ${section.key}. ${section.title}`, '', section.description, '')
     if (section.entries.length === 0) {
-      lines.push('本轮没有需要确认的条目。', '', '---', '')
+      lines.push('Nothing to confirm in this section for this pass.', '', '---', '')
       continue
     }
     for (const entry of section.entries) lines.push(...renderEntry(entry))

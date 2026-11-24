@@ -18,4 +18,4 @@ Current placeholder, already wired in `data/tour-posters.json` and `public/poste
 - Artist credit: suzunosuke © CFM
 - Accessed: 2026-11-23
 
-Drop a corrected poster as `{tourId}.jpg` (or `.png` / `.webp`) here, then copy or point `public/posters/` and update the mapping. A shared official edition visual keeps one file for the whole tour. Recommended 3:4 or similar portrait source; the banner crops the top of the frame into a wide hero and keeps a black gradient mask over the artwork.
+Drop a corrected poster as `{tourId}.jpg` (or `.png` / `.webp`) here, then run `pnpm posters:compress --out public/posters` and update the mapping. A shared official edition visual keeps one file for the whole tour. Recommended delivery: WebP at most 1800px wide via `pnpm posters:compress` (see root README). Prefer 3:4 or similar portrait source; the banner crops the top of the frame into a wide hero with a readability mask.
