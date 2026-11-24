@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "source": "First-parent history of main on data/performance-setlists.json. A row is recorded only when that 演出's programme (song identities) was added or changed after the 2026-11-14 initial import. Concert start_date, retrieved_at, and accessed_at are not used.",
+  "performances": {
+    "12940": {
+      "kind": "added",
+      "programmeUpdatedAt": "2026-11-22T18:29:42+08:00",
+      "programmeUpdatedCommit": "7aca54ba7035e3675e6a5cd912db4c3e976f3a0f"
+    },
+    "3000000012": {
+      "kind": "added",
+      "programmeUpdatedAt": "2026-11-22T19:25:38+08:00",
+      "programmeUpdatedCommit": "41f6436a8753395cbf637249364e7aa0b8656187"
+    }
+  }
+}

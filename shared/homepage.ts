@@ -5,10 +5,11 @@
  * Concert calendar dates and catalog source timestamps are kept in separate
  * fields so a concert night is never presented as a data-update time.
  *
- * There is no tour entity in the current catalog. Official websites and other
- * concert links stay attached to individual 演出 (`performance_links`).
+ * Tour membership lives in `data/tours.json` (`shared/tours.ts`). Official
+ * websites and other concert links stay attached to individual 演出
+ * (`performance_links`). This module does not read the tour registry.
  *
- * Poster images and carousels are out of scope (issue #67).
+ * Poster images and the recent-setlist banner live in `homepage-carousel.ts` (issue #67).
  */
 import { showsForPerformance } from './event-schedule.ts'
 import { performanceHeaderFacts } from './performance-header.ts'

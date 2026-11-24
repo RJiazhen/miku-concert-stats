@@ -16,6 +16,8 @@ There is **no D1 and no R2**. The catalog is a built SQLite file (`public/data/c
 | Path | Role |
 | --- | --- |
 | `data/schema.sql` + `data/increments/` | Source of truth for the catalog |
+| `data/tours.json` + `shared/tours.ts` | Hand registry of tours and which 演出 belong to each |
+| `data/tour-posters.json` | Tour poster provenance; local files in `public/posters/{tourId}.*`. Homepage banner resolves 演出 → tour → poster |
 | `scripts/vocadb/*`, derive/report scripts | Offline data pipeline |
 | `scripts/build-catalog.ts` / `build-api.ts` | Emit sqlite + `/api/v1` assets |
 | `shared/*` | Counting rules used by UI, API build, and tests |

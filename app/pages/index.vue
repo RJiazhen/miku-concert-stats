@@ -7,13 +7,15 @@ import { useLocale } from '~/composables/useLocale.ts'
 import {
   HOMEPAGE_FEATURE_MODULES,
   HOMEPAGE_STAT_TILE_HREFS,
-  buildRecentConcerts,
   buildSiteWideStats,
   buildUpcomingConcerts,
   type RecentConcert,
 } from '~~/shared/homepage.ts'
+import { buildRecentSetlistBannerSlides } from '~~/shared/homepage-carousel.ts'
 import type { PerformanceStatusValue } from '~~/shared/types.ts'
 import type { MessageKey } from '~~/shared/i18n/index.ts'
+
+definePageMeta({ layout: 'home' })
 
 const { catalog, error, pending, load } = useCatalog()
 const { localizePerformanceSeries } = useSeriesTitles()
@@ -35,10 +37,12 @@ const now = new Date()
 
 const stats = computed(() => (catalog.value ? buildSiteWideStats(catalog.value) : null))
 const upcomingConcerts = computed(() => (catalog.value ? buildUpcomingConcerts(catalog.value, now) : []))
-const recentConcerts = computed(() => (catalog.value ? buildRecentConcerts(catalog.value, undefined, now) : []))
+const carouselSlides = computed(() =>
+  catalog.value ? buildRecentSetlistBannerSlides(catalog.value) : [],
+)
 
 type ConcertSection = {
-  id: 'upcoming' | 'recent'
+  id: 'upcoming'
   headingId: string
   titleKey: MessageKey
   emptyKey: MessageKey
@@ -55,13 +59,6 @@ type StatTile = {
 
 /** Homepage concert sections: Recent first, then Upcoming, in document and visual order. */
 const concertSections = computed((): ConcertSection[] => [
-  {
-    id: 'recent',
-    headingId: 'home-recent-heading',
-    titleKey: 'home.recentTitle',
-    emptyKey: 'home.recentEmpty',
-    concerts: recentConcerts.value,
-  },
   {
     id: 'upcoming',
     headingId: 'home-upcoming-heading',
@@ -102,26 +99,27 @@ useHead({ title: computed(() => t('home.title')) })
 </script>
 
 <template>
-  <main class="space-y-10">
-    <section class="pt-4 sm:pt-8">
-      <p class="text-xs font-medium tracking-[0.2em] text-primary uppercase">Hatsune Miku Concert Statistics</p>
-      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-highlighted sm:text-5xl">
-        {{ t('home.heading1') }}<br class="sm:hidden"><span v-if="headingJoinSpace" class="hidden sm:inline">{{ " " }}</span>{{ t('home.heading2') }}
-      </h1>
-    </section>
+  <main>
+    <h1 class="sr-only">{{ t('home.heading1') }}<template v-if="headingJoinSpace">{{ " " }}</template>{{ t('home.heading2') }}</h1>
 
-    <UAlert
-      v-if="error"
-      color="error"
-      variant="subtle"
-      icon="i-lucide-triangle-alert"
-      :title="t('common.catalogError')"
-      :description="error"
-    />
+    <div v-if="error" class="mx-auto max-w-body px-4 pt-8 sm:px-6">
+      <UAlert
+        color="error"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :title="t('common.catalogError')"
+        :description="error"
+      />
+    </div>
 
-    <PageSkeleton v-else-if="pending && !catalog" />
+    <div v-else-if="pending && !catalog" class="mx-auto max-w-body px-4 pt-8 sm:px-6">
+      <PageSkeleton />
+    </div>
 
     <template v-else-if="catalog">
+      <HomeSetlistCarousel :slides="carouselSlides" />
+
+      <div class="mx-auto max-w-body space-y-10 px-4 pt-8 pb-10 sm:px-6">
       <section :aria-label="t('home.statsTitle')">
         <ul v-if="statTiles.length > 0" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <li v-for="tile in statTiles" :key="tile.id">
@@ -142,6 +140,7 @@ useHead({ title: computed(() => t('home.title')) })
           </li>
         </ul>
       </section>
+
 
       <section
         v-for="block in concertSections"
@@ -209,6 +208,7 @@ useHead({ title: computed(() => t('home.title')) })
           </li>
         </ul>
       </section>
+      </div>
     </template>
   </main>
 </template>

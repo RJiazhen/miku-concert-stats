@@ -1,0 +1,980 @@
+{
+  "version": 1,
+  "checkedAt": "2026-11-24",
+  "note": "Each catalog 演出 belongs to exactly one tour. A one-city or one-off event is a tour of a single show. Tours are not a VocaDB entity and are not written into catalog SQL. A shared official tour page decides membership when one exists. Otherwise the grouping follows the official event title, including https://mikuexpo.com/history for MIKU EXPO, or the catalog series when that series is itself one tour.",
+  "tours": [
+    {
+      "id": "magical-mirai-2013",
+      "name": "初音ミク「マジカルミライ 2013」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2013/",
+      "performanceIds": [
+        2519
+      ]
+    },
+    {
+      "id": "magical-mirai-2014",
+      "name": "初音ミク「マジカルミライ 2014」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2014/",
+      "performanceIds": [
+        2517,
+        2518
+      ]
+    },
+    {
+      "id": "magical-mirai-2015",
+      "name": "初音ミク「マジカルミライ 2015」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2015/",
+      "performanceIds": [
+        2514
+      ]
+    },
+    {
+      "id": "magical-mirai-2016",
+      "name": "初音ミク「マジカルミライ 2016」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2016/",
+      "performanceIds": [
+        1398
+      ]
+    },
+    {
+      "id": "magical-mirai-2017",
+      "name": "初音ミク「マジカルミライ 2017」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2017/",
+      "performanceIds": [
+        1397
+      ]
+    },
+    {
+      "id": "magical-mirai-2018",
+      "name": "初音ミク「マジカルミライ 2018」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2018/",
+      "performanceIds": [
+        1561,
+        1745
+      ]
+    },
+    {
+      "id": "magical-mirai-2019",
+      "name": "初音ミク「マジカルミライ 2019」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2019/",
+      "performanceIds": [
+        2515,
+        2516
+      ]
+    },
+    {
+      "id": "magical-mirai-2020",
+      "name": "初音ミク「マジカルミライ 2020」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2020/",
+      "performanceIds": [
+        2758,
+        2759
+      ]
+    },
+    {
+      "id": "magical-mirai-2021",
+      "name": "初音ミク「マジカルミライ 2021」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2021/",
+      "performanceIds": [
+        3305,
+        3306
+      ]
+    },
+    {
+      "id": "magical-mirai-10th-anniversary",
+      "name": "初音ミク「マジカルミライ」10th Anniversary",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/10th/",
+      "performanceIds": [
+        4233,
+        4234,
+        4235
+      ],
+      "note": "Osaka and Tokyo are series_number 2022. Sapporo is series_number 2023. All three use magicalmirai.com/10th/."
+    },
+    {
+      "id": "magical-mirai-2023",
+      "name": "初音ミク「マジカルミライ 2023」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2023/",
+      "performanceIds": [
+        6045,
+        6046
+      ]
+    },
+    {
+      "id": "magical-mirai-2024",
+      "name": "初音ミク「マジカルミライ 2024」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2024/",
+      "performanceIds": [
+        7214,
+        7215,
+        7217
+      ]
+    },
+    {
+      "id": "magical-mirai-2025",
+      "name": "初音ミク「マジカルミライ 2025」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2025/",
+      "performanceIds": [
+        8768,
+        8769,
+        8770
+      ]
+    },
+    {
+      "id": "magical-mirai-2026",
+      "name": "初音ミク「マジカルミライ 2026」",
+      "seriesId": 81,
+      "sourceUrl": "https://magicalmirai.com/2026/",
+      "performanceIds": [
+        12249,
+        12250,
+        12251
+      ]
+    },
+    {
+      "id": "miku-expo-2014-indonesia",
+      "name": "HATSUNE MIKU EXPO 2014 in Indonesia",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/indonesia_top",
+      "performanceIds": [
+        1939
+      ]
+    },
+    {
+      "id": "miku-expo-2014-los-angeles",
+      "name": "HATSUNE MIKU EXPO 2014 in Los Angeles",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/la",
+      "performanceIds": [
+        1937
+      ]
+    },
+    {
+      "id": "miku-expo-2014-new-york",
+      "name": "HATSUNE MIKU EXPO 2014 in New York",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/ny",
+      "performanceIds": [
+        1938
+      ]
+    },
+    {
+      "id": "miku-expo-2015-shanghai",
+      "name": "HATSUNE MIKU EXPO 2015 in Shanghai",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/history",
+      "performanceIds": [
+        1940
+      ],
+      "note": "The official history page lists this as its own event. The performance row has no dedicated official URL."
+    },
+    {
+      "id": "miku-expo-2016-japan",
+      "name": "HATSUNE MIKU EXPO 2016 Japan Tour",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/jp2016/",
+      "performanceIds": [
+        1399,
+        1400,
+        1401,
+        1402,
+        1403
+      ]
+    },
+    {
+      "id": "miku-expo-2016-north-america",
+      "name": "HATSUNE MIKU EXPO 2016 North America",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/na2016/",
+      "performanceIds": [
+        1859,
+        1930,
+        1931,
+        1932,
+        1933,
+        1934,
+        1935,
+        1936,
+        1860,
+        1924
+      ]
+    },
+    {
+      "id": "miku-expo-2016-taiwan",
+      "name": "HATSUNE MIKU EXPO 2016 in Taiwan",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/tw2016/",
+      "performanceIds": [
+        1941
+      ]
+    },
+    {
+      "id": "miku-expo-2016-china",
+      "name": "HATSUNE MIKU EXPO 2016 China Tour",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/cn2016/",
+      "performanceIds": [
+        1943,
+        1942
+      ]
+    },
+    {
+      "id": "miku-expo-2017-malaysia",
+      "name": "HATSUNE MIKU EXPO 2017 in Malaysia",
+      "seriesId": 82,
+      "sourceUrl": "http://mikuexpo.com/may2017/",
+      "performanceIds": [
+        1584
+      ]
+    },
+    {
+      "id": "miku-expo-2018-usa-mexico",
+      "name": "HATSUNE MIKU EXPO 2018 USA & Mexico",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/usamx2018/",
+      "performanceIds": [
+        1673,
+        1674,
+        1675,
+        1676,
+        1677,
+        1678,
+        1925
+      ]
+    },
+    {
+      "id": "miku-expo-2018-europe",
+      "name": "HATSUNE MIKU EXPO 2018 EUROPE",
+      "seriesId": 82,
+      "sourceUrl": "http://mikuexpo.com/europe2018/",
+      "performanceIds": [
+        1854,
+        1855,
+        1856
+      ]
+    },
+    {
+      "id": "miku-expo-2019-taiwan-hong-kong",
+      "name": "HATSUNE MIKU EXPO 2019 Taiwan & Hong Kong",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/twhk2019/",
+      "performanceIds": [
+        2489,
+        2490
+      ]
+    },
+    {
+      "id": "miku-expo-2020-europe",
+      "name": "HATSUNE MIKU EXPO 2020 EUROPE",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/europe2020/",
+      "performanceIds": [
+        2786,
+        2787,
+        2788,
+        2789,
+        2790
+      ]
+    },
+    {
+      "id": "miku-expo-2020-usa-canada",
+      "name": "HATSUNE MIKU EXPO 2020 USA & Canada",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/usaca2020/",
+      "performanceIds": [
+        2853,
+        2854,
+        2855,
+        2856,
+        2857,
+        2858,
+        2859,
+        2860,
+        2861,
+        2878,
+        2879,
+        2880
+      ],
+      "note": "Cancelled tour. The catalog keeps the stops and does not store their planned dates."
+    },
+    {
+      "id": "miku-expo-2021-online",
+      "name": "HATSUNE MIKU EXPO 2021 Online",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/online2021/index.html",
+      "performanceIds": [
+        3224
+      ]
+    },
+    {
+      "id": "miku-expo-2022-rewind",
+      "name": "HATSUNE MIKU EXPO Rewind",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/rewind2022/index.html",
+      "performanceIds": [
+        4114
+      ],
+      "note": "Separate event from Rewind+. The official history lists them as two titles. They share mikuexpo.com/rewind2022/."
+    },
+    {
+      "id": "miku-expo-2022-rewind-plus",
+      "name": "HATSUNE MIKU EXPO Rewind+",
+      "seriesId": 82,
+      "sourceUrl": "https://www.crypton.co.jp/cfm/news/2022/08/19rewindplus",
+      "performanceIds": [
+        4490
+      ],
+      "note": "Power-up edition of Rewind, announced as its own event. The shared site is https://mikuexpo.com/rewind2022/."
+    },
+    {
+      "id": "miku-expo-2023-vr",
+      "name": "HATSUNE MIKU EXPO 2023 VR",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/vr2023/index.html",
+      "performanceIds": [
+        5751
+      ]
+    },
+    {
+      "id": "miku-expo-2024-north-america",
+      "name": "HATSUNE MIKU EXPO 2024 North America",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/na2024/",
+      "performanceIds": [
+        6516,
+        6517,
+        6518,
+        6519,
+        7186,
+        6520,
+        6521,
+        6522,
+        6523,
+        6524,
+        6525,
+        6526,
+        6527,
+        6528,
+        6529,
+        6530,
+        6531
+      ]
+    },
+    {
+      "id": "miku-expo-2024-europe",
+      "name": "HATSUNE MIKU EXPO 2024 EUROPE",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/europe2024/",
+      "performanceIds": [
+        7266,
+        7267,
+        7268,
+        7269,
+        7270,
+        7271
+      ]
+    },
+    {
+      "id": "miku-expo-2024-new-zealand-australia",
+      "name": "HATSUNE MIKU EXPO 2024 New Zealand & Australia",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/nzaus2024/",
+      "performanceIds": [
+        7765,
+        7766,
+        7767,
+        7768,
+        7769
+      ]
+    },
+    {
+      "id": "miku-expo-2025-asia",
+      "name": "HATSUNE MIKU EXPO 2025 ASIA",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/asia2025/",
+      "performanceIds": [
+        9341,
+        9348,
+        9349,
+        9350,
+        9351,
+        9352,
+        9555,
+        9353
+      ]
+    },
+    {
+      "id": "miku-expo-2026-north-america",
+      "name": "HATSUNE MIKU EXPO 2026 North America",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/na2026/",
+      "performanceIds": [
+        9811,
+        9812,
+        9813,
+        9814,
+        9815,
+        9816,
+        9817,
+        9818,
+        9819,
+        9820,
+        9821,
+        9822,
+        9823,
+        9824,
+        9825
+      ]
+    },
+    {
+      "id": "miku-expo-2026-europe",
+      "name": "HATSUNE MIKU EXPO 2026 EUROPE",
+      "seriesId": 82,
+      "sourceUrl": "https://mikuexpo.com/europe2026/",
+      "performanceIds": [
+        12222,
+        12223,
+        12224,
+        12225,
+        12226,
+        12227,
+        12228,
+        12449
+      ]
+    },
+    {
+      "id": "miku-with-you-2017",
+      "name": "MIKU WITH YOU 2017",
+      "seriesId": 173,
+      "sourceUrl": "https://www.scla.com.cn/events/hatsunemiku2017/",
+      "performanceIds": [
+        1619
+      ]
+    },
+    {
+      "id": "miku-with-you-2018",
+      "name": "MIKU WITH YOU 2018",
+      "seriesId": 173,
+      "sourceUrl": "http://www.scla.com.cn/events/hatsunemiku2018/",
+      "performanceIds": [
+        2085,
+        2086,
+        2087
+      ]
+    },
+    {
+      "id": "miku-with-you-2019",
+      "name": "MIKU WITH YOU 2019",
+      "seriesId": 173,
+      "sourceUrl": "https://www.scla.com.cn/events/hatsunemiku2019/",
+      "performanceIds": [
+        3752,
+        3753,
+        3754,
+        3755
+      ]
+    },
+    {
+      "id": "miku-with-you-2020",
+      "name": "MIKU WITH YOU 2020",
+      "seriesId": 173,
+      "sourceUrl": "https://blog.piapro.net/2020/10/zh2010211.html",
+      "performanceIds": [
+        3250
+      ]
+    },
+    {
+      "id": "miku-with-you-2021",
+      "name": "MIKU WITH YOU 2021",
+      "seriesId": 173,
+      "sourceUrl": null,
+      "performanceIds": [
+        4058
+      ],
+      "note": "Only catalog performance for this year. No official URL is stored on the row."
+    },
+    {
+      "id": "miku-with-you-2024",
+      "name": "MIKU WITH YOU 2024",
+      "seriesId": 173,
+      "sourceUrl": "https://blog.piapro.net/2024/06/zh2406141.html",
+      "performanceIds": [
+        7673,
+        7675,
+        7674
+      ]
+    },
+    {
+      "id": "miku-with-you-2025",
+      "name": "MIKU WITH YOU 2025",
+      "seriesId": 173,
+      "sourceUrl": null,
+      "performanceIds": [
+        9644
+      ],
+      "note": "Only catalog performance for this year. No official URL is stored on the row."
+    },
+    {
+      "id": "miku-with-you-2026",
+      "name": "MIKU WITH YOU 2026",
+      "seriesId": 173,
+      "sourceUrl": "https://blog.piapro.net/2026/11/ft2611131.html",
+      "performanceIds": [
+        13120,
+        3000000001
+      ],
+      "note": "Chengdu was announced as an added stop of MIKU WITH YOU 2026 after Shanghai, with its own visual."
+    },
+    {
+      "id": "snow-miku-live-2015",
+      "name": "SNOW MIKU LIVE! 2015",
+      "seriesId": 204,
+      "sourceUrl": "https://snowmiku.com/2015/live_ticket.html",
+      "performanceIds": [
+        3792
+      ]
+    },
+    {
+      "id": "snow-miku-live-2018",
+      "name": "SNOW MIKU LIVE! 2018",
+      "seriesId": 204,
+      "sourceUrl": "http://snowmiku.com/2018/live_ticket.html",
+      "performanceIds": [
+        1618
+      ]
+    },
+    {
+      "id": "snow-miku-live-2019",
+      "name": "SNOW MIKU LIVE! 2019",
+      "seriesId": 204,
+      "sourceUrl": "https://snowmiku.com/2019/live_zepp.html",
+      "performanceIds": [
+        2422
+      ]
+    },
+    {
+      "id": "snow-miku-live-2027",
+      "name": "SNOW MIKU LIVE! 2027",
+      "seriesId": 204,
+      "sourceUrl": "https://snowmiku.com/2027/event-live.html",
+      "performanceIds": [
+        13226
+      ]
+    },
+    {
+      "id": "mikupa-2010-giving-day",
+      "name": "ミクの日感謝祭39's Giving Day",
+      "seriesId": 219,
+      "sourceUrl": "http://miku.sega.jp/39/mikufes.html",
+      "performanceIds": [
+        2520
+      ]
+    },
+    {
+      "id": "mikupa-2011-tokyo",
+      "name": "初音ミクライブパーティー 2011 Tokyo",
+      "seriesId": 219,
+      "sourceUrl": "http://5pb.jp/mikupa/index_tokyo.html",
+      "performanceIds": [
+        2523
+      ]
+    },
+    {
+      "id": "mikunopolis-2011-los-angeles",
+      "name": "MIKUNOPOLIS in LOS ANGELES",
+      "seriesId": 219,
+      "sourceUrl": "http://miku.sega.jp/39/mikula.html",
+      "performanceIds": [
+        2521
+      ]
+    },
+    {
+      "id": "mikupa-2011-sapporo",
+      "name": "初音ミクライブパーティー 2011 Sapporo",
+      "seriesId": 219,
+      "sourceUrl": "http://5pb.jp/mikupa/index_sapporo.html",
+      "performanceIds": [
+        2526
+      ]
+    },
+    {
+      "id": "mikupa-2011-singapore",
+      "name": "初音ミクライブパーティー 2011 Singapore",
+      "seriesId": 219,
+      "sourceUrl": "http://5pb.jp/mikupa/index_singapore.html",
+      "performanceIds": [
+        2527
+      ]
+    },
+    {
+      "id": "mikupa-2012-tokyo",
+      "name": "初音ミクライブパーティー 2012 Tokyo",
+      "seriesId": 219,
+      "sourceUrl": "https://info.miku.sega.jp/489",
+      "performanceIds": [
+        4056
+      ]
+    },
+    {
+      "id": "miku-no-hi-2012-finale",
+      "name": "初音ミクコンサート 最後のミクの日感謝祭",
+      "seriesId": 219,
+      "sourceUrl": "https://miku.sega.jp/39/",
+      "performanceIds": [
+        3000000011
+      ]
+    },
+    {
+      "id": "mikupa-2012-hong-kong-taiwan",
+      "name": "初音ミクライブパーティー 2012 Hong Kong & Taiwan",
+      "seriesId": 219,
+      "sourceUrl": "http://5pb.jp/mikupa/index_hktw.html",
+      "performanceIds": [
+        2524,
+        2525
+      ],
+      "note": "Hong Kong and Taiwan share the official page index_hktw.html."
+    },
+    {
+      "id": "mikupa-2013-sapporo",
+      "name": "初音ミクライブパーティー 2013 Sapporo",
+      "seriesId": 219,
+      "sourceUrl": "http://5pb.jp/mikupa/index_sapporo2013.html",
+      "performanceIds": [
+        2510
+      ]
+    },
+    {
+      "id": "mikupa-2013-kansai",
+      "name": "初音ミクライブパーティー 2013 Kansai",
+      "seriesId": 219,
+      "sourceUrl": "http://5pb.jp/mikupa/index_kansai.html",
+      "performanceIds": [
+        2511
+      ]
+    },
+    {
+      "id": "hatsune-miku-x-kodo-2017",
+      "name": "初音ミク×鼓童 2017",
+      "seriesId": 255,
+      "sourceUrl": "https://kodo-miku.com/2017/index.html",
+      "performanceIds": [
+        2947
+      ]
+    },
+    {
+      "id": "hatsune-miku-x-kodo-2018",
+      "name": "初音ミク×鼓童 2018",
+      "seriesId": 255,
+      "sourceUrl": "https://kodo-miku.com/2018/index.html",
+      "performanceIds": [
+        2948
+      ]
+    },
+    {
+      "id": "hatsune-miku-x-kodo-2020",
+      "name": "初音ミク×鼓童 2020",
+      "seriesId": 255,
+      "sourceUrl": "https://kodo-miku.com/",
+      "performanceIds": [
+        2886
+      ],
+      "note": "Cancelled upstream, with no date stored."
+    },
+    {
+      "id": "hatsune-miku-x-kodo-2023",
+      "name": "初音ミク×鼓童 2023",
+      "seriesId": 255,
+      "sourceUrl": "https://kodo-miku.com/",
+      "performanceIds": [
+        5910
+      ]
+    },
+    {
+      "id": "hatsune-miku-x-kodo-2026",
+      "name": "初音ミク×鼓童 2026",
+      "seriesId": 255,
+      "sourceUrl": "https://kyouen-kodo-miku.com/",
+      "performanceIds": [
+        12940
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2016",
+      "name": "初音ミクシンフォニー 2016",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        2957
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2017",
+      "name": "初音ミクシンフォニー 2017",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        2958,
+        2959
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2018",
+      "name": "初音ミクシンフォニー 2018-2019",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        2504,
+        2960
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2019",
+      "name": "初音ミクシンフォニー 2019",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        2870,
+        2871
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2020",
+      "name": "初音ミクシンフォニー 2020",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        2954,
+        2955,
+        2956
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2021",
+      "name": "初音ミクシンフォニー 2021",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        3710,
+        3869
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2022",
+      "name": "初音ミクシンフォニー 2022",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        4322,
+        4808,
+        4814
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2023",
+      "name": "初音ミクシンフォニー 2023",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        4877,
+        4878,
+        4879
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2024",
+      "name": "初音ミクシンフォニー 2024",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        12709,
+        8033,
+        8035
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2025",
+      "name": "初音ミクシンフォニー 2025",
+      "seriesId": 256,
+      "sourceUrl": "https://blog.piapro.net/2024/10/fr2410071.html",
+      "performanceIds": [
+        8037,
+        8710,
+        8711,
+        9267,
+        9276
+      ],
+      "note": "One 10th-anniversary season. City pages live under https://sp.wmg.jp/mikusymphony/10th/."
+    },
+    {
+      "id": "hatsune-miku-symphony-2026",
+      "name": "初音ミクシンフォニー 2026",
+      "seriesId": 256,
+      "sourceUrl": "https://blog.piapro.net/2026/05/ob2605221.html",
+      "performanceIds": [
+        12713,
+        12714
+      ],
+      "note": "Sapporo and Tokyo share one main visual. Yokohama and Osaka are the separate Melodies on the Keys run."
+    },
+    {
+      "id": "hatsune-miku-symphony-2026-2027",
+      "name": "初音ミクシンフォニー 2026-2027 Melodies on the Keys",
+      "seriesId": 256,
+      "sourceUrl": "https://blog.piapro.net/2026/09/ob2609161.html",
+      "performanceIds": [
+        12739,
+        12740
+      ]
+    },
+    {
+      "id": "hatsune-miku-symphony-2027",
+      "name": "初音ミクシンフォニー 2027",
+      "seriesId": 256,
+      "sourceUrl": null,
+      "performanceIds": [
+        13209,
+        13210
+      ],
+      "note": "Both catalog names are 初音ミクシンフォニー 2027. A 2026-10-10 Sports Hochi report of the Yokohama Melodies show says this next season is Yokohama on 2027-03-13 and Tokyo on 2027-04-10. Tokyo's date is not stored on the performance."
+    },
+    {
+      "id": "japan-tour-2023-thunderbolt",
+      "name": "初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜",
+      "seriesId": 408,
+      "sourceUrl": "https://piapro.net/japantour2023/",
+      "performanceIds": [
+        4765,
+        4766,
+        4767,
+        4768,
+        4769
+      ],
+      "note": "The series is this one tour. series_number is the stop index, not a year."
+    },
+    {
+      "id": "japan-live-tour-2025-blooming",
+      "name": "初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～",
+      "seriesId": 799,
+      "sourceUrl": "https://piapro.net/japantour2025/",
+      "performanceIds": [
+        8380,
+        8381,
+        8382,
+        8383,
+        8384,
+        8385,
+        8386
+      ],
+      "note": "The series is this one tour. series_number is the stop index, not a year."
+    },
+    {
+      "id": "decomiku-live-2026",
+      "name": "デコミク LIVE starring 初音ミク『Hello』",
+      "seriesId": 900000000,
+      "sourceUrl": "https://otoiro.co.jp/live/decomikulive2026",
+      "performanceIds": [
+        9401
+      ]
+    },
+    {
+      "id": "miku-fes-2009",
+      "name": "ミクFES '09（夏）",
+      "seriesId": 900000001,
+      "sourceUrl": "https://blog.piapro.net/2009/09/fes09.html",
+      "performanceIds": [
+        3000000002
+      ]
+    },
+    {
+      "id": "miku-fes-2024",
+      "name": "MIKU FES '24（春）",
+      "seriesId": 900000001,
+      "sourceUrl": "https://mikufes24spring.jp/",
+      "performanceIds": [
+        3000000003
+      ]
+    },
+    {
+      "id": "end-of-summer-39-2012",
+      "name": "夏の終わりの39祭り",
+      "seriesId": 900000002,
+      "sourceUrl": null,
+      "performanceIds": [
+        3000000004
+      ],
+      "note": "Single catalog performance. No official URL is stored on the row."
+    },
+    {
+      "id": "hatsune-appearance-2013",
+      "name": "夏祭初音鑑",
+      "seriesId": 900000003,
+      "sourceUrl": "http://kc-i.jp/hatsuap/",
+      "performanceIds": [
+        3000000005,
+        3000000010
+      ],
+      "note": "Osaka and Tokyo share the official event site."
+    },
+    {
+      "id": "galaxy-live-2020",
+      "name": "初音ミク GALAXY LIVE 2020",
+      "seriesId": 900000004,
+      "sourceUrl": "https://galaxy-live.net/",
+      "performanceIds": [
+        3000000006
+      ],
+      "note": "2020 and 2021 both use galaxy-live.net/. They are separate yearly events."
+    },
+    {
+      "id": "galaxy-live-2021",
+      "name": "初音ミク GALAXY LIVE 2021",
+      "seriesId": 900000004,
+      "sourceUrl": "https://galaxy-live.net/",
+      "performanceIds": [
+        3000000007
+      ],
+      "note": "2020 and 2021 both use galaxy-live.net/. They are separate yearly events."
+    },
+    {
+      "id": "lawson-50th-2026",
+      "name": "初音ミク LAWSON 50th Anniversary Special LIVE",
+      "seriesId": 900000005,
+      "sourceUrl": "https://l-tike.com/lawson50thmiku/",
+      "performanceIds": [
+        3000000008
+      ]
+    },
+    {
+      "id": "project-voltage-live-2026",
+      "name": "ポケモン feat. 初音ミク VOLTAGE Live！",
+      "seriesId": 900000006,
+      "sourceUrl": "https://www.project-voltage.jp/live2026/",
+      "performanceIds": [
+        3000000009
+      ]
+    },
+    {
+      "id": "wowow-2014",
+      "name": "初音ミク×TOUCH！WOWOW2014 スペシャルライブ",
+      "seriesId": 900000007,
+      "sourceUrl": "https://blog.piapro.net/2014/11/z1411081-1.html",
+      "performanceIds": [
+        3000000012
+      ]
+    }
+  ]
+}

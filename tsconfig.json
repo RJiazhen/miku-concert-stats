@@ -22,6 +22,7 @@
     "tests/timeline-hide-zero-year-details.test.ts",
     "tests/timeline-chart-card.test.ts",
     "tests/timeline-chart-fit-width.test.ts",
-    "tests/timeline-chart-export.test.ts"
+    "tests/timeline-chart-export.test.ts",
+    "tests/homepage-carousel-component.test.ts"
   ]
 }
