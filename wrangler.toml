@@ -31,8 +31,8 @@ dataset = "miku_pageviews"
 # Account-specific [vars] (ACCESS_TEAM_DOMAIN, ACCESS_AUD, CF_ACCOUNT_TAG,
 # CF_ANALYTICS_HOST) and the secret CF_ANALYTICS_API_TOKEN are NOT committed
 # here. Set them in the Cloudflare dashboard (Worker → Settings → Variables /
-# Secrets) so deploys do not publish account fingerprints in git and do not
-# overwrite dashboard values with "". See docs/cloudflare.md.
+# Secrets) so deploys do not publish account fingerprints in git.
+# See docs/cloudflare.md.
 
 # Worker Previews (non-main branches / `pnpm exec wrangler preview`).
 # Required by wrangler >= 4.135.0; may be empty. Use a [previews] table
