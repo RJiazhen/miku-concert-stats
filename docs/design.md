@@ -204,7 +204,7 @@ Producer pages (`/producers`, `/producers/{name}`) use the same rules. Song coun
 1. **Schema and pure functions** — `data/schema.sql`, `shared/premiere.ts`, `shared/showtime.ts`, `shared/medley.ts`, `shared/stats.ts`, and `tests/*`.
 2. **Collect and SQL** — `scripts/vocadb/*`, `scripts/sql/emit.ts`, `scripts/build-catalog.ts`; one collect run produces `data/increments/0001-vocadb-catalog.sql`; `tests/catalog.test.ts`.
 3. **Site** — Nuxt pages, `composables/useCatalog.ts`, credits and empty states.
-4. **Release automation** — `wrangler.toml` (optional empty `previews`), CI, weekly workflow; README. Non-`main` Worker Preview needs top-level `[previews]` (may be empty; no inline `previews = { }` after `[[...]]`); previews do not inherit prod `FEEDBACK` / `PAGEVIEWS`. Prod: `npx wrangler deploy`; non-`main` preview: `npx wrangler preview` (`versions upload` deprecated). Ops: [cloudflare.md](cloudflare.md).
+4. **Release automation** — `wrangler.toml` (optional empty `previews`), CI, weekly workflow; README. Non-`main` Worker Preview needs top-level `[previews]` (may be empty; no inline `previews = { }` after `[[...]]`); previews do not inherit prod `FEEDBACK` / `PAGEVIEWS`. `keep_vars = true` so dashboard-only non-secret Variables omitted from git (`ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `CF_ACCOUNT_TAG`, `CF_ANALYTICS_HOST`) survive `wrangler deploy`; secrets are already preserved. Prod: `npx wrangler deploy`; non-`main` preview: `npx wrangler preview` (`versions upload` deprecated). Ops: [cloudflare.md](cloudflare.md).
 
 ## Variant merging
 

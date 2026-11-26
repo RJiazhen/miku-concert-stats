@@ -12,7 +12,7 @@ This project hosts production on Cloudflare Workers. **Forks and local UI work d
 | `CF_ACCOUNT_TAG` / `CF_ANALYTICS_HOST` | First-party Analytics Engine query scope | **No** — dashboard Variables |
 | Secret `CF_ANALYTICS_API_TOKEN` | Account Analytics Read | **No** — dashboard Secrets / `wrangler secret put` |
 
-Do **not** commit those vars as empty strings: `wrangler deploy` would overwrite dashboard values with `""` and lock admin/analytics. Omit them from the file instead.
+`wrangler.toml` sets top-level `keep_vars = true` (above any `[[...]]` tables, or TOML attaches it to the previous array entry) so the Cloudflare dashboard stays the source of truth for those omitted non-secret Variables (`ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `CF_ACCOUNT_TAG`, `CF_ANALYTICS_HOST`). Without it, a deploy can delete dashboard Variables that are missing from git. Trade-off: removing a var from wrangler config no longer removes it from the Worker — delete it in the dashboard instead. The secret `CF_ANALYTICS_API_TOKEN` is already preserved across deploys regardless of `keep_vars`.
 
 Missing Access on the Worker → all admin APIs **401** (fail closed). Missing KV binding → public feedback **503**.
 
