@@ -4,6 +4,12 @@ name = "miku-concert-stats"
 compatibility_date = "2026-10-06"
 compatibility_flags = ["nodejs_compat"]
 
+# keep_vars must stay above [[...]] tables or TOML attaches it to the previous
+# array entry. Keeps dashboard-only non-secret Variables omitted from git
+# (ACCESS_TEAM_DOMAIN, ACCESS_AUD, CF_ACCOUNT_TAG, CF_ANALYTICS_HOST) on deploy;
+# secrets are already preserved. See docs/cloudflare.md.
+keep_vars = true
+
 # Feedback widget storage.
 # Create with: pnpm exec wrangler kv namespace create FEEDBACK
 # Local `nuxt dev` keeps the binding out of the request context, so the widget
