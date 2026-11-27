@@ -29,14 +29,34 @@ const emit = defineEmits<{
 /** Default columns for the serpentine path. */
 const columns = computed(() => Math.max(2, props.columns ?? 4))
 
-/** Rows of stops; odd rows are reversed for a left→right→left snake. */
-const rows = computed(() => {
+/** One snake row with layout metadata for the connector rail. */
+type SnakeRow = {
+  stops: TourTimelineStop[]
+  reversed: boolean
+  /** Inline style for the continuous rail through this row’s dots. */
+  railStyle: Record<string, string>
+}
+
+/**
+ * Builds serpentine rows and a rail from the first filled stop’s center
+ * to the last (odd rows run right→left).
+ */
+const rows = computed((): SnakeRow[] => {
   const cols = columns.value
-  const result: { stops: TourTimelineStop[]; reversed: boolean }[] = []
+  const result: SnakeRow[] = []
   for (let index = 0; index < props.stops.length; index += cols) {
     const chunk = props.stops.slice(index, index + cols)
     const reversed = result.length % 2 === 1
-    result.push({ stops: chunk, reversed })
+    const count = chunk.length
+    const halfCell = 50 / cols
+    const span = count <= 1 ? 0 : ((count - 1) / cols) * 100
+    const railStyle: Record<string, string> =
+      span === 0
+        ? { display: 'none' }
+        : reversed
+          ? { right: `${halfCell}%`, width: `${span}%` }
+          : { left: `${halfCell}%`, width: `${span}%` }
+    result.push({ stops: chunk, reversed, railStyle })
   }
   return result
 })
@@ -55,59 +75,62 @@ const selectStop = (performanceId: number): void => {
     <div
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="tour-snake-row flex items-start gap-x-[var(--tour-snake-gap,0.25rem)]"
+      class="tour-snake-row relative flex items-start"
       :class="row.reversed ? 'flex-row-reverse' : 'flex-row'"
     >
-      <template v-for="(stop, stopIndex) in row.stops" :key="stop.performanceId">
-        <button
-          type="button"
-          role="listitem"
-          class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors"
+      <div
+        class="tour-snake-rail-track pointer-events-none absolute top-[9px] h-0.5"
+        :style="row.railStyle"
+        aria-hidden="true"
+      />
+
+      <button
+        v-for="stop in row.stops"
+        :key="stop.performanceId"
+        type="button"
+        role="listitem"
+        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors"
+        :class="
+          String(stop.performanceId) === modelValue
+            ? 'text-primary'
+            : 'text-muted hover:text-highlighted'
+        "
+        :aria-current="String(stop.performanceId) === modelValue ? 'true' : undefined"
+        @click="selectStop(stop.performanceId)"
+      >
+        <span
+          class="tour-snake-dot size-2.5 shrink-0 rounded-full border-2 bg-default transition-colors"
           :class="
             String(stop.performanceId) === modelValue
-              ? 'text-primary'
-              : 'text-muted hover:text-highlighted'
+              ? 'border-primary bg-primary'
+              : stop.status === 'cancelled'
+                ? 'border-error'
+                : 'border-muted group-hover:border-primary'
           "
-          :aria-current="String(stop.performanceId) === modelValue ? 'true' : undefined"
-          @click="selectStop(stop.performanceId)"
-        >
-          <span
-            class="tour-snake-dot size-2.5 shrink-0 rounded-full border-2 transition-colors"
-            :class="
-              String(stop.performanceId) === modelValue
-                ? 'border-primary bg-primary'
-                : stop.status === 'cancelled'
-                  ? 'border-error bg-transparent'
-                  : 'border-muted-foreground/60 bg-elevated group-hover:border-primary'
-            "
-          />
-          <span class="max-w-full truncate text-xs font-medium leading-tight text-highlighted">
-            {{ stop.cityLabel }}
-          </span>
-          <span class="truncate text-[0.65rem] leading-tight text-muted tabular-nums">
-            {{ stop.dates }}
-          </span>
-        </button>
-        <!--
-          Rail sits on the dot row: button has py-1 (4px) + half of size-2.5 (5px) ≈ 9px.
-          Color uses muted foreground so it stays visible on both themes (bg-default blended away).
-        -->
-        <span
-          v-if="stopIndex < row.stops.length - 1"
-          class="tour-snake-rail mt-[9px] h-0.5 min-w-[0.75rem] flex-1 self-start rounded-full bg-muted-foreground/45"
-          aria-hidden="true"
         />
-      </template>
-      <!-- Pad incomplete rows so the turn stays on the outer edge. -->
-      <template v-if="row.stops.length < columns">
-        <template v-for="pad in columns - row.stops.length" :key="`pad-${pad}`">
-          <span
-            class="tour-snake-rail mt-[9px] h-0.5 min-w-[0.75rem] flex-1 self-start bg-transparent"
-            aria-hidden="true"
-          />
-          <span class="min-w-0 flex-1" aria-hidden="true" />
-        </template>
-      </template>
+        <span class="max-w-full truncate text-xs font-medium leading-tight text-highlighted">
+          {{ stop.cityLabel }}
+        </span>
+        <span class="truncate text-[0.65rem] leading-tight text-muted tabular-nums">
+          {{ stop.dates }}
+        </span>
+      </button>
+      <span
+        v-for="pad in Math.max(0, columns - row.stops.length)"
+        :key="`pad-${pad}`"
+        class="min-w-0 flex-1"
+        aria-hidden="true"
+      />
     </div>
   </div>
 </template>
+
+<style scoped>
+/*
+ * Theme utilities like `bg-muted-foreground` are not defined here and compile
+ * to transparent. Paint the rail with an explicit readable stroke.
+ */
+.tour-snake-rail-track {
+  background-color: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 65%, transparent);
+}
+</style>
