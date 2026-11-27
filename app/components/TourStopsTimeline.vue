@@ -26,8 +26,16 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-/** Default columns for the serpentine path. */
-const columns = computed(() => Math.max(2, props.columns ?? 4))
+/**
+ * Columns for the serpentine path, capped by stop count so a short tour
+ * does not reserve empty trailing cells (keeps narrow-screen centering tight).
+ */
+const columns = computed(() => {
+  const requested = Math.max(1, props.columns ?? 4)
+  const count = props.stops.length
+  if (count === 0) return requested
+  return Math.min(requested, count)
+})
 
 /** Stop plus its 1-based tour order. */
 type OrderedStop = TourTimelineStop & { order: number }
@@ -85,14 +93,18 @@ const stopAriaLabel = (stop: OrderedStop): string =>
 </script>
 
 <template>
+  <!--
+    Packed to content width: centered on narrow viewports, page-left on md+.
+    Fixed cell width keeps incomplete rows on the snake grid.
+  -->
   <div
-    class="tour-snake flex flex-col gap-y-[var(--tour-snake-row-gap,1.25rem)]"
+    class="tour-snake mx-auto flex w-fit max-w-full flex-col gap-y-[var(--tour-snake-row-gap,1.25rem)] md:mx-0"
     role="list"
   >
     <div
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="tour-snake-row relative flex items-start"
+      class="tour-snake-row relative flex w-full items-start"
       :class="row.reversed ? 'flex-row-reverse' : 'flex-row'"
     >
       <div
@@ -116,7 +128,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
         :key="stop.performanceId"
         type="button"
         role="listitem"
-        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors"
+        class="tour-snake-node group relative z-[1] flex w-[4.75rem] shrink-0 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors sm:w-[5.5rem] md:w-24"
         :class="
           String(stop.performanceId) === modelValue
             ? 'text-primary'
@@ -148,7 +160,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
       <span
         v-for="pad in Math.max(0, columns - row.stops.length)"
         :key="`pad-${pad}`"
-        class="min-w-0 flex-1"
+        class="tour-snake-node w-[4.75rem] shrink-0 sm:w-[5.5rem] md:w-24"
         aria-hidden="true"
       />
     </div>
