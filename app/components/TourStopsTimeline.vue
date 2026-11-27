@@ -19,11 +19,27 @@ export type TourTimelineStop = {
 const props = defineProps<{
   stops: readonly TourTimelineStop[]
   modelValue: string
+  /**
+   * Performance ids that share the active setlist programme — every matching
+   * node is highlighted when the city tabs switch programmes.
+   */
+  activePerformanceIds?: readonly number[]
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
+
+/** Ids in the active programme, for O(1) highlight checks. */
+const activeIdSet = computed(() => {
+  const ids = props.activePerformanceIds
+  if (ids !== undefined && ids.length > 0) return new Set(ids)
+  const selected = Number(props.modelValue)
+  return Number.isFinite(selected) ? new Set([selected]) : new Set<number>()
+})
+
+/** Whether this stop belongs to the active setlist programme. */
+const isProgrammeStop = (performanceId: number): boolean => activeIdSet.value.has(performanceId)
 
 /**
  * Discrete section-width tiers → column count (before the stop-count cap).
@@ -162,7 +178,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
         role="listitem"
         class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-start gap-1 rounded-md py-1 pe-2 text-start transition-colors"
         :class="
-          String(stop.performanceId) === modelValue
+          isProgrammeStop(stop.performanceId)
             ? 'text-primary'
             : 'text-muted hover:text-highlighted'
         "
@@ -173,7 +189,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
         <span
           class="tour-snake-dot flex size-5 shrink-0 items-center justify-center rounded-full border-2 text-[0.625rem] font-semibold leading-none tabular-nums transition-colors"
           :class="
-            String(stop.performanceId) === modelValue
+            isProgrammeStop(stop.performanceId)
               ? 'border-primary bg-primary text-inverted'
               : stop.status === 'cancelled'
                 ? 'border-error text-error'

@@ -397,6 +397,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           <TourStopsTimeline
             :model-value="activeStopId"
             :stops="timelineStops"
+            :active-performance-ids="activeSetlistGroup?.performanceIds ?? []"
             @update:model-value="(value) => selectStop(value, true)"
           />
         </section>
