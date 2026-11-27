@@ -112,12 +112,21 @@ const stopEntries = computed(() =>
   }),
 )
 
-/** Compact timeline model for the stop rail. */
+/** Compact `M/D` (or range) for snake nodes. */
+const shortStopDate = (startDate: string | null, endDate: string | null): string => {
+  if (startDate === null || startDate.length < 10) return '—'
+  const start = `${Number(startDate.slice(5, 7))}/${Number(startDate.slice(8, 10))}`
+  if (endDate === null || endDate === '' || endDate === startDate || endDate.length < 10) return start
+  const end = `${Number(endDate.slice(5, 7))}/${Number(endDate.slice(8, 10))}`
+  return `${start}–${end}`
+}
+
+/** Compact snake timeline model for the stop rail. */
 const timelineStops = computed<TourTimelineStop[]>(() =>
   stopEntries.value.map((entry) => ({
     performanceId: entry.performance.id,
     cityLabel: entry.cityTabLabel,
-    dates: entry.dates,
+    dates: shortStopDate(entry.performance.start_date, entry.performance.end_date),
     venue: entry.venue,
     showCount: entry.showCount,
     hasSetlist: entry.hasSetlist,
@@ -334,15 +343,6 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
               {{ t('tour.officialSource') }}
             </UButton>
           </div>
-
-          <section v-if="timelineStops.length > 0" class="pt-2">
-            <h2 class="sr-only">{{ t('tour.stopsHeading') }}</h2>
-            <TourStopsTimeline
-              :model-value="activeStopId"
-              :stops="timelineStops"
-              @update:model-value="(value) => selectStop(value, true)"
-            />
-          </section>
         </div>
 
         <aside v-if="poster" class="md:sticky md:top-20">
@@ -354,6 +354,17 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           >
         </aside>
       </header>
+
+      <!-- Full-width serpentine stop path (L→R, then R→L). -->
+      <section v-if="timelineStops.length > 0" class="min-w-0">
+        <h2 class="sr-only">{{ t('tour.stopsHeading') }}</h2>
+        <TourStopsTimeline
+          :model-value="activeStopId"
+          :stops="timelineStops"
+          :columns="4"
+          @update:model-value="(value) => selectStop(value, true)"
+        />
+      </section>
 
       <section id="tour-setlist" class="space-y-4">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
