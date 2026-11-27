@@ -69,6 +69,20 @@ export default {
     ko: '· {n}회',
     en: '· {n} shows',
   },
+  'tour.timelineShowCount': {
+    zh: '{n} 场',
+    'zh-Hant': '{n} 場',
+    ja: '{n} 公演',
+    ko: '{n}회',
+    en: '{n} shows',
+  },
+  'tour.timelineNoSetlist': {
+    zh: '无歌单',
+    'zh-Hant': '無歌單',
+    ja: 'セットリストなし',
+    ko: '세트리스트 없음',
+    en: 'no setlist',
+  },
   'tour.unknownCity': {
     zh: '未知城市',
     'zh-Hant': '未知城市',

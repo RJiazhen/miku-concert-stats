@@ -41,7 +41,7 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | `/` | web | Home: banner, stats tiles, upcoming | Poster max width / stage bg CSS vars on `HomeSetlistCarousel.vue` |
 | `/rank` | web | Song appearance ranking | Filters + sortable table |
 | `/timeline` | web | Series/year charts | Sticky rail at `rail` (91rem)+; floating filters when narrow |
-| `/tours/:id` | web | Tour detail + city-tab setlists | Poster, stop totals; `/shows/:id` redirects here |
+| `/tours/:id` | web | Tour detail + city-tab setlists | Title/summary + compact stop `UTimeline` left; poster right (`md:` sticky); `/shows/:id` redirects here |
 | `/series/:id` | web | Series index of 演出 | Links from ranking |
 
 ## Iteration log
@@ -50,3 +50,4 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | --- | --- |
 | 2026-11-27 | Initial scaffold from new-repo-setup; seeded from existing `docs/design.md` / architecture notes |
 | 2026-11-27 | Tour detail (`/tours/:id`) replaces show detail as the primary concert page; city tabs for multi-stop setlists |
+| 2026-11-27 | Tour detail layout: poster on the right; stops as compact vertical timeline instead of a rigid list |

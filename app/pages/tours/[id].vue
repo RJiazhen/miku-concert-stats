@@ -17,6 +17,7 @@ import {
   tourPath,
 } from '~~/shared/tours.ts'
 import type { PerformanceRow } from '~~/shared/types.ts'
+import type { TourTimelineStop } from '~/components/TourStopsTimeline.vue'
 import { placeNames, usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useCatalog } from '~/composables/useCatalog.ts'
 import { useLocale } from '~/composables/useLocale.ts'
@@ -110,6 +111,19 @@ const stopEntries = computed(() =>
   }),
 )
 
+/** Compact timeline model for the stop rail. */
+const timelineStops = computed<TourTimelineStop[]>(() =>
+  stopEntries.value.map((entry) => ({
+    performanceId: entry.performance.id,
+    cityLabel: entry.cityTabLabel,
+    dates: entry.dates,
+    venue: entry.venue,
+    showCount: entry.showCount,
+    hasSetlist: entry.hasSetlist,
+    status: entry.statusNote?.status ?? null,
+  })),
+)
+
 /** Total 场次 across the tour. */
 const totalShows = computed(() => stopEntries.value.reduce((sum, entry) => sum + entry.showCount, 0))
 
@@ -139,6 +153,16 @@ const dateSpan = computed(() => {
   return `${performanceDateLabel(first, t)} – ${performanceDateLabel(last, t)}`
 })
 
+/** One muted summary line under the title. */
+const summaryLine = computed(() => {
+  const parts = [
+    dateSpan.value,
+    t('tour.pageSummary', { performances: stopEntries.value.length, shows: totalShows.value }),
+    distinctSongCount.value > 0 ? t('tour.songCount', { n: distinctSongCount.value }) : null,
+  ]
+  return parts.filter((part): part is string => part !== null && part !== '').join(' · ')
+})
+
 /** City tabs for setlist switching. */
 const setlistTabs = computed(() =>
   buildTourSetlistTabs(
@@ -151,7 +175,7 @@ const setlistTabs = computed(() =>
   ),
 )
 
-/** Active setlist/stop performance id (string for UTabs). */
+/** Active setlist/stop performance id (string for UTabs / timeline). */
 const activeStopId = ref<string>('')
 
 /** Ensures the active tab points at a valid setlist stop. */
@@ -162,17 +186,17 @@ const syncActiveStop = (): void => {
     return
   }
   const hashId = performanceIdFromTourHash(route.hash)
-  if (hashId !== null && tabs.some((tab) => tab.performanceId === hashId)) {
+  if (hashId !== null && stopEntries.value.some((entry) => entry.performance.id === hashId)) {
     activeStopId.value = String(hashId)
     return
   }
-  if (tabs.some((tab) => tab.value === activeStopId.value)) return
-  activeStopId.value = tabs[0]?.value ?? ''
+  if (stopEntries.value.some((entry) => String(entry.performance.id) === activeStopId.value)) return
+  activeStopId.value = tabs[0]?.value ?? String(stopEntries.value[0]?.performance.id ?? '')
 }
 
 watch([stopEntries, () => route.hash], syncActiveStop, { immediate: true })
 
-/** Active stop entry for facts + setlist. */
+/** Active stop entry for setlist + optional status. */
 const activeEntry = computed(
   () =>
     stopEntries.value.find((entry) => String(entry.performance.id) === activeStopId.value) ??
@@ -180,12 +204,24 @@ const activeEntry = computed(
     null,
 )
 
-/** Scrolls the active stop into view after hash / tab changes. */
-const scrollToActiveStop = async (): Promise<void> => {
+/** Scrolls the setlist block into view after a stop change from the timeline. */
+const scrollToSetlist = async (): Promise<void> => {
   await nextTick()
-  const id = activeEntry.value?.performance.id
-  if (id === undefined) return
-  document.getElementById(`p-${id}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  document.getElementById('tour-setlist')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+}
+
+/**
+ * Applies a stop selection from timeline or tabs and keeps the hash in sync.
+ */
+const selectStop = (performanceId: string | number, scroll = false): void => {
+  const value = String(performanceId)
+  if (!value) return
+  activeStopId.value = value
+  const nextHash = `#p-${value}`
+  if (route.hash !== nextHash) {
+    void navigateTo({ path: tourPath(tourId.value), hash: nextHash }, { replace: true })
+  }
+  if (scroll) void scrollToSetlist()
 }
 
 watch(activeStopId, (value, previous) => {
@@ -194,11 +230,10 @@ watch(activeStopId, (value, previous) => {
   if (route.hash !== nextHash) {
     void navigateTo({ path: tourPath(tourId.value), hash: nextHash }, { replace: true })
   }
-  void scrollToActiveStop()
 })
 
 onMounted(() => {
-  if (route.hash) void scrollToActiveStop()
+  if (route.hash) void scrollToSetlist()
 })
 
 /** Breadcrumb: series → tour. */
@@ -213,18 +248,11 @@ const breadcrumb = computed(() => {
   return items
 })
 
-/** Selects a stop from the overview list and updates the hash. */
-const selectStop = (performanceId: number): void => {
-  activeStopId.value = String(performanceId)
-  const path = tourPath(tourId.value)
-  void navigateTo({ path, hash: `#p-${performanceId}` }, { replace: true })
-}
-
 useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
 </script>
 
 <template>
-  <main class="space-y-6">
+  <main class="space-y-8">
     <PageSkeleton v-if="pending" />
     <UAlert v-else-if="error" color="error" variant="subtle" icon="i-lucide-triangle-alert" :description="error" />
     <UEmpty
@@ -237,105 +265,99 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
     <template v-else-if="tour">
       <UBreadcrumb :items="breadcrumb" />
 
-      <header class="space-y-3">
-        <div class="space-y-2">
+      <!-- Title + summary left; poster right (stacks on small screens). -->
+      <header class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)] md:items-start md:gap-10">
+        <div class="min-w-0 space-y-3">
           <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ tour.name }}</h1>
-          <p v-if="dateSpan" class="text-sm text-muted">{{ dateSpan }}</p>
-          <p class="text-sm text-muted">
-            {{ t('tour.pageSummary', { performances: stopEntries.length, shows: totalShows }) }}
-            <template v-if="distinctSongCount > 0">
-              · {{ t('tour.songCount', { n: distinctSongCount }) }}
-            </template>
-          </p>
-          <p v-if="seriesView && series" class="text-xs text-muted">
-            <NuxtLink :to="`/series/${series.id}`" class="text-primary hover:underline">
-              {{ t('tour.seriesLabel', { name: seriesView.primary }) }}
+          <p v-if="summaryLine" class="text-sm text-muted">{{ summaryLine }}</p>
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+            <NuxtLink
+              v-if="seriesView && series"
+              :to="`/series/${series.id}`"
+              class="text-primary hover:underline"
+            >
+              {{ seriesView.primary }}
             </NuxtLink>
-          </p>
-          <div v-if="tour.sourceUrl" class="flex flex-wrap gap-2 text-xs">
             <UButton
+              v-if="tour.sourceUrl"
               :to="tour.sourceUrl"
               target="_blank"
               color="neutral"
-              variant="outline"
+              variant="ghost"
               size="xs"
               icon="i-lucide-external-link"
+              class="-ms-1.5"
             >
               {{ t('tour.officialSource') }}
             </UButton>
           </div>
+
+          <section v-if="timelineStops.length > 0" class="pt-2">
+            <h2 class="sr-only">{{ t('tour.stopsHeading') }}</h2>
+            <TourStopsTimeline
+              :model-value="activeStopId"
+              :stops="timelineStops"
+              @update:model-value="(value) => selectStop(value, true)"
+            />
+          </section>
         </div>
-        <img
-          v-if="poster"
-          :src="poster.src"
-          :alt="poster.sourceLabel || tour.name"
-          class="max-h-80 w-full max-w-md object-contain object-left"
-          loading="lazy"
-        >
+
+        <aside v-if="poster" class="md:sticky md:top-20">
+          <img
+            :src="poster.src"
+            :alt="poster.sourceLabel || tour.name"
+            class="tour-poster max-h-72 w-full object-contain object-top md:max-h-[28rem]"
+            loading="lazy"
+          >
+        </aside>
       </header>
 
-      <section v-if="stopEntries.length > 0" class="space-y-2">
-        <h2 class="text-base font-semibold text-highlighted">{{ t('tour.stopsHeading') }}</h2>
-        <ul class="divide-y divide-default/40">
-          <li
-            v-for="entry in stopEntries"
-            :key="entry.performance.id"
-            class="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
-          >
-            <div class="min-w-0 space-y-1">
-              <button
-                type="button"
-                class="text-left text-primary hover:underline"
-                @click="selectStop(entry.performance.id)"
-              >
-                {{ entry.label }}
-              </button>
-              <p class="text-xs text-muted">
-                {{ entry.dates }}
-                <template v-if="entry.venue">· {{ entry.venue }}</template>
-                {{ t('tour.showCountLine', { n: entry.showCount }) }}
-                <template v-if="!entry.hasSetlist">{{ t('series.noSetlistLine') }}</template>
-              </p>
-            </div>
-          </li>
-        </ul>
-      </section>
+      <section id="tour-setlist" class="space-y-4">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 class="text-base font-semibold text-highlighted">{{ t('tour.setlistHeading') }}</h2>
+          <p v-if="activeEntry" class="text-xs text-muted">
+            {{ activeEntry.cityTabLabel }}
+            <template v-if="activeEntry.dates"> · {{ activeEntry.dates }}</template>
+          </p>
+        </div>
 
-      <template v-if="activeEntry">
-        <TourStopFacts
-          v-if="catalog"
-          :catalog="catalog"
-          :performance="activeEntry.performance"
-          :label="activeEntry.label"
-          :city-name="activeEntry.cityName"
-          :status-note="activeEntry.statusNote"
+        <UAlert
+          v-if="activeEntry?.statusNote"
+          :color="activeEntry.statusNote.status === 'cancelled' ? 'error' : 'warning'"
+          variant="subtle"
+          icon="i-lucide-calendar-x"
+          :title="
+            activeEntry.statusNote.status === 'cancelled'
+              ? t('show.cancelled')
+              : activeEntry.statusNote.status === 'postponed'
+                ? t('show.postponed')
+                : t('show.upcoming')
+          "
+          :description="activeEntry.statusNote.note ?? undefined"
         />
 
-        <section class="space-y-3">
-          <h2 class="text-base font-semibold text-highlighted">{{ t('tour.setlistHeading') }}</h2>
-          <UAlert
-            v-if="setlistTabs.tabs.length === 0"
-            color="warning"
-            variant="subtle"
-            icon="i-lucide-info"
-            :title="t('tour.noSetlistStops')"
+        <UAlert
+          v-if="setlistTabs.tabs.length === 0"
+          color="warning"
+          variant="subtle"
+          icon="i-lucide-info"
+          :title="t('tour.noSetlistStops')"
+        />
+        <template v-else>
+          <UTabs
+            v-if="setlistTabs.useTabs"
+            v-model="activeStopId"
+            :items="setlistTabs.tabs"
+            class="w-full"
+            :content="false"
           />
-          <template v-else>
-            <UTabs
-              v-if="setlistTabs.useTabs"
-              v-model="activeStopId"
-              :items="setlistTabs.tabs"
-              class="w-full"
-              :content="false"
-            />
-            <ShowSetlistSection
-              v-if="catalog && activeEntry.hasSetlist"
-              :catalog="catalog"
-              :performance-id="activeEntry.performance.id"
-            />
-          </template>
-        </section>
-      </template>
+          <ShowSetlistSection
+            v-if="catalog && activeEntry?.hasSetlist"
+            :catalog="catalog"
+            :performance-id="activeEntry.performance.id"
+          />
+        </template>
+      </section>
     </template>
   </main>
 </template>
