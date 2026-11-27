@@ -51,6 +51,22 @@ const auditTour = (tour: Tour, posters: TourPostersFile, root: string): TourPost
   return { tour, status: 'mapped', poster, filePath }
 }
 
+/** Max preview height for poster thumbnails in the audit markdown. */
+const POSTER_PREVIEW_MAX_HEIGHT_PX = 240
+
+/**
+ * Renders a local poster preview for the markdown audit.
+ * Paths are relative to `temp/` so the IDE preview can load `public/posters/…`.
+ */
+const renderPosterPreview = (filePath: string, alt: string): string => {
+  const rel = `../${filePath.replace(/\\/g, '/')}`
+  const safeAlt = alt.replaceAll('"', '&quot;')
+  return (
+    `<img src="${rel}" alt="${safeAlt}" ` +
+    `style="max-height: ${POSTER_PREVIEW_MAX_HEIGHT_PX}px; width: auto; display: block;" />`
+  )
+}
+
 /** Formats one tour block for the markdown audit. */
 const renderTourBlock = (row: TourPosterAuditRow): string => {
   const { tour, status, poster, filePath } = row
@@ -72,6 +88,9 @@ const renderTourBlock = (row: TourPosterAuditRow): string => {
       `- **sourceLabel:** ${poster.sourceLabel}`,
       `- **accessedAt:** ${poster.accessedAt}`,
     )
+    if (status === 'mapped' && filePath !== null) {
+      lines.push('', renderPosterPreview(filePath, poster.sourceLabel || tour.name), '')
+    }
   } else {
     lines.push('- **src:** —')
   }
