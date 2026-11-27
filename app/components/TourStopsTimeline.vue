@@ -40,19 +40,25 @@ const columns = computed(() => {
 /** Stop plus its 1-based tour order. */
 type OrderedStop = TourTimelineStop & { order: number }
 
+/** One gapped stroke between adjacent stop centers. */
+type RailSegment = {
+  style: Record<string, string>
+}
+
 /** One snake row with layout metadata for rails and U-turns. */
 type SnakeRow = {
   stops: OrderedStop[]
   reversed: boolean
-  /** Inline style for the continuous rail through this row’s dots. */
-  railStyle: Record<string, string>
-  /** Side where the path turns down into the next row. */
-  turnSide: 'left' | 'right' | null
+  /** Gapped horizontal strokes between this row’s nodes. */
+  segments: RailSegment[]
+  /** Column index (0 = left) for the U-turn into the next row. */
+  turnCol: number | null
 }
 
 /**
- * Builds serpentine rows, order indexes, directional rails, and turn stubs
- * (odd rows run right→left).
+ * Builds serpentine rows, order indexes, gapped rail segments, and turn stubs
+ * (odd rows run right→left). Horizontal and vertical strokes both stop short
+ * of the numbered dots — one connector language.
  */
 const rows = computed((): SnakeRow[] => {
   const cols = columns.value
@@ -65,19 +71,23 @@ const rows = computed((): SnakeRow[] => {
     }))
     const reversed = result.length % 2 === 1
     const count = chunk.length
-    const halfCell = 50 / cols
-    const span = count <= 1 ? 0 : ((count - 1) / cols) * 100
-    // Pull the tip back so the travel chevron sits in the gap, not under the last dot.
-    const tipInset = span === 0 ? 0 : (0.28 / cols) * 100
-    const railStyle: Record<string, string> =
-      span === 0
-        ? { display: 'none' }
-        : reversed
-          ? { right: `${halfCell + tipInset}%`, width: `${Math.max(0, span - tipInset)}%` }
-          : { left: `${halfCell}%`, width: `${Math.max(0, span - tipInset)}%` }
+    const cell = 100 / cols
+    /** Visual column for chunk slot `slot` (pads push incomplete RTL stops right). */
+    const colOf = (slot: number): number => (reversed ? cols - 1 - slot : slot)
+    const segments: RailSegment[] = []
+    for (let slot = 0; slot < count - 1; slot += 1) {
+      const leftCol = Math.min(colOf(slot), colOf(slot + 1))
+      const startCenter = (leftCol + 0.5) * cell
+      segments.push({
+        style: {
+          left: `calc(${startCenter}% + var(--tour-snake-rail-inset))`,
+          width: `calc(${cell}% - (2 * var(--tour-snake-rail-inset)))`,
+        },
+      })
+    }
     const isLastRow = index + cols >= total
-    const turnSide: SnakeRow['turnSide'] = isLastRow ? null : reversed ? 'left' : 'right'
-    result.push({ stops: chunk, reversed, railStyle, turnSide })
+    const turnCol = isLastRow || count === 0 ? null : colOf(count - 1)
+    result.push({ stops: chunk, reversed, segments, turnCol })
   }
   return result
 })
@@ -108,18 +118,18 @@ const stopAriaLabel = (stop: OrderedStop): string =>
       :class="row.reversed ? 'flex-row-reverse' : 'flex-row'"
     >
       <div
+        v-for="(segment, segmentIndex) in row.segments"
+        :key="`rail-${segmentIndex}`"
         class="tour-snake-rail-track pointer-events-none absolute top-[11px] h-0.5"
-        :class="row.reversed ? 'tour-snake-rail-track--rtl' : 'tour-snake-rail-track--ltr'"
-        :style="row.railStyle"
+        :style="segment.style"
         aria-hidden="true"
       />
 
-      <!-- U-turn stub into the next row (same side as the last filled stop). -->
+      <!-- U-turn stub: same gap-before-dot language as the horizontal segments. -->
       <div
-        v-if="row.turnSide"
-        class="tour-snake-turn pointer-events-none absolute top-[11px]"
-        :class="row.turnSide === 'right' ? 'tour-snake-turn--right' : 'tour-snake-turn--left'"
-        :style="{ width: `${100 / columns}%` }"
+        v-if="row.turnCol !== null"
+        class="tour-snake-turn pointer-events-none absolute"
+        :style="{ left: `${(row.turnCol * 100) / columns}%`, width: `${100 / columns}%` }"
         aria-hidden="true"
       />
 
@@ -170,38 +180,23 @@ const stopAriaLabel = (stop: OrderedStop): string =>
 <style scoped>
 /*
  * Theme utilities like `bg-muted-foreground` are not defined here and compile
- * to transparent. Paint rails with an explicit stroke; chevron marks travel.
+ * to transparent. Horizontal and vertical strokes share one gapped style.
  */
+.tour-snake {
+  --tour-snake-rail-inset: 0.85rem;
+  --tour-snake-rail: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 70%, transparent);
+}
+
 .tour-snake-rail-track {
-  --tour-snake-rail: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 75%, transparent);
-  --tour-snake-chevron: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 90%, transparent);
   background-color: var(--tour-snake-rail);
 }
 
-.tour-snake-rail-track::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 4px 0 4px 6px;
-  border-color: transparent transparent transparent var(--tour-snake-chevron);
-  transform: translateY(-50%);
-}
-
-.tour-snake-rail-track--ltr::after {
-  right: -1px;
-}
-
-.tour-snake-rail-track--rtl::after {
-  left: -1px;
-  border-width: 4px 6px 4px 0;
-  border-color: transparent var(--tour-snake-chevron) transparent transparent;
-}
-
 .tour-snake-turn {
-  height: calc(100% + var(--tour-snake-row-gap, 1.25rem));
+  /* Start below the current dot; end above the next row’s dot. */
+  top: calc(11px + var(--tour-snake-rail-inset));
+  height: calc(
+    100% + var(--tour-snake-row-gap, 1.25rem) - (2 * var(--tour-snake-rail-inset))
+  );
 }
 
 .tour-snake-turn::before {
@@ -212,15 +207,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
   left: 50%;
   width: 2px;
   margin-left: -1px;
-  background-color: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 70%, transparent);
+  background-color: var(--tour-snake-rail);
   border-radius: 1px;
-}
-
-.tour-snake-turn--right {
-  right: 0;
-}
-
-.tour-snake-turn--left {
-  left: 0;
 }
 </style>

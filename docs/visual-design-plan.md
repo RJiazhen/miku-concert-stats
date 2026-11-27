@@ -52,4 +52,4 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | 2026-11-27 | Tour detail (`/tours/:id`) replaces show detail as the primary concert page; city tabs for multi-stop setlists |
 | 2026-11-27 | Tour detail layout: poster on the right; stops as compact vertical timeline instead of a rigid list |
 | 2026-11-27 | Tour stops: serpentine L→R snake path (4 cols default) under the header for a denser schedule |
-| 2026-11-27 | Tour poster: one-click fullscreen `UModal` lightbox; snake numbered with direction cues |
+| 2026-11-27 | Tour poster: one-click fullscreen `UModal` lightbox; snake numbered with continuous rails |
