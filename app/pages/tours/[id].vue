@@ -330,17 +330,6 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
               {{ t('tour.officialSource') }}
             </UButton>
           </div>
-
-          <!-- Serpentine stop path under series / official links (left column). -->
-          <section v-if="timelineStops.length > 0" class="min-w-0 pt-1">
-            <h2 class="sr-only">{{ t('tour.stopsHeading') }}</h2>
-            <TourStopsTimeline
-              :model-value="activeStopId"
-              :stops="timelineStops"
-              :columns="3"
-              @update:model-value="(value) => selectStop(value, true)"
-            />
-          </section>
         </div>
 
         <aside v-if="poster" class="md:sticky md:top-20">
@@ -352,6 +341,17 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           >
         </aside>
       </header>
+
+      <!-- After poster in DOM/stack order: serpentine stop path. -->
+      <section v-if="timelineStops.length > 0" class="min-w-0">
+        <h2 class="sr-only">{{ t('tour.stopsHeading') }}</h2>
+        <TourStopsTimeline
+          :model-value="activeStopId"
+          :stops="timelineStops"
+          :columns="4"
+          @update:model-value="(value) => selectStop(value, true)"
+        />
+      </section>
 
       <section id="tour-setlist" class="space-y-4">
         <h2 class="sr-only">{{ t('tour.setlistHeading') }}</h2>
