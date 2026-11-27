@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useElementWidth } from '~/composables/useElementWidth.ts'
 
 export type TourTimelineStop = {
   performanceId: number
@@ -18,23 +19,33 @@ export type TourTimelineStop = {
 const props = defineProps<{
   stops: readonly TourTimelineStop[]
   modelValue: string
-  /** Stops per snake row before turning. */
-  columns?: number
+  /** Soft upper bound on columns (still capped by width and stop count). */
+  maxColumns?: number
+  /** Minimum cell width in CSS pixels used to pick the column count. */
+  minCellPx?: number
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+/** Default minimum width per stop cell before the snake adds another column. */
+const DEFAULT_MIN_CELL_PX = 76
+
+const { widthAnchor, elementWidth } = useElementWidth()
+
 /**
- * Columns for the serpentine path, capped by stop count so a short tour
- * does not reserve empty trailing cells (keeps narrow-screen centering tight).
+ * Columns from the measured container width: as many min-width cells as fit,
+ * capped by stop count and optional maxColumns. Falls back to 3 before measure.
  */
 const columns = computed(() => {
-  const requested = Math.max(1, props.columns ?? 4)
   const count = props.stops.length
-  if (count === 0) return requested
-  return Math.min(requested, count)
+  if (count === 0) return 1
+  const minCell = Math.max(48, props.minCellPx ?? DEFAULT_MIN_CELL_PX)
+  const width = elementWidth.value
+  const byWidth = width > 0 ? Math.max(1, Math.floor(width / minCell)) : 3
+  const capped = props.maxColumns !== undefined ? Math.min(byWidth, Math.max(1, props.maxColumns)) : byWidth
+  return Math.min(count, capped)
 })
 
 /** Stop plus its 1-based tour order. */
@@ -103,12 +114,10 @@ const stopAriaLabel = (stop: OrderedStop): string =>
 </script>
 
 <template>
-  <!--
-    Packed to content width: centered on narrow viewports, page-left on md+.
-    Fixed cell width keeps incomplete rows on the snake grid.
-  -->
+  <!-- Fills the parent section; column count tracks measured width. -->
   <div
-    class="tour-snake mx-auto flex w-fit max-w-full flex-col gap-y-[var(--tour-snake-row-gap,1.25rem)] md:mx-0"
+    ref="widthAnchor"
+    class="tour-snake flex w-full flex-col gap-y-[var(--tour-snake-row-gap,1.25rem)]"
     role="list"
   >
     <div
@@ -138,7 +147,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
         :key="stop.performanceId"
         type="button"
         role="listitem"
-        class="tour-snake-node group relative z-[1] flex w-[4.75rem] shrink-0 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors sm:w-[5.5rem] md:w-24"
+        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors"
         :class="
           String(stop.performanceId) === modelValue
             ? 'text-primary'
@@ -170,7 +179,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
       <span
         v-for="pad in Math.max(0, columns - row.stops.length)"
         :key="`pad-${pad}`"
-        class="tour-snake-node w-[4.75rem] shrink-0 sm:w-[5.5rem] md:w-24"
+        class="min-w-0 flex-1"
         aria-hidden="true"
       />
     </div>
