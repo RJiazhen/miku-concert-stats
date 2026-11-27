@@ -104,4 +104,11 @@ export default {
     ko: '포스터 전체 화면으로 보기',
     en: 'View poster fullscreen',
   },
+  'tour.posterDismiss': {
+    zh: '点击关闭海报',
+    'zh-Hant': '點擊關閉海報',
+    ja: 'クリックしてポスターを閉じる',
+    ko: '클릭하여 포스터 닫기',
+    en: 'Click to close poster',
+  },
 } satisfies Record<string, Record<Locale, string>>

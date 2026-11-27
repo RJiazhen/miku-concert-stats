@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import toursFile from '~~/data/tours.json'
 import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
@@ -69,13 +69,38 @@ const setlistIds = computed(() => (catalog.value ? setlistPerformanceIds(catalog
 /** Tour poster when the registry has one. */
 const poster = computed(() => (tour.value ? posterForTour(tour.value.id) : null))
 
-/** Whether the fullscreen poster lightbox is open. */
+/** Whether the lightweight poster lightbox is open. */
 const posterLightboxOpen = ref(false)
 
-/** Opens the poster in a fullscreen lightbox. */
+/** Opens the poster lightbox (click the expanded view or Escape to close). */
 const openPosterLightbox = (): void => {
   posterLightboxOpen.value = true
 }
+
+/** Closes the poster lightbox. */
+const closePosterLightbox = (): void => {
+  posterLightboxOpen.value = false
+}
+
+/** Dismisses the lightbox when Escape is pressed. */
+const onPosterLightboxKeydown = (event: KeyboardEvent): void => {
+  if (event.key !== 'Escape' || !posterLightboxOpen.value) return
+  closePosterLightbox()
+}
+
+watch(posterLightboxOpen, (open) => {
+  if (typeof document === 'undefined') return
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
+onMounted(() => {
+  document.addEventListener('keydown', onPosterLightboxKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onPosterLightboxKeydown)
+  document.body.style.overflow = ''
+})
 
 /** Localized city label for one 演出. */
 const cityNameOf = (performance: PerformanceRow): string | null => {
@@ -356,25 +381,25 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           </button>
         </aside>
 
-        <UModal
-          v-if="poster"
-          v-model:open="posterLightboxOpen"
-          fullscreen
-          :title="poster.sourceLabel || tour.name"
-          :ui="{
-            content: 'bg-default',
-            body: 'flex min-h-0 flex-1 items-center justify-center p-3 sm:p-6',
-          }"
-        >
-          <template #body>
-            <img
-              :src="poster.src"
-              :alt="poster.sourceLabel || tour.name"
-              class="max-h-[calc(100dvh-5.5rem)] max-w-full object-contain"
-            >
-          </template>
-        </UModal>
       </header>
+
+      <!-- Lightweight poster lightbox: translucent scrim, click anywhere to dismiss. -->
+      <Teleport to="body">
+        <button
+          v-if="poster && posterLightboxOpen"
+          type="button"
+          class="tour-poster-lightbox fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/55 p-4 backdrop-blur-[2px] sm:p-8"
+          :aria-label="t('tour.posterDismiss')"
+          @click="closePosterLightbox"
+        >
+          <img
+            :src="poster.src"
+            :alt="poster.sourceLabel || tour.name"
+            class="max-h-[min(92dvh,100%)] max-w-full object-contain"
+            draggable="false"
+          >
+        </button>
+      </Teleport>
 
       <!-- After poster in DOM/stack order: serpentine stop path. -->
       <section v-if="timelineStops.length > 0" class="min-w-0">
