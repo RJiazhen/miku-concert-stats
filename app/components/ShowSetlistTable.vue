@@ -93,7 +93,12 @@ const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
   },
   { id: 'song', header: t('col.song') },
   { id: 'characters', header: t('col.characters') },
-  { id: 'note', header: t('col.note') },
+  {
+    id: 'note',
+    header: t('col.note'),
+    // Fixed width so city-tab switches do not reflow the whole table.
+    meta: { class: { th: 'w-56 min-w-56 max-w-56', td: 'w-56 min-w-56 max-w-56 align-top break-words' } },
+  },
 ])
 
 /** Song ids of one printed item, with a medley expanded to its parts. */
@@ -237,7 +242,7 @@ const remarkOf = (item: ShowSetlistPrintItem): string => {
       <CharacterChips :names="charactersOf(row.original.entry.item)" />
     </template>
     <template #note-cell="{ row }">
-      <span class="text-xs">{{ remarkOf(row.original.entry) }}</span>
+      <span class="block text-xs break-words">{{ remarkOf(row.original.entry) }}</span>
     </template>
   </TableSection>
 </template>
