@@ -376,7 +376,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
         >
           <button
             type="button"
-            class="tour-poster-trigger block w-full cursor-zoom-in rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            class="tour-poster-trigger block w-full cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             :aria-label="t('tour.posterExpand')"
             @click="openPosterLightbox"
           >
@@ -408,7 +408,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
         <button
           v-if="poster && posterLightboxOpen"
           type="button"
-          class="tour-poster-lightbox fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/55 p-4 backdrop-blur-[2px] sm:p-8"
+          class="tour-poster-lightbox fixed inset-0 z-50 flex cursor-default items-center justify-center bg-black/55 p-4 backdrop-blur-[2px] sm:p-8"
           :aria-label="t('tour.posterDismiss')"
           @click="closePosterLightbox"
         >
