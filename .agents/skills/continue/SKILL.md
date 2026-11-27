@@ -63,11 +63,18 @@ In this single phase:
 
    (from `origin/main`, registers workspace, writes `tmp/task-issue`). Do not `checkout -b` on the busy `main` checkout. Then **continue immediately** with step 2 in the same invocation.
 
-2. Implement toward acceptance from the feature worktree. Verify via repo docs / `package.json` / `vp test` when counting or parsing rules change. After a UI **bug** fix, visual-inspect per `AGENTS.md`. Style polish: hand off parameters per `.agents/rules/ui-style-review.md`.
+2. **Always start (or reuse) the feature worktree’s Nuxt dev server** in the same invocation once the worktree exists — every Develop task, not only UI polish. From the feature worktree:
 
-3. When the slice is ready to land: commit (short imperative English; one logical change per commit; never stage `temp/` or `tmp/`), then push the **feature branch** with upstream (`git push -u origin HEAD`). Do **not** open a PR.
+   ```bash
+   env NUXT_IGNORE_LOCK=1 vp run dev
+   vp run task -- dev-url <branch> --wait
+   ```
 
-Optional for user-visible UI: keep `vp run dev` running in the worktree (`NUXT_IGNORE_LOCK=1`, no `--port`); read URL via `vp run task -- dev-url <branch> [--wait]`. Do not stop another task’s server.
+   No `--port`. Do not stop another task’s server. If `dev_url` is already set in `vp run task -- status --worktree <branch>`, reuse it. Report the URL in the response template when known.
+
+3. Implement toward acceptance from the feature worktree. Verify via repo docs / `package.json` / `vp test` when counting or parsing rules change. After a UI **bug** fix, visual-inspect per `AGENTS.md`. Style polish: hand off parameters per `.agents/rules/ui-style-review.md`.
+
+4. When the slice is ready to land: commit (short imperative English; one logical change per commit; never stage `temp/` or `tmp/`), then push the **feature branch** with upstream (`git push -u origin HEAD`). Do **not** open a PR.
 
 If still implementing and not ready to push, stop after the work done this turn. Next continue stays on **Develop and push**.
 

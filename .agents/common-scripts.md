@@ -30,12 +30,13 @@ vp run derive:setlists -- --check
 
 ### Local Nuxt dev
 
-When: user-visible UI work in a feature worktree.
+When: **every** Develop-and-push feature worktree (required by the continue skill), not only UI polish. Start or reuse once the worktree exists; report `dev_url`.
 
 ```bash
 cd "$WORKTREE" && env NUXT_IGNORE_LOCK=1 vp run dev
-vp run task -- dev-url <branch> [--wait]
-vp run task -- dev-stop <branch>   # only after Merge cleanup or user asks
+vp run task -- dev-url <branch> --wait
+vp run task -- status --worktree <branch>   # confirm dev_url=
+vp run task -- dev-stop <branch>            # only after Merge cleanup or user asks
 ```
 
 ### Task status / worktree / ship / clean
