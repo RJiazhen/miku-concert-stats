@@ -41,7 +41,7 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | `/` | web | Home: banner, stats tiles, upcoming | Poster max width / stage bg CSS vars on `HomeSetlistCarousel.vue` |
 | `/rank` | web | Song appearance ranking | Filters + sortable table |
 | `/timeline` | web | Series/year charts | Sticky rail at `rail` (91rem)+; floating filters when narrow |
-| `/tours/:id` | web | Tour detail + setlists | Title left / poster right; full-width L→R snake stop path; shared programme collapses to one setlist |
+| `/tours/:id` | web | Tour detail + setlists | Title left / poster right (click → fullscreen lightbox); numbered serpentine stop snake (center on narrow, left on wide); shared programme collapses to one setlist |
 | `/series/:id` | web | Series index of 演出 | Links from ranking |
 
 ## Iteration log
@@ -52,3 +52,4 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | 2026-11-27 | Tour detail (`/tours/:id`) replaces show detail as the primary concert page; city tabs for multi-stop setlists |
 | 2026-11-27 | Tour detail layout: poster on the right; stops as compact vertical timeline instead of a rigid list |
 | 2026-11-27 | Tour stops: serpentine L→R snake path (4 cols default) under the header for a denser schedule |
+| 2026-11-27 | Tour poster: one-click fullscreen `UModal` lightbox; snake numbered with direction cues |

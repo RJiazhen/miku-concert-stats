@@ -97,4 +97,11 @@ export default {
     ko: '도시 미상',
     en: 'Unknown city',
   },
+  'tour.posterExpand': {
+    zh: '全屏查看海报',
+    'zh-Hant': '全螢幕查看海報',
+    ja: 'ポスターを全画面表示',
+    ko: '포스터 전체 화면으로 보기',
+    en: 'View poster fullscreen',
+  },
 } satisfies Record<string, Record<Locale, string>>

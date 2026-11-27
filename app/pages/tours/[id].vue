@@ -69,6 +69,14 @@ const setlistIds = computed(() => (catalog.value ? setlistPerformanceIds(catalog
 /** Tour poster when the registry has one. */
 const poster = computed(() => (tour.value ? posterForTour(tour.value.id) : null))
 
+/** Whether the fullscreen poster lightbox is open. */
+const posterLightboxOpen = ref(false)
+
+/** Opens the poster in a fullscreen lightbox. */
+const openPosterLightbox = (): void => {
+  posterLightboxOpen.value = true
+}
+
 /** Localized city label for one 演出. */
 const cityNameOf = (performance: PerformanceRow): string | null => {
   const match = matchCity(performance, cityIndex)
@@ -333,13 +341,39 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
         </div>
 
         <aside v-if="poster" class="md:sticky md:top-20">
-          <img
-            :src="poster.src"
-            :alt="poster.sourceLabel || tour.name"
-            class="tour-poster max-h-72 w-full object-contain object-top md:max-h-[28rem]"
-            loading="lazy"
+          <button
+            type="button"
+            class="tour-poster-trigger block w-full cursor-zoom-in rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :aria-label="t('tour.posterExpand')"
+            @click="openPosterLightbox"
           >
+            <img
+              :src="poster.src"
+              :alt="poster.sourceLabel || tour.name"
+              class="tour-poster max-h-72 w-full object-contain object-top md:max-h-[28rem]"
+              loading="lazy"
+            >
+          </button>
         </aside>
+
+        <UModal
+          v-if="poster"
+          v-model:open="posterLightboxOpen"
+          fullscreen
+          :title="poster.sourceLabel || tour.name"
+          :ui="{
+            content: 'bg-default',
+            body: 'flex min-h-0 flex-1 items-center justify-center p-3 sm:p-6',
+          }"
+        >
+          <template #body>
+            <img
+              :src="poster.src"
+              :alt="poster.sourceLabel || tour.name"
+              class="max-h-[calc(100dvh-5.5rem)] max-w-full object-contain"
+            >
+          </template>
+        </UModal>
       </header>
 
       <!-- After poster in DOM/stack order: serpentine stop path. -->
