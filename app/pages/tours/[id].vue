@@ -276,16 +276,11 @@ const activeGroupValue = computed({
   },
 })
 
-/** Scrolls the setlist block into view after a stop change from the timeline. */
-const scrollToSetlist = async (): Promise<void> => {
-  await nextTick()
-  document.getElementById('tour-setlist')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-}
-
 /**
  * Applies a stop selection from timeline or tabs and keeps the hash in sync.
+ * Does not scroll — setlist switches should leave the viewport where it is.
  */
-const selectStop = (performanceId: string | number, scroll = false): void => {
+const selectStop = (performanceId: string | number): void => {
   const value = String(performanceId)
   if (!value) return
   activeStopId.value = value
@@ -293,7 +288,6 @@ const selectStop = (performanceId: string | number, scroll = false): void => {
   if (route.hash !== nextHash) {
     void navigateTo({ path: tourPath(tourId.value), hash: nextHash }, { replace: true })
   }
-  if (scroll) void scrollToSetlist()
 }
 
 watch(activeStopId, (value, previous) => {
@@ -302,10 +296,6 @@ watch(activeStopId, (value, previous) => {
   if (route.hash !== nextHash) {
     void navigateTo({ path: tourPath(tourId.value), hash: nextHash }, { replace: true })
   }
-})
-
-onMounted(() => {
-  if (route.hash) void scrollToSetlist()
 })
 
 /** Breadcrumb: series → tour. */
@@ -398,7 +388,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
             :model-value="activeStopId"
             :stops="timelineStops"
             :active-performance-ids="activeSetlistGroup?.performanceIds ?? []"
-            @update:model-value="(value) => selectStop(value, true)"
+            @update:model-value="(value) => selectStop(value)"
           />
         </section>
       </header>
