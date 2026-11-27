@@ -449,8 +449,10 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
               :content="false"
               :ui="{
                 list: 'flex-wrap h-auto items-stretch gap-1',
+                // Indicator cannot track wrapped rows; paint active state on the trigger instead.
                 indicator: 'hidden',
-                trigger: 'grow-0 max-w-full',
+                trigger:
+                  'grow-0 max-w-full data-[state=active]:bg-primary data-[state=active]:text-inverted data-[state=active]:shadow-xs',
                 label: 'whitespace-normal text-start',
               }"
             />
