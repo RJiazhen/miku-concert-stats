@@ -106,6 +106,12 @@ export const isWithinRecentLookback = (
   return last !== null && last !== '' && last >= cutoff
 }
 
+/** Looks up a poster by tour id. */
+export const posterForTour = (
+  tourId: string,
+  posters: TourPostersFile = defaultPosters,
+): HomepagePosterRecord | null => posters.tours[tourId] ?? null
+
 /**
  * Looks up a poster by 演出 → tour → tour poster. Never guesses a filename
  * from the performance id alone.
@@ -117,7 +123,7 @@ export const posterForPerformance = (
 ): HomepagePosterRecord | null => {
   const tour = tourForPerformance(tours, performanceId)
   if (tour === null) return null
-  return posters.tours[tour.id] ?? null
+  return posterForTour(tour.id, posters)
 }
 
 /** Curated source row count when present, otherwise the first 场次 item count. */

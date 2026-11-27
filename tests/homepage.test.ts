@@ -96,7 +96,7 @@ describe('homepage routes and feature navigation', () => {
   it('keeps the landing page at / and the ranking at /rank', () => {
     expect(HOME_PATH).toBe('/')
     expect(RANKING_PATH).toBe('/rank')
-    expect(showPath(2518)).toBe('/shows/2518')
+    expect(showPath(2518)).toBe('/tours/magical-mirai-2014#p-2518')
     const songs = HOMEPAGE_FEATURE_MODULES.find((module) => module.id === 'songs')
     expect(songs?.to).toBe('/rank')
     expect(HOMEPAGE_FEATURE_MODULES.map((module) => module.to)).toEqual([

@@ -11,11 +11,13 @@
  *
  * Poster images and the recent-setlist banner live in `homepage-carousel.ts` (issue #67).
  */
+import toursFile from '../data/tours.json'
 import { showsForPerformance } from './event-schedule.ts'
 import { performanceHeaderFacts } from './performance-header.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from './performance-setlists.ts'
 import { reviewRotations } from './rotation.ts'
 import { performanceYear } from './stats.ts'
+import { parseTours, tourPathForPerformanceId, type TourIndex } from './tours.ts'
 import type {
   Catalog,
   PerformanceLinkRow,
@@ -24,14 +26,23 @@ import type {
   PerformanceStatusValue,
 } from './types.ts'
 
+/** Default tour registry used by `showPath` (演出 → tour deep-link). */
+const defaultTours = parseTours(toursFile)
+
 /** Site root, the dedicated landing page. */
 export const HOME_PATH = '/'
 
 /** Song-appearance ranking, previously served at `/`. */
 export const RANKING_PATH = '/rank'
 
-/** Concert detail path for one 演出. */
-export const showPath = (performanceId: number): string => `/shows/${performanceId}`
+/**
+ * Concert detail path for one 演出.
+ * Resolves to the tour page deep-link (`/tours/{id}#p-{performanceId}`).
+ * Falls back to the legacy `/shows/{id}` path only when the tour registry
+ * has no membership (should not happen for a complete catalog).
+ */
+export const showPath = (performanceId: number, tours: TourIndex = defaultTours): string =>
+  tourPathForPerformanceId(tours, performanceId) ?? `/shows/${performanceId}`
 
 /** How many already-started 演出 the homepage Recent section lists by default. */
 export const RECENT_CONCERT_LIMIT = 4
@@ -54,9 +65,9 @@ export const SERIES_PAGE_HEADING_IDS = {
 /**
  * Existing in-site destinations for the four homepage statistic tiles,
  * in the same order the tiles are shown. Shows opens `/series` at the top
- * of the page: there is no 场次 index or 场次 heading, and `/shows/{id}` is
- * a 演出 detail page. Performances and Series scroll to the matching
- * heading on that same overview.
+ * of the page: there is no 场次 index or 场次 heading, and concert detail
+ * lives on `/tours/{id}` (legacy `/shows/{id}` redirects). Performances and
+ * Series scroll to the matching heading on that same overview.
  */
 export const HOMEPAGE_STAT_TILE_HREFS = {
   songs: RANKING_PATH,

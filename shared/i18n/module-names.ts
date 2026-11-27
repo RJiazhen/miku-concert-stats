@@ -9,6 +9,7 @@ export const I18N_MODULE_NAMES = [
   'rank',
   'song',
   'series',
+  'tour',
   'cities',
   'producers',
   'show',

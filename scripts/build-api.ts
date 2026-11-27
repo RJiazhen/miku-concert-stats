@@ -51,6 +51,7 @@ import {
   albumFallbackOf,
   normalizeTitle,
   localizedNameFields,
+  performanceSiteUrl,
   performanceSummary,
   setlistItemPayload,
   songNameFields,
@@ -311,7 +312,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
           nameJa: performance.name_ja,
           startDate: performance.start_date,
           seriesId: performance.series_id,
-          url: `${BASE_URL}/shows/${performance.id}`,
+          url: performanceSiteUrl(performance.id),
         },
       ]
     }),
@@ -523,7 +524,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       links: catalog.performanceLinks
         .filter((row) => row.performance_id === performance.id)
         .map((row) => ({ url: row.url, description: row.description })),
-      url: `${BASE_URL}/shows/${performance.id}`,
+      url: performanceSiteUrl(performance.id),
     })
   }
 
@@ -588,7 +589,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
               startDate: performance.start_date,
               seriesId: performance.series_id,
               seriesNumber: performance.series_number,
-              url: `${BASE_URL}/shows/${performance.id}`,
+              url: performanceSiteUrl(performance.id),
               showKeys: [...entry.showKeys].sort(),
               showCount: entry.showKeys.size,
               coverage: covered === undefined ? null : { total: covered.total, covered: covered.covered, labels: covered.labels ?? [] },
@@ -644,7 +645,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
               seriesNameEn: seriesNamesOf(seriesName).en,
               seriesNameZh: seriesNamesOf(seriesName).zh,
               showCount: showCounts.get(performance.id) ?? 0,
-              url: `${BASE_URL}/shows/${performance.id}`,
+              url: performanceSiteUrl(performance.id),
             },
           ]
         }),
@@ -664,7 +665,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
       name: performance.name,
       ...localizedPerformanceOf(performance),
       seriesId: performance.series_id,
-      url: `${BASE_URL}/shows/${performance.id}`,
+      url: performanceSiteUrl(performance.id),
       reason: performance.start_date === null ? 'no date' : 'no setlist',
     }))
   const albumFallbackPerformances = catalog.performances.flatMap((performance) => {
@@ -676,7 +677,7 @@ export const buildApiFiles = (root = repoRoot()): void => {
         name: performance.name,
         ...localizedPerformanceOf(performance),
         seriesId: performance.series_id,
-        url: `${BASE_URL}/shows/${performance.id}`,
+        url: performanceSiteUrl(performance.id),
         ...fallback,
       },
     ]

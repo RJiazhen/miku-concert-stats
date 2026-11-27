@@ -1,3 +1,4 @@
+import toursFile from '../../data/tours.json'
 import { albumIdFromSongListId, albumPageUrl, albumSetlistNotice } from '../../shared/album-setlists.ts'
 import type { LocalizedText } from '../../shared/localized-names.ts'
 import type { ProducerFlagIndex } from '../../shared/producer-flags.ts'
@@ -8,11 +9,21 @@ import { japaneseAliasTitle, type SongAliasFile } from '../../shared/song-aliase
 import type { SongTitleFile } from '../../shared/song-titles.ts'
 import type { SongVariantIndex } from '../../shared/song-variants.ts'
 import type { CharacterRule } from '../../shared/characters.ts'
+import { parseTours, tourPathForPerformanceId } from '../../shared/tours.ts'
 import type { Catalog, PerformanceRow, PerformanceShowSetlistItemRow, SongRow } from '../../shared/types.ts'
 import { charactersOf, producersOf, type AppearanceSummary } from './appearances.ts'
 
 /** Public origin used in every link the API returns. */
 export const BASE_URL = 'https://miku-concert-stats.rjiazhen.top'
+
+/** Tour registry for site URLs on performance payloads. */
+const tours = parseTours(toursFile)
+
+/** Absolute site URL for one 演出 (tour detail deep-link). */
+export const performanceSiteUrl = (performanceId: number): string => {
+  const path = tourPathForPerformanceId(tours, performanceId) ?? `/shows/${performanceId}`
+  return `${BASE_URL}${path}`
+}
 
 /** The three site spellings of one song title, as every song reference carries them. */
 export type SongNameFields = {
@@ -192,7 +203,7 @@ export const performanceSummary = (input: {
     hasSetlist,
     status,
     sourceUrl: performance.source_url,
-    url: `${BASE_URL}/shows/${performance.id}`,
+    url: performanceSiteUrl(performance.id),
   }
 }
 

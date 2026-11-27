@@ -21,7 +21,7 @@ import {
   positiveCharacterYearRows,
 } from '~~/shared/timeline-year-details.ts'
 import { availablePerformanceYears, normalizeYearRange } from '~~/shared/year-range.ts'
-import { RANKING_PATH } from '~~/shared/homepage.ts'
+import { RANKING_PATH, showPath } from '~~/shared/homepage.ts'
 
 /** One chart series passed to the SVG components. */
 type ChartSeries = {
@@ -997,7 +997,7 @@ useHead({ title: computed(() => t('timeline.title')) })
               <ul class="max-h-64 space-y-1 overflow-y-auto pr-1 text-xs">
                 <li v-for="row in showsYearPerformances" :key="row.id" class="flex flex-wrap items-baseline gap-x-2">
                   <span class="font-mono text-dimmed">{{ row.startDate }}</span>
-                  <NuxtLink :to="`/shows/${row.id}`" class="text-primary hover:underline">{{ row.label }}</NuxtLink>
+                  <NuxtLink :to="showPath(row.id)" class="text-primary hover:underline">{{ row.label }}</NuxtLink>
                   <span class="text-muted">{{ t('common.showsShort', { n: row.shows }) }}</span>
                 </li>
               </ul>

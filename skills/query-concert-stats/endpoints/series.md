@@ -20,7 +20,7 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 
 1. `GET /api/v1/series.json` to find the series id (or `filters.json`).
 2. `GET /api/v1/series/{id}.json`.
-3. Report date, venue, `showCount`, `hasSetlist`, `status`, and the `/shows/{id}` link, one 演出 per city stop.
+3. Report date, venue, `showCount`, `hasSetlist`, `status`, and the payload `url` (tour detail deep-link), one 演出 per city stop.
 
 **"How big is a series?"** — quote `performanceCount` (演出, i.e. city stops) and `showCount` (場次) as different numbers, and say which one you are giving.
 

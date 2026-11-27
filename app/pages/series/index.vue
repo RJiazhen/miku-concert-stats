@@ -11,7 +11,7 @@ import { buildPerformanceOverview, buildSeriesOverview } from '~~/shared/overvie
 import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
-import { RANKING_PATH, SERIES_PAGE_HEADING_IDS } from '~~/shared/homepage.ts'
+import { RANKING_PATH, SERIES_PAGE_HEADING_IDS, showPath } from '~~/shared/homepage.ts'
 
 const { catalog, error, pending, load } = useCatalog()
 const { localizePlace } = usePlaceNames()
@@ -308,7 +308,7 @@ useHead({ title: computed(() => t('series.indexTitle')) })
           <span class="whitespace-nowrap tabular-nums text-muted">{{ cell(row.original.dates) }}</span>
         </template>
         <template #label-cell="{ row }">
-          <NuxtLink :to="`/shows/${row.original.id}`" class="text-highlighted no-underline hover:text-primary">
+          <NuxtLink :to="showPath(row.original.id)" class="text-highlighted no-underline hover:text-primary">
             {{ row.original.label }}
           </NuxtLink>
           <UBadge v-if="!row.original.hasSetlist" color="neutral" variant="subtle" size="sm" class="ml-2">{{ t('series.noSetlist') }}</UBadge>

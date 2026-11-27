@@ -6,6 +6,7 @@ import { usePlaceNames } from '~/composables/usePlaceNames.ts'
 import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useVenueNames } from '~/composables/useVenueNames.ts'
+import { showPath } from '~~/shared/homepage.ts'
 import { setlistPerformanceIds, showCountsByPerformance } from '~~/shared/performance-setlists.ts'
 import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { reviewRotations } from '~~/shared/rotation.ts'
@@ -125,7 +126,7 @@ useHead({ title: computed(() => seriesView.value.primary) })
         <ul class="divide-y divide-default/40">
           <li v-for="entry in entries" :key="entry.performance.id" class="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
             <div class="min-w-0 space-y-1">
-              <NuxtLink :to="`/shows/${entry.performance.id}`" class="text-primary hover:underline">
+              <NuxtLink :to="showPath(entry.performance.id)" class="text-primary hover:underline">
                 {{ entry.label }}
               </NuxtLink>
               <p class="text-xs text-muted">

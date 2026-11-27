@@ -136,7 +136,7 @@ End the reply by telling the user what else they can ask, and put these links on
 
 - Site: <https://miku-concert-stats.rjiazhen.top/>
 - Song page of 融化 / Melt / メルト: <https://miku-concert-stats.rjiazhen.top/songs/1322>
-- Performance page of 魔法未来 2024 东京场 / Magical Mirai 2024 in Tokyo / マジカルミライ 2024 東京公演: <https://miku-concert-stats.rjiazhen.top/shows/7215>
+- Tour/performance page of 魔法未来 2024 东京场 / Magical Mirai 2024 in Tokyo / マジカルミライ 2024 東京公演: <https://miku-concert-stats.rjiazhen.top/tours/magical-mirai-2024#p-7215>
 - Series page of 魔法未来 / Magical Mirai / マジカルミライ: <https://miku-concert-stats.rjiazhen.top/series/81>
 
 Write the whole demo answer in the user's language: the two counts, the 場次 setlist, the song titles, and every link label come from `nameZh` / `nameEn` / `nameJa` (`?q=Melt` returns `nameZh` 融化 and `nameEn` Melt, the 演出 carries all three names, and each setlist item carries them too). The three spellings above are a key for you, not text to print — print the one language the user is using. Label each link with the work's name, not with the id or the URL, and let the id live only in the link target.
@@ -220,7 +220,7 @@ The catalogue no longer treats VocaDB as the only source of truth. It records a 
 Open the reference for the endpoint a workflow uses; the reference carries the field-level detail.
 
 - **"How many times was song X performed?"** → `endpoints/search.md`, then `endpoints/songs.md`. Quote both counts or state the mode.
-- **"Which shows did song X play, and was it at every 場次?"** → `endpoints/songs.md` (`performances[]`, `coverage`); link each 演出 as `/shows/{id}`.
+- **"Which shows did song X play, and was it at every 場次?"** → `endpoints/songs.md` (`performances[]`, `coverage`); link each 演出 with its payload `url` (`/tours/{tourId}#p-{id}`).
 - **"Give me the setlist for show / performance X."** → `endpoints/performances.md`. Clarify 演出 vs 場次 when the user says "show". Compare `position` across `shows[]` and mark every 场替 slot with a parenthesis alternate (e.g. `爱之诗（场替：只做喜欢的事就好）`); never present one night's song as the whole run when another song shares that slot.
 - **"Setlist for a named concert (series + year + city)."** → `endpoints/search.md`, then `endpoints/series.md`, then `endpoints/performances.md`: resolve the series, read its `performances[]`, pick the stop by `seriesNumber` plus `seriesSuffix` / venue, then open that 演出. Use this whenever the demo request does not match the series year or city the user named. Same 场替 rule as above.
 - **"List a series' performances."** → `endpoints/series.md`. One 演出 per city stop.
@@ -238,7 +238,7 @@ Every song, 演出, 系列, and producer payload carries a site `url`. When an a
 | The answer mentions | Append |
 | --- | --- |
 | a song | `https://miku-concert-stats.rjiazhen.top/songs/{id}` |
-| a 演出 | `https://miku-concert-stats.rjiazhen.top/shows/{id}` |
+| a 演出 / tour stop | payload `url` → `https://miku-concert-stats.rjiazhen.top/tours/{tourId}#p-{id}` |
 | a 系列 | `https://miku-concert-stats.rjiazhen.top/series/{id}` |
 | a producer | the producer's `url` (`/producers/{name}`) |
 | the ranking, cities, timeline | `/`, `/cities`, `/timeline` |
@@ -270,5 +270,5 @@ Every song, 演出, 系列, and producer payload carries a site `url`. When an a
 - [ ] Did not sum setlist lines to "correct" a `showCount`; reported the API number, which now includes every 演出 with a recorded setlist.
 - [ ] Did not invent view counts, producers, vocalists, cities, or missing songs, including when filling gaps from other tools.
 - [ ] Took year-by-year totals from `/api/v1/timeline` instead of adding up per-show numbers, and said whether 配信 / 线上 / VR 演出 were counted.
-- [ ] Included the relevant `url` (`/songs/{id}`, `/shows/{id}`, `/series/{id}`, `/producers/{name}`) under a final `参考链接` list, with any outside source listed separately.
+- [ ] Included the relevant `url` (`/songs/{id}`, `/tours/{tourId}#p-{id}`, `/series/{id}`, `/producers/{name}`) under a final `参考链接` list, with any outside source listed separately.
 - [ ] Answered the two demo questions when no question was asked, and added the install command only if the skill was not installed locally.

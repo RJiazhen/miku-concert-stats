@@ -6,7 +6,7 @@ Living visible design plan for this project’s web GUI. Agents update this file
 
 - Product name: Hatsune Miku Concert Setlist Statistics (`miku-concert-stats`)
 - Platforms: web (Nuxt 3 + Nuxt UI 4 on Cloudflare Workers)
-- One-sentence visual direction: dark-first catalog site with near-black surfaces, teal/magenta concert-stage glow, and data-led pages (home banner, rankings, timeline, show detail) rather than a marketing landing stack.
+- One-sentence visual direction: dark-first catalog site with near-black surfaces, teal/magenta concert-stage glow, and data-led pages (home banner, rankings, timeline, tour detail) rather than a marketing landing stack.
 - Dark theme first (default); light theme required. `@nuxtjs/color-mode` follows system when possible; header `UColorModeButton` toggles and remembers.
 
 ## Typography
@@ -27,7 +27,7 @@ Living visible design plan for this project’s web GUI. Agents update this file
 
 - First viewport / home: banner (tour posters) then compact site-wide stat tiles, then Upcoming — one reading order, not a dashboard of competing cards in the hero.
 - Hero / banner: full page width; posters `object-fit: cover` with tunable `--home-banner-poster-max-width` and side fades; no floating promo chips on the artwork.
-- One job per section / screen region (rank filters+table, timeline chart+filters, show setlist).
+- One job per section / screen region (rank filters+table, timeline chart+filters, tour setlist).
 
 ## Motion
 
@@ -41,7 +41,7 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | `/` | web | Home: banner, stats tiles, upcoming | Poster max width / stage bg CSS vars on `HomeSetlistCarousel.vue` |
 | `/rank` | web | Song appearance ranking | Filters + sortable table |
 | `/timeline` | web | Series/year charts | Sticky rail at `rail` (91rem)+; floating filters when narrow |
-| `/shows/:id` | web | 演出 detail + setlist | 场次 notes / parse |
+| `/tours/:id` | web | Tour detail + city-tab setlists | Poster, stop totals; `/shows/:id` redirects here |
 | `/series/:id` | web | Series index of 演出 | Links from ranking |
 
 ## Iteration log
@@ -49,3 +49,4 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | Date | Change |
 | --- | --- |
 | 2026-11-27 | Initial scaffold from new-repo-setup; seeded from existing `docs/design.md` / architecture notes |
+| 2026-11-27 | Tour detail (`/tours/:id`) replaces show detail as the primary concert page; city tabs for multi-stop setlists |

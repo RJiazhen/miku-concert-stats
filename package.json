@@ -22,6 +22,7 @@
     "locations": "tsx scripts/show-locations.ts",
     "report:producers": "tsx scripts/producer-conflict-report.ts",
     "report:names": "tsx scripts/name-coverage-report.ts",
+    "report:tour-posters": "tsx scripts/report-tour-posters.ts",
     "posters:compress": "tsx scripts/compress-poster.ts",
     "task": "tsx scripts/task.ts"
   },

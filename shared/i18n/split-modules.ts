@@ -12,6 +12,7 @@ import search from '../../i18n/modules/search.ts'
 import series from '../../i18n/modules/series.ts'
 import shell from '../../i18n/modules/shell.ts'
 import show from '../../i18n/modules/show.ts'
+import tour from '../../i18n/modules/tour.ts'
 import song from '../../i18n/modules/song.ts'
 import timeline from '../../i18n/modules/timeline.ts'
 import { I18N_MODULE_NAMES, type I18nModuleName } from './module-names.ts'
@@ -31,6 +32,7 @@ const MODULES: Record<I18nModuleName, MessageModule> = {
   rank,
   song,
   series,
+  tour,
   cities,
   producers,
   show,

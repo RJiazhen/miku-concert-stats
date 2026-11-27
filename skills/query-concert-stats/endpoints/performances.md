@@ -70,7 +70,7 @@ Base URL: `https://miku-concert-stats.rjiazhen.top`
 3. List each `shows[]` entry separately; that is the real 場次-level setlist. Keep printed order.
 4. Clarify 演出 vs 場次 when the user says "show": a 演出 can contain several 場次, so name which 場次 each list belongs to.
 5. **Always surface 场替 when any exist.** Before writing the list, scan every `position` across `shows[]`. For each position that holds more than one song or medley, mark the substitution in the answer — do not print only one night's song as if the whole run shared it, and do not leave the reader to notice the difference themselves.
-6. Link the 演出 as `https://miku-concert-stats.rjiazhen.top/shows/{id}`.
+6. Link the 演出 with the payload `url` (tour detail deep-link `/tours/{tourId}#p-{performanceId}`). Legacy `/shows/{id}` redirects there.
 
 ### How to write 场替
 

@@ -66,3 +66,12 @@ When: refreshing VocaDB-derived increments or validating setlists (see `.agents/
 vp run collect
 vp run derive:setlists -- --check
 ```
+
+### Tour poster audit
+
+When: checking missing or wrong tour posters before/after editing `data/tour-posters.json`.
+
+```bash
+vp run report:tour-posters
+# writes temp/tour-poster-audit.md (gitignored; do not commit)
+```

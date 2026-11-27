@@ -1,8 +1,19 @@
 import { createError, defineEventHandler, getQuery, type H3Event } from 'h3'
+import toursFile from '../../../data/tours.json'
 import { emptySongVariantIndex } from '../../../shared/song-variants.ts'
 import { buildTimeline, type CharacterSongWeight, type NewSongBaseline, type TimelineOptions } from '../../../shared/timeline.ts'
+import { parseTours, tourPathForPerformanceId } from '../../../shared/tours.ts'
 import { API_BASE_URL, nameList } from '../../utils/api-songs.ts'
 import { loadTimelineApi } from '../../utils/api-timeline.ts'
+
+/** Tour registry for performance site URLs in timeline responses. */
+const tours = parseTours(toursFile)
+
+/** Absolute site URL for one timeline performance row. */
+const performanceUrl = (performanceId: number): string => {
+  const path = tourPathForPerformanceId(tours, performanceId) ?? `/shows/${performanceId}`
+  return `${API_BASE_URL}${path}`
+}
 
 /** Series ids one request may filter by. */
 const MAX_SERIES = 20
@@ -186,7 +197,7 @@ const timeline = async (event: H3Event) => {
             nameZh: performance?.nameZh ?? performance?.name ?? String(row.id),
             series: nameOf(row.seriesId),
             ...seriesNamesOf(row.seriesId),
-            url: `${API_BASE_URL}/shows/${row.id}`,
+            url: performanceUrl(row.id),
           }
         })
       : [],

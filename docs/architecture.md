@@ -16,12 +16,13 @@ There is **no D1 and no R2**. The catalog is a built SQLite file (`public/data/c
 | Path | Role |
 | --- | --- |
 | `data/schema.sql` + `data/increments/` | Source of truth for the catalog |
-| `data/tours.json` + `shared/tours.ts` | Hand registry of tours and which 演出 belong to each |
-| `data/tour-posters.json` | Tour poster provenance; prefer WebP under `public/posters/{tourId}.webp` (max width 1800 via `pnpm posters:compress`). Homepage banner resolves 演出 → tour → poster |
+| `data/tours.json` + `shared/tours.ts` | Hand registry of tours and which 演出 belong to each; tour detail paths |
+| `data/tour-posters.json` | Tour poster provenance; prefer WebP under `public/posters/{tourId}.webp` (max width 1800 via `pnpm posters:compress`). Homepage banner and `/tours/{id}` resolve 演出 → tour → poster |
 | `scripts/vocadb/*`, derive/report scripts | Offline data pipeline |
+| `scripts/report-tour-posters.ts` | Writes gitignored `temp/tour-poster-audit.md` for poster review |
 | `scripts/build-catalog.ts` / `build-api.ts` | Emit sqlite + `/api/v1` assets |
 | `shared/*` | Counting rules used by UI, API build, and tests |
-| `app/*` | Pages and UI; loads catalog client-side. `/` is the landing page; song rankings live at `/rank`. |
+| `app/*` | Pages and UI; loads catalog client-side. `/` is the landing page; song rankings live at `/rank`; concert detail is `/tours/{id}` (legacy `/shows/{id}` redirects). |
 | `server/api/v1/*` | Dynamic filters over build-time JSON assets |
 | `server/api/feedback*`, `/admin*`, analytics | Maintainer ops (Cloudflare bindings) |
 | `/raw` + `server/api/dev/raw/*` | Dev-only source browser (ignored in production builds) |

@@ -118,3 +118,34 @@ export const parseTours = (value: unknown): TourIndex => {
 /** The tour a 演出 belongs to, or null when the registry does not list it. */
 export const tourForPerformance = (index: TourIndex, performanceId: number): Tour | null =>
   index.byPerformanceId.get(performanceId) ?? null
+
+/** Canonical tour detail path. */
+export const tourPath = (tourId: string): string => `/tours/${tourId}`
+
+/** In-page hash for one 演出 stop on a tour page. */
+export const tourPerformanceHash = (performanceId: number): string => `p-${performanceId}`
+
+/** Tour detail path scrolled to one stop (`/tours/{id}#p-{performanceId}`). */
+export const tourPathForPerformance = (tourId: string, performanceId: number): string =>
+  `${tourPath(tourId)}#${tourPerformanceHash(performanceId)}`
+
+/**
+ * Resolves a 演出 to its tour deep-link, or null when the registry has no tour.
+ */
+export const tourPathForPerformanceId = (
+  index: TourIndex,
+  performanceId: number,
+): string | null => {
+  const tour = tourForPerformance(index, performanceId)
+  if (tour === null) return null
+  return tourPathForPerformance(tour.id, performanceId)
+}
+
+/** Parses `#p-123` from a location hash; returns null when the hash is not a stop anchor. */
+export const performanceIdFromTourHash = (hash: string): number | null => {
+  const raw = hash.startsWith('#') ? hash.slice(1) : hash
+  const match = /^p-(\d+)$/.exec(raw)
+  if (match === null) return null
+  const id = Number(match[1])
+  return Number.isInteger(id) ? id : null
+}

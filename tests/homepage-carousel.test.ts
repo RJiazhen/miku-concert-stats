@@ -316,14 +316,14 @@ describe('buildRecentSetlistBannerSlides', () => {
       expect(paris?.songCount).toBe(26)
       expect(paris?.poster?.src).toBe('/posters/miku-expo-2026-europe.webp')
       expect(paris?.poster?.sourcePage).toBe('https://mikuexpo.com/europe2026/')
-      expect(paris?.href).toBe('/shows/12227')
+      expect(paris?.href).toBe('/tours/miku-expo-2026-europe#p-12227')
       expect(paris?.estimatedSongDurationSeconds).toBe(5916)
       expect(kodo?.dates).toBe('2026-11-20 – 2026-11-21')
       expect(kodo?.showtime).toBeNull()
       expect(kodo?.songCount).toBe(18)
       expect(kodo?.poster?.src).toBe('/posters/hatsune-miku-x-kodo-2026.webp')
       expect(kodo?.estimatedSongDurationSeconds).toBeNull()
-      expect(kodo?.href).toBe('/shows/12940')
+      expect(kodo?.href).toBe('/tours/hatsune-miku-x-kodo-2026#p-12940')
       for (const slide of slides) {
         if (slide.estimatedSongDurationSeconds !== null) {
           expect(slide.estimatedSongDurationSeconds).toBeGreaterThan(0)

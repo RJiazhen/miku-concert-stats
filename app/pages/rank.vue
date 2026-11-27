@@ -14,6 +14,7 @@ import { useCharacterNames } from '~/composables/useCharacterNames.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { availableCharacters } from '~~/shared/character-options.ts'
 import { availableProducers, producerNamesForSongs } from '~~/shared/producer-options.ts'
+import { showPath } from '~~/shared/homepage.ts'
 import { producerPath } from '~~/shared/producers.ts'
 import { LOOKUP_ALL, localSongMatches } from '~~/shared/lookup.ts'
 import { rankSongAppearances, type RankingMode } from '~~/shared/stats.ts'
@@ -630,7 +631,7 @@ useHead({ title: computed(() => t('rank.title')) })
                 <p class="text-xs">{{ t('rank.approximateTitle') }}</p>
                 <ul class="list-disc space-y-0.5 pl-4 text-xs">
                   <li v-for="show in row.original.approximateShows" :key="show.id">
-                    <NuxtLink :to="`/shows/${show.id}`" class="text-primary underline-offset-2 hover:underline">
+                    <NuxtLink :to="showPath(show.id)" class="text-primary underline-offset-2 hover:underline">
                       {{ showNameOf(show) }}
                     </NuxtLink>
                   </li>

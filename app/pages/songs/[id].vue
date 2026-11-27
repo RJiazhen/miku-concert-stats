@@ -11,6 +11,7 @@ import { useSongLookup } from '~/composables/useSongLookup.ts'
 import { songCharacters } from '~/composables/useCharacters.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { displayArtistString } from '~~/shared/credit.ts'
+import { showPath } from '~~/shared/homepage.ts'
 import { producerCreditsOfSong, producerPath } from '~~/shared/producers.ts'
 import type { ProducerKind } from '~~/shared/producer-flags.ts'
 import type { SongRow } from '~~/shared/types.ts'
@@ -484,7 +485,7 @@ useHead({ title: computed(() => title.value?.primary ?? t('song.breadcrumb')) })
           </NuxtLink>
         </template>
         <template #performanceName-cell="{ row }">
-          <NuxtLink :to="`/shows/${row.original.performanceId}`" class="text-primary">{{ row.original.performanceName || '—' }}</NuxtLink>
+          <NuxtLink :to="showPath(row.original.performanceId)" class="text-primary">{{ row.original.performanceName || '—' }}</NuxtLink>
         </template>
         <template #noteText-cell="{ row }">
           <span class="text-xs">

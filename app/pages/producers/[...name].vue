@@ -9,6 +9,7 @@ import { useSeriesTitles } from '~/composables/useSeriesTitles.ts'
 import { useSortableHeader } from '~/composables/useSortableHeader.ts'
 import { useLocale } from '~/composables/useLocale.ts'
 import { useSongVariants } from '~/composables/useSongVariants.ts'
+import { showPath } from '~~/shared/homepage.ts'
 import { performanceDateLabel, performanceStatusOf } from '~~/shared/performance-date-label.ts'
 import { buildProducerIndex, producerRoleLabel, rolesPresent, type ProducerRoleCounts } from '~~/shared/producers.ts'
 import { variantKindLabel } from '~~/shared/song-variants.ts'
@@ -321,7 +322,7 @@ useHead({ title: computed(() => producer.value?.name ?? producerName.value ?? t(
         <template #performanceLabel-cell="{ row }">
           <UTooltip :text="row.original.performanceLabel" :content="{ side: 'top' }">
             <NuxtLink
-              :to="`/shows/${row.original.performanceId}`"
+              :to="showPath(row.original.performanceId)"
               class="block max-w-[200px] line-clamp-2 break-words text-primary no-underline hover:underline sm:max-w-[260px] sm:line-clamp-1"
             >
               {{ row.original.performanceLabel }}

@@ -78,7 +78,7 @@ Every song summary in one payload, ordered by `showCount`. Large — prefer `sea
 1. `GET /api/v1/songs/{id}.json`.
 2. Read `performances[]`: `id`, `name` (plus `nameEn` / `nameZh` for the user's language), `startDate`, `showCount`, `coverage`.
 3. `coverage` is `{ total, covered, labels }` or `null`; say `N 场中 M 场` with the labels only when `0 < covered < total`. Full coverage needs no note, and `covered === 0` still reads `N 场中 0 场`.
-4. Link each 演出 as `https://miku-concert-stats.rjiazhen.top/shows/{id}`, labelled with its name.
+4. Link each 演出 with the payload `url` (tour detail deep-link `/tours/{tourId}#p-{performanceId}`), labelled with its name.
 
 ## Common mistakes
 

@@ -20,6 +20,7 @@ import {
   type PlaceLookupHit,
   type SeriesLookupHit,
 } from '~~/shared/lookup.ts'
+import { showPath } from '~~/shared/homepage.ts'
 import { producerPath, producerRoleLabel, type ProducerLookupHit, type ProducerRole } from '~~/shared/producers.ts'
 import type { PerformanceRow, SeriesRow, SongRow } from '~~/shared/types.ts'
 
@@ -173,7 +174,7 @@ export const useSearchHits = (query: Ref<string>, limits: SearchLimits = {}) => 
       const meta = [dateText, venue].filter((part) => part !== null && part !== '').join(' · ')
       return {
         key: `performance:${hit.performanceId}`,
-        to: `/shows/${hit.performanceId}`,
+        to: showPath(hit.performanceId),
         icon: 'i-lucide-calendar',
         title: localizePlace(localizePerformanceSeries(hit.name, hit.seriesName, hit.seriesNumber)),
         meta: meta === '' ? undefined : meta,

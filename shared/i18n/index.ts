@@ -11,6 +11,7 @@ import type shell from '../../i18n/modules/shell.ts'
 import type show from '../../i18n/modules/show.ts'
 import type song from '../../i18n/modules/song.ts'
 import type timeline from '../../i18n/modules/timeline.ts'
+import type tour from '../../i18n/modules/tour.ts'
 import type { Locale } from './locale.ts'
 import { I18N_MODULE_NAMES } from './module-names.ts'
 
@@ -34,6 +35,7 @@ type MessageModules = typeof shell &
   typeof rank &
   typeof song &
   typeof series &
+  typeof tour &
   typeof cities &
   typeof producers &
   typeof show &
