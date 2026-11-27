@@ -10,6 +10,7 @@ import { reviewRotations } from '~~/shared/rotation.ts'
 import {
   buildTourSetlistTabs,
   compareTourStops,
+  tourSetlistGroupForPerformance,
 } from '~~/shared/tour-setlists.ts'
 import {
   parseTours,
@@ -163,26 +164,27 @@ const summaryLine = computed(() => {
   return parts.filter((part): part is string => part !== null && part !== '').join(' · ')
 })
 
-/** City tabs for setlist switching. */
-const setlistTabs = computed(() =>
-  buildTourSetlistTabs(
+/** Programme groups / city tabs for setlist switching. */
+const setlistView = computed(() => {
+  if (!catalog.value) return { groups: [], tabs: [], useTabs: false }
+  return buildTourSetlistTabs(
+    catalog.value,
     stopEntries.value.map((entry) => ({
       performanceId: entry.performance.id,
       cityLabel: entry.cityTabLabel,
       startDate: entry.performance.start_date,
       hasSetlist: entry.hasSetlist,
     })),
-  ),
-)
+  )
+})
 
-/** Active setlist/stop performance id (string for UTabs / timeline). */
+/** Active stop performance id (timeline / hash). */
 const activeStopId = ref<string>('')
 
-/** Ensures the active tab points at a valid setlist stop. */
+/** Ensures the active stop points at a known tour stop. */
 const syncActiveStop = (): void => {
-  const tabs = setlistTabs.value.tabs
-  if (tabs.length === 0) {
-    activeStopId.value = stopEntries.value[0] ? String(stopEntries.value[0].performance.id) : ''
+  if (stopEntries.value.length === 0) {
+    activeStopId.value = ''
     return
   }
   const hashId = performanceIdFromTourHash(route.hash)
@@ -191,18 +193,59 @@ const syncActiveStop = (): void => {
     return
   }
   if (stopEntries.value.some((entry) => String(entry.performance.id) === activeStopId.value)) return
-  activeStopId.value = tabs[0]?.value ?? String(stopEntries.value[0]?.performance.id ?? '')
+  const firstGroup = setlistView.value.tabs[0]
+  activeStopId.value = firstGroup
+    ? String(firstGroup.performanceId)
+    : String(stopEntries.value[0]?.performance.id ?? '')
 }
 
-watch([stopEntries, () => route.hash], syncActiveStop, { immediate: true })
+watch([stopEntries, setlistView, () => route.hash], syncActiveStop, { immediate: true })
 
-/** Active stop entry for setlist + optional status. */
+/** Active stop entry for status / hash. */
 const activeEntry = computed(
   () =>
     stopEntries.value.find((entry) => String(entry.performance.id) === activeStopId.value) ??
     stopEntries.value[0] ??
     null,
 )
+
+/** Programme group for the active stop (shared setlist). */
+const activeSetlistGroup = computed(() => {
+  const entry = activeEntry.value
+  if (entry === null) return setlistView.value.groups[0] ?? null
+  return (
+    tourSetlistGroupForPerformance(setlistView.value.groups, entry.performance.id) ??
+    setlistView.value.groups[0] ??
+    null
+  )
+})
+
+/** Performance id fed to `ShowSetlistSection` (representative of the active programme). */
+const setlistPerformanceId = computed(() => activeSetlistGroup.value?.representativeId ?? null)
+
+/**
+ * Tab model for distinct programmes. Writing switches to that group's representative stop.
+ */
+const activeGroupValue = computed({
+  get: () => activeSetlistGroup.value?.fingerprint ?? '',
+  set: (fingerprint: string) => {
+    const group = setlistView.value.groups.find((entry) => entry.fingerprint === fingerprint)
+    if (group !== undefined) selectStop(group.representativeId)
+  },
+})
+
+/** Subtitle under the setlist heading: shared note, city group, or single stop. */
+const setlistSubtitle = computed(() => {
+  const group = activeSetlistGroup.value
+  if (group === null) return null
+  if (!setlistView.value.useTabs && group.performanceIds.length > 1) {
+    return t('tour.sharedSetlist')
+  }
+  if (setlistView.value.useTabs) return group.label
+  const entry = activeEntry.value
+  if (entry === null) return null
+  return [entry.cityTabLabel, entry.dates].filter(Boolean).join(' · ')
+})
 
 /** Scrolls the setlist block into view after a stop change from the timeline. */
 const scrollToSetlist = async (): Promise<void> => {
@@ -315,10 +358,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
       <section id="tour-setlist" class="space-y-4">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
           <h2 class="text-base font-semibold text-highlighted">{{ t('tour.setlistHeading') }}</h2>
-          <p v-if="activeEntry" class="text-xs text-muted">
-            {{ activeEntry.cityTabLabel }}
-            <template v-if="activeEntry.dates"> · {{ activeEntry.dates }}</template>
-          </p>
+          <p v-if="setlistSubtitle" class="text-xs text-muted">{{ setlistSubtitle }}</p>
         </div>
 
         <UAlert
@@ -337,7 +377,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
         />
 
         <UAlert
-          v-if="setlistTabs.tabs.length === 0"
+          v-if="setlistView.tabs.length === 0"
           color="warning"
           variant="subtle"
           icon="i-lucide-info"
@@ -345,16 +385,16 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
         />
         <template v-else>
           <UTabs
-            v-if="setlistTabs.useTabs"
-            v-model="activeStopId"
-            :items="setlistTabs.tabs"
+            v-if="setlistView.useTabs"
+            v-model="activeGroupValue"
+            :items="setlistView.tabs"
             class="w-full"
             :content="false"
           />
           <ShowSetlistSection
-            v-if="catalog && activeEntry?.hasSetlist"
+            v-if="catalog && setlistPerformanceId !== null"
             :catalog="catalog"
-            :performance-id="activeEntry.performance.id"
+            :performance-id="setlistPerformanceId"
           />
         </template>
       </section>

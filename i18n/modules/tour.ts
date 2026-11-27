@@ -41,6 +41,13 @@ export default {
     ko: '세트리스트',
     en: 'Setlist',
   },
+  'tour.sharedSetlist': {
+    zh: '各站相同歌单',
+    'zh-Hant': '各站相同歌單',
+    ja: '各都市で共通のセットリスト',
+    ko: '모든 도시 동일 세트리스트',
+    en: 'Same setlist across stops',
+  },
   'tour.seriesLabel': {
     zh: '系列：{name}',
     'zh-Hant': '系列：{name}',

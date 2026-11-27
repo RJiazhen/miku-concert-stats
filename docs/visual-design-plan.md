@@ -41,7 +41,7 @@ Living visible design plan for this project’s web GUI. Agents update this file
 | `/` | web | Home: banner, stats tiles, upcoming | Poster max width / stage bg CSS vars on `HomeSetlistCarousel.vue` |
 | `/rank` | web | Song appearance ranking | Filters + sortable table |
 | `/timeline` | web | Series/year charts | Sticky rail at `rail` (91rem)+; floating filters when narrow |
-| `/tours/:id` | web | Tour detail + city-tab setlists | Title/summary + compact stop `UTimeline` left; poster right (`md:` sticky); `/shows/:id` redirects here |
+| `/tours/:id` | web | Tour detail + setlists | Title/summary + compact stop `UTimeline` left; poster right; shared programme collapses to one setlist (city tabs only when programmes differ) |
 | `/series/:id` | web | Series index of 演出 | Links from ranking |
 
 ## Iteration log
