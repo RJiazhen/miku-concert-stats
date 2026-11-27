@@ -29,34 +29,47 @@ const emit = defineEmits<{
 /** Default columns for the serpentine path. */
 const columns = computed(() => Math.max(2, props.columns ?? 4))
 
-/** One snake row with layout metadata for the connector rail. */
+/** Stop plus its 1-based tour order. */
+type OrderedStop = TourTimelineStop & { order: number }
+
+/** One snake row with layout metadata for rails and U-turns. */
 type SnakeRow = {
-  stops: TourTimelineStop[]
+  stops: OrderedStop[]
   reversed: boolean
   /** Inline style for the continuous rail through this row’s dots. */
   railStyle: Record<string, string>
+  /** Side where the path turns down into the next row. */
+  turnSide: 'left' | 'right' | null
 }
 
 /**
- * Builds serpentine rows and a rail from the first filled stop’s center
- * to the last (odd rows run right→left).
+ * Builds serpentine rows, order indexes, directional rails, and turn stubs
+ * (odd rows run right→left).
  */
 const rows = computed((): SnakeRow[] => {
   const cols = columns.value
+  const total = props.stops.length
   const result: SnakeRow[] = []
-  for (let index = 0; index < props.stops.length; index += cols) {
-    const chunk = props.stops.slice(index, index + cols)
+  for (let index = 0; index < total; index += cols) {
+    const chunk = props.stops.slice(index, index + cols).map((stop, offset) => ({
+      ...stop,
+      order: index + offset + 1,
+    }))
     const reversed = result.length % 2 === 1
     const count = chunk.length
     const halfCell = 50 / cols
     const span = count <= 1 ? 0 : ((count - 1) / cols) * 100
+    // Pull the tip back so the travel chevron sits in the gap, not under the last dot.
+    const tipInset = span === 0 ? 0 : (0.28 / cols) * 100
     const railStyle: Record<string, string> =
       span === 0
         ? { display: 'none' }
         : reversed
-          ? { right: `${halfCell}%`, width: `${span}%` }
-          : { left: `${halfCell}%`, width: `${span}%` }
-    result.push({ stops: chunk, reversed, railStyle })
+          ? { right: `${halfCell + tipInset}%`, width: `${Math.max(0, span - tipInset)}%` }
+          : { left: `${halfCell}%`, width: `${Math.max(0, span - tipInset)}%` }
+    const isLastRow = index + cols >= total
+    const turnSide: SnakeRow['turnSide'] = isLastRow ? null : reversed ? 'left' : 'right'
+    result.push({ stops: chunk, reversed, railStyle, turnSide })
   }
   return result
 })
@@ -65,11 +78,15 @@ const rows = computed((): SnakeRow[] => {
 const selectStop = (performanceId: number): void => {
   emit('update:modelValue', String(performanceId))
 }
+
+/** Accessible label including stop order. */
+const stopAriaLabel = (stop: OrderedStop): string =>
+  `${stop.order}. ${stop.cityLabel}, ${stop.dates}`
 </script>
 
 <template>
   <div
-    class="tour-snake flex flex-col gap-y-[var(--tour-snake-row-gap,0.75rem)]"
+    class="tour-snake flex flex-col gap-y-[var(--tour-snake-row-gap,1.25rem)]"
     role="list"
   >
     <div
@@ -79,8 +96,18 @@ const selectStop = (performanceId: number): void => {
       :class="row.reversed ? 'flex-row-reverse' : 'flex-row'"
     >
       <div
-        class="tour-snake-rail-track pointer-events-none absolute top-[9px] h-0.5"
+        class="tour-snake-rail-track pointer-events-none absolute top-[11px] h-0.5"
+        :class="row.reversed ? 'tour-snake-rail-track--rtl' : 'tour-snake-rail-track--ltr'"
         :style="row.railStyle"
+        aria-hidden="true"
+      />
+
+      <!-- U-turn stub into the next row (same side as the last filled stop). -->
+      <div
+        v-if="row.turnSide"
+        class="tour-snake-turn pointer-events-none absolute top-[11px]"
+        :class="row.turnSide === 'right' ? 'tour-snake-turn--right' : 'tour-snake-turn--left'"
+        :style="{ width: `${100 / columns}%` }"
         aria-hidden="true"
       />
 
@@ -95,19 +122,22 @@ const selectStop = (performanceId: number): void => {
             ? 'text-primary'
             : 'text-muted hover:text-highlighted'
         "
+        :aria-label="stopAriaLabel(stop)"
         :aria-current="String(stop.performanceId) === modelValue ? 'true' : undefined"
         @click="selectStop(stop.performanceId)"
       >
         <span
-          class="tour-snake-dot size-2.5 shrink-0 rounded-full border-2 bg-default transition-colors"
+          class="tour-snake-dot flex size-5 shrink-0 items-center justify-center rounded-full border-2 text-[0.625rem] font-semibold leading-none tabular-nums transition-colors"
           :class="
             String(stop.performanceId) === modelValue
-              ? 'border-primary bg-primary'
+              ? 'border-primary bg-primary text-inverted'
               : stop.status === 'cancelled'
-                ? 'border-error'
-                : 'border-muted group-hover:border-primary'
+                ? 'border-error text-error'
+                : 'border-muted bg-default text-muted group-hover:border-primary group-hover:text-primary'
           "
-        />
+        >
+          {{ stop.order }}
+        </span>
         <span class="max-w-full truncate text-xs font-medium leading-tight text-highlighted">
           {{ stop.cityLabel }}
         </span>
@@ -128,9 +158,57 @@ const selectStop = (performanceId: number): void => {
 <style scoped>
 /*
  * Theme utilities like `bg-muted-foreground` are not defined here and compile
- * to transparent. Paint the rail with an explicit readable stroke.
+ * to transparent. Paint rails with an explicit stroke; chevron marks travel.
  */
 .tour-snake-rail-track {
-  background-color: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 65%, transparent);
+  --tour-snake-rail: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 75%, transparent);
+  --tour-snake-chevron: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 90%, transparent);
+  background-color: var(--tour-snake-rail);
+}
+
+.tour-snake-rail-track::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 4px 0 4px 6px;
+  border-color: transparent transparent transparent var(--tour-snake-chevron);
+  transform: translateY(-50%);
+}
+
+.tour-snake-rail-track--ltr::after {
+  right: -1px;
+}
+
+.tour-snake-rail-track--rtl::after {
+  left: -1px;
+  border-width: 4px 6px 4px 0;
+  border-color: transparent var(--tour-snake-chevron) transparent transparent;
+}
+
+.tour-snake-turn {
+  height: calc(100% + var(--tour-snake-row-gap, 1.25rem));
+}
+
+.tour-snake-turn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background-color: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 70%, transparent);
+  border-radius: 1px;
+}
+
+.tour-snake-turn--right {
+  right: 0;
+}
+
+.tour-snake-turn--left {
+  left: 0;
 }
 </style>
