@@ -97,7 +97,13 @@ const columns = computed<TableColumn<SetlistTableRow>[]>(() => [
     id: 'note',
     header: t('col.note'),
     // Fixed width so city-tab switches do not reflow the whole table.
-    meta: { class: { th: 'w-56 min-w-56 max-w-56', td: 'w-56 min-w-56 max-w-56 align-top break-words' } },
+    // Override UTable’s whitespace-nowrap and keep pe room so long remarks wrap, not clip.
+    meta: {
+      class: {
+        th: 'w-56 min-w-56 max-w-56 pe-5',
+        td: 'w-56 min-w-56 max-w-56 align-top whitespace-normal break-words pe-5',
+      },
+    },
   },
 ])
 
