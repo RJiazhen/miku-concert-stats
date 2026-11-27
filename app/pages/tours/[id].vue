@@ -332,7 +332,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
         Narrow: title → poster → snake (DOM order keeps poster before the timeline).
       -->
       <header
-        class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)] md:items-start md:gap-x-10 md:gap-y-4"
+        class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(14rem,22rem)] md:items-start md:gap-x-10 md:gap-y-4"
       >
         <div class="min-w-0 space-y-3 md:col-start-1 md:row-start-1">
           <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ tour.name }}</h1>
@@ -373,7 +373,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
             <img
               :src="poster.src"
               :alt="poster.sourceLabel || tour.name"
-              class="tour-poster max-h-72 w-full object-contain object-top md:max-h-[28rem]"
+              class="tour-poster w-full object-contain object-top md:max-h-[28rem]"
               loading="lazy"
             >
           </button>
