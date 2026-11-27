@@ -448,11 +448,11 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
               class="w-full"
               :content="false"
               :ui="{
-                list: 'flex-wrap h-auto items-stretch gap-1',
-                // Indicator cannot track wrapped rows; paint active state on the trigger instead.
+                // Separate bordered chips (no shared pill tray) so programmes read as distinct choices.
+                list: 'flex-wrap h-auto items-stretch gap-2 bg-transparent p-0 rounded-none',
                 indicator: 'hidden',
                 trigger:
-                  'grow-0 max-w-full data-[state=active]:bg-primary data-[state=active]:text-inverted data-[state=active]:shadow-xs',
+                  'grow-0 max-w-full border border-default bg-elevated px-2.5 py-1.5 shadow-none data-[state=inactive]:hover:border-muted data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-inverted data-[state=active]:shadow-xs',
                 label: 'whitespace-normal text-start',
               }"
             />
