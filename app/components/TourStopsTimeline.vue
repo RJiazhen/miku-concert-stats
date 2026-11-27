@@ -100,10 +100,11 @@ const rows = computed((): SnakeRow[] => {
     const segments: RailSegment[] = []
     for (let slot = 0; slot < count - 1; slot += 1) {
       const leftCol = Math.min(colOf(slot), colOf(slot + 1))
-      const startCenter = (leftCol + 0.5) * cell
+      // Dots sit on the left of each cell (flush with the title); rails track that edge.
+      const startDot = leftCol * cell
       segments.push({
         style: {
-          left: `calc(${startCenter}% + var(--tour-snake-rail-inset))`,
+          left: `calc(${startDot}% + var(--tour-snake-dot-x) + var(--tour-snake-rail-inset))`,
           width: `calc(${cell}% - (2 * var(--tour-snake-rail-inset)))`,
         },
       })
@@ -159,7 +160,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
         :key="stop.performanceId"
         type="button"
         role="listitem"
-        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors"
+        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-start gap-1 rounded-md py-1 pe-2 text-start transition-colors"
         :class="
           String(stop.performanceId) === modelValue
             ? 'text-primary'
@@ -204,6 +205,8 @@ const stopAriaLabel = (stop: OrderedStop): string =>
  * to transparent. Horizontal and vertical strokes share one gapped style.
  */
 .tour-snake {
+  /* Half of size-5 dot — left-aligned nodes share the title’s left edge. */
+  --tour-snake-dot-x: 0.625rem;
   --tour-snake-rail-inset: 0.85rem;
   --tour-snake-rail: color-mix(in oklab, var(--ui-text-muted, #9ca3af) 70%, transparent);
 }
@@ -225,7 +228,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
+  left: var(--tour-snake-dot-x);
   width: 2px;
   margin-left: -1px;
   background-color: var(--tour-snake-rail);
