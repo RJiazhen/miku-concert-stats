@@ -337,9 +337,14 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
     <template v-else-if="tour">
       <UBreadcrumb :items="breadcrumb" />
 
-      <!-- Title + summary left; poster right (stacks on small screens). -->
-      <header class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)] md:items-start md:gap-10">
-        <div class="min-w-0 space-y-3">
+      <!--
+        Wide: title/links + snake under them (left), poster spans right — less vertical gap.
+        Narrow: title → poster → snake (DOM order keeps poster before the timeline).
+      -->
+      <header
+        class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)] md:items-start md:gap-x-10 md:gap-y-4"
+      >
+        <div class="min-w-0 space-y-3 md:col-start-1 md:row-start-1">
           <h1 class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">{{ tour.name }}</h1>
           <p v-if="summaryLine" class="text-sm text-muted">{{ summaryLine }}</p>
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
@@ -365,7 +370,10 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           </div>
         </div>
 
-        <aside v-if="poster" class="md:sticky md:top-20">
+        <aside
+          v-if="poster"
+          class="md:col-start-2 md:row-span-2 md:row-start-1 md:sticky md:top-20"
+        >
           <button
             type="button"
             class="tour-poster-trigger block w-full cursor-zoom-in rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -381,6 +389,18 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           </button>
         </aside>
 
+        <section
+          v-if="timelineStops.length > 0"
+          class="min-w-0 md:col-start-1 md:row-start-2"
+        >
+          <h2 class="sr-only">{{ t('tour.stopsHeading') }}</h2>
+          <TourStopsTimeline
+            :model-value="activeStopId"
+            :stops="timelineStops"
+            :columns="3"
+            @update:model-value="(value) => selectStop(value, true)"
+          />
+        </section>
       </header>
 
       <!-- Lightweight poster lightbox: translucent scrim, click anywhere to dismiss. -->
@@ -400,17 +420,6 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           >
         </button>
       </Teleport>
-
-      <!-- After poster in DOM/stack order: serpentine stop path. -->
-      <section v-if="timelineStops.length > 0" class="min-w-0">
-        <h2 class="sr-only">{{ t('tour.stopsHeading') }}</h2>
-        <TourStopsTimeline
-          :model-value="activeStopId"
-          :stops="timelineStops"
-          :columns="4"
-          @update:model-value="(value) => selectStop(value, true)"
-        />
-      </section>
 
       <section id="tour-setlist" class="space-y-4">
         <h2 class="sr-only">{{ t('tour.setlistHeading') }}</h2>
