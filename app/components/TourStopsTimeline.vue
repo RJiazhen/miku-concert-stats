@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useElementWidth } from '~/composables/useElementWidth.ts'
 
 export type TourTimelineStop = {
@@ -53,6 +53,31 @@ const COLUMN_WIDTH_TIERS: readonly { minWidth: number; columns: number }[] = [
 ]
 
 const { widthAnchor, elementWidth } = useElementWidth()
+
+/**
+ * `md` and up: left-align with the title. Below that: center the snake.
+ * Defaults to center for SSR / first paint on narrow screens.
+ */
+const alignStart = ref(false)
+
+/** `md` media query; set on mount so SSR stays center-aligned. */
+let alignMedia: MediaQueryList | null = null
+
+/** Syncs `alignStart` with the Tailwind `md` breakpoint. */
+const syncAlignStart = (): void => {
+  alignStart.value = alignMedia?.matches ?? false
+}
+
+onMounted(() => {
+  alignMedia = window.matchMedia('(min-width: 768px)')
+  syncAlignStart()
+  alignMedia.addEventListener('change', syncAlignStart)
+})
+
+onUnmounted(() => {
+  alignMedia?.removeEventListener('change', syncAlignStart)
+  alignMedia = null
+})
 
 /**
  * Picks the column tier for a measured section width (SSR / pre-measure → 3).
@@ -116,11 +141,13 @@ const rows = computed((): SnakeRow[] => {
     const segments: RailSegment[] = []
     for (let slot = 0; slot < count - 1; slot += 1) {
       const leftCol = Math.min(colOf(slot), colOf(slot + 1))
-      // Dots sit on the left of each cell (flush with the title); rails track that edge.
-      const startDot = leftCol * cell
+      // Narrow: rails through cell centers. Wide: rails through left-aligned dots.
+      const railStart = alignStart.value
+        ? `calc(${leftCol * cell}% + var(--tour-snake-dot-x) + var(--tour-snake-rail-inset))`
+        : `calc(${(leftCol + 0.5) * cell}% + var(--tour-snake-rail-inset))`
       segments.push({
         style: {
-          left: `calc(${startDot}% + var(--tour-snake-dot-x) + var(--tour-snake-rail-inset))`,
+          left: railStart,
           width: `calc(${cell}% - (2 * var(--tour-snake-rail-inset)))`,
         },
       })
@@ -147,6 +174,7 @@ const stopAriaLabel = (stop: OrderedStop): string =>
   <div
     ref="widthAnchor"
     class="tour-snake flex w-full flex-col gap-y-[var(--tour-snake-row-gap,1.25rem)]"
+    :class="alignStart ? 'tour-snake--start' : 'tour-snake--center'"
     role="list"
   >
     <div
@@ -176,12 +204,13 @@ const stopAriaLabel = (stop: OrderedStop): string =>
         :key="stop.performanceId"
         type="button"
         role="listitem"
-        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-start gap-1 rounded-md py-1 pe-2 text-start transition-colors"
-        :class="
+        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col gap-1 rounded-md py-1 transition-colors"
+        :class="[
+          alignStart ? 'items-start pe-2 text-start' : 'items-center px-1 text-center',
           isProgrammeStop(stop.performanceId)
             ? 'text-primary'
-            : 'text-muted hover:text-highlighted'
-        "
+            : 'text-muted hover:text-highlighted',
+        ]"
         :aria-label="stopAriaLabel(stop)"
         :aria-current="String(stop.performanceId) === modelValue ? 'true' : undefined"
         @click="selectStop(stop.performanceId)"
@@ -244,10 +273,17 @@ const stopAriaLabel = (stop: OrderedStop): string =>
   position: absolute;
   top: 0;
   bottom: 0;
-  left: var(--tour-snake-dot-x);
   width: 2px;
   margin-left: -1px;
   background-color: var(--tour-snake-rail);
   border-radius: 1px;
+}
+
+.tour-snake--center .tour-snake-turn::before {
+  left: 50%;
+}
+
+.tour-snake--start .tour-snake-turn::before {
+  left: var(--tour-snake-dot-x);
 }
 </style>
