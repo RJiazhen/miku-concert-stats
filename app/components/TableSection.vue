@@ -1,10 +1,13 @@
 <script setup lang="ts" generic="T extends object">
-import { computed, nextTick, onMounted, onUnmounted, toRef, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, toRef, useSlots, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { TableColumn } from '@nuxt/ui'
 import { useRankingScrollHandoff } from '~/composables/useRankingScrollHandoff.ts'
 import { useRankingTableHeight } from '~/composables/useRankingTableHeight.ts'
 import { useLocale } from '~/composables/useLocale.ts'
+
+/** Section chrome slots that must not be forwarded into `UTable`. */
+const SECTION_SLOT_NAMES = new Set(['actions', 'note', 'empty', 'before-table'])
 
 /** One active sort, matching the `v-model:sorting` shape of `UTable`. */
 type Sorting = { id: string; desc: boolean }[]
@@ -64,8 +67,15 @@ const { tableAnchor, tableStyle } = useRankingTableHeight()
 useRankingScrollHandoff(tableAnchor, toRef(props, 'fill'))
 const route = useRoute()
 
+const slots = useSlots()
+
 /** Whether the heading row has anything to print. */
 const hasHeader = computed(() => props.title !== '' || props.count !== null)
+
+/** Cell / column slots only — keeps heading chrome out of `UTable`. */
+const tableSlots = computed(() =>
+  Object.fromEntries(Object.entries(slots).filter(([name]) => !SECTION_SLOT_NAMES.has(name))),
+)
 
 /** Current fragment, including same-document hash changes that have not yet reached the router. */
 const currentHash = (): string => route.hash || window.location.hash
@@ -146,6 +156,7 @@ watch(
     </div>
     <p v-if="note" class="text-xs text-muted">{{ note }}</p>
     <slot name="note" />
+    <slot name="before-table" />
 
     <USkeleton v-if="loading" class="h-72 w-full rounded-xl" />
     <UTable
@@ -172,7 +183,7 @@ watch(
         </slot>
       </template>
       <template
-        v-for="(_, name) in $slots"
+        v-for="(_, name) in tableSlots"
         :key="name"
         #[name]="slotProps"
       >

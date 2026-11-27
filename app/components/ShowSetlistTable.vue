@@ -204,6 +204,9 @@ const remarkOf = (item: ShowSetlistPrintItem): string => {
     :columns="columns"
     :meta="{ class: { tr: rowClass } }"
   >
+    <template v-if="$slots['before-table']" #before-table>
+      <slot name="before-table" />
+    </template>
     <template #position-cell="{ row }">
       {{ row.original.position }}
     </template>

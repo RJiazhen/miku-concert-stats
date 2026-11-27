@@ -88,7 +88,11 @@ const lengthSummary = computed<string>(() => {
         :shows="shows"
         :title="t('setlist.mergedTitle')"
         :count="lengthSummary"
-      />
+      >
+        <template v-if="$slots['before-table']" #before-table>
+          <slot name="before-table" />
+        </template>
+      </ShowSetlistTable>
 
       <!-- 只有一个场次时，页头已经写明日期，表格标题只写「歌单」。 -->
       <ShowSetlistTable
@@ -97,17 +101,25 @@ const lengthSummary = computed<string>(() => {
         :rows="singleShowRows"
         :title="t('setlist.title')"
         :count="t('common.songs', { n: singleShow.item_count })"
-      />
+      >
+        <template v-if="$slots['before-table']" #before-table>
+          <slot name="before-table" />
+        </template>
+      </ShowSetlistTable>
 
       <template v-else>
         <ShowSetlistTable
-          v-for="show in shows"
+          v-for="(show, showIndex) in shows"
           :key="show.show_key"
           :catalog="catalog"
           :rows="rowsOf(show)"
           :title="showLabel(show)"
           :count="t('common.songs', { n: show.item_count })"
-        />
+        >
+          <template v-if="showIndex === 0 && $slots['before-table']" #before-table>
+            <slot name="before-table" />
+          </template>
+        </ShowSetlistTable>
       </template>
     </template>
   </section>

@@ -445,20 +445,20 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           icon="i-lucide-info"
           :title="t('tour.noSetlistStops')"
         />
-        <template v-else>
-          <UTabs
-            v-if="setlistView.useTabs"
-            v-model="activeGroupValue"
-            :items="setlistView.tabs"
-            class="w-full"
-            :content="false"
-          />
-          <ShowSetlistSection
-            v-if="catalog && setlistPerformanceId !== null"
-            :catalog="catalog"
-            :performance-id="setlistPerformanceId"
-          />
-        </template>
+        <ShowSetlistSection
+          v-else-if="catalog && setlistPerformanceId !== null"
+          :catalog="catalog"
+          :performance-id="setlistPerformanceId"
+        >
+          <template v-if="setlistView.useTabs" #before-table>
+            <UTabs
+              v-model="activeGroupValue"
+              :items="setlistView.tabs"
+              class="w-full"
+              :content="false"
+            />
+          </template>
+        </ShowSetlistSection>
       </section>
     </template>
   </main>
