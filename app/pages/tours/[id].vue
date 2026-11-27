@@ -447,6 +447,12 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
               :items="setlistView.tabs"
               class="w-full"
               :content="false"
+              :ui="{
+                list: 'flex-wrap h-auto items-stretch gap-1',
+                indicator: 'hidden',
+                trigger: 'grow-0 max-w-full',
+                label: 'whitespace-normal text-start',
+              }"
             />
           </template>
         </ShowSetlistSection>
