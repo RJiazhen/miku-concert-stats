@@ -26,7 +26,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-/** Default columns for the serpentine path (`--tour-snake-cols` can override in CSS). */
+/** Default columns for the serpentine path. */
 const columns = computed(() => Math.max(2, props.columns ?? 4))
 
 /** Rows of stops; odd rows are reversed for a left→right→left snake. */
@@ -55,14 +55,14 @@ const selectStop = (performanceId: number): void => {
     <div
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="tour-snake-row flex items-center gap-x-[var(--tour-snake-gap,0.5rem)]"
+      class="tour-snake-row flex items-start gap-x-[var(--tour-snake-gap,0.25rem)]"
       :class="row.reversed ? 'flex-row-reverse' : 'flex-row'"
     >
       <template v-for="(stop, stopIndex) in row.stops" :key="stop.performanceId">
         <button
           type="button"
           role="listitem"
-          class="tour-snake-node group relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1.5 text-center transition-colors"
+          class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-1 text-center transition-colors"
           :class="
             String(stop.performanceId) === modelValue
               ? 'text-primary'
@@ -78,7 +78,7 @@ const selectStop = (performanceId: number): void => {
                 ? 'border-primary bg-primary'
                 : stop.status === 'cancelled'
                   ? 'border-error bg-transparent'
-                  : 'border-muted-foreground/50 bg-transparent group-hover:border-primary'
+                  : 'border-muted-foreground/60 bg-elevated group-hover:border-primary'
             "
           />
           <span class="max-w-full truncate text-xs font-medium leading-tight text-highlighted">
@@ -88,16 +88,23 @@ const selectStop = (performanceId: number): void => {
             {{ stop.dates }}
           </span>
         </button>
+        <!--
+          Rail sits on the dot row: button has py-1 (4px) + half of size-2.5 (5px) ≈ 9px.
+          Color uses muted foreground so it stays visible on both themes (bg-default blended away).
+        -->
         <span
           v-if="stopIndex < row.stops.length - 1"
-          class="tour-snake-rail h-px min-w-[0.75rem] flex-1 bg-default/60"
+          class="tour-snake-rail mt-[9px] h-0.5 min-w-[0.75rem] flex-1 self-start rounded-full bg-muted-foreground/45"
           aria-hidden="true"
         />
       </template>
       <!-- Pad incomplete rows so the turn stays on the outer edge. -->
       <template v-if="row.stops.length < columns">
         <template v-for="pad in columns - row.stops.length" :key="`pad-${pad}`">
-          <span class="tour-snake-rail h-px min-w-[0.75rem] flex-1 bg-transparent" aria-hidden="true" />
+          <span
+            class="tour-snake-rail mt-[9px] h-0.5 min-w-[0.75rem] flex-1 self-start bg-transparent"
+            aria-hidden="true"
+          />
           <span class="min-w-0 flex-1" aria-hidden="true" />
         </template>
       </template>
