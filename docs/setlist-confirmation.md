@@ -1,6 +1,6 @@
 # Setlist data confirmation checklist
 
-> Generate this file: `uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py` (reads `public/data/catalog.sqlite` and `data/performance-setlists.json`).
+> Generate this file: `uv run .agents/skills/update-concert-data/scripts/confirmation-report.py` (reads `public/data/catalog.sqlite` and `data/performance-setlists.json`).
 > This round checked Moegirl / VocaDB Fandom / official archives where possible: adopt when found; on conflict prefer wiki, listed in section 3.
 > Your input is only needed for section 2 (no per-day times on wiki) and section 6 (no upstream setlist).
 

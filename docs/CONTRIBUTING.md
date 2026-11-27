@@ -52,7 +52,7 @@ vp lint
 vp run typecheck   # or: pnpm typecheck
 ```
 
-Write tests only when they guard counting rules, parsers with external specs, or a few real SQL assertions. See `.cursor/rules/testing.mdc`.
+Write tests only when they guard counting rules, parsers with external specs, or a few real SQL assertions. See `.agents/rules/testing.md`.
 
 ## Pull requests
 

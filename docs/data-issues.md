@@ -28,7 +28,7 @@ Terminology:
 
 **Impact**: These 3 演出 contribute no songs to rankings; the 演出 page shows “still no setlist.”
 
-**Suggestion**: After the show, add `data/wiki-raw/*.json` and `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py` (see `.cursor/skills/update-concert-data/SKILL.md`). If upstream adds `songList`, clear `data/cache/` before `pnpm collect` (see 4.1).
+**Suggestion**: After the show, add `data/wiki-raw/*.json` and `.agents/skills/update-concert-data/scripts/wiki_raw_spec.py` (see `.agents/skills/update-concert-data/SKILL.md`). If upstream adds `songList`, clear `data/cache/` before `pnpm collect` (see 4.1).
 
 ### 1.4 Overseas 演出 missing `country_code` at scale (Resolved)
 
@@ -255,7 +255,7 @@ Also: **初音ミク×鼓童 2018 (2948) did not play 初音ミクの消失**; c
 2. **Sources are 演出-level only**, not per-row URL. `performance_show_setlist_items` only has `evidence` (`wiki` / `shared` / `note`) and original row notes. Per-row source pitfalls: see 3.6.
 3. **Wiki can be wrong**. `evidence` = attribution rule, not “verified”; `confidence` default `medium` (`high` for official pages only).
 
-**How to verify**: `docs/setlist-confirmation.md` (场次 × songs, notes, links per 演出) and `docs/reports/setlist-review.md`. Ingestion: `.cursor/skills/update-concert-data/SKILL.md`.
+**How to verify**: `docs/setlist-confirmation.md` (场次 × songs, notes, links per 演出) and `docs/reports/setlist-review.md`. Ingestion: `.agents/skills/update-concert-data/SKILL.md`.
 
 ### 3.6 Registering non-VOCALOID songs
 
@@ -283,7 +283,7 @@ Currently 20 (classical 5 / instrumental 8 / traditional 3 / VOCALOID covers fou
 
 ### 3.8 Id alignment and “do not rewrite for VocaDB”
 
-**Policy**: VocaDB is peer to official sites, 萌娘百科, 初音ミク Wiki — reference, not authority (`.cursor/rules/data-sources.mdc`).
+**Policy**: VocaDB is peer to official sites, 萌娘百科, 初音ミク Wiki — reference, not authority (`.agents/rules/data-sources.md`).
 
 - Keep existing VocaDB ids for 演出, series, songs for interoperability.
 - Reserved ranges when VocaDB has no row: songs from `2_000_000_000` (`LOCAL_SONG_ID_BASE`), 演出 from `3_000_000_000` (`LOCAL_PERFORMANCE_ID_BASE`), series from `900_000_000`. Do not wait for VocaDB or swap ids on existing refs.
@@ -337,7 +337,7 @@ Conventions:
 - `source_url` is schedule/announcement, not `vocadb.net/E/{id}`; `vocadb_status` NULL → UI “演出来源” not “VocaDB 演出.”
 - Seed file `INSERT OR IGNORE` after `0001`; `pnpm collect` drops and rebuilds `performances`.
 - Upcoming: `data/performance-setlists.json` `statuses.<id>` `status: "upcoming"` → `pnpm derive:setlists` writes `performance_status`; page “这场演出尚未举行.”
-- Setlist after show per `.cursor/skills/update-concert-data/SKILL.md` → `data/wiki-raw/` + `wiki_raw_spec.py` (`RAW_SPEC` `mwy2026` points at 13120 only; Chengdu table needs new key or add id to `performances`).
+- Setlist after show per `.agents/skills/update-concert-data/SKILL.md` → `data/wiki-raw/` + `wiki_raw_spec.py` (`RAW_SPEC` `mwy2026` points at 13120 only; Chengdu table needs new key or add id to `performances`).
 
 **Variant: VocaDB event outside any collected series**. デコミク LIVE starring 初音ミク『Hello』 is event 9401, `seriesId` null, skipped by series loop → `0005-manual-catalog.sql`:
 

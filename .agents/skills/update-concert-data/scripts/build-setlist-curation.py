@@ -5,7 +5,7 @@ Every entry carries the URL it came from, the day it was read, and a confidence 
   high    official ticket pages (magicalmirai.com)
   medium  fan wikis (Moegirlpedia, VocaDB Fandom)
 
-Run: uv run .cursor/skills/update-concert-data/scripts/build-setlist-curation.py
+Run: uv run .agents/skills/update-concert-data/scripts/build-setlist-curation.py
 """
 import datetime
 import json
@@ -16,7 +16,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 # Walk up to the directory that holds package.json: this script lives under
-# .cursor/skills/update-concert-data/scripts/ and still resolves repo-root paths.
+# .agents/skills/update-concert-data/scripts/ and still resolves repo-root paths.
 ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "package.json").exists())
 DB = ROOT / "public" / "data" / "catalog.sqlite"
 

@@ -17,7 +17,7 @@ vp dev                 # rebuilds catalog, then nuxt dev
 
 If the Nuxt lock file conflicts in parallel worktrees, `NUXT_IGNORE_LOCK=1 vp run dev` is fine for local use. Nuxt starts at port `3939` and takes the next free port when needed — read the printed `Local:` URL (or `vp run task -- dev-url <branch>`).
 
-Maintainer parallel-task helpers: `vp run task -- status|start|dev-url|dev-stop|ship|clean` (see `.cursor/skills/continue/SKILL.md`). Prefer these over hand-written worktree/branch/workspace cleanup. If a helper fails, fix `scripts/task/` (and the skill/docs) instead of inventing a one-off shell workaround; after a successful deploy whose cleanup was interrupted, run `vp run task -- clean <branch>`.
+Maintainer parallel-task helpers: `vp run task -- status|start|dev-url|dev-stop|ship|clean` (see `.agents/skills/continue/SKILL.md`). Prefer these over hand-written worktree/branch/workspace cleanup. If a helper fails, fix `scripts/task/` (and the skill/docs) instead of inventing a one-off shell workaround; after a successful deploy whose cleanup was interrupted, run `vp run task -- clean <branch>`.
 
 ## Catalog build
 
@@ -41,7 +41,7 @@ vp run report:setlist
 vp run report:producers
 ```
 
-Wiki curation helpers under `.cursor/skills/` may need `uv` / Python; they are optional for app UI work.
+Wiki curation helpers under `.agents/skills/` may need `uv` / Python; they are optional for app UI work.
 
 ## Expected local gaps (no Cloudflare)
 

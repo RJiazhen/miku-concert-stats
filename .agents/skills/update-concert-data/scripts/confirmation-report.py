@@ -10,14 +10,14 @@ Sections:
   5 Full song lists with no row notes (inherited wholesale)
   6 Performances with no upstream setlist
 
-Run: uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py
+Run: uv run .agents/skills/update-concert-data/scripts/confirmation-report.py
 """
 import json
 import sqlite3
 from pathlib import Path
 
 # Walk up to the directory that holds package.json: this script lives under
-# .cursor/skills/update-concert-data/scripts/ and still resolves repo-root paths.
+# .agents/skills/update-concert-data/scripts/ and still resolves repo-root paths.
 ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "package.json").exists())
 DB = ROOT / "public" / "data" / "catalog.sqlite"
 CURATION = ROOT / "data" / "performance-setlists.json"
@@ -73,7 +73,7 @@ out: list[str] = []
 out.append("# Setlist data confirmation checklist")
 out.append("")
 out.append(
-    "> Generate this file: `uv run .cursor/skills/update-concert-data/scripts/confirmation-report.py` "
+    "> Generate this file: `uv run .agents/skills/update-concert-data/scripts/confirmation-report.py` "
     "(reads `public/data/catalog.sqlite` and `data/performance-setlists.json`)."
 )
 out.append(

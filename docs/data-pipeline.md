@@ -218,7 +218,7 @@ When a unit of work is done, commit it on the feature branch. Do not leave finis
 
 ### One worktree per development task
 
-See `.cursor/rules/git-worktree.mdc` and `.cursor/skills/continue/SKILL.md`. Prefer `vp run task -- start <branch>` (creates the worktree from `origin/main` and registers the workspace folder). Do not develop on the `main` worktree. Preview with `vp run dev` and `vp run task -- dev-url <branch>`. After ship, leftover worktree/branch/workspace cleanup is `vp run task -- clean <branch>` — fix `scripts/task/` if that helper fails instead of hand-rolling git commands.
+See `.agents/rules/git-worktree.md` and `.agents/skills/continue/SKILL.md`. Prefer `vp run task -- start <branch>` (creates the worktree from `origin/main` and registers the workspace folder). Do not develop on the `main` worktree. Preview with `vp run dev` and `vp run task -- dev-url <branch>`. After ship, leftover worktree/branch/workspace cleanup is `vp run task -- clean <branch>` — fix `scripts/task/` if that helper fails instead of hand-rolling git commands.
 
 ### Commit scope
 
@@ -230,6 +230,6 @@ Start `vp run dev` (or `pnpm dev`) in that worktree and tell the reviewer the pr
 
 ### Leave visual style checks to the reviewer
 
-Do not open a browser or take screenshots only to self-check styling. Describe the files, classes, and knobs you changed, and let the reviewer look. Values the reviewer has already changed by hand stay as they set them. See `.cursor/rules/ui-style-review.mdc`.
+Do not open a browser or take screenshots only to self-check styling. Describe the files, classes, and knobs you changed, and let the reviewer look. Values the reviewer has already changed by hand stay as they set them. See `.agents/rules/ui-style-review.md`.
 
 `.nuxt`, `.output`, and `public/data/catalog.sqlite*` are build/dev artifacts, already gitignored, and must never be committed.

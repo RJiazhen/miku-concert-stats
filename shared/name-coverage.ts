@@ -182,7 +182,7 @@ export const renderNameCoverage = (coverage: NameCoverage): string => {
   lines.push('')
   lines.push('## 汉字标题、演出过、还没有中文名')
   lines.push('')
-  lines.push('中日写法相同或只差简繁，按 `.cursor/skills/update-concert-data` 的规则不登记；若要补译名或别名，先确认百科有不同写法。')
+  lines.push('中日写法相同或只差简繁，按 `.agents/skills/update-concert-data` 的规则不登记；若要补译名或别名，先确认百科有不同写法。')
   lines.push('')
   lines.push('| 场次次数 | song id | 标题 | 类别 |')
   lines.push('| --- | --- | --- | --- |')

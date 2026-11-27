@@ -25,15 +25,15 @@ disable-model-invocation: true
 - VocaDB 和这些 wiki 是**同级参考源**，不是权威：只在需要曲名或歌曲 id 时查它。
   已采集的数据不因为 VocaDB 缺条目、改名、改日期或后来补了歌单而删除或回改；
   id 尽量对齐 VocaDB，对不上就用保留区间。完整口径见
-  [`.cursor/rules/data-sources.mdc`](../../rules/data-sources.mdc)。
+  [`.agents/rules/data-sources.md`](../../rules/data-sources.md)。
 
 ## 1. 数据放在哪
 
 | 路径 | 是什么 | 谁写 |
 | --- | --- | --- |
 | `data/wiki-raw/<key>.json` | 页面表格的原始单元格（含表头）+ `page` | **人工/agent 抓取后直接写入** |
-| `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py` | 每张 raw 表的标记 → 演出映射 | 手改 |
-| `.cursor/skills/update-concert-data/scripts/wiki_tour_tables.py` | 手抄的城市级表（EXPO 2014–2020、Live Party、鼓童、未来有你、魔法未来 2014） | 手改 |
+| `.agents/skills/update-concert-data/scripts/wiki_raw_spec.py` | 每张 raw 表的标记 → 演出映射 | 手改 |
+| `.agents/skills/update-concert-data/scripts/wiki_tour_tables.py` | 手抄的城市级表（EXPO 2014–2020、Live Party、鼓童、未来有你、魔法未来 2014） | 手改 |
 | `data/wiki-setlists.json` | 逐行数据（`title` + `when`） | `wiki-setlists-source.py` |
 | `data/wiki-title-aliases.json` | 百科写法 → catalog 写法 | 手改 |
 | `data/song-titles.zh-CN.json` | 歌曲中文名（`id → { title, aliases?, source, comment? }`），页眉开关控制显示 | 手改，见 §5「中文译名与英文名」 |
@@ -52,10 +52,10 @@ disable-model-invocation: true
 ## 2. 跑一遍的顺序
 
 ```bash
-uv run .cursor/skills/update-concert-data/scripts/wiki-setlists-source.py      # raw → data/wiki-setlists.json
-uv run .cursor/skills/update-concert-data/scripts/fetch-wiki-songs.py          # 缺失曲名 → data/wiki-songs.json + 0009
+uv run .agents/skills/update-concert-data/scripts/wiki-setlists-source.py      # raw → data/wiki-setlists.json
+uv run .agents/skills/update-concert-data/scripts/fetch-wiki-songs.py          # 缺失曲名 → data/wiki-songs.json + 0009
 pnpm build:catalog                          # 让 0009 的歌进 catalog
-uv run .cursor/skills/update-concert-data/scripts/build-setlist-curation.py    # → data/performance-setlists.json
+uv run .agents/skills/update-concert-data/scripts/build-setlist-curation.py    # → data/performance-setlists.json
 pnpm derive:setlists                        # → data/increments/0008-*.sql
 pnpm build:catalog
 pnpm report:confirmation                    # docs/setlist-confirmation.md
@@ -80,7 +80,7 @@ pnpm test && pnpm lint && pnpm typecheck
 
 ## 4. 定归属
 
-新建的 raw 表要在 `.cursor/skills/update-concert-data/scripts/wiki_raw_spec.py` 的 `RAW_SPEC` 里登记：
+新建的 raw 表要在 `.agents/skills/update-concert-data/scripts/wiki_raw_spec.py` 的 `RAW_SPEC` 里登记：
 
 ```python
 "mm2025": {
@@ -129,7 +129,7 @@ SELECT id, name, start_date FROM performances WHERE name LIKE '%2027%' ORDER BY 
 城市写在 `備考` 而不是 `公演替` 的表走不了 raw 路径（`RAW_SPEC` 只读 `公演替`），照 `TOUR_ROWS` 手抄。
 
 交响乐又是另一种：它的表没有 `公演替` 列，城市差异写在 `備考` 里，所以模板在
-`.cursor/skills/update-concert-data/scripts/wiki-setlists-source.py` 的 `TABLES` / `ROWS`（键形如 `"2024-横滨神户"`，行内备注写城市名，
+`.agents/skills/update-concert-data/scripts/wiki-setlists-source.py` 的 `TABLES` / `ROWS`（键形如 `"2024-横滨神户"`，行内备注写城市名，
 脚本按城市名过滤）。加新的一年时就照那里补一段。
 
 ## 5. 对曲名
@@ -281,7 +281,7 @@ VocaDB 查不到、但确实是演过的曲目**必须登记**，否则演出页
 `fetch-wiki-songs.py` 会在某个手工登记的曲名后来出现在 catalog 里时打印 `NOTE … now also has a catalog row`。
 不要因为它出现就删掉手工条目：先判断两边是不是同一首歌，是的话一次性把引用改到同一个 id
 （`0008` 派生层与 `0009` 一起改），不是同一首就两条都留，并在
-`data/wiki-repertoire.json` 的 `note` 里写清区别。见 `.cursor/rules/data-sources.mdc`。
+`data/wiki-repertoire.json` 的 `note` 里写清区别。见 `.agents/rules/data-sources.md`。
 
 每个演出都必须至少有一条来源（`performance_setlist_sources`）。下面的查询有结果就是漏登记：
 
