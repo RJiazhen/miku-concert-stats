@@ -243,19 +243,6 @@ const activeGroupValue = computed({
   },
 })
 
-/** Subtitle under the setlist heading: shared note, city group, or single stop. */
-const setlistSubtitle = computed(() => {
-  const group = activeSetlistGroup.value
-  if (group === null) return null
-  if (!setlistView.value.useTabs && group.performanceIds.length > 1) {
-    return t('tour.sharedSetlist')
-  }
-  if (setlistView.value.useTabs) return group.label
-  const entry = activeEntry.value
-  if (entry === null) return null
-  return [entry.cityTabLabel, entry.dates].filter(Boolean).join(' · ')
-})
-
 /** Scrolls the setlist block into view after a stop change from the timeline. */
 const scrollToSetlist = async (): Promise<void> => {
   await nextTick()
@@ -367,10 +354,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
       </section>
 
       <section id="tour-setlist" class="space-y-4">
-        <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 class="text-base font-semibold text-highlighted">{{ t('tour.setlistHeading') }}</h2>
-          <p v-if="setlistSubtitle" class="text-xs text-muted">{{ setlistSubtitle }}</p>
-        </div>
+        <h2 class="sr-only">{{ t('tour.setlistHeading') }}</h2>
 
         <UAlert
           v-if="activeEntry?.statusNote"
