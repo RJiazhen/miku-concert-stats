@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import toursFile from '~~/data/tours.json'
 import { buildCityIndex, cityLabel, matchCity } from '~~/shared/cities.ts'
