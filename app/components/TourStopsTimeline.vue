@@ -19,33 +19,45 @@ export type TourTimelineStop = {
 const props = defineProps<{
   stops: readonly TourTimelineStop[]
   modelValue: string
-  /** Soft upper bound on columns (still capped by width and stop count). */
-  maxColumns?: number
-  /** Minimum cell width in CSS pixels used to pick the column count. */
-  minCellPx?: number
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-/** Default minimum width per stop cell before the snake adds another column. */
-const DEFAULT_MIN_CELL_PX = 76
+/**
+ * Discrete section-width tiers → column count (before the stop-count cap).
+ * Wider tiers step up in jumps so the row count does not flicker on every pixel.
+ */
+const COLUMN_WIDTH_TIERS: readonly { minWidth: number; columns: number }[] = [
+  { minWidth: 0, columns: 2 },
+  { minWidth: 320, columns: 3 },
+  { minWidth: 440, columns: 4 },
+  { minWidth: 560, columns: 5 },
+]
 
 const { widthAnchor, elementWidth } = useElementWidth()
 
 /**
- * Columns from the measured container width: as many min-width cells as fit,
- * capped by stop count and optional maxColumns. Falls back to 3 before measure.
+ * Picks the column tier for a measured section width (SSR / pre-measure → 3).
+ */
+const columnsForWidth = (width: number): number => {
+  if (width <= 0) return 3
+  let columns = COLUMN_WIDTH_TIERS[0]!.columns
+  for (const tier of COLUMN_WIDTH_TIERS) {
+    if (width < tier.minWidth) break
+    columns = tier.columns
+  }
+  return columns
+}
+
+/**
+ * Stable column count from the section’s width tier, capped by stop count.
  */
 const columns = computed(() => {
   const count = props.stops.length
   if (count === 0) return 1
-  const minCell = Math.max(48, props.minCellPx ?? DEFAULT_MIN_CELL_PX)
-  const width = elementWidth.value
-  const byWidth = width > 0 ? Math.max(1, Math.floor(width / minCell)) : 3
-  const capped = props.maxColumns !== undefined ? Math.min(byWidth, Math.max(1, props.maxColumns)) : byWidth
-  return Math.min(count, capped)
+  return Math.min(count, columnsForWidth(elementWidth.value))
 })
 
 /** Stop plus its 1-based tour order. */
