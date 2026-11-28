@@ -136,7 +136,7 @@ const rows = computed((): SnakeRow[] => {
     const reversed = result.length % 2 === 1
     const count = chunk.length
     const cell = 100 / cols
-    /** Visual column for chunk slot `slot` (pads push incomplete RTL stops right). */
+    /** Visual column for chunk slot `slot` (RTL packs incomplete rows to the right). */
     const colOf = (slot: number): number => (reversed ? cols - 1 - slot : slot)
     const segments: RailSegment[] = []
     for (let slot = 0; slot < count - 1; slot += 1) {
@@ -180,8 +180,8 @@ const stopAriaLabel = (stop: OrderedStop): string =>
     <div
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="tour-snake-row relative flex w-full items-start"
-      :class="row.reversed ? 'flex-row-reverse' : 'flex-row'"
+      class="tour-snake-row relative grid w-full items-start"
+      :style="{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }"
     >
       <div
         v-for="(segment, segmentIndex) in row.segments"
@@ -199,18 +199,24 @@ const stopAriaLabel = (stop: OrderedStop): string =>
         aria-hidden="true"
       />
 
+      <!--
+        Grid columns stay equal even when pe-2 pads the node. Incomplete RTL
+        rows place stops via gridColumn so they still pack under the right-side
+        U-turn (pads are just empty tracks — no flex width skew).
+      -->
       <button
-        v-for="stop in row.stops"
+        v-for="(stop, slot) in row.stops"
         :key="stop.performanceId"
         type="button"
         role="listitem"
-        class="tour-snake-node group relative z-[1] flex min-w-0 flex-1 flex-col gap-1 rounded-md py-1 transition-colors"
+        class="tour-snake-node group relative z-[1] flex min-w-0 flex-col gap-1 rounded-md py-1 transition-colors"
         :class="[
           alignStart ? 'items-start pe-2 text-start' : 'items-center px-1 text-center',
           isProgrammeStop(stop.performanceId)
             ? 'text-primary'
             : 'text-muted hover:text-highlighted',
         ]"
+        :style="{ gridColumn: row.reversed ? columns - slot : slot + 1 }"
         :aria-label="stopAriaLabel(stop)"
         :aria-current="String(stop.performanceId) === modelValue ? 'true' : undefined"
         @click="selectStop(stop.performanceId)"
@@ -234,12 +240,6 @@ const stopAriaLabel = (stop: OrderedStop): string =>
           {{ stop.dates }}
         </span>
       </button>
-      <span
-        v-for="pad in Math.max(0, columns - row.stops.length)"
-        :key="`pad-${pad}`"
-        class="min-w-0 flex-1"
-        aria-hidden="true"
-      />
     </div>
   </div>
 </template>
