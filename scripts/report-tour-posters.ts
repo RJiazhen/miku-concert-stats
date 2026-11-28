@@ -9,7 +9,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseTours, type Tour } from '../shared/tours.ts'
-import type { HomepagePosterRecord, TourPostersFile } from '../shared/homepage-carousel.ts'
+import {
+  posterForTour,
+  type HomepagePosterRecord,
+  type TourPostersFile,
+} from '../shared/homepage-carousel.ts'
 
 /** Repository root from this script’s location. */
 const repoRoot = (): string => path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -38,13 +42,13 @@ const publicPathFromSrc = (src: string): string | null => {
   return path.join('public', src.slice(1))
 }
 
-/** Classifies one tour against the poster registry and the local file. */
+/** Classifies one tour against the poster registry and the primary local file. */
 const auditTour = (tour: Tour, posters: TourPostersFile, root: string): TourPosterAuditRow => {
-  const poster = posters.tours[tour.id] ?? null
+  const poster = posterForTour(tour.id, posters)
   if (poster === null) {
     return { tour, status: 'missing', poster: null, filePath: null }
   }
-  const filePath = publicPathFromSrc(poster.src)
+  const filePath = publicPathFromSrc(poster.originalSrc || poster.src)
   if (filePath === null || !existsSync(path.join(root, filePath))) {
     return { tour, status: 'file-missing', poster, filePath }
   }

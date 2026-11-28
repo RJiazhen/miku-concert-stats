@@ -130,13 +130,18 @@ const posters = (entries: TourPostersFile['tours']): TourPostersFile => ({
 
 /** One poster provenance row for tests. */
 const posterRecord = (src: string) => ({
-  src,
-  sourceUrl: 'https://example.com/poster.jpg',
-  sourcePage: 'https://example.com/',
-  sourceLabel: 'Official site',
-  accessedAt: '2026-11-23',
-  artistCredit: 'Example Artist',
-  rightsNote: 'Test mapping',
+  posters: [
+    {
+      src,
+      originalSrc: src,
+      sourceUrl: 'https://example.com/poster.jpg',
+      sourcePage: 'https://example.com/',
+      sourceLabel: 'Official site',
+      accessedAt: '2026-11-23',
+      artistCredit: 'Example Artist',
+      rightsNote: 'Test mapping',
+    },
+  ],
 })
 
 /** Tour index for the shared carousel fixture performances. */

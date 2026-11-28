@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process'
 import path from 'node:path'
 import { buildCatalog, repoRoot } from './build-catalog.ts'
+import { packageAllPosters } from './package-posters.ts'
 
 /**
  * Forwards termination signals to the child, so stopping this wrapper (Ctrl+C
@@ -19,7 +20,8 @@ const run = (file: string, args: string[]): Promise<number> =>
     child.on('exit', (code, signal) => resolve(code ?? (signal ? 1 : 0)))
   })
 
-/** Rebuilds the catalog, then runs `nuxt dev` with every argument forwarded. */
+/** Packages poster previews from originals, rebuilds the catalog, then runs `nuxt dev`. */
+await packageAllPosters()
 buildCatalog()
 
 const nuxt = path.join(repoRoot(), 'node_modules', 'nuxt', 'bin', 'nuxt.mjs')

@@ -17,7 +17,7 @@ There is **no D1 and no R2**. The catalog is a built SQLite file (`public/data/c
 | --- | --- |
 | `data/schema.sql` + `data/increments/` | Source of truth for the catalog |
 | `data/tours.json` + `shared/tours.ts` | Hand registry of tours and which 演出 belong to each; tour detail paths |
-| `data/tour-posters.json` | Tour poster provenance; prefer WebP under `public/posters/{tourId}.webp` (max width 1800 via `pnpm posters:compress`). Homepage banner and `/tours/{id}` resolve 演出 → tour → poster |
+| `data/tour-posters.json` | Tour poster provenance (`posters[]` per tour). Originals in `public/posters/originals/`; packaged WebP previews via `vp run posters:package` (max width 1800). UI shows the first poster; fullscreen uses `originalSrc`. Source rank: official vertical → horizontal → site OG → cleaned screenshot → homemade (`poster-intake/README.md`). Homepage banner and `/tours/{id}` resolve 演出 → tour → poster |
 | `scripts/vocadb/*`, derive/report scripts | Offline data pipeline |
 | `scripts/report-tour-posters.ts` | Writes gitignored `temp/tour-poster-audit.md` for poster review |
 | `scripts/build-catalog.ts` / `build-api.ts` | Emit sqlite + `/api/v1` assets |

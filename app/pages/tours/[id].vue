@@ -403,7 +403,7 @@ useHead({ title: computed(() => tour.value?.name || t('tour.notFound')) })
           @click="closePosterLightbox"
         >
           <img
-            :src="poster.src"
+            :src="poster.originalSrc || poster.src"
             :alt="poster.sourceLabel || tour.name"
             class="max-h-[min(92dvh,100%)] max-w-full object-contain"
             draggable="false"

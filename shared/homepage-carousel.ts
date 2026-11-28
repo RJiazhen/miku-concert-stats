@@ -9,7 +9,8 @@
  * does not qualify.
  *
  * Poster art is resolved 演出 → tour (`data/tours.json`) → tour poster
- * (`data/tour-posters.json`). Local files are `public/posters/{tourId}.*`.
+ * (`data/tour-posters.json`). Packaged previews live under `public/posters/`;
+ * retained originals under `public/posters/originals/` (fullscreen).
  */
 import tourPostersFile from '../data/tour-posters.json'
 import toursFile from '../data/tours.json'
@@ -52,9 +53,15 @@ export const bannerIncomingStartPercent = (direction: 1 | -1): number =>
 /** How far back a concert date may fall and still count as recently held. */
 export const RECENT_SETLIST_BANNER_LOOKBACK_MONTHS = 12
 
-/** Official poster mapping for one tour, shown on every stop of that tour. */
+/**
+ * One poster asset for a tour: compressed preview (`src`) plus retained original
+ * (`originalSrc`) for fullscreen. Provenance stays on the record.
+ */
 export type HomepagePosterRecord = {
+  /** Packaged WebP (or other) preview under `public/posters/`. */
   src: string
+  /** Uncompressed original under `public/posters/originals/`. */
+  originalSrc: string
   sourceUrl: string
   sourcePage: string
   sourceLabel: string
@@ -63,10 +70,20 @@ export type HomepagePosterRecord = {
   rightsNote: string
 }
 
+/** Tour poster registry entry; may list several assets (page shows the first). */
+export type TourPosterEntry = {
+  posters: HomepagePosterRecord[]
+}
+
+/** Legacy single-poster mapping (pre multi-poster registry). */
+type LegacyHomepagePosterRecord = Omit<HomepagePosterRecord, 'originalSrc'> & {
+  originalSrc?: string
+}
+
 /** Shape of `data/tour-posters.json`. */
 export type TourPostersFile = {
   version: number
-  tours: Record<string, HomepagePosterRecord>
+  tours: Record<string, TourPosterEntry | LegacyHomepagePosterRecord>
 }
 
 /** One homepage carousel slide, ready for the Vue view. */
@@ -106,11 +123,50 @@ export const isWithinRecentLookback = (
   return last !== null && last !== '' && last >= cutoff
 }
 
-/** Looks up a poster by tour id. */
+/**
+ * Normalizes a tour poster registry value to an ordered poster list.
+ * Legacy single-object rows become a one-element list; `originalSrc` falls
+ * back to `src` when missing.
+ */
+export const postersForTourEntry = (
+  entry: TourPosterEntry | LegacyHomepagePosterRecord | null | undefined,
+): HomepagePosterRecord[] => {
+  if (entry == null) return []
+  if ('posters' in entry && Array.isArray(entry.posters)) {
+    return entry.posters.map((poster) => ({
+      ...poster,
+      originalSrc: poster.originalSrc || poster.src,
+    }))
+  }
+  const legacy = entry as LegacyHomepagePosterRecord
+  return [
+    {
+      src: legacy.src,
+      originalSrc: legacy.originalSrc || legacy.src,
+      sourceUrl: legacy.sourceUrl,
+      sourcePage: legacy.sourcePage,
+      sourceLabel: legacy.sourceLabel,
+      accessedAt: legacy.accessedAt,
+      artistCredit: legacy.artistCredit,
+      rightsNote: legacy.rightsNote,
+    },
+  ]
+}
+
+/** All poster assets for a tour id (empty when unmapped). */
+export const postersForTour = (
+  tourId: string,
+  posters: TourPostersFile = defaultPosters,
+): HomepagePosterRecord[] => postersForTourEntry(posters.tours[tourId])
+
+/**
+ * Primary (first) poster for a tour id. Later posters stay in the registry for
+ * a future multi-poster UI.
+ */
 export const posterForTour = (
   tourId: string,
   posters: TourPostersFile = defaultPosters,
-): HomepagePosterRecord | null => posters.tours[tourId] ?? null
+): HomepagePosterRecord | null => postersForTour(tourId, posters)[0] ?? null
 
 /**
  * Looks up a poster by 演出 → tour → tour poster. Never guesses a filename

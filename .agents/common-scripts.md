@@ -72,7 +72,18 @@ vp run derive:setlists -- --check
 
 When: checking missing or wrong tour posters before/after editing `data/tour-posters.json`.
 
+Source preference (highest first; full text in `poster-intake/README.md`): official vertical poster → official horizontal poster → official tour-site horizontal OG image → cleaned official site screenshot (may be processed twice) → homemade composite from official elements. Do not blindly regenerate `temp/tour-poster-audit.md` after hand edits.
+
 ```bash
 vp run report:tour-posters
 # writes temp/tour-poster-audit.md (gitignored; do not commit)
+```
+
+### Sync posters from audit + package
+
+When: after reviewing `temp/tour-poster-audit.md` through a stop tour id; writes originals + `data/tour-posters.json` without editing the markdown, then compresses previews.
+
+```bash
+uv run scripts/sync-tour-posters-from-audit.py --through snow-miku-live-2018
+vp run posters:package
 ```

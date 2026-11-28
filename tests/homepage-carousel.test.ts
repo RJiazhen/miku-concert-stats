@@ -15,6 +15,7 @@ import {
   estimatedSongDurationSeconds,
   isWithinRecentLookback,
   posterForPerformance,
+  posterForTour,
   splitDuration,
   utcCalendarDateMonthsAgo,
   type TourPostersFile,
@@ -120,13 +121,18 @@ const posters = (entries: TourPostersFile['tours']): TourPostersFile => ({
 
 /** One poster provenance row for tests. */
 const posterRecord = (src: string) => ({
-  src,
-  sourceUrl: 'https://example.com/poster.jpg',
-  sourcePage: 'https://example.com/',
-  sourceLabel: 'Official site',
-  accessedAt: '2026-11-23',
-  artistCredit: 'Example Artist',
-  rightsNote: 'Test mapping',
+  posters: [
+    {
+      src,
+      originalSrc: src,
+      sourceUrl: 'https://example.com/poster.jpg',
+      sourcePage: 'https://example.com/',
+      sourceLabel: 'Official site',
+      accessedAt: '2026-11-23',
+      artistCredit: 'Example Artist',
+      rightsNote: 'Test mapping',
+    },
+  ],
 })
 
 /** Tour index that maps common fixture performance ids onto tour slugs. */
@@ -391,12 +397,14 @@ describe('homepage setlist carousel source files', () => {
     const mapping = JSON.parse(
       readFileSync(join(process.cwd(), 'data/tour-posters.json'), 'utf8'),
     ) as TourPostersFile
-    const kodo = mapping.tours['hatsune-miku-x-kodo-2026']
-    const paris = mapping.tours['miku-expo-2026-europe']
-    const wowow = mapping.tours['wowow-2014']
+    const kodo = posterForTour('hatsune-miku-x-kodo-2026', mapping)
+    const paris = posterForTour('miku-expo-2026-europe', mapping)
+    const wowow = posterForTour('wowow-2014', mapping)
     expect(kodo?.src).toBe('/posters/hatsune-miku-x-kodo-2026.webp')
     expect(paris?.src).toBe('/posters/miku-expo-2026-europe.webp')
-    expect(wowow?.src).toBe('/posters/wowow-2014.png')
+    expect(wowow?.src).toBe('/posters/wowow-2014.webp')
+    expect(kodo?.originalSrc).toMatch(/^\/posters\/originals\//)
+    expect(paris?.originalSrc).toMatch(/^\/posters\/originals\//)
     expect(posterForPerformance(12940)?.src).toBe('/posters/hatsune-miku-x-kodo-2026.webp')
     expect(posterForPerformance(12227)?.src).toBe('/posters/miku-expo-2026-europe.webp')
     expect(readFileSync(join(process.cwd(), 'public/posters/hatsune-miku-x-kodo-2026.webp')).byteLength).toBeGreaterThan(1000)

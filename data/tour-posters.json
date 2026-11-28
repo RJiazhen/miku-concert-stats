@@ -1,663 +1,1092 @@
 {
-  "version": 1,
-  "note": "Official tour posters for the homepage banner. Look up by tour id via data/tours.json (演出 → tour → poster). Local files live in public/posters/{tourId}.*",
+  "version": 2,
+  "note": "Tour posters: originals under public/posters/originals/; packaged WebP previews under public/posters/ via `vp run posters:package`. Each tour may list multiple posters; the UI shows the first until a multi-poster view exists. Lookup: 演出 → data/tours.json → tour id.",
   "tours": {
-    "magical-mirai-2015": {
-      "src": "/posters/magical-mirai-2015.webp",
-      "sourceUrl": "https://magicalmirai.com/2015/ user screenshot of site hero",
-      "sourcePage": "https://magicalmirai.com/2015/",
-      "sourceLabel": "初音ミク「マジカルミライ 2015」",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2016": {
-      "src": "/posters/magical-mirai-2016.jpg",
-      "sourceUrl": "https://magicalmirai.com/2016/images/og.jpg",
-      "sourcePage": "https://magicalmirai.com/2016/",
-      "sourceLabel": "初音ミク「マジカルミライ 2016」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2017": {
-      "src": "/posters/magical-mirai-2017.jpg",
-      "sourceUrl": "https://magicalmirai.com/2017/images/og.jpg",
-      "sourcePage": "https://magicalmirai.com/2017/",
-      "sourceLabel": "初音ミク「マジカルミライ 2017」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2018": {
-      "src": "/posters/magical-mirai-2018.jpg",
-      "sourceUrl": "https://magicalmirai.com/2018/images/og.jpg",
-      "sourcePage": "https://magicalmirai.com/2018/",
-      "sourceLabel": "初音ミク「マジカルミライ 2018」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2019": {
-      "src": "/posters/magical-mirai-2019.png",
-      "sourceUrl": "https://magicalmirai.com/2019/images/index/neon_title_mainvisual.png",
-      "sourcePage": "https://magicalmirai.com/2019/",
-      "sourceLabel": "初音ミク「マジカルミライ 2019」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2020": {
-      "src": "/posters/magical-mirai-2020.jpg",
-      "sourceUrl": "https://magicalmirai.com/2020/images/og.jpg",
-      "sourcePage": "https://magicalmirai.com/2020/",
-      "sourceLabel": "初音ミク「マジカルミライ 2020」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2021": {
-      "src": "/posters/magical-mirai-2021.jpg",
-      "sourceUrl": "https://magicalmirai.com/2021/images/og.jpg",
-      "sourcePage": "https://magicalmirai.com/2021/",
-      "sourceLabel": "初音ミク「マジカルミライ 2021」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-10th-anniversary": {
-      "src": "/posters/magical-mirai-10th-anniversary.png",
-      "sourceUrl": "https://magicalmirai.com/10th/images/index/hero_img_miku.png",
-      "sourcePage": "https://magicalmirai.com/10th/",
-      "sourceLabel": "初音ミク「マジカルミライ」10th Anniversary",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2023": {
-      "src": "/posters/magical-mirai-2023.jpg",
-      "sourceUrl": "https://magicalmirai.com/2023/images/index/visual_miku.jpg",
-      "sourcePage": "https://magicalmirai.com/2023/",
-      "sourceLabel": "初音ミク「マジカルミライ 2023」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2024": {
-      "src": "/posters/magical-mirai-2024.png",
-      "sourceUrl": "https://magicalmirai.com/2024/images/index/visual_miku.png",
-      "sourcePage": "https://magicalmirai.com/2024/",
-      "sourceLabel": "初音ミク「マジカルミライ 2024」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2025": {
-      "src": "/posters/magical-mirai-2025.png",
-      "sourceUrl": "https://magicalmirai.com/2025/images/index/hero_img_miku.png",
-      "sourcePage": "https://magicalmirai.com/2025/",
-      "sourceLabel": "初音ミク「マジカルミライ 2025」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "magical-mirai-2026": {
-      "src": "/posters/magical-mirai-2026.webp",
-      "sourceUrl": "https://magicalmirai.com/2026/images/index/img_visual_miku.webp",
-      "sourcePage": "https://magicalmirai.com/2026/",
-      "sourceLabel": "初音ミク「マジカルミライ 2026」",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2016-japan": {
-      "src": "/posters/miku-expo-2016-japan.jpg",
-      "sourceUrl": "https://mikuexpo.com/jp2016/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/jp2016/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2016 Japan Tour",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2016-north-america": {
-      "src": "/posters/miku-expo-2016-north-america.webp",
-      "sourceUrl": "https://mikuexpo.com/na2016/ user screenshot of site hero",
-      "sourcePage": "https://mikuexpo.com/na2016/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2016 North America",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "neco",
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2016-taiwan": {
-      "src": "/posters/miku-expo-2016-taiwan.webp",
-      "sourceUrl": "https://mikuexpo.com/tw2016/ user-provided site key visual",
-      "sourcePage": "https://mikuexpo.com/tw2016/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2016 in Taiwan",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "KEI",
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2016-china": {
-      "src": "/posters/miku-expo-2016-china.jpg",
-      "sourceUrl": "https://mikuexpo.com/cn2016/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/cn2016/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2016 China Tour",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2017-malaysia": {
-      "src": "/posters/miku-expo-2017-malaysia.jpg",
-      "sourceUrl": "https://mikuexpo.com/may2017/images/og.jpg",
-      "sourcePage": "http://mikuexpo.com/may2017/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2017 in Malaysia",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2018-usa-mexico": {
-      "src": "/posters/miku-expo-2018-usa-mexico.webp",
-      "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/0/01/Miku_Expo_2018.png/revision/latest/scale-to-width-down/1000?cb=20180620012415",
-      "sourcePage": "https://mikuexpo.com/usamx2018/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2018 USA & Mexico",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2018-europe": {
-      "src": "/posters/miku-expo-2018-europe.jpg",
-      "sourceUrl": "https://mikuexpo.com/europe2018/images/og.jpg",
-      "sourcePage": "http://mikuexpo.com/europe2018/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2018 EUROPE",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2019-taiwan-hong-kong": {
-      "src": "/posters/miku-expo-2019-taiwan-hong-kong.jpg",
-      "sourceUrl": "https://mikuexpo.com/twhk2019/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/twhk2019/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2019 Taiwan & Hong Kong",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2020-europe": {
-      "src": "/posters/miku-expo-2020-europe.jpg",
-      "sourceUrl": "https://mikuexpo.com/europe2020/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/europe2020/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2020 EUROPE",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2020-usa-canada": {
-      "src": "/posters/miku-expo-2020-usa-canada.jpg",
-      "sourceUrl": "https://mikuexpo.com/usaca2020/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/usaca2020/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2020 USA & Canada",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2021-online": {
-      "src": "/posters/miku-expo-2021-online.jpg",
-      "sourceUrl": "https://mikuexpo.com/online2021/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/online2021/index.html",
-      "sourceLabel": "HATSUNE MIKU EXPO 2021 Online",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2022-rewind": {
-      "src": "/posters/miku-expo-2022-rewind.webp",
-      "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/f/fa/MIKU_EXPO_Rewind_Key_Visual.jpg/revision/latest?cb=20220507195940",
-      "sourcePage": "https://mikuexpo.com/rewind2022/index.html",
-      "sourceLabel": "HATSUNE MIKU EXPO Rewind",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2022-rewind-plus": {
-      "src": "/posters/miku-expo-2022-rewind-plus.jpg",
-      "sourceUrl": "https://mikuexpo.com/rewind2022/images/og.jpg",
-      "sourcePage": "https://www.crypton.co.jp/cfm/news/2022/08/19rewindplus",
-      "sourceLabel": "HATSUNE MIKU EXPO Rewind+",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2023-vr": {
-      "src": "/posters/miku-expo-2023-vr.jpg",
-      "sourceUrl": "https://mikuexpo.com/vr2023/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/vr2023/index.html",
-      "sourceLabel": "HATSUNE MIKU EXPO 2023 VR",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2024-north-america": {
-      "src": "/posters/miku-expo-2024-north-america.jpg",
-      "sourceUrl": "https://mikuexpo.com/na2024/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/na2024/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2024 North America",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2024-europe": {
-      "src": "/posters/miku-expo-2024-europe.jpg",
-      "sourceUrl": "https://mikuexpo.com/europe2024/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/europe2024/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2024 EUROPE",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2024-new-zealand-australia": {
-      "src": "/posters/miku-expo-2024-new-zealand-australia.webp",
-      "sourceUrl": "https://mikuexpo.com/nzaus2024/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/nzaus2024/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2024 New Zealand & Australia",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2025-asia": {
-      "src": "/posters/miku-expo-2025-asia.webp",
-      "sourceUrl": "https://mikuexpo.com/asia2025/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/asia2025/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2025 ASIA",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2026-north-america": {
-      "src": "/posters/miku-expo-2026-north-america.webp",
-      "sourceUrl": "https://mikuexpo.com/na2026/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/na2026/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2026 North America",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-expo-2026-europe": {
-      "src": "/posters/miku-expo-2026-europe.webp",
-      "sourceUrl": "https://mikuexpo.com/europe2026/images/og.jpg",
-      "sourcePage": "https://mikuexpo.com/europe2026/",
-      "sourceLabel": "MIKU EXPO 2026 EUROPE",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "suzunosuke",
-      "rightsNote": "Official event hero visual from mikuexpo.com, art by suzunosuke © CFM, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "snow-miku-live-2015": {
-      "src": "/posters/snow-miku-live-2015.jpg",
-      "sourceUrl": "https://snowmiku.com/2015/images/live_main.jpg",
-      "sourcePage": "https://snowmiku.com/2015/live_ticket.html",
-      "sourceLabel": "SNOW MIKU LIVE! 2015",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "snow-miku-live-2018": {
-      "src": "/posters/snow-miku-live-2018.jpg",
-      "sourceUrl": "https://snowmiku.com/2018/images/og.jpg",
-      "sourcePage": "http://snowmiku.com/2018/live_ticket.html",
-      "sourceLabel": "SNOW MIKU LIVE! 2018",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "snow-miku-live-2019": {
-      "src": "/posters/snow-miku-live-2019.jpg",
-      "sourceUrl": "https://snowmiku.com/2019/images/og.jpg",
-      "sourcePage": "https://snowmiku.com/2019/live_zepp.html",
-      "sourceLabel": "SNOW MIKU LIVE! 2019",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "snow-miku-live-2027": {
-      "src": "/posters/snow-miku-live-2027.webp",
-      "sourceUrl": "https://snowmiku.com/2027/images/og.webp",
-      "sourcePage": "https://snowmiku.com/2027/",
-      "sourceLabel": "SNOW MIKU LIVE! 2027",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "hatsune-miku-x-kodo-2026": {
-      "src": "/posters/hatsune-miku-x-kodo-2026.webp",
-      "sourceUrl": "https://kyouen-kodo-miku.com/img/main-visual.jpg",
-      "sourcePage": "https://kyouen-kodo-miku.com/",
-      "sourceLabel": "鼓童×初音ミク 響演 公式サイト",
-      "accessedAt": "2026-11-24",
-      "artistCredit": "ゼンマイブック",
-      "rightsNote": "Official event main visual, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
-    },
-    "hatsune-miku-symphony-2025": {
-      "src": "/posters/hatsune-miku-symphony-2025.jpg",
-      "sourceUrl": "https://sp.wmg.jp/mikusymphony/ogp2025.jpg",
-      "sourcePage": "https://blog.piapro.net/2024/10/fr2410071.html",
-      "sourceLabel": "初音ミクシンフォニー 2025",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "japan-tour-2023-thunderbolt": {
-      "src": "/posters/japan-tour-2023-thunderbolt.jpg",
-      "sourceUrl": "https://piapro.net/japantour2023/images/og.jpg",
-      "sourcePage": "https://piapro.net/japantour2023/",
-      "sourceLabel": "初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "japan-live-tour-2025-blooming": {
-      "src": "/posters/japan-live-tour-2025-blooming.webp",
-      "sourceUrl": "https://piapro.net/japantour2025/images/mainvisual_miku_tmb.webp",
-      "sourcePage": "https://piapro.net/japantour2025/",
-      "sourceLabel": "初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "miku-fes-2024": {
-      "src": "/posters/miku-fes-2024.png",
-      "sourceUrl": "https://mikufes24spring.jp/wp-content/themes/mikufes_theme/img/visual.png",
-      "sourcePage": "https://mikufes24spring.jp/",
-      "sourceLabel": "MIKU FES '24（春）",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "project-voltage-live-2026": {
-      "src": "/posters/project-voltage-live-2026.png",
-      "sourceUrl": "https://www.project-voltage.jp/assets/img/OGP_1200_630.png",
-      "sourcePage": "https://www.project-voltage.jp/live2026/",
-      "sourceLabel": "ポケモン feat. 初音ミク VOLTAGE Live！",
-      "accessedAt": "2026-11-24",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
-    },
-    "wowow-2014": {
-      "src": "/posters/wowow-2014.png",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2014/10/Z20141007_01.png",
-      "sourcePage": "https://blog.piapro.net/2014/10/z1410071-1.html",
-      "sourceLabel": "初音ミク公式ブログ",
-      "accessedAt": "2026-11-24",
-      "artistCredit": "てもし",
-      "rightsNote": "Official Piapro blog main visual for the WOWOW 2014 special live, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
-    },
     "magical-mirai-2013": {
-      "src": "/posters/magical-mirai-2013.webp",
-      "sourceUrl": "https://storage.moegirl.org.cn/moegirl/commons/c/cb/Img_main_chris.jpg",
-      "sourcePage": "https://zh.moegirl.org.cn/MAGICAL_MIRAI_2013",
-      "sourceLabel": "初音ミク「マジカルミライ 2013」",
-      "artistCredit": "CHRIS",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by CHRIS, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2013.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2013-01.jpg",
+          "sourceUrl": "https://img.youtube.com/vi/C5rDC-FwUwQ/maxresdefault.jpg",
+          "sourcePage": "https://www.youtube.com/watch?v=C5rDC-FwUwQ",
+          "sourceLabel": "初音ミク「マジカルミライ 2013」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "CHRIS",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
     "magical-mirai-2014": {
-      "src": "/posters/magical-mirai-2014.webp",
-      "sourceUrl": "https://magicalmirai.com/2014/ screenshot after adjust html element.",
-      "sourcePage": "https://zh.moegirl.org.cn/MAGICAL_MIRAI_2014",
-      "sourceLabel": "初音ミク「マジカルミライ 2014」",
-      "artistCredit": "MONQ",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by MONQ, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2014.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2014-01.png",
+          "sourceUrl": "",
+          "sourcePage": "https://magicalmirai.com/2014/",
+          "sourceLabel": "初音ミク「マジカルミライ 2014」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "MONQ",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "miku-with-you-2017": {
-      "src": "/posters/miku-with-you-2017.webp",
-      "sourceUrl": "https://i.gtimg.cn/qqlive/img/jpgcache/files/qqvideo/hori/x/xd5v4hze90ihn11.jpg",
-      "sourcePage": "https://blog.piapro.net/2017/11/%e3%80%90%e3%81%9d%e3%81%ae%e4%bb%96%ef%bc%88%e3%82%a4%e3%83%99%e3%83%b3%e3%83%88%ef%bc%89%e3%80%91%e5%88%9d%e9%9f%b3%e3%83%9f%e3%82%af%e3%81%ae%e3%83%a9%e3%82%a4%e3%83%96%e3%82%a4%e3%83%99%e3%83%b3.html",
-      "sourceLabel": "MIKU WITH YOU 2017",
-      "artistCredit": "TID",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by TID, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2015": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2015.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2015-01.png",
+          "sourceUrl": "",
+          "sourcePage": "https://magicalmirai.com/2015/",
+          "sourceLabel": "初音ミク「マジカルミライ 2015」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "miku-with-you-2018": {
-      "src": "/posters/miku-with-you-2018.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2018/09/Z18092001.png",
-      "sourcePage": "https://blog.piapro.net/2018/09/z180920-1.html",
-      "sourceLabel": "MIKU WITH YOU 2018",
-      "artistCredit": "SANMUYYB",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by SANMUYYB, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2016": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2016.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2016-01.webp",
+          "sourceUrl": "",
+          "sourcePage": "https://magicalmirai.com/2016/",
+          "sourceLabel": "初音ミク「マジカルミライ 2016」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "LENA[A-7]",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "miku-with-you-2019": {
-      "src": "/posters/miku-with-you-2019.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2019/08/poster.jpg",
-      "sourcePage": "https://blog.piapro.net/2019/08/zh1908051-1.html",
-      "sourceLabel": "MIKU WITH YOU 2019",
-      "artistCredit": "织布机loom",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by 织布机loom, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2017": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2017.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2017-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2017/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2017/",
+          "sourceLabel": "初音ミク「マジカルミライ 2017」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "miku-with-you-2020": {
-      "src": "/posters/miku-with-you-2020.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2020/10/zh2010211-1.jpg",
-      "sourcePage": "https://blog.piapro.net/2020/10/zh2010211.html",
-      "sourceLabel": "MIKU WITH YOU 2020",
-      "artistCredit": "Bison仓鼠",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by Bison仓鼠, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2018": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2018.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2018-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2018/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2018/",
+          "sourceLabel": "初音ミク「マジカルミライ 2018」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "miku-with-you-2024": {
-      "src": "/posters/miku-with-you-2024.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2024/06/zh2406141.jpg",
-      "sourcePage": "https://blog.piapro.net/2024/06/zh2406141.html",
-      "sourceLabel": "MIKU WITH YOU 2024",
-      "artistCredit": "影欣望远镜",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by 影欣望远镜, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2019": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2019.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2019-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2019/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2019/",
+          "sourceLabel": "初音ミク「マジカルミライ 2019」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "miku-with-you-2025": {
-      "src": "/posters/miku-with-you-2025.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2025/10/ft2510081_mainvisual.jpg",
-      "sourcePage": "https://blog.piapro.net/2025/10/ft2510081.html",
-      "sourceLabel": "MIKU WITH YOU 2025",
-      "artistCredit": "Rumoon",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by Rumoon, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2020": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2020.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2020-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2020/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2020/",
+          "sourceLabel": "初音ミク「マジカルミライ 2020」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "miku-with-you-2026": {
-      "src": "/posters/miku-with-you-2026.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2026/11/ft26111311.jpg",
-      "sourcePage": "https://blog.piapro.net/2026/11/ft2611131.html",
-      "sourceLabel": "MIKU WITH YOU 2026",
-      "artistCredit": "归零不是龟苓膏",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by 归零不是龟苓膏, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2021": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2021.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2021-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2021/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2021/",
+          "sourceLabel": "初音ミク「マジカルミライ 2021」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "hatsune-miku-symphony-2020": {
-      "src": "/posters/hatsune-miku-symphony-2020.webp",
-      "sourceUrl": "https://voca.wiki/images/f/f5/Miku_Symphony_2020.png",
-      "sourcePage": "https://voca.wiki/File:Miku_Symphony_2020.png",
-      "sourceLabel": "初音ミクシンフォニー 2020",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "Rella",
-      "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-10th-anniversary": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-10th-anniversary.webp",
+          "originalSrc": "/posters/originals/magical-mirai-10th-anniversary-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/10th/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/10th/",
+          "sourceLabel": "初音ミク「マジカルミライ」10th Anniversary",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "hatsune-miku-symphony-2022": {
-      "src": "/posters/hatsune-miku-symphony-2022.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2022/03/U220316_main.jpg",
-      "sourcePage": "https://blog.piapro.net/2022/03/u2203161_1.html",
-      "sourceLabel": "初音ミクシンフォニー 2022",
-      "artistCredit": "Rella",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2023": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2023.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2023-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2023/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2023/",
+          "sourceLabel": "初音ミク「マジカルミライ 2023」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "hatsune-miku-symphony-2026": {
-      "src": "/posters/hatsune-miku-symphony-2026.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2026/05/ob26052211.jpg",
-      "sourcePage": "https://blog.piapro.net/2026/05/ob2605221.html",
-      "sourceLabel": "初音ミクシンフォニー 2026",
-      "artistCredit": "Rella",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2024": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2024.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2024-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2024/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2024/",
+          "sourceLabel": "初音ミク「マジカルミライ 2024」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "hatsune-miku-symphony-2026-2027": {
-      "src": "/posters/hatsune-miku-symphony-2026-2027.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2026/09/ob26091611.jpg",
-      "sourcePage": "https://blog.piapro.net/2026/09/ob2609161.html",
-      "sourceLabel": "初音ミクシンフォニー 2026-2027 Melodies on the Keys",
-      "artistCredit": "泉彩",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by 泉彩, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2025": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2025.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2025-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2025/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2025/",
+          "sourceLabel": "初音ミク「マジカルミライ 2025」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
-    "decomiku-live-2026": {
-      "src": "/posters/decomiku-live-2026.webp",
-      "sourceUrl": "https://otoiro.co.jp/wp/wp-content/uploads/2025/07/DML26_CO_KV.png",
-      "sourcePage": "https://otoiro.co.jp/live/decomikulive2026",
-      "sourceLabel": "デコミク LIVE starring 初音ミク『Hello』",
-      "artistCredit": "おむたつ",
-      "accessedAt": "2026-11-28",
-      "rightsNote": "Official event visual by おむたつ, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
-    },
-    "miku-expo-2014-los-angeles": {
-      "src": "/posters/miku-expo-2014-los-angeles.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2014/07/O14070110.jpg",
-      "sourcePage": "https://blog.piapro.net/2014/07/o1407021-1.html",
-      "sourceLabel": "HATSUNE MIKU EXPO 2014 in Los Angeles",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "apapico",
-      "rightsNote": "Official event visual by apapico, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
-    },
-    "miku-expo-2014-new-york": {
-      "src": "/posters/miku-expo-2014-new-york.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2014/07/O14070110.jpg",
-      "sourcePage": "https://blog.piapro.net/2014/07/o1407021-1.html",
-      "sourceLabel": "HATSUNE MIKU EXPO 2014 in New York",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "apapico",
-      "rightsNote": "Official event visual by apapico, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+    "magical-mirai-2026": {
+      "posters": [
+        {
+          "src": "/posters/magical-mirai-2026.webp",
+          "originalSrc": "/posters/originals/magical-mirai-2026-01.jpg",
+          "sourceUrl": "https://magicalmirai.com/2026/images/og.jpg",
+          "sourcePage": "https://magicalmirai.com/2026/",
+          "sourceLabel": "初音ミク「マジカルミライ 2026」",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
     "miku-expo-2014-indonesia": {
-      "src": "/posters/miku-expo-2014-indonesia.webp",
-      "sourceUrl": "https://mikuexpo.com/images/pasteve_bg_id2014.png",
-      "sourcePage": "https://mikuexpo.com/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2014 in Indonesia",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "KEI",
-      "rightsNote": "Official event visual by KEI, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2014-indonesia.webp",
+          "originalSrc": "/posters/originals/miku-expo-2014-indonesia-01.jpg",
+          "sourceUrl": "https://d3ieicw58ybon5.cloudfront.net/full/u/14e3339b6c5f48758700cfb3d498c603.jpg",
+          "sourcePage": "https://mikuexpo.com/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2014 in Indonesia",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "KEI",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2014-los-angeles": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2014-los-angeles.webp",
+          "originalSrc": "/posters/originals/miku-expo-2014-los-angeles-01.jpg",
+          "sourceUrl": "https://i.ytimg.com/vi/GRc_Vz6kEjc/maxresdefault.jpg",
+          "sourcePage": "https://blog.piapro.net/2014/07/o1407021-1.html",
+          "sourceLabel": "HATSUNE MIKU EXPO 2014 in Los Angeles",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "apapico",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2014-new-york": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2014-new-york.webp",
+          "originalSrc": "/posters/originals/miku-expo-2014-new-york-01.jpg",
+          "sourceUrl": "https://i.ytimg.com/vi/GRc_Vz6kEjc/maxresdefault.jpg",
+          "sourcePage": "https://blog.piapro.net/2014/07/o1407021-1.html",
+          "sourceLabel": "HATSUNE MIKU EXPO 2014 in New York",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "apapico",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
     "miku-expo-2015-shanghai": {
-      "src": "/posters/miku-expo-2015-shanghai.webp",
-      "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/7/7d/HATSUNE_MIKU_EXPO_2015_in_SHANGHAI.jpg/revision/latest?cb=20150519043119",
-      "sourcePage": "https://mikuexpo.com/",
-      "sourceLabel": "HATSUNE MIKU EXPO 2015 in Shanghai",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2015-shanghai.webp",
+          "originalSrc": "/posters/originals/miku-expo-2015-shanghai-01.png",
+          "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/7/7d/HATSUNE_MIKU_EXPO_2015_in_SHANGHAI.jpg/revision/latest?cb=20150519043119",
+          "sourcePage": "https://mikuexpo.com/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2015 in Shanghai",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2016-japan": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2016-japan.webp",
+          "originalSrc": "/posters/originals/miku-expo-2016-japan-01.jpg",
+          "sourceUrl": "https://mikuexpo.com/jp2016/images/og.jpg",
+          "sourcePage": "https://mikuexpo.com/jp2016/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2016 Japan Tour",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2016-north-america": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2016-north-america.webp",
+          "originalSrc": "/posters/originals/miku-expo-2016-north-america-01.png",
+          "sourceUrl": "",
+          "sourcePage": "https://mikuexpo.com/na2016/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2016 North America",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "neco",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2016-taiwan": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2016-taiwan.webp",
+          "originalSrc": "/posters/originals/miku-expo-2016-taiwan-01.webp",
+          "sourceUrl": "",
+          "sourcePage": "https://mikuexpo.com/tw2016/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2016 in Taiwan",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "KEI",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2016-china": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2016-china.webp",
+          "originalSrc": "/posters/originals/miku-expo-2016-china-01.jpg",
+          "sourceUrl": "https://mikuexpo.com/cn2016/images/og.jpg",
+          "sourcePage": "https://mikuexpo.com/cn2016/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2016 China Tour",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2017-malaysia": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2017-malaysia.webp",
+          "originalSrc": "/posters/originals/miku-expo-2017-malaysia-01.jpg",
+          "sourceUrl": "https://mikuexpo.com/may2017/images/og.jpg",
+          "sourcePage": "http://mikuexpo.com/may2017/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2017 in Malaysia",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2018-usa-mexico": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2018-usa-mexico.webp",
+          "originalSrc": "/posters/originals/miku-expo-2018-usa-mexico-01.png",
+          "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/0/01/Miku_Expo_2018.png/revision/latest/scale-to-width-down/1000?cb=20180620012415",
+          "sourcePage": "https://vocaloid.fandom.com/wiki/HATSUNE_MIKU_EXPO_2018_USA_%26_MEXICO",
+          "sourceLabel": "HATSUNE MIKU EXPO 2018 USA & Mexico",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2018-europe": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2018-europe.webp",
+          "originalSrc": "/posters/originals/miku-expo-2018-europe-01.webp",
+          "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/b/b9/Miku_Expo_Europe_Main_Visual.png/revision/latest?cb=20180621203951",
+          "sourcePage": "http://mikuexpo.com/europe2018/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2018 EUROPE",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2019-taiwan-hong-kong": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2019-taiwan-hong-kong.webp",
+          "originalSrc": "/posters/originals/miku-expo-2019-taiwan-hong-kong-01.jpg",
+          "sourceUrl": "https://www.ask-corp.jp/news/images/event/190508_thermaltake-hatsune-miku-expo-2019-taiwan-hongkong.jpg",
+          "sourcePage": "https://mikuexpo.com/twhk2019/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2019 Taiwan & Hong Kong",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2020-europe": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2020-europe.webp",
+          "originalSrc": "/posters/originals/miku-expo-2020-europe-01.jpg",
+          "sourceUrl": "https://i.redd.it/ugckm8uokpo31.jpg",
+          "sourcePage": "https://mikuexpo.com/europe2020/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2020 EUROPE",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2020-usa-canada": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2020-usa-canada.webp",
+          "originalSrc": "/posters/originals/miku-expo-2020-usa-canada-01.jpg",
+          "sourceUrl": "https://www.crypton.co.jp/cfm/?media_dl=3119",
+          "sourcePage": "https://mikuexpo.com/usaca2020/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2020 USA & Canada",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2021-online": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2021-online.webp",
+          "originalSrc": "/posters/originals/miku-expo-2021-online-01.jpg",
+          "sourceUrl": "https://www.crypton.co.jp/cfm/?media_dl=4467",
+          "sourcePage": "https://mikuexpo.com/online2021/index.html",
+          "sourceLabel": "HATSUNE MIKU EXPO 2021 Online",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2022-rewind": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2022-rewind.webp",
+          "originalSrc": "/posters/originals/miku-expo-2022-rewind-01.png",
+          "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/f/fa/MIKU_EXPO_Rewind_Key_Visual.jpg/revision/latest?cb=20220507195940",
+          "sourcePage": "https://mikuexpo.com/rewind2022/index.html",
+          "sourceLabel": "HATSUNE MIKU EXPO Rewind",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2022-rewind-plus": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2022-rewind-plus.webp",
+          "originalSrc": "/posters/originals/miku-expo-2022-rewind-plus-01.jpg",
+          "sourceUrl": "https://www.crypton.co.jp/cfm/wp-content/uploads/2022/09/cfm_MikuExpoRewindPlus.jpg",
+          "sourcePage": "https://www.crypton.co.jp/cfm/news/2022/08/19rewindplus",
+          "sourceLabel": "HATSUNE MIKU EXPO Rewind+",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2023-vr": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2023-vr.webp",
+          "originalSrc": "/posters/originals/miku-expo-2023-vr-01.jpg",
+          "sourceUrl": "https://mikuexpo.com/vr2023/images/crowdfunding/ME23_visual.jpg",
+          "sourcePage": "https://mikuexpo.com/vr2023/index.html",
+          "sourceLabel": "HATSUNE MIKU EXPO 2023 VR",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2024-north-america": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2024-north-america.webp",
+          "originalSrc": "/posters/originals/miku-expo-2024-north-america-01.jpg",
+          "sourceUrl": "https://www.crypton.co.jp/cfm/?media_dl=7902",
+          "sourcePage": "https://mikuexpo.com/na2024/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2024 North America",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2024-europe": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2024-europe.webp",
+          "originalSrc": "/posters/originals/miku-expo-2024-europe-01.jpg",
+          "sourceUrl": "https://www.crypton.co.jp/cfm/?media_dl=8605",
+          "sourcePage": "https://mikuexpo.com/europe2024/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2024 EUROPE",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2024-new-zealand-australia": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2024-new-zealand-australia.webp",
+          "originalSrc": "/posters/originals/miku-expo-2024-new-zealand-australia-01.jpg",
+          "sourceUrl": "https://www.crypton.co.jp/cfm/?media_dl=9051",
+          "sourcePage": "https://mikuexpo.com/nzaus2024/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2024 New Zealand & Australia",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2025-asia": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2025-asia.webp",
+          "originalSrc": "/posters/originals/miku-expo-2025-asia-01.png",
+          "sourceUrl": "https://mikuexpo.com/asia2025/images/og.jpg",
+          "sourcePage": "https://mikuexpo.com/asia2025/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2025 ASIA",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2026-north-america": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2026-north-america.webp",
+          "originalSrc": "/posters/originals/miku-expo-2026-north-america-01.jpg",
+          "sourceUrl": "https://jrocknews.com/wp-content/uploads/2025/10/miku-expo-north-america-2026-main-visual.jpg",
+          "sourcePage": "https://mikuexpo.com/na2026/",
+          "sourceLabel": "HATSUNE MIKU EXPO 2026 North America",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-expo-2026-europe": {
+      "posters": [
+        {
+          "src": "/posters/miku-expo-2026-europe.webp",
+          "originalSrc": "/posters/originals/miku-expo-2026-europe-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/HJThLNJaUAAos-G?format=jpg&name=large",
+          "sourcePage": "https://mikuexpo.com/europe2026/",
+          "sourceLabel": "MIKU EXPO 2026 EUROPE",
+          "accessedAt": "2026-11-24",
+          "artistCredit": "suzunosuke",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2017": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2017.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2017-01.webp",
+          "sourceUrl": "https://static.wikia.nocookie.net/vocaloid/images/0/04/MIKU_WITH_YOU_2017_SHANGHAI_main_visual.jpg/revision/latest?cb=20171101051243",
+          "sourcePage": "https://blog.piapro.net/2017/11/%e3%80%90%e3%81%9d%e3%81%ae%e4%bb%96%ef%bc%88%e3%82%a4%e3%83%99%e3%83%b3%e3%83%88%ef%bc%89%e3%80%91%e5%88%9d%e9%9f%b3%e3%83%9f%e3%82%af%e3%81%ae%e3%83%a9%e3%82%a4%e3%83%96%e3%82%a4%e3%83%99%e3%83%b3.html",
+          "sourceLabel": "MIKU WITH YOU 2017",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "TID",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2018": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2018.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2018-01.jpg",
+          "sourceUrl": "https://storage.moegirl.org.cn/moegirl/commons/4/47/%E6%9C%AA%E6%9D%A5%E6%9C%89%E4%BD%A02018%E4%B8%BB%E8%A7%86%E8%A7%89with%E7%AE%B1%E5%AD%90.jpg",
+          "sourcePage": "https://blog.piapro.net/2018/09/z180920-1.html",
+          "sourceLabel": "MIKU WITH YOU 2018",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "SANMUYYB",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2019": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2019.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2019-01.jpg",
+          "sourceUrl": "https://storage.moegirl.org.cn/moegirl/commons/3/3e/MWY2019_KV_FIRST.jpg",
+          "sourcePage": "https://blog.piapro.net/2019/08/zh1908051-1.html",
+          "sourceLabel": "MIKU WITH YOU 2019",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "织布机loom",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        },
+        {
+          "src": "/posters/miku-with-you-2019-2.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2019-02.jpg",
+          "sourceUrl": "https://www.scla.com.cn/Public/Uploads/ueditor/upload/image/20190820/1566265353800985.jpg",
+          "sourcePage": "https://blog.piapro.net/2019/08/zh1908051-1.html",
+          "sourceLabel": "MIKU WITH YOU 2019",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "织布机loom",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        },
+        {
+          "src": "/posters/miku-with-you-2019-3.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2019-03.jpg",
+          "sourceUrl": "https://www.scla.com.cn/Public/Uploads/ueditor/upload/image/20190820/1566265402261857.jpg",
+          "sourcePage": "https://blog.piapro.net/2019/08/zh1908051-1.html",
+          "sourceLabel": "MIKU WITH YOU 2019",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "织布机loom",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        },
+        {
+          "src": "/posters/miku-with-you-2019-4.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2019-04.jpg",
+          "sourceUrl": "https://www.scla.com.cn/Public/Uploads/ueditor/upload/image/20190820/1566265421188834.jpg",
+          "sourcePage": "https://blog.piapro.net/2019/08/zh1908051-1.html",
+          "sourceLabel": "MIKU WITH YOU 2019",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "织布机loom",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        },
+        {
+          "src": "/posters/miku-with-you-2019-5.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2019-05.jpg",
+          "sourceUrl": "https://www.scla.com.cn/Public/Uploads/ueditor/upload/image/20190820/1566265435476385.jpg",
+          "sourcePage": "https://blog.piapro.net/2019/08/zh1908051-1.html",
+          "sourceLabel": "MIKU WITH YOU 2019",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "织布机loom",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2020": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2020.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2020-01.jpg",
+          "sourceUrl": "https://storage.moegirl.org.cn/moegirl/commons/8/85/MWY2020.jpg!/fw/800/watermark/url/L21vZWdpcmwvd2F0ZXJtYXJrLnBuZw==/align/southeast/margin/10x10/opacity/50?v=20201201144521",
+          "sourcePage": "https://blog.piapro.net/2020/10/zh2010211.html",
+          "sourceLabel": "MIKU WITH YOU 2020",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Bison仓鼠",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2021": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2021.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2021-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FCTFL_8VIAQ7ZFM?format=jpg&name=large",
+          "sourcePage": "https://zh.moegirl.org.cn/zh-hans/%E6%9C%AA%E6%9D%A5%E6%9C%89%E4%BD%A0%C2%B7%E5%88%9D%E9%9F%B3%E6%9C%AA%E6%9D%A52021%E6%BC%94%E5%94%B1%E4%BC%9A",
+          "sourceLabel": "MIKU WITH YOU 2021",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2024": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2024.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2024-01.avif",
+          "sourceUrl": "https://i2.hdslb.com/bfs/new_dyn/dd9250ebfbb9eea44e3c2977eea55318399918500.jpg@1052w_!web-dynamic.avif",
+          "sourcePage": "https://www.bilibili.com/opus/940523105397243909",
+          "sourceLabel": "MIKU WITH YOU 2024",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "影欣望远镜",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2025": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2025.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2025-01.jpg",
+          "sourceUrl": "https://storage.moegirl.org.cn/moegirl/commons/7/7c/Mwy2025.jpg",
+          "sourcePage": "https://www.scla.com.cn/Cn/Index/pageView/catid/16/id/931/ip/16.html",
+          "sourceLabel": "MIKU WITH YOU 2025",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rumoon",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-with-you-2026": {
+      "posters": [
+        {
+          "src": "/posters/miku-with-you-2026.webp",
+          "originalSrc": "/posters/originals/miku-with-you-2026-01.jpg",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2026/11/ft26111311.jpg",
+          "sourcePage": "https://blog.piapro.net/2026/11/ft2611131.html",
+          "sourceLabel": "MIKU WITH YOU 2026",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "归零不是龟苓膏",
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "snow-miku-live-2015": {
+      "posters": [
+        {
+          "src": "/posters/snow-miku-live-2015.webp",
+          "originalSrc": "/posters/originals/snow-miku-live-2015-01.jpg",
+          "sourceUrl": "https://snowmiku.com/2015/images/live_main.jpg",
+          "sourcePage": "https://snowmiku.com/2015/live_ticket.html",
+          "sourceLabel": "SNOW MIKU LIVE! 2015",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "snow-miku-live-2018": {
+      "posters": [
+        {
+          "src": "/posters/snow-miku-live-2018.webp",
+          "originalSrc": "/posters/originals/snow-miku-live-2018-01.jpg",
+          "sourceUrl": "https://snowmiku.com/2018/images/og.jpg",
+          "sourcePage": "http://snowmiku.com/2018/live_ticket.html",
+          "sourceLabel": "SNOW MIKU LIVE! 2018",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        },
+        {
+          "src": "/posters/snow-miku-live-2018-2.webp",
+          "originalSrc": "/posters/originals/snow-miku-live-2018-02.jpg",
+          "sourceUrl": "https://www.crypton.co.jp/cfm/?media_dl=2021",
+          "sourcePage": "http://snowmiku.com/2018/live_ticket.html",
+          "sourceLabel": "SNOW MIKU LIVE! 2018",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "snow-miku-live-2019": {
+      "posters": [
+        {
+          "src": "/posters/snow-miku-live-2019.webp",
+          "originalSrc": "/posters/originals/snow-miku-live-2019-01.jpg",
+          "sourceUrl": "https://snowmiku.com/2019/images/og.jpg",
+          "sourcePage": "https://snowmiku.com/2019/live_zepp.html",
+          "sourceLabel": "SNOW MIKU LIVE! 2019",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "snow-miku-live-2027": {
+      "posters": [
+        {
+          "src": "/posters/snow-miku-live-2027.webp",
+          "originalSrc": "/posters/originals/snow-miku-live-2027-01.webp",
+          "sourceUrl": "https://snowmiku.com/2027/images/og.webp",
+          "sourcePage": "https://snowmiku.com/2027/",
+          "sourceLabel": "SNOW MIKU LIVE! 2027",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "hatsune-miku-x-kodo-2026": {
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-x-kodo-2026.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-x-kodo-2026-01.webp",
+          "sourceUrl": "https://kyouen-kodo-miku.com/img/main-visual.jpg",
+          "sourcePage": "https://kyouen-kodo-miku.com/",
+          "sourceLabel": "鼓童×初音ミク 響演 公式サイト",
+          "accessedAt": "2026-11-24",
+          "artistCredit": "ゼンマイブック",
+          "rightsNote": "Official event main visual, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
+    },
+    "hatsune-miku-symphony-2025": {
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2025.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2025-01.jpg",
+          "sourceUrl": "https://sp.wmg.jp/mikusymphony/ogp2025.jpg",
+          "sourcePage": "https://blog.piapro.net/2024/10/fr2410071.html",
+          "sourceLabel": "初音ミクシンフォニー 2025",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "japan-tour-2023-thunderbolt": {
+      "posters": [
+        {
+          "src": "/posters/japan-tour-2023-thunderbolt.webp",
+          "originalSrc": "/posters/originals/japan-tour-2023-thunderbolt-01.jpg",
+          "sourceUrl": "https://piapro.net/japantour2023/images/og.jpg",
+          "sourcePage": "https://piapro.net/japantour2023/",
+          "sourceLabel": "初音ミク JAPAN TOUR 2023 〜THUNDERBOLT〜",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "japan-live-tour-2025-blooming": {
+      "posters": [
+        {
+          "src": "/posters/japan-live-tour-2025-blooming.webp",
+          "originalSrc": "/posters/originals/japan-live-tour-2025-blooming-01.webp",
+          "sourceUrl": "https://piapro.net/japantour2025/images/mainvisual_miku_tmb.webp",
+          "sourcePage": "https://piapro.net/japantour2025/",
+          "sourceLabel": "初音ミク JAPAN LIVE TOUR 2025 ～BLOOMING～",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "miku-fes-2024": {
+      "posters": [
+        {
+          "src": "/posters/miku-fes-2024.webp",
+          "originalSrc": "/posters/originals/miku-fes-2024-01.png",
+          "sourceUrl": "https://mikufes24spring.jp/wp-content/themes/mikufes_theme/img/visual.png",
+          "sourcePage": "https://mikufes24spring.jp/",
+          "sourceLabel": "MIKU FES '24（春）",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "project-voltage-live-2026": {
+      "posters": [
+        {
+          "src": "/posters/project-voltage-live-2026.webp",
+          "originalSrc": "/posters/originals/project-voltage-live-2026-01.png",
+          "sourceUrl": "https://www.project-voltage.jp/assets/img/OGP_1200_630.png",
+          "sourcePage": "https://www.project-voltage.jp/live2026/",
+          "sourceLabel": "ポケモン feat. 初音ミク VOLTAGE Live！",
+          "accessedAt": "2026-11-24",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
+    },
+    "wowow-2014": {
+      "posters": [
+        {
+          "src": "/posters/wowow-2014.webp",
+          "originalSrc": "/posters/originals/wowow-2014-01.png",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2014/10/Z20141007_01.png",
+          "sourcePage": "https://blog.piapro.net/2014/10/z1410071-1.html",
+          "sourceLabel": "初音ミク公式ブログ",
+          "accessedAt": "2026-11-24",
+          "artistCredit": "てもし",
+          "rightsNote": "Official Piapro blog main visual for the WOWOW 2014 special live, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
+    },
+    "hatsune-miku-symphony-2020": {
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2020.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2020-01.webp",
+          "sourceUrl": "https://voca.wiki/images/f/f5/Miku_Symphony_2020.png",
+          "sourcePage": "https://voca.wiki/File:Miku_Symphony_2020.png",
+          "sourceLabel": "初音ミクシンフォニー 2020",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rella",
+          "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
+    },
+    "hatsune-miku-symphony-2022": {
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2022.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2022-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2022/03/U220316_main.jpg",
+          "sourcePage": "https://blog.piapro.net/2022/03/u2203161_1.html",
+          "sourceLabel": "初音ミクシンフォニー 2022",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rella",
+          "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
+    },
+    "hatsune-miku-symphony-2026": {
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2026.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2026-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2026/05/ob26052211.jpg",
+          "sourcePage": "https://blog.piapro.net/2026/05/ob2605221.html",
+          "sourceLabel": "初音ミクシンフォニー 2026",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rella",
+          "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
+    },
+    "hatsune-miku-symphony-2026-2027": {
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2026-2027.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2026-2027-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2026/09/ob26091611.jpg",
+          "sourcePage": "https://blog.piapro.net/2026/09/ob2609161.html",
+          "sourceLabel": "初音ミクシンフォニー 2026-2027 Melodies on the Keys",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "泉彩",
+          "rightsNote": "Official event visual by 泉彩, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
+    },
+    "decomiku-live-2026": {
+      "posters": [
+        {
+          "src": "/posters/decomiku-live-2026.webp",
+          "originalSrc": "/posters/originals/decomiku-live-2026-01.webp",
+          "sourceUrl": "https://otoiro.co.jp/wp/wp-content/uploads/2025/07/DML26_CO_KV.png",
+          "sourcePage": "https://otoiro.co.jp/live/decomikulive2026",
+          "sourceLabel": "デコミク LIVE starring 初音ミク『Hello』",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "おむたつ",
+          "rightsNote": "Official event visual by おむたつ, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-x-kodo-2017": {
-      "src": "/posters/hatsune-miku-x-kodo-2017.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2017/01/P1701261-2.jpg",
-      "sourcePage": "https://blog.piapro.net/2017/01/p1701261-1.html",
-      "sourceLabel": "初音ミク×鼓童 2017",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-x-kodo-2017.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-x-kodo-2017-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2017/01/P1701261-2.jpg",
+          "sourcePage": "https://blog.piapro.net/2017/01/p1701261-1.html",
+          "sourceLabel": "初音ミク×鼓童 2017",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-x-kodo-2018": {
-      "src": "/posters/hatsune-miku-x-kodo-2018.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2018/04/mon1804211_02.png",
-      "sourcePage": "https://blog.piapro.net/2018/04/mon1804211.html",
-      "sourceLabel": "初音ミク×鼓童 2018",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-x-kodo-2018.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-x-kodo-2018-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2018/04/mon1804211_02.png",
+          "sourcePage": "https://blog.piapro.net/2018/04/mon1804211.html",
+          "sourceLabel": "初音ミク×鼓童 2018",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-x-kodo-2020": {
-      "src": "/posters/hatsune-miku-x-kodo-2020.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2020/02/f2002051-3.png",
-      "sourcePage": "https://blog.piapro.net/2020/02/f2002051-1.html",
-      "sourceLabel": "初音ミク×鼓童 2020",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-x-kodo-2020.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-x-kodo-2020-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2020/02/f2002051-3.png",
+          "sourcePage": "https://blog.piapro.net/2020/02/f2002051-1.html",
+          "sourceLabel": "初音ミク×鼓童 2020",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-x-kodo-2023": {
-      "src": "/posters/hatsune-miku-x-kodo-2023.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2023/02/mon2302151-2.jpg",
-      "sourcePage": "https://blog.piapro.net/2023/02/mon2302151.html",
-      "sourceLabel": "初音ミク×鼓童 2023",
-      "accessedAt": "2026-11-28",
-      "artistCredit": null,
-      "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-x-kodo-2023.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-x-kodo-2023-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2023/02/mon2302151-2.jpg",
+          "sourcePage": "https://blog.piapro.net/2023/02/mon2302151.html",
+          "sourceLabel": "初音ミク×鼓童 2023",
+          "accessedAt": "2026-11-28",
+          "artistCredit": null,
+          "rightsNote": "Official event visual, used for identification on this unofficial catalog. Not an official endorsement."
+        }
+      ]
     },
     "galaxy-live-2020": {
-      "src": "/posters/galaxy-live-2020.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2020/09/a2009031-2.jpg",
-      "sourcePage": "https://blog.piapro.net/2020/09/a2009031.html",
-      "sourceLabel": "初音ミク GALAXY LIVE 2020",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "のう",
-      "rightsNote": "Official event visual by のう, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/galaxy-live-2020.webp",
+          "originalSrc": "/posters/originals/galaxy-live-2020-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2020/09/a2009031-2.jpg",
+          "sourcePage": "https://blog.piapro.net/2020/09/a2009031.html",
+          "sourceLabel": "初音ミク GALAXY LIVE 2020",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "のう",
+          "rightsNote": "Official event visual by のう, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "galaxy-live-2021": {
-      "src": "/posters/galaxy-live-2021.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2021/09/a2109171-2-1.png",
-      "sourcePage": "https://blog.piapro.net/2021/09/a2109171.html",
-      "sourceLabel": "初音ミク GALAXY LIVE 2021",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "れおえん",
-      "rightsNote": "Official event visual by れおえん, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/galaxy-live-2021.webp",
+          "originalSrc": "/posters/originals/galaxy-live-2021-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2021/09/a2109171-2-1.png",
+          "sourcePage": "https://blog.piapro.net/2021/09/a2109171.html",
+          "sourceLabel": "初音ミク GALAXY LIVE 2021",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "れおえん",
+          "rightsNote": "Official event visual by れおえん, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "lawson-50th-2026": {
-      "src": "/posters/lawson-50th-2026.webp",
-      "sourceUrl": "https://cdn.l-tike.com/concert/lawson50th_260117_0118/img/kv.jpg",
-      "sourcePage": "https://l-tike.com/concert/lawson50th_260117_0118/",
-      "sourceLabel": "初音ミク LAWSON 50th Anniversary Special LIVE",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "はねこと",
-      "rightsNote": "Official event visual by はねこと, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/lawson-50th-2026.webp",
+          "originalSrc": "/posters/originals/lawson-50th-2026-01.webp",
+          "sourceUrl": "https://cdn.l-tike.com/concert/lawson50th_260117_0118/img/kv.jpg",
+          "sourcePage": "https://l-tike.com/concert/lawson50th_260117_0118/",
+          "sourceLabel": "初音ミク LAWSON 50th Anniversary Special LIVE",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "はねこと",
+          "rightsNote": "Official event visual by はねこと, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-symphony-2017": {
-      "src": "/posters/hatsune-miku-symphony-2017.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2017/10/g1711011.jpg",
-      "sourcePage": "https://blog.piapro.net/2017/11/g171101.html",
-      "sourceLabel": "初音ミクシンフォニー 2017",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "KEI",
-      "rightsNote": "Official event visual by KEI, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2017.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2017-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2017/10/g1711011.jpg",
+          "sourcePage": "https://blog.piapro.net/2017/11/g171101.html",
+          "sourceLabel": "初音ミクシンフォニー 2017",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "KEI",
+          "rightsNote": "Official event visual by KEI, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-symphony-2018": {
-      "src": "/posters/hatsune-miku-symphony-2018.webp",
-      "sourceUrl": "https://voca.wiki/images/9/95/%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%82%B7%E3%83%B3%E3%83%95%E3%82%A9%E3%83%8B%E3%83%BC2018-2019.png",
-      "sourcePage": "https://voca.wiki/File:%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%82%B7%E3%83%B3%E3%83%95%E3%82%A9%E3%83%8B%E3%83%BC2018-2019.png",
-      "sourceLabel": "初音ミクシンフォニー 2018-2019",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "Rella",
-      "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2018.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2018-01.webp",
+          "sourceUrl": "https://voca.wiki/images/9/95/%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%82%B7%E3%83%B3%E3%83%95%E3%82%A9%E3%83%8B%E3%83%BC2018-2019.png",
+          "sourcePage": "https://voca.wiki/File:%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%82%B7%E3%83%B3%E3%83%95%E3%82%A9%E3%83%8B%E3%83%BC2018-2019.png",
+          "sourceLabel": "初音ミクシンフォニー 2018-2019",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rella",
+          "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-symphony-2019": {
-      "src": "/posters/hatsune-miku-symphony-2019.webp",
-      "sourceUrl": "https://voca.wiki/images/5/56/Miku_Symphony_2019%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.png",
-      "sourcePage": "https://voca.wiki/File:Miku_Symphony_2019%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.png",
-      "sourceLabel": "初音ミクシンフォニー 2019",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "Rella",
-      "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2019.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2019-01.webp",
+          "sourceUrl": "https://voca.wiki/images/5/56/Miku_Symphony_2019%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.png",
+          "sourcePage": "https://voca.wiki/File:Miku_Symphony_2019%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.png",
+          "sourceLabel": "初音ミクシンフォニー 2019",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rella",
+          "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-symphony-2021": {
-      "src": "/posters/hatsune-miku-symphony-2021.webp",
-      "sourceUrl": "https://voca.wiki/images/8/83/Miku_Symphony_2021%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.jpeg",
-      "sourcePage": "https://voca.wiki/File:Miku_Symphony_2021%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.jpeg",
-      "sourceLabel": "初音ミクシンフォニー 2021",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "Rella",
-      "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2021.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2021-01.webp",
+          "sourceUrl": "https://voca.wiki/images/8/83/Miku_Symphony_2021%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.jpeg",
+          "sourcePage": "https://voca.wiki/File:Miku_Symphony_2021%E4%B8%BB%E8%A7%86%E8%A7%89%E5%9B%BE2.jpeg",
+          "sourceLabel": "初音ミクシンフォニー 2021",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rella",
+          "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     },
     "hatsune-miku-symphony-2023": {
-      "src": "/posters/hatsune-miku-symphony-2023.webp",
-      "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2023/02/main-visual.jpg",
-      "sourcePage": "https://blog.piapro.net/2023/02/e230201.html",
-      "sourceLabel": "初音ミクシンフォニー 2023",
-      "accessedAt": "2026-11-28",
-      "artistCredit": "Rella",
-      "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+      "posters": [
+        {
+          "src": "/posters/hatsune-miku-symphony-2023.webp",
+          "originalSrc": "/posters/originals/hatsune-miku-symphony-2023-01.webp",
+          "sourceUrl": "https://blog.piapro.net/wp-content/uploads/2023/02/main-visual.jpg",
+          "sourcePage": "https://blog.piapro.net/2023/02/e230201.html",
+          "sourceLabel": "初音ミクシンフォニー 2023",
+          "accessedAt": "2026-11-28",
+          "artistCredit": "Rella",
+          "rightsNote": "Official event visual by Rella, used for identification on this unofficial catalog, with attribution. Not an official endorsement."
+        }
+      ]
     }
   }
 }
