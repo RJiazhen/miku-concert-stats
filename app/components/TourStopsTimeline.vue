@@ -183,11 +183,15 @@ const stopAriaLabel = (stop: OrderedStop): string =>
       class="tour-snake-row relative grid w-full items-start"
       :style="{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }"
     >
+      <!--
+        Overlays must pin to the single row track; otherwise grid auto-placement
+        treats them as items and staircases reverse-order stops onto new rows.
+      -->
       <div
         v-for="(segment, segmentIndex) in row.segments"
         :key="`rail-${segmentIndex}`"
         class="tour-snake-rail-track pointer-events-none absolute top-[11px] h-0.5"
-        :style="segment.style"
+        :style="{ ...segment.style, gridColumn: '1 / -1', gridRow: '1' }"
         aria-hidden="true"
       />
 
@@ -195,14 +199,18 @@ const stopAriaLabel = (stop: OrderedStop): string =>
       <div
         v-if="row.turnCol !== null"
         class="tour-snake-turn pointer-events-none absolute"
-        :style="{ left: `${(row.turnCol * 100) / columns}%`, width: `${100 / columns}%` }"
+        :style="{
+          left: `${(row.turnCol * 100) / columns}%`,
+          width: `${100 / columns}%`,
+          gridColumn: '1 / -1',
+          gridRow: '1',
+        }"
         aria-hidden="true"
       />
 
       <!--
-        Grid columns stay equal even when pe-2 pads the node. Incomplete RTL
-        rows place stops via gridColumn so they still pack under the right-side
-        U-turn (pads are just empty tracks — no flex width skew).
+        Equal grid tracks avoid flex pe-2 skew. Explicit gridRow keeps every
+        stop on one line when RTL columns are assigned high→low.
       -->
       <button
         v-for="(stop, slot) in row.stops"
@@ -216,7 +224,10 @@ const stopAriaLabel = (stop: OrderedStop): string =>
             ? 'text-primary'
             : 'text-muted hover:text-highlighted',
         ]"
-        :style="{ gridColumn: row.reversed ? columns - slot : slot + 1 }"
+        :style="{
+          gridColumn: row.reversed ? columns - slot : slot + 1,
+          gridRow: 1,
+        }"
         :aria-label="stopAriaLabel(stop)"
         :aria-current="String(stop.performanceId) === modelValue ? 'true' : undefined"
         @click="selectStop(stop.performanceId)"
